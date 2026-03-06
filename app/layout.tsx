@@ -9,8 +9,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'Igreja Simão de Jová - Quadro de Anúncios',
-  description: 'Sistema de gerenciamento de anúncios e CRM da Igreja Simão de Jová',
+  title: 'Quadro de Anuncios',
+  description: 'Sistema de gerenciamento de quadro de anuncios',
   generator: 'v0.app',
   icons: {
     icon: [

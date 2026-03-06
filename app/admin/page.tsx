@@ -1,4 +1,4 @@
-import { Users, Megaphone, Eye, TrendingUp } from "lucide-react"
+import { Users, UserCheck, Shield, Flag } from "lucide-react"
 import { StatsCard } from "@/components/admin/stats-card"
 import { MembrosChart, AnunciosChart } from "@/components/admin/dashboard-charts"
 import { RecentActivity } from "@/components/admin/recent-activity"
@@ -12,41 +12,37 @@ export default function AdminDashboard() {
           Dashboard
         </h1>
         <p className="text-muted-foreground">
-          Bem-vindo ao painel administrativo da Igreja Simao de Jova
+          Bem-vindo ao painel administrativo do Quadro de Anuncios
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title="Total de Membros"
-          value="183"
-          description="Membros ativos"
+          title="Total de Publicadores"
+          value="0"
+          description="Publicadores ativos"
           icon={Users}
-          trend={{ value: 12, isPositive: true }}
           variant="primary"
         />
         <StatsCard
-          title="Anuncios Ativos"
-          value="8"
-          description="Publicados este mes"
-          icon={Megaphone}
-          trend={{ value: 5, isPositive: true }}
-        />
-        <StatsCard
-          title="Visualizacoes"
-          value="1.284"
-          description="Total este mes"
-          icon={Eye}
-          trend={{ value: 18, isPositive: true }}
+          title="Total de Anciaos"
+          value="0"
+          description="Anciaos ativos"
+          icon={UserCheck}
           variant="accent"
         />
         <StatsCard
-          title="Engajamento"
-          value="89%"
-          description="Taxa de leitura"
-          icon={TrendingUp}
-          trend={{ value: 3, isPositive: true }}
+          title="Total de Servos Ministeriais"
+          value="0"
+          description="Servos ministeriais ativos"
+          icon={Shield}
+        />
+        <StatsCard
+          title="Total de Pioneiros"
+          value="0"
+          description="Pioneiros ativos"
+          icon={Flag}
         />
       </div>
 
