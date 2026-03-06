@@ -1,8 +1,18 @@
+"use client"
+
 import { Users, UserCheck, Shield, Flag } from "lucide-react"
 import { StatsCard } from "@/components/admin/stats-card"
-import { QuickAccessCards } from "@/components/admin/quick-access-cards"
+import { usePublicadoresStore } from "@/lib/store/publicadores"
 
 export default function AdminDashboard() {
+  const { publicadores } = usePublicadoresStore()
+  
+  const totalAtivos = publicadores.filter((p) => p.ativo).length
+  const totalAnciaos = publicadores.filter((p) => p.anciao && p.ativo).length
+  const totalServos = publicadores.filter((p) => p.servoMinisterial && p.ativo).length
+  const totalPioneirosRegulares = publicadores.filter((p) => p.pioneiroRegular && p.ativo).length
+  const totalPioneirosAuxiliares = publicadores.filter((p) => p.pioneiroAuxiliar && p.ativo).length
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -19,34 +29,36 @@ export default function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Total de Publicadores"
-          value="0"
-          description="Publicadores ativos"
+          value={totalAtivos}
+          description="Clique para ver todos"
           icon={Users}
+          href="/admin/publicadores"
           variant="primary"
         />
         <StatsCard
           title="Total de Anciãos"
-          value="0"
-          description="Anciãos ativos"
+          value={totalAnciaos}
+          description="Clique para ver todos"
           icon={UserCheck}
+          href="/admin/publicadores/anciaos"
           variant="accent"
         />
         <StatsCard
           title="Total de Servos Ministeriais"
-          value="0"
-          description="Servos ministeriais ativos"
+          value={totalServos}
+          description="Clique para ver todos"
           icon={Shield}
+          href="/admin/publicadores/servos-ministeriais"
         />
         <StatsCard
           title="Total de Pioneiros"
-          value="0"
-          description="Pioneiros ativos"
+          value={totalPioneirosRegulares}
+          description="Clique para ver todos"
           icon={Flag}
+          href="/admin/publicadores/pioneiros-regulares"
+          badge={{ label: "Auxiliares", value: totalPioneirosAuxiliares }}
         />
       </div>
-
-      {/* Quick Access Cards */}
-      <QuickAccessCards />
     </div>
   )
 }

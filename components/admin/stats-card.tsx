@@ -1,5 +1,9 @@
+"use client"
+
+import Link from "next/link"
 import { LucideIcon } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 interface StatsCardProps {
@@ -7,9 +11,10 @@ interface StatsCardProps {
   value: string | number
   description?: string
   icon: LucideIcon
-  trend?: {
-    value: number
-    isPositive: boolean
+  href?: string
+  badge?: {
+    label: string
+    value: string | number
   }
   variant?: "default" | "primary" | "accent"
 }
@@ -19,55 +24,59 @@ export function StatsCard({
   value,
   description,
   icon: Icon,
-  trend,
+  href,
+  badge,
   variant = "default",
 }: StatsCardProps) {
+  const CardWrapper = href ? Link : "div"
+  const cardProps = href ? { href } : {}
+
   return (
-    <Card className={cn(
-      "border-border bg-card",
-      variant === "primary" && "border-primary/30 bg-primary/5",
-      variant === "accent" && "border-accent/30 bg-accent/5"
-    )}>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-muted-foreground">
-              {title}
-            </span>
-            <span className="text-3xl font-bold text-foreground">{value}</span>
-            {description && (
-              <span className="text-xs text-muted-foreground">{description}</span>
-            )}
-            {trend && (
-              <span
-                className={cn(
-                  "text-xs font-medium",
-                  trend.isPositive ? "text-green-500" : "text-red-500"
+    <CardWrapper {...cardProps} className="block">
+      <Card className={cn(
+        "border-border bg-card transition-all duration-200",
+        href && "cursor-pointer hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10",
+        variant === "primary" && "border-primary/30 bg-primary/5",
+        variant === "accent" && "border-accent/30 bg-accent/5"
+      )}>
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">
+                  {title}
+                </span>
+                {badge && (
+                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                    {badge.label}: {badge.value}
+                  </Badge>
                 )}
-              >
-                {trend.isPositive ? "+" : "-"}{Math.abs(trend.value)}% em relacao ao mes anterior
-              </span>
-            )}
-          </div>
-          <div
-            className={cn(
-              "flex h-12 w-12 items-center justify-center rounded-lg",
-              variant === "default" && "bg-secondary",
-              variant === "primary" && "bg-primary",
-              variant === "accent" && "bg-accent"
-            )}
-          >
-            <Icon
-              className={cn(
-                "h-6 w-6",
-                variant === "default" && "text-foreground",
-                variant === "primary" && "text-primary-foreground",
-                variant === "accent" && "text-accent-foreground"
+              </div>
+              <span className="text-3xl font-bold text-foreground">{value}</span>
+              {description && (
+                <span className="text-xs text-muted-foreground">{description}</span>
               )}
-            />
+            </div>
+            <div
+              className={cn(
+                "flex h-12 w-12 items-center justify-center rounded-lg",
+                variant === "default" && "bg-secondary",
+                variant === "primary" && "bg-primary",
+                variant === "accent" && "bg-accent"
+              )}
+            >
+              <Icon
+                className={cn(
+                  "h-6 w-6",
+                  variant === "default" && "text-foreground",
+                  variant === "primary" && "text-primary-foreground",
+                  variant === "accent" && "text-accent-foreground"
+                )}
+              />
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </CardWrapper>
   )
 }

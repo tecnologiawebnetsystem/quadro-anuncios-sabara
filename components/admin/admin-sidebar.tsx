@@ -49,8 +49,7 @@ const menuItems = [
     icon: Users,
     href: "/admin/publicadores",
     subItems: [
-      { title: "Todos os Publicadores", href: "/admin/publicadores" },
-      { title: "Novos Publicadores", href: "/admin/publicadores/novos" },
+      { title: "Todos", href: "/admin/publicadores" },
       { title: "Anciãos", href: "/admin/publicadores/anciaos" },
       { title: "Servos Ministeriais", href: "/admin/publicadores/servos-ministeriais" },
       { title: "Pioneiros Regulares", href: "/admin/publicadores/pioneiros-regulares" },
