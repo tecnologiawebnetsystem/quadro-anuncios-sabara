@@ -41,28 +41,28 @@ export function AdminHeader() {
               <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-primary p-0 text-xs text-primary-foreground">
                 3
               </Badge>
-              <span className="sr-only">Notificacoes</span>
+              <span className="sr-only">Notificações</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel>Notificacoes</DropdownMenuLabel>
+            <DropdownMenuLabel>Notificações</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="flex flex-col items-start gap-1 py-3">
               <span className="font-medium">Novo membro cadastrado</span>
               <span className="text-xs text-muted-foreground">
-                Maria Silva se cadastrou ha 5 minutos
+                Maria Silva se cadastrou há 5 minutos
               </span>
             </DropdownMenuItem>
             <DropdownMenuItem className="flex flex-col items-start gap-1 py-3">
-              <span className="font-medium">Evento proximo</span>
+              <span className="font-medium">Evento próximo</span>
               <span className="text-xs text-muted-foreground">
-                Culto de domingo em 2 dias
+                Reunião de domingo em 2 dias
               </span>
             </DropdownMenuItem>
             <DropdownMenuItem className="flex flex-col items-start gap-1 py-3">
               <span className="font-medium">Anuncio expirando</span>
               <span className="text-xs text-muted-foreground">
-                Anuncio de campanha expira amanha
+                Anúncio de campanha expira amanhã
               </span>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -78,7 +78,7 @@ export function AdminHeader() {
             <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Perfil</DropdownMenuItem>
-            <DropdownMenuItem>Configuracoes</DropdownMenuItem>
+            <DropdownMenuItem>Configurações</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive">Sair</DropdownMenuItem>
           </DropdownMenuContent>

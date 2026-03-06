@@ -9,6 +9,7 @@ import {
   Settings,
   ChevronDown,
   Church,
+  ShieldCheck,
 } from "lucide-react"
 import {
   Sidebar,
@@ -39,7 +40,7 @@ const menuItems = [
     href: "/admin",
   },
   {
-    title: "Anuncios",
+    title: "Anúncios",
     icon: Megaphone,
     href: "/admin/anuncios",
   },
@@ -50,10 +51,22 @@ const menuItems = [
     subItems: [
       { title: "Todos os Publicadores", href: "/admin/publicadores" },
       { title: "Novos Publicadores", href: "/admin/publicadores/novos" },
-      { title: "Anciaos", href: "/admin/publicadores/anciaos" },
+      { title: "Anciãos", href: "/admin/publicadores/anciaos" },
       { title: "Servos Ministeriais", href: "/admin/publicadores/servos-ministeriais" },
       { title: "Pioneiros Regulares", href: "/admin/publicadores/pioneiros-regulares" },
       { title: "Pioneiros Auxiliares", href: "/admin/publicadores/pioneiros-auxiliares" },
+    ],
+  },
+  {
+    title: "Alçadas",
+    icon: ShieldCheck,
+    href: "/admin/alcadas",
+    subItems: [
+      { title: "Todas as Alçadas", href: "/admin/alcadas" },
+      { title: "Alçada de Anciãos", href: "/admin/alcadas/anciaos" },
+      { title: "Alçada de Servos", href: "/admin/alcadas/servos" },
+      { title: "Alçada de Pioneiros", href: "/admin/alcadas/pioneiros" },
+      { title: "Alçada de Publicadores", href: "/admin/alcadas/publicadores" },
     ],
   },
 ]
@@ -70,7 +83,7 @@ export function AdminSidebar() {
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-sidebar-foreground">
-              Quadro de Anuncios
+              Quadro de Anúncios
             </span>
           </div>
         </Link>
@@ -140,7 +153,7 @@ export function AdminSidebar() {
                 <SidebarMenuButton asChild isActive={pathname === "/admin/configuracoes"}>
                   <Link href="/admin/configuracoes" className="flex items-center gap-3">
                     <Settings className="h-4 w-4" />
-                    <span>Configuracoes</span>
+                    <span>Configurações</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

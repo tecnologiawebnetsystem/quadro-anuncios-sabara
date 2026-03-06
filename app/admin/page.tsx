@@ -11,7 +11,7 @@ export default function AdminDashboard() {
           Dashboard
         </h1>
         <p className="text-muted-foreground">
-          Bem-vindo ao painel administrativo do Quadro de Anuncios
+          Bem-vindo ao painel administrativo do Quadro de Anúncios
         </p>
       </div>
 
@@ -25,9 +25,9 @@ export default function AdminDashboard() {
           variant="primary"
         />
         <StatsCard
-          title="Total de Anciaos"
+          title="Total de Anciãos"
           value="0"
-          description="Anciaos ativos"
+          description="Anciãos ativos"
           icon={UserCheck}
           variant="accent"
         />

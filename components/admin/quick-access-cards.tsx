@@ -65,7 +65,7 @@ const iconColors = {
 export function QuickAccessCards() {
   return (
     <div>
-      <h2 className="mb-4 text-lg font-semibold text-foreground">Acesso Rapido</h2>
+      <h2 className="mb-4 text-lg font-semibold text-foreground">Acesso Rápido</h2>
       <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         {quickCards.map((card) => {
           const Icon = card.icon
