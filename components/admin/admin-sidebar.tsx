@@ -44,13 +44,16 @@ const menuItems = [
     href: "/admin/anuncios",
   },
   {
-    title: "Membros",
+    title: "Publicadores",
     icon: Users,
-    href: "/admin/membros",
+    href: "/admin/publicadores",
     subItems: [
-      { title: "Todos os Membros", href: "/admin/membros" },
-      { title: "Novos Membros", href: "/admin/membros/novos" },
-      { title: "Lideranca", href: "/admin/membros/lideranca" },
+      { title: "Todos os Publicadores", href: "/admin/publicadores" },
+      { title: "Novos Publicadores", href: "/admin/publicadores/novos" },
+      { title: "Anciaos", href: "/admin/publicadores/anciaos" },
+      { title: "Servos Ministeriais", href: "/admin/publicadores/servos-ministeriais" },
+      { title: "Pioneiros Regulares", href: "/admin/publicadores/pioneiros-regulares" },
+      { title: "Pioneiros Auxiliares", href: "/admin/publicadores/pioneiros-auxiliares" },
     ],
   },
 ]
