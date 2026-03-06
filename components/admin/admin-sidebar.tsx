@@ -6,12 +6,9 @@ import {
   LayoutDashboard,
   Megaphone,
   Users,
-  Calendar,
   Settings,
   ChevronDown,
   Church,
-  Heart,
-  BookOpen,
 } from "lucide-react"
 import {
   Sidebar,
@@ -55,21 +52,6 @@ const menuItems = [
       { title: "Novos Membros", href: "/admin/membros/novos" },
       { title: "Lideranca", href: "/admin/membros/lideranca" },
     ],
-  },
-  {
-    title: "Eventos",
-    icon: Calendar,
-    href: "/admin/eventos",
-  },
-  {
-    title: "Ministerios",
-    icon: Heart,
-    href: "/admin/ministerios",
-  },
-  {
-    title: "Estudos",
-    icon: BookOpen,
-    href: "/admin/estudos",
   },
 ]
 
