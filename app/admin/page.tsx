@@ -1,8 +1,7 @@
-import { Users, Megaphone, Calendar, Heart } from "lucide-react"
+import { Users, Megaphone, Eye, TrendingUp } from "lucide-react"
 import { StatsCard } from "@/components/admin/stats-card"
-import { MembrosChart, EventosChart, MinisteriosChart } from "@/components/admin/dashboard-charts"
+import { MembrosChart, AnunciosChart } from "@/components/admin/dashboard-charts"
 import { RecentActivity } from "@/components/admin/recent-activity"
-import { UpcomingEvents } from "@/components/admin/upcoming-events"
 
 export default function AdminDashboard() {
   return (
@@ -35,39 +34,30 @@ export default function AdminDashboard() {
           trend={{ value: 5, isPositive: true }}
         />
         <StatsCard
-          title="Eventos Agendados"
-          value="12"
-          description="Proximos 30 dias"
-          icon={Calendar}
-          trend={{ value: 8, isPositive: true }}
+          title="Visualizacoes"
+          value="1.284"
+          description="Total este mes"
+          icon={Eye}
+          trend={{ value: 18, isPositive: true }}
           variant="accent"
         />
         <StatsCard
-          title="Ministerios"
-          value="6"
-          description="Ministerios ativos"
-          icon={Heart}
+          title="Engajamento"
+          value="89%"
+          description="Taxa de leitura"
+          icon={TrendingUp}
+          trend={{ value: 3, isPositive: true }}
         />
       </div>
 
       {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-2">
         <MembrosChart />
-        <EventosChart />
+        <AnunciosChart />
       </div>
 
-      {/* Second Row */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-1">
-          <MinisteriosChart />
-        </div>
-        <div className="lg:col-span-2">
-          <RecentActivity />
-        </div>
-      </div>
-
-      {/* Upcoming Events */}
-      <UpcomingEvents />
+      {/* Activity */}
+      <RecentActivity />
     </div>
   )
 }

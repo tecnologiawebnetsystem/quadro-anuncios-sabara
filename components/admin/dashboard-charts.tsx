@@ -6,9 +6,6 @@ import {
   AreaChart,
   Bar,
   BarChart,
-  Cell,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   XAxis,
   YAxis,
@@ -25,20 +22,13 @@ const membrosData = [
   { mes: "Jun", membros: 183, novos: 22 },
 ]
 
-const eventosData = [
-  { nome: "Cultos", quantidade: 12, fill: "var(--color-chart-1)" },
-  { nome: "Estudos", quantidade: 8, fill: "var(--color-chart-2)" },
-  { nome: "Encontros", quantidade: 4, fill: "var(--color-chart-3)" },
-  { nome: "Acoes Sociais", quantidade: 3, fill: "var(--color-chart-4)" },
-]
-
-const ministeriosData = [
-  { nome: "Louvor", membros: 25 },
-  { nome: "Infantil", membros: 18 },
-  { nome: "Jovens", membros: 32 },
-  { nome: "Mulheres", membros: 28 },
-  { nome: "Homens", membros: 22 },
-  { nome: "Casais", membros: 15 },
+const anunciosData = [
+  { mes: "Jan", anuncios: 5, visualizacoes: 420 },
+  { mes: "Fev", anuncios: 7, visualizacoes: 580 },
+  { mes: "Mar", anuncios: 6, visualizacoes: 510 },
+  { mes: "Abr", anuncios: 9, visualizacoes: 720 },
+  { mes: "Mai", anuncios: 8, visualizacoes: 890 },
+  { mes: "Jun", anuncios: 8, visualizacoes: 1284 },
 ]
 
 export function MembrosChart() {
@@ -95,31 +85,39 @@ export function MembrosChart() {
   )
 }
 
-export function EventosChart() {
+export function AnunciosChart() {
   return (
     <Card className="border-border bg-card">
       <CardHeader>
-        <CardTitle className="text-foreground">Eventos por Tipo</CardTitle>
-        <CardDescription>Distribuicao de eventos este mes</CardDescription>
+        <CardTitle className="text-foreground">Anuncios e Visualizacoes</CardTitle>
+        <CardDescription>Performance dos anuncios por mes</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={eventosData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={100}
-                paddingAngle={4}
-                dataKey="quantidade"
-                nameKey="nome"
-              >
-                {eventosData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Pie>
+            <BarChart data={anunciosData}>
+              <XAxis
+                dataKey="mes"
+                stroke="var(--color-muted-foreground)"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                yAxisId="left"
+                stroke="var(--color-muted-foreground)"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                stroke="var(--color-muted-foreground)"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: "var(--color-card)",
@@ -130,56 +128,24 @@ export function EventosChart() {
               />
               <Legend
                 formatter={(value) => (
-                  <span style={{ color: "var(--color-foreground)" }}>{value}</span>
+                  <span style={{ color: "var(--color-foreground)" }}>
+                    {value === "anuncios" ? "Anuncios" : "Visualizacoes"}
+                  </span>
                 )}
               />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-export function MinisteriosChart() {
-  return (
-    <Card className="border-border bg-card">
-      <CardHeader>
-        <CardTitle className="text-foreground">Membros por Ministerio</CardTitle>
-        <CardDescription>Quantidade de membros ativos em cada ministerio</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={ministeriosData} layout="vertical">
-              <XAxis
-                type="number"
-                stroke="var(--color-muted-foreground)"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                dataKey="nome"
-                type="category"
-                stroke="var(--color-muted-foreground)"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                width={80}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "var(--color-card)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "8px",
-                  color: "var(--color-foreground)",
-                }}
+              <Bar
+                yAxisId="left"
+                dataKey="anuncios"
+                fill="var(--color-chart-1)"
+                radius={[4, 4, 0, 0]}
+                name="anuncios"
               />
               <Bar
-                dataKey="membros"
+                yAxisId="right"
+                dataKey="visualizacoes"
                 fill="var(--color-chart-2)"
-                radius={[0, 4, 4, 0]}
+                radius={[4, 4, 0, 0]}
+                name="visualizacoes"
               />
             </BarChart>
           </ResponsiveContainer>
