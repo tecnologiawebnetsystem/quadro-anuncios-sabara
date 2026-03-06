@@ -1,7 +1,6 @@
 import { Users, UserCheck, Shield, Flag } from "lucide-react"
 import { StatsCard } from "@/components/admin/stats-card"
-import { MembrosChart, AnunciosChart } from "@/components/admin/dashboard-charts"
-import { RecentActivity } from "@/components/admin/recent-activity"
+import { QuickAccessCards } from "@/components/admin/quick-access-cards"
 
 export default function AdminDashboard() {
   return (
@@ -46,14 +45,8 @@ export default function AdminDashboard() {
         />
       </div>
 
-      {/* Charts Row */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <MembrosChart />
-        <AnunciosChart />
-      </div>
-
-      {/* Activity */}
-      <RecentActivity />
+      {/* Quick Access Cards */}
+      <QuickAccessCards />
     </div>
   )
 }
