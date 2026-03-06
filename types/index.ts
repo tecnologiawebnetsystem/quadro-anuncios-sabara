@@ -5,19 +5,9 @@
 
 // -------------------- ENUMS --------------------
 
-export enum TipoPublicador {
-  PUBLICADOR = "PUBLICADOR",
-  ANCIAO = "ANCIAO",
-  SERVO_MINISTERIAL = "SERVO_MINISTERIAL",
-  PIONEIRO_REGULAR = "PIONEIRO_REGULAR",
-  PIONEIRO_AUXILIAR = "PIONEIRO_AUXILIAR",
-}
-
-export enum StatusPublicador {
+export enum StatusAtivo {
   ATIVO = "ATIVO",
   INATIVO = "INATIVO",
-  IRREGULAR = "IRREGULAR",
-  DESASSOCIADO = "DESASSOCIADO",
 }
 
 export enum TipoAlcada {
@@ -51,9 +41,77 @@ export enum PermissaoSistema {
   // Relatórios
   VISUALIZAR_RELATORIOS = "VISUALIZAR_RELATORIOS",
   EXPORTAR_RELATORIOS = "EXPORTAR_RELATORIOS",
+  
+  // Distritos e Congregações
+  GERENCIAR_DISTRITOS = "GERENCIAR_DISTRITOS",
+  GERENCIAR_CONGREGACOES = "GERENCIAR_CONGREGACOES",
+  
+  // Grupos de Serviço
+  GERENCIAR_GRUPOS_SERVICO = "GERENCIAR_GRUPOS_SERVICO",
 }
 
-// -------------------- INTERFACES --------------------
+// -------------------- TABELA DISTRITO --------------------
+
+export interface Distrito {
+  id: string
+  numero: number
+  nome: string
+  ativo: boolean
+  criadoEm: Date
+  atualizadoEm: Date
+  // Relacionamentos
+  congregacoes?: Congregacao[]
+}
+
+// -------------------- TABELA CONGREGAÇÃO --------------------
+
+export interface Congregacao {
+  id: string
+  numero: number
+  nome: string
+  distritoId: string
+  endereco?: string
+  cidade?: string
+  estado?: string
+  ativo: boolean
+  criadoEm: Date
+  atualizadoEm: Date
+  // Relacionamentos
+  distrito?: Distrito
+  publicadores?: Publicador[]
+}
+
+// -------------------- TABELA PUBLICADOR --------------------
+
+export interface Publicador {
+  id: string
+  nome: string
+  congregacaoId: string
+  grupoServicoId?: string
+  
+  // Campos booleanos para designações
+  anciao: boolean
+  servoMinisterial: boolean
+  pioneiroRegular: boolean
+  pioneiroAuxiliar: boolean
+  ativo: boolean
+  
+  // Campos opcionais
+  telefone?: string
+  email?: string
+  dataNascimento?: Date
+  dataBatismo?: Date
+  observacoes?: string
+  
+  criadoEm: Date
+  atualizadoEm: Date
+  
+  // Relacionamentos
+  congregacao?: Congregacao
+  grupoServico?: GrupoServico
+}
+
+// -------------------- INTERFACES AUXILIARES --------------------
 
 export interface Usuario {
   id: string
@@ -62,9 +120,13 @@ export interface Usuario {
   senha?: string // Hash da senha
   avatar?: string
   alcadaId: string
+  publicadorId?: string
   ativo: boolean
   criadoEm: Date
   atualizadoEm: Date
+  // Relacionamentos
+  alcada?: Alcada
+  publicador?: Publicador
 }
 
 export interface Alcada {
@@ -74,24 +136,6 @@ export interface Alcada {
   descricao?: string
   permissoes: PermissaoSistema[]
   cor?: string // Cor para identificação visual
-  criadoEm: Date
-  atualizadoEm: Date
-}
-
-export interface Publicador {
-  id: string
-  nome: string
-  sobrenome: string
-  email?: string
-  telefone?: string
-  dataNascimento?: Date
-  dataBatismo?: Date
-  tipo: TipoPublicador
-  status: StatusPublicador
-  endereco?: Endereco
-  grupoServicoId?: string
-  observacoes?: string
-  avatar?: string
   criadoEm: Date
   atualizadoEm: Date
 }
@@ -161,9 +205,13 @@ export interface PaginacaoResponse<T> {
 }
 
 export interface FiltroPublicador {
-  tipo?: TipoPublicador
-  status?: StatusPublicador
+  anciao?: boolean
+  servoMinisterial?: boolean
+  pioneiroRegular?: boolean
+  pioneiroAuxiliar?: boolean
+  ativo?: boolean
   busca?: string
+  congregacaoId?: string
   grupoServicoId?: string
 }
 
