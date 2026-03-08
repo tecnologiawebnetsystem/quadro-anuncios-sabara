@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useTransition } from "react"
+import { useState, useEffect, useTransition, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,17 +32,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "sonner"
 import {
   Plus,
   Users,
   Pencil,
   Trash2,
-  ArrowRightLeft,
   UserPlus,
   Loader2,
   RefreshCw,
   MapPin,
+  GripVertical,
 } from "lucide-react"
 import {
   getGrupos,
@@ -65,18 +66,20 @@ export function GrupoEstudosManager() {
   const [loading, setLoading] = useState(true)
   const [isPending, startTransition] = useTransition()
 
+  // Drag and drop states
+  const [draggingPublicador, setDraggingPublicador] = useState<PublicadorGrupo | null>(null)
+  const [dragOverGrupoId, setDragOverGrupoId] = useState<string | null>(null)
+  const [isMoving, setIsMoving] = useState(false)
+
   // Estados dos dialogs
   const [dialogGrupoOpen, setDialogGrupoOpen] = useState(false)
   const [dialogPublicadorOpen, setDialogPublicadorOpen] = useState(false)
-  const [dialogMoverOpen, setDialogMoverOpen] = useState(false)
   const [alertDeleteGrupo, setAlertDeleteGrupo] = useState<Grupo | null>(null)
   const [alertDeletePublicador, setAlertDeletePublicador] = useState<PublicadorGrupo | null>(null)
 
   // Estados de formulário
   const [editandoGrupo, setEditandoGrupo] = useState<Grupo | null>(null)
   const [editandoPublicador, setEditandoPublicador] = useState<PublicadorGrupo | null>(null)
-  const [publicadorParaMover, setPublicadorParaMover] = useState<PublicadorGrupo | null>(null)
-  const [grupoDestinoId, setGrupoDestinoId] = useState<string>("")
 
   // Formulário grupo
   const [grupoForm, setGrupoForm] = useState({ numero: "", nome: "", local: "" })
@@ -121,6 +124,85 @@ export function GrupoEstudosManager() {
         toast.error(result.error || "Erro ao criar dados")
       }
     })
+  }
+
+  // ===== DRAG AND DROP =====
+  function handleDragStart(e: React.DragEvent, publicador: PublicadorGrupo) {
+    setDraggingPublicador(publicador)
+    e.dataTransfer.effectAllowed = "move"
+    e.dataTransfer.setData("text/plain", publicador.id)
+    
+    // Adiciona uma pequena opacidade ao elemento sendo arrastado
+    const target = e.target as HTMLElement
+    setTimeout(() => {
+      target.style.opacity = "0.5"
+    }, 0)
+  }
+
+  function handleDragEnd(e: React.DragEvent) {
+    const target = e.target as HTMLElement
+    target.style.opacity = "1"
+    setDraggingPublicador(null)
+    setDragOverGrupoId(null)
+  }
+
+  function handleDragOver(e: React.DragEvent, grupoId: string) {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+    
+    if (dragOverGrupoId !== grupoId) {
+      setDragOverGrupoId(grupoId)
+    }
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    // Só limpa se realmente saiu do card (não para elementos filhos)
+    const relatedTarget = e.relatedTarget as HTMLElement
+    const currentTarget = e.currentTarget as HTMLElement
+    if (!currentTarget.contains(relatedTarget)) {
+      setDragOverGrupoId(null)
+    }
+  }
+
+  async function handleDrop(e: React.DragEvent, grupoDestinoId: string) {
+    e.preventDefault()
+    setDragOverGrupoId(null)
+    
+    if (!draggingPublicador) return
+    
+    // Não faz nada se soltar no mesmo grupo
+    if (draggingPublicador.grupo_id === grupoDestinoId) {
+      setDraggingPublicador(null)
+      return
+    }
+
+    const publicadorNome = draggingPublicador.nome
+    const grupoDestino = grupos.find(g => g.id === grupoDestinoId)
+    
+    setIsMoving(true)
+    
+    // Atualiza localmente primeiro para feedback instantâneo
+    setPublicadores(prev => 
+      prev.map(p => 
+        p.id === draggingPublicador.id 
+          ? { ...p, grupo_id: grupoDestinoId }
+          : p
+      )
+    )
+    
+    // Salva no banco
+    const result = await movePublicador(draggingPublicador.id, grupoDestinoId)
+    
+    if (result.success) {
+      toast.success(`${publicadorNome} movido para ${grupoDestino?.nome || "outro grupo"}`)
+    } else {
+      // Reverte se falhou
+      toast.error(result.error || "Erro ao mover publicador")
+      carregarDados()
+    }
+    
+    setDraggingPublicador(null)
+    setIsMoving(false)
   }
 
   // CRUD Grupo
@@ -268,38 +350,6 @@ export function GrupoEstudosManager() {
     })
   }
 
-  // Mover publicador
-  function abrirDialogMover(publicador: PublicadorGrupo) {
-    setPublicadorParaMover(publicador)
-    setGrupoDestinoId("")
-    setDialogMoverOpen(true)
-  }
-
-  async function handleMoverPublicador() {
-    if (!publicadorParaMover || !grupoDestinoId) {
-      toast.error("Selecione o grupo de destino")
-      return
-    }
-
-    startTransition(async () => {
-      const result = await movePublicador(
-        publicadorParaMover.id,
-        grupoDestinoId === "sem-grupo" ? null : grupoDestinoId
-      )
-      if (result.success) {
-        const grupoDestino = grupos.find((g) => g.id === grupoDestinoId)
-        toast.success(
-          `${publicadorParaMover.nome} movido para ${grupoDestino?.nome || "Sem grupo"}`
-        )
-        setDialogMoverOpen(false)
-        setPublicadorParaMover(null)
-        carregarDados()
-      } else {
-        toast.error(result.error || "Erro ao mover publicador")
-      }
-    })
-  }
-
   // Obter publicadores de um grupo
   function getPublicadoresDoGrupo(grupoId: string) {
     return publicadores
@@ -328,7 +378,7 @@ export function GrupoEstudosManager() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Grupos de Estudos</h1>
           <p className="text-muted-foreground">
-            Gerencie os grupos e movimente os publicadores entre eles
+            Arraste e solte os publicadores para movimentar entre grupos
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -353,6 +403,14 @@ export function GrupoEstudosManager() {
         </div>
       </div>
 
+      {/* Indicador de movimentação */}
+      {isMoving && (
+        <div className="fixed top-4 right-4 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-lg flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Salvando...
+        </div>
+      )}
+
       {/* Grid de Grupos */}
       {grupos.length === 0 ? (
         <Card>
@@ -369,9 +427,24 @@ export function GrupoEstudosManager() {
           {grupos.map((grupo) => {
             const publicadoresGrupo = getPublicadoresDoGrupo(grupo.id)
             const lider = publicadoresGrupo.find((p) => p.is_lider)
+            const isDragOver = dragOverGrupoId === grupo.id
 
             return (
-              <Card key={grupo.id} className="flex flex-col">
+              <Card 
+                key={grupo.id} 
+                className={`flex flex-col transition-all duration-200 ${
+                  isDragOver 
+                    ? "ring-2 ring-primary ring-offset-2 bg-primary/5" 
+                    : ""
+                } ${
+                  draggingPublicador && draggingPublicador.grupo_id !== grupo.id
+                    ? "border-dashed"
+                    : ""
+                }`}
+                onDragOver={(e) => handleDragOver(e, grupo.id)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, grupo.id)}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
@@ -421,11 +494,19 @@ export function GrupoEstudosManager() {
                       {publicadoresGrupo.map((publicador) => (
                         <div
                           key={publicador.id}
-                          className="group flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50"
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, publicador)}
+                          onDragEnd={handleDragEnd}
+                          className={`group flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-all ${
+                            draggingPublicador?.id === publicador.id
+                              ? "opacity-50 bg-muted"
+                              : ""
+                          }`}
                         >
                           <div className="flex items-center gap-2 min-w-0">
+                            <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 opacity-50 group-hover:opacity-100" />
                             <span
-                              className={`truncate text-sm ${
+                              className={`truncate text-sm select-none ${
                                 publicador.is_lider
                                   ? "font-bold text-destructive"
                                   : publicador.is_auxiliar
@@ -451,15 +532,6 @@ export function GrupoEstudosManager() {
                               variant="ghost"
                               size="icon"
                               className="h-7 w-7"
-                              onClick={() => abrirDialogMover(publicador)}
-                              title="Mover para outro grupo"
-                            >
-                              <ArrowRightLeft className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
                               onClick={() => abrirDialogPublicador(publicador)}
                               title="Editar publicador"
                             >
@@ -477,6 +549,15 @@ export function GrupoEstudosManager() {
                           </div>
                         </div>
                       ))}
+                      {publicadoresGrupo.length === 0 && (
+                        <div className="py-8 text-center text-muted-foreground text-sm">
+                          {isDragOver ? (
+                            <span className="text-primary font-medium">Solte aqui para adicionar</span>
+                          ) : (
+                            "Arraste publicadores para cá"
+                          )}
+                        </div>
+                      )}
                     </div>
                   </ScrollArea>
                   <div className="mt-3 pt-3 border-t">
@@ -577,15 +658,15 @@ export function GrupoEstudosManager() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="grupo">Grupo</Label>
+              <Label htmlFor="grupo-publicador">Grupo</Label>
               <Select
                 value={publicadorForm.grupo_id}
                 onValueChange={(value) =>
                   setPublicadorForm({ ...publicadorForm, grupo_id: value })
                 }
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o grupo" />
+                <SelectTrigger id="grupo-publicador">
+                  <SelectValue placeholder="Selecione um grupo" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="sem-grupo">Sem grupo</SelectItem>
@@ -597,43 +678,37 @@ export function GrupoEstudosManager() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="is_lider"
-                  checked={publicadorForm.is_lider}
-                  onChange={(e) =>
-                    setPublicadorForm({
-                      ...publicadorForm,
-                      is_lider: e.target.checked,
-                      is_auxiliar: e.target.checked ? false : publicadorForm.is_auxiliar,
-                    })
-                  }
-                  className="h-4 w-4 rounded border-input"
-                />
-                <Label htmlFor="is_lider" className="text-sm font-normal">
-                  Dirigente
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="is_auxiliar"
-                  checked={publicadorForm.is_auxiliar}
-                  onChange={(e) =>
-                    setPublicadorForm({
-                      ...publicadorForm,
-                      is_auxiliar: e.target.checked,
-                      is_lider: e.target.checked ? false : publicadorForm.is_lider,
-                    })
-                  }
-                  className="h-4 w-4 rounded border-input"
-                />
-                <Label htmlFor="is_auxiliar" className="text-sm font-normal">
-                  Auxiliar
-                </Label>
-              </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="is-lider"
+                checked={publicadorForm.is_lider}
+                onCheckedChange={(checked) =>
+                  setPublicadorForm({
+                    ...publicadorForm,
+                    is_lider: checked === true,
+                    is_auxiliar: checked === true ? false : publicadorForm.is_auxiliar,
+                  })
+                }
+              />
+              <Label htmlFor="is-lider" className="text-sm font-normal">
+                Dirigente do grupo
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="is-auxiliar"
+                checked={publicadorForm.is_auxiliar}
+                onCheckedChange={(checked) =>
+                  setPublicadorForm({
+                    ...publicadorForm,
+                    is_auxiliar: checked === true,
+                    is_lider: checked === true ? false : publicadorForm.is_lider,
+                  })
+                }
+              />
+              <Label htmlFor="is-auxiliar" className="text-sm font-normal">
+                Auxiliar do grupo
+              </Label>
             </div>
           </div>
           <DialogFooter>
@@ -648,48 +723,6 @@ export function GrupoEstudosManager() {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog Mover Publicador */}
-      <Dialog open={dialogMoverOpen} onOpenChange={setDialogMoverOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Mover Publicador</DialogTitle>
-            <DialogDescription>
-              Selecione o grupo de destino para{" "}
-              <strong>{publicadorParaMover?.nome}</strong>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Grupo de Destino</Label>
-              <Select value={grupoDestinoId} onValueChange={setGrupoDestinoId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o grupo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sem-grupo">Remover do grupo</SelectItem>
-                  {grupos
-                    .filter((g) => g.id !== publicadorParaMover?.grupo_id)
-                    .map((grupo) => (
-                      <SelectItem key={grupo.id} value={grupo.id}>
-                        {grupo.nome}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogMoverOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleMoverPublicador} disabled={isPending || !grupoDestinoId}>
-              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Mover
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Alert Delete Grupo */}
       <AlertDialog
         open={!!alertDeleteGrupo}
@@ -697,11 +730,10 @@ export function GrupoEstudosManager() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir Grupo</AlertDialogTitle>
+            <AlertDialogTitle>Excluir grupo?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o grupo{" "}
-              <strong>{alertDeleteGrupo?.nome}</strong>? Os publicadores deste
-              grupo ficarão sem grupo atribuído.
+              Tem certeza que deseja excluir o grupo &quot;{alertDeleteGrupo?.nome}&quot;?
+              Os publicadores deste grupo ficarão sem grupo atribuído.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -724,11 +756,10 @@ export function GrupoEstudosManager() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir Publicador</AlertDialogTitle>
+            <AlertDialogTitle>Excluir publicador?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir{" "}
-              <strong>{alertDeletePublicador?.nome}</strong>? Esta ação não pode
-              ser desfeita.
+              Tem certeza que deseja excluir &quot;{alertDeletePublicador?.nome}&quot;?
+              Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
