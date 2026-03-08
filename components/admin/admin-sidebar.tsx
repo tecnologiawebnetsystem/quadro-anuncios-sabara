@@ -8,7 +8,7 @@ import {
   Users,
   Settings,
   ChevronDown,
-  Church,
+  ClipboardList,
   ShieldCheck,
 } from "lucide-react"
 import {
@@ -78,7 +78,7 @@ export function AdminSidebar() {
       <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
         <Link href="/admin" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <Church className="h-6 w-6 text-primary-foreground" />
+            <ClipboardList className="h-6 w-6 text-primary-foreground" />
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-sidebar-foreground">
