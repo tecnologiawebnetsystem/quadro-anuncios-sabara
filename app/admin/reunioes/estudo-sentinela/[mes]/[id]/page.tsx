@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { processarTextoBiblico } from "@/components/biblia-referencia"
 import { BarraProgresso } from "@/components/sentinela/barra-progresso"
+import { estudosFevereiro } from "@/lib/data/estudos-fevereiro"
 
 interface Pergunta {
   paragrafo: string
@@ -595,10 +596,13 @@ export default function EstudoDetalhePage() {
   const id = Number(params.id)
   const mes = params.mes as string
 
-  // Memoize estudo lookup
+// Memoize estudo lookup - busca no mês correto
   const estudo = useMemo(() => {
+    if (mes.startsWith("fevereiro")) {
+      return estudosFevereiro.find(e => e.id === id)
+    }
     return estudosMarco.find(e => e.id === id)
-  }, [id])
+  }, [id, mes])
 
   // Carregar dados do localStorage
   useEffect(() => {
@@ -699,12 +703,13 @@ export default function EstudoDetalhePage() {
 
   // Navigation helpers
   const { prevEstudo, nextEstudo } = useMemo(() => {
-    const currentIndex = estudosMarco.findIndex(e => e.id === id)
+    const estudos = mes.startsWith("fevereiro") ? estudosFevereiro : estudosMarco
+    const currentIndex = estudos.findIndex(e => e.id === id)
     return {
-      prevEstudo: currentIndex > 0 ? estudosMarco[currentIndex - 1] : null,
-      nextEstudo: currentIndex < estudosMarco.length - 1 ? estudosMarco[currentIndex + 1] : null
+      prevEstudo: currentIndex > 0 ? estudos[currentIndex - 1] : null,
+      nextEstudo: currentIndex < estudos.length - 1 ? estudos[currentIndex + 1] : null
     }
-  }, [id])
+  }, [id, mes])
 
   // Callbacks memoizados
   const togglePergunta = useCallback((key: string) => {
