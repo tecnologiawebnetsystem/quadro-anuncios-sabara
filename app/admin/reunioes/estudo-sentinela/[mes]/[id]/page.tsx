@@ -529,19 +529,28 @@ const PerguntaItem = ({
         </div>
       )}
 
+      {/* Texto do Parágrafo - SEMPRE VISÍVEL */}
+      {pergunta.textoBase && (
+        <div className="mb-4 p-4 bg-zinc-900/60 rounded-lg border-l-4 border-blue-500">
+          <p className="text-zinc-300 text-base leading-relaxed">{processarTextoBiblico(pergunta.textoBase)}</p>
+        </div>
+      )}
+
       {/* Pergunta */}
-      <div 
-        className={`${forPrint ? '' : 'cursor-pointer active:scale-[0.99] transition-transform'}`}
-        onClick={forPrint ? undefined : onToggle}
-      >
-        <p className="text-zinc-200 mb-3 text-lg leading-relaxed">
+      <div className="mb-3">
+        <p className="text-zinc-200 text-lg leading-relaxed">
           <span className="font-bold text-white bg-blue-600 px-2 py-0.5 rounded mr-2 text-base">
             {pergunta.paragrafo}
           </span>
           {processarTextoBiblico(pergunta.pergunta)}
         </p>
+      </div>
         
-        {/* Caixa de resposta */}
+      {/* Caixa de resposta - CLICÁVEL */}
+      <div 
+        className={`${forPrint ? '' : 'cursor-pointer active:scale-[0.99] transition-transform'}`}
+        onClick={forPrint ? undefined : onToggle}
+      >
         <div className={`rounded-xl p-4 transition-all duration-200 ${
           isExpanded || forPrint
             ? "bg-gradient-to-br from-green-900/40 to-green-950/40 border-2 border-green-600/50 shadow-lg shadow-green-900/20" 
@@ -564,13 +573,6 @@ const PerguntaItem = ({
           )}
         </div>
       </div>
-
-      {/* Texto Base */}
-      {pergunta.textoBase && (isExpanded || forPrint) && (
-        <div className="mt-4 p-4 bg-zinc-900/50 rounded-lg border-l-4 border-zinc-600">
-          <p className="text-zinc-400 text-sm leading-relaxed">{processarTextoBiblico(pergunta.textoBase)}</p>
-        </div>
-      )}
     </div>
   )
 }
