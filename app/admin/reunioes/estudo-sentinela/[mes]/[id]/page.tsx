@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useCallback, useMemo, useRef } from "react"
-import { ArrowLeft, Music, ChevronDown, ChevronUp, Download, Printer, ChevronLeft, ChevronRight } from "lucide-react"
+import { useState, useCallback, useMemo, useRef, useEffect } from "react"
+import { ArrowLeft, Music, ChevronDown, ChevronUp, Download, ChevronLeft, ChevronRight, Minus, Plus, Maximize2, Minimize2, Star, Share2, CheckCircle2 } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { processarTextoBiblico } from "@/components/biblia-referencia"
-import Image from "next/image"
+import { BarraProgresso } from "@/components/sentinela/barra-progresso"
 
 interface Pergunta {
   paragrafo: string
@@ -416,7 +416,7 @@ const estudosMarco: Estudo[] = [
       {
         paragrafo: "4",
         pergunta: "Por que podemos dizer que Jeová é a Fonte da verdade?",
-        textoBase: "Tudo o que Jeová diz é verdadeiro. Ele fala a verdade quando diz o que é certo e o que é errado. Tudo o que ele prediz sobre o futuro se cumpre. Ele nunca quebra uma promessa.",
+        textoBase: "Tudo o que Jeová diz é verdadeiro. Ele fala a verdade quando diz o que �� certo e o que é errado. Tudo o que ele prediz sobre o futuro se cumpre. Ele nunca quebra uma promessa.",
         resposta: "Tudo o que Jeová diz é verdadeiro. Ele fala a verdade quando diz o que é certo e o que é errado. Tudo o que ele prediz sobre o futuro se cumpre. Ele nunca quebra uma promessa. Não é à toa que Jeová seja conhecido como o 'Deus da verdade'."
       },
       {
@@ -529,19 +529,28 @@ const PerguntaItem = ({
         </div>
       )}
 
+      {/* Texto do Parágrafo - SEMPRE VISÍVEL */}
+      {pergunta.textoBase && (
+        <div className="mb-4 p-4 bg-zinc-900/60 rounded-lg border-l-4 border-blue-500">
+          <p className="text-zinc-300 text-base leading-relaxed">{processarTextoBiblico(pergunta.textoBase)}</p>
+        </div>
+      )}
+
       {/* Pergunta */}
-      <div 
-        className={`${forPrint ? '' : 'cursor-pointer active:scale-[0.99] transition-transform'}`}
-        onClick={forPrint ? undefined : onToggle}
-      >
-        <p className="text-zinc-200 mb-3 text-lg leading-relaxed">
+      <div className="mb-3">
+        <p className="text-zinc-200 text-lg leading-relaxed">
           <span className="font-bold text-white bg-blue-600 px-2 py-0.5 rounded mr-2 text-base">
             {pergunta.paragrafo}
           </span>
           {processarTextoBiblico(pergunta.pergunta)}
         </p>
+      </div>
         
-        {/* Caixa de resposta */}
+      {/* Caixa de resposta - CLICÁVEL */}
+      <div 
+        className={`${forPrint ? '' : 'cursor-pointer active:scale-[0.99] transition-transform'}`}
+        onClick={forPrint ? undefined : onToggle}
+      >
         <div className={`rounded-xl p-4 transition-all duration-200 ${
           isExpanded || forPrint
             ? "bg-gradient-to-br from-green-900/40 to-green-950/40 border-2 border-green-600/50 shadow-lg shadow-green-900/20" 
@@ -564,13 +573,6 @@ const PerguntaItem = ({
           )}
         </div>
       </div>
-
-      {/* Texto Base */}
-      {pergunta.textoBase && (isExpanded || forPrint) && (
-        <div className="mt-4 p-4 bg-zinc-900/50 rounded-lg border-l-4 border-zinc-600">
-          <p className="text-zinc-400 text-sm leading-relaxed">{processarTextoBiblico(pergunta.textoBase)}</p>
-        </div>
-      )}
     </div>
   )
 }
@@ -583,6 +585,13 @@ export default function EstudoDetalhePage() {
   const [isExporting, setIsExporting] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
   
+  // Novos estados para acessibilidade e funcionalidades
+  const [fontSize, setFontSize] = useState(16)
+  const [isPresentationMode, setIsPresentationMode] = useState(false)
+  const [isFavorito, setIsFavorito] = useState(false)
+  const [isComplete, setIsComplete] = useState(false)
+  const [paragrafosLidos, setParagrafosLidos] = useState<string[]>([])
+  
   const id = Number(params.id)
   const mes = params.mes as string
 
@@ -590,6 +599,103 @@ export default function EstudoDetalhePage() {
   const estudo = useMemo(() => {
     return estudosMarco.find(e => e.id === id)
   }, [id])
+
+  // Carregar dados do localStorage
+  useEffect(() => {
+    const favoritosStorage = localStorage.getItem("sentinela_favoritos")
+    const concluidosStorage = localStorage.getItem("sentinela_concluidos")
+    const progressoStorage = localStorage.getItem(`sentinela_progresso_${id}`)
+    const fontSizeStorage = localStorage.getItem("sentinela_fontSize")
+    
+    if (favoritosStorage) {
+      const favoritos = JSON.parse(favoritosStorage)
+      setIsFavorito(favoritos.includes(id))
+    }
+    if (concluidosStorage) {
+      const concluidos = JSON.parse(concluidosStorage)
+      setIsComplete(concluidos.includes(id))
+    }
+    if (progressoStorage) {
+      setParagrafosLidos(JSON.parse(progressoStorage))
+    }
+    if (fontSizeStorage) {
+      setFontSize(parseInt(fontSizeStorage))
+    }
+  }, [id])
+
+  // Salvar tamanho da fonte
+  useEffect(() => {
+    localStorage.setItem("sentinela_fontSize", fontSize.toString())
+  }, [fontSize])
+
+  // Toggle favorito
+  const toggleFavorito = useCallback(() => {
+    const favoritosStorage = localStorage.getItem("sentinela_favoritos")
+    let favoritos = favoritosStorage ? JSON.parse(favoritosStorage) : []
+    
+    if (isFavorito) {
+      favoritos = favoritos.filter((fId: number) => fId !== id)
+    } else {
+      favoritos.push(id)
+    }
+    
+    localStorage.setItem("sentinela_favoritos", JSON.stringify(favoritos))
+    setIsFavorito(!isFavorito)
+  }, [isFavorito, id])
+
+  // Toggle concluído
+  const toggleComplete = useCallback(() => {
+    const concluidosStorage = localStorage.getItem("sentinela_concluidos")
+    let concluidos = concluidosStorage ? JSON.parse(concluidosStorage) : []
+    
+    if (isComplete) {
+      concluidos = concluidos.filter((cId: number) => cId !== id)
+    } else {
+      concluidos.push(id)
+    }
+    
+    localStorage.setItem("sentinela_concluidos", JSON.stringify(concluidos))
+    setIsComplete(!isComplete)
+  }, [isComplete, id])
+
+  // Marcar parágrafo como lido
+  const marcarParagrafoLido = useCallback((paragrafoKey: string) => {
+    if (!paragrafosLidos.includes(paragrafoKey)) {
+      const novosParagrafos = [...paragrafosLidos, paragrafoKey]
+      setParagrafosLidos(novosParagrafos)
+      localStorage.setItem(`sentinela_progresso_${id}`, JSON.stringify(novosParagrafos))
+    }
+  }, [paragrafosLidos, id])
+
+  // Compartilhar
+  const compartilhar = useCallback(async () => {
+    if (!estudo) return
+    
+    const url = window.location.href
+    const texto = `Estudo de A Sentinela: ${estudo.titulo}`
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: texto, url })
+      } catch (err) {
+        // Usuário cancelou
+      }
+    } else {
+      // Fallback: copiar para clipboard
+      await navigator.clipboard.writeText(`${texto}\n${url}`)
+      alert('Link copiado para a área de transferência!')
+    }
+  }, [estudo])
+
+  // Modo apresentação (fullscreen)
+  const togglePresentationMode = useCallback(() => {
+    if (!isPresentationMode) {
+      document.documentElement.requestFullscreen?.()
+    } else {
+      document.exitFullscreen?.()
+    }
+    setIsPresentationMode(!isPresentationMode)
+  }, [isPresentationMode])
 
   // Navigation helpers
   const { prevEstudo, nextEstudo } = useMemo(() => {
@@ -860,11 +966,19 @@ export default function EstudoDetalhePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-black text-white">
+    <div 
+      className={`min-h-screen bg-gradient-to-b from-zinc-900 to-black text-white transition-all duration-300 ${
+        isPresentationMode ? 'fixed inset-0 z-50 overflow-auto' : ''
+      }`}
+      style={{ fontSize: `${fontSize}px` }}
+    >
       {/* Header fixo */}
-      <header className="sticky top-0 z-20 bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800 shadow-lg">
+      <header className={`sticky top-0 z-20 bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800 shadow-lg ${
+        isPresentationMode ? 'bg-zinc-950' : ''
+      }`}>
         <div className="max-w-3xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+          {/* Linha 1: Navegação e ações principais */}
+          <div className="flex items-center justify-between mb-2">
             <Button 
               onClick={() => router.back()} 
               variant="ghost"
@@ -875,27 +989,120 @@ export default function EstudoDetalhePage() {
               <span className="hidden sm:inline">Voltar</span>
             </Button>
             
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-zinc-400 hidden sm:inline">
-                {estudo.dataInicio}-{estudo.dataFim}
-              </span>
+            <span className="text-sm text-zinc-400">
+              {estudo.dataInicio}-{estudo.dataFim}
+            </span>
+          </div>
+
+          {/* Linha 2: Controles de acessibilidade */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            {/* Controle de fonte */}
+            <div className="flex items-center bg-zinc-800 rounded-lg p-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setFontSize(prev => Math.max(12, prev - 2))}
+                className="h-7 w-7 p-0 text-zinc-300 hover:text-white hover:bg-zinc-700"
+                title="Diminuir fonte"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <span className="text-xs text-zinc-400 px-2 min-w-[36px] text-center">{fontSize}px</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setFontSize(prev => Math.min(24, prev + 2))}
+                className="h-7 w-7 p-0 text-zinc-300 hover:text-white hover:bg-zinc-700"
+                title="Aumentar fonte"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Ações */}
+            <div className="flex items-center gap-1">
+              {/* Modo apresentação */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={togglePresentationMode}
+                className={`h-8 w-8 p-0 ${
+                  isPresentationMode 
+                    ? "bg-blue-600 text-white hover:bg-blue-700" 
+                    : "text-zinc-300 hover:text-white hover:bg-zinc-700"
+                }`}
+                title={isPresentationMode ? "Sair do modo apresentação" : "Modo apresentação"}
+              >
+                {isPresentationMode ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </Button>
+
+              {/* Favorito */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleFavorito}
+                className={`h-8 w-8 p-0 ${
+                  isFavorito 
+                    ? "text-yellow-400 hover:text-yellow-300" 
+                    : "text-zinc-300 hover:text-white hover:bg-zinc-700"
+                }`}
+                title={isFavorito ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+              >
+                <Star className={`h-4 w-4 ${isFavorito ? "fill-current" : ""}`} />
+              </Button>
+
+              {/* Concluído */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleComplete}
+                className={`h-8 w-8 p-0 ${
+                  isComplete 
+                    ? "text-green-400 hover:text-green-300" 
+                    : "text-zinc-300 hover:text-white hover:bg-zinc-700"
+                }`}
+                title={isComplete ? "Marcar como não lido" : "Marcar como lido"}
+              >
+                <CheckCircle2 className={`h-4 w-4 ${isComplete ? "fill-green-400/20" : ""}`} />
+              </Button>
+
+              {/* Compartilhar */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={compartilhar}
+                className="h-8 w-8 p-0 text-zinc-300 hover:text-white hover:bg-zinc-700"
+                title="Compartilhar"
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+
+              {/* Exportar PDF */}
               <Button
                 onClick={exportarPDF}
                 variant="outline"
                 size="sm"
                 disabled={isExporting}
-                className="bg-blue-600/20 border-blue-500/50 text-blue-300 hover:bg-blue-600/30"
+                className="bg-blue-600/20 border-blue-500/50 text-blue-300 hover:bg-blue-600/30 h-8"
               >
                 {isExporting ? (
-                  <span className="animate-pulse">Exportando...</span>
+                  <span className="animate-pulse text-xs">...</span>
                 ) : (
                   <>
-                    <Download className="w-4 h-4 mr-1" />
-                    <span className="hidden sm:inline">Exportar PDF</span>
+                    <Download className="w-4 h-4" />
+                    <span className="hidden sm:inline ml-1 text-xs">PDF</span>
                   </>
                 )}
               </Button>
             </div>
+          </div>
+
+          {/* Barra de progresso */}
+          <div className="mt-3">
+            <BarraProgresso 
+              totalParagrafos={estudo.perguntas.length} 
+              paragrafosLidos={paragrafosLidos.length} 
+            />
           </div>
         </div>
       </header>
@@ -937,7 +1144,10 @@ export default function EstudoDetalhePage() {
               index={index}
               estudoId={estudo.id}
               isExpanded={expandedPergunta === `${estudo.id}-${index}`}
-              onToggle={() => togglePergunta(`${estudo.id}-${index}`)}
+              onToggle={() => {
+                togglePergunta(`${estudo.id}-${index}`)
+                marcarParagrafoLido(`${index}`)
+              }}
             />
           ))}
         </div>
