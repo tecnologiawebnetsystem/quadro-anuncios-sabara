@@ -113,7 +113,7 @@ export function AdminSidebar() {
             <SidebarMenu>
               {menuItems.map((item) =>
                 item.subItems ? (
-                  <Collapsible key={item.title} defaultOpen className="group/collapsible">
+                  <Collapsible key={item.title} className="group/collapsible">
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton
