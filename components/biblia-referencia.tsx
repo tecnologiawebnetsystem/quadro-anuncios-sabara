@@ -140,37 +140,8 @@ export function BibliaReferencia({ referencia, children }: BibliaReferenciaProps
   )
 }
 
-// Função utilitária para processar texto e converter referências em componentes clicáveis
+// Função utilitária - agora retorna o texto sem links clicáveis
 export function processarTextoBiblico(texto: string): React.ReactNode[] {
-  // Regex para encontrar referências bíblicas
-  // Exemplos: "Mateus 5:3", "Mat. 5:3", "1 Coríntios 13:4-7", "Leia Provérbios 25:11"
-  const regex = /\(?\s*(?:Leia\s+)?(\d?\s?[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõç]+\.?\s+\d+:\d+(?:\s*[-–,]\s*\d+)?)\s*\.?\)?/gi
-  
-  const partes: React.ReactNode[] = []
-  let ultimoIndice = 0
-  let match
-  
-  while ((match = regex.exec(texto)) !== null) {
-    // Adiciona o texto antes da referência
-    if (match.index > ultimoIndice) {
-      partes.push(texto.slice(ultimoIndice, match.index))
-    }
-    
-    // Adiciona a referência clicável
-    const referencia = match[1]
-    partes.push(
-      <BibliaReferencia key={match.index} referencia={referencia}>
-        {match[0]}
-      </BibliaReferencia>
-    )
-    
-    ultimoIndice = match.index + match[0].length
-  }
-  
-  // Adiciona o texto restante
-  if (ultimoIndice < texto.length) {
-    partes.push(texto.slice(ultimoIndice))
-  }
-  
-  return partes.length > 0 ? partes : [texto]
+  // Retorna o texto como está, sem transformar em links
+  return [texto]
 }
