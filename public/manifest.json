@@ -1,0 +1,21 @@
+{
+  "name": "Quadro de Anúncios",
+  "short_name": "Quadro",
+  "description": "Sistema de gerenciamento de quadro de anúncios",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#dc2626",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-512x512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "pt-BR",
+  "dir": "ltr"
+}
