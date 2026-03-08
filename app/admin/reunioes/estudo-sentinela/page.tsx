@@ -44,7 +44,7 @@ const estudosMarco: Estudo[] = [
     canticoInicialTitulo: "A Palavra de Deus nos ajuda a viver",
     canticoFinal: 162,
     canticoFinalTitulo: "Preciso de ti",
-    titulo: "Continue cuidando da sua "necessidade espiritual"",
+    titulo: "Continue cuidando da sua 'necessidade espiritual'",
     textoTema: "Felizes os que têm consciência de sua necessidade espiritual.",
     textoTemaRef: "MAT. 5:3",
     objetivo: "Ver como podemos continuar nos beneficiando de tudo o que Jeová nos dá para ficarmos bem alimentados, vestidos e protegidos em sentido espiritual.",
