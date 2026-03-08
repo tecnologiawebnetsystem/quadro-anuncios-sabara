@@ -5,7 +5,8 @@ import './globals.css'
 
 const poppins = Poppins({ 
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"]
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
@@ -52,7 +53,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body className="font-sans antialiased">
+      <body className={`${poppins.variable} font-sans antialiased`}>
         {children}
         <Analytics />
         <script
