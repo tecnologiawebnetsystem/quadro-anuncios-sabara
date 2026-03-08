@@ -1,7 +1,8 @@
-const CACHE_NAME = 'quadro-anuncios-v1';
+const CACHE_NAME = 'quadro-anuncios-v2';
 const urlsToCache = [
   '/',
   '/admin',
+  '/admin/reunioes/estudo-sentinela',
   '/manifest.json',
 ];
 
