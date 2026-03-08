@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ClipboardList,
   ShieldCheck,
+  BookOpen,
 } from "lucide-react"
 import {
   Sidebar,
@@ -55,6 +56,11 @@ const menuItems = [
       { title: "Pioneiros Regulares", href: "/admin/publicadores/pioneiros-regulares" },
       { title: "Pioneiros Auxiliares", href: "/admin/publicadores/pioneiros-auxiliares" },
     ],
+  },
+  {
+    title: "Grupo de Estudos",
+    icon: BookOpen,
+    href: "/admin/grupo-estudos",
   },
   {
     title: "Alçadas",
