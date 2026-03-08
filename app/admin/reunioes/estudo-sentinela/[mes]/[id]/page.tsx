@@ -136,9 +136,33 @@ const estudosMarco: Estudo[] = [
       },
       {
         paragrafo: "13",
-        pergunta: "O que você está determinado a fazer?",
-        textoBase: "Precisamos estar determinados a continuar cuidando da nossa necessidade espiritual. Isso inclui nos alimentar regularmente com comida espiritual, vestir a armadura completa de Deus e nos proteger de influências prejudiciais.",
-        resposta: "Estou determinado a continuar cuidando da minha necessidade espiritual. Isso inclui me alimentar regularmente com comida espiritual, vestir a armadura completa de Deus e me proteger de influências prejudiciais. Quero imitar a humildade, persistência e fé da mulher fenícia."
+        pergunta: "Como podemos imitar Paulo?",
+        textoBase: "Nós podemos imitar Paulo por reconhecer que, não importa há quanto tempo servimos a Jeová, precisamos continuar usando a vestimenta espiritual que ele nos dá. E como vimos, isso envolve nos livrar da velha personalidade e nos revestir da nova.",
+        resposta: "Podemos imitar Paulo por reconhecer que precisamos continuar usando a vestimenta espiritual que Jeová nos dá. Se voltarmos a mostrar uma característica ruim de personalidade, como perder a cabeça ou falar de modo grosseiro, não precisamos achar que somos um fracasso. Devemos continuar tentando mudar nosso modo de pensar e agir."
+      },
+      {
+        paragrafo: "14-15",
+        pergunta: "De que forma Jeová protege seus servos em sentido espiritual? (Salmo 27:5)",
+        textoBase: "Jeová protege seus servos de qualquer coisa ou pessoa que possa destruir sua fé nele. Ele promete que nenhuma arma fabricada contra nós vai ser bem-sucedida. Apesar de Satanás e seus apoiadores serem poderosos, eles jamais vão conseguir nos causar algum dano permanente.",
+        resposta: "Jeová protege seus servos de qualquer coisa ou pessoa que possa destruir sua fé nele. Ele promete que nenhuma arma fabricada contra nós vai ser bem-sucedida. Mesmo que nos tirem a vida, Jeová é capaz de nos trazer de volta na ressurreição. Ele também nos protege por nos ajudar a lidar com as ansiedades e nos dá irmãos e anciãos para nos apoiar e pastorear."
+      },
+      {
+        paragrafo: "16",
+        pergunta: "De que maneiras Jeová protegeu Davi?",
+        textoBase: "Quando Davi seguia os padrões de Jeová, ele era protegido porque Jeová o ajudava a tomar decisões sábias, que traziam felicidade. Por outro lado, quando ignorava esses padrões, Davi não era protegido das consequências de suas ações.",
+        resposta: "Quando Davi seguia os padrões de Jeová, ele era protegido porque Jeová o ajudava a tomar decisões sábias. Quando Davi sofreu por causa das ações de outras pessoas, ele contou para Jeová todas as suas ansiedades. E Jeová consolava e acalmava Davi, garantindo que o amava muito e que cuidaria bem dele."
+      },
+      {
+        paragrafo: "17",
+        pergunta: "Como podemos imitar Davi?",
+        textoBase: "Podemos imitar o exemplo de Davi buscando as orientações de Jeová antes de tomar decisões. Também entendemos que às vezes sofremos, não porque Jeová deixou de nos proteger, mas porque nós tomamos decisões ruins.",
+        resposta: "Podemos imitar Davi buscando as orientações de Jeová antes de tomar decisões. Quando sofremos por causa das ações de outros, abrimos nosso coração para Jeová, confiando que ele vai proteger nossa mente e nosso coração."
+      },
+      {
+        paragrafo: "18",
+        pergunta: "O que não devemos permitir, e como podemos continuar cuidando da nossa necessidade espiritual?",
+        textoBase: "Nosso texto do ano para 2026 diz: 'Felizes os que têm consciência de sua necessidade espiritual.' Não devemos permitir que a atitude das pessoas que negam ter uma necessidade espiritual nos influencie.",
+        resposta: "Não devemos permitir que a atitude de pessoas que negam ter uma necessidade espiritual nos influencie. Podemos continuar cuidando da nossa necessidade espiritual por aproveitar o alimento espiritual que Jeová provê, nos revestir da nova personalidade e buscar a proteção que Jeová nos dá."
       }
     ],
     recapitulacao: [
