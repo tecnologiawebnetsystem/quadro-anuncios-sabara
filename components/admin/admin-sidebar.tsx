@@ -11,6 +11,7 @@ import {
   ClipboardList,
   ShieldCheck,
   BookOpen,
+  Calendar,
 } from "lucide-react"
 import {
   Sidebar,
@@ -61,6 +62,15 @@ const menuItems = [
     title: "Grupo de Estudos",
     icon: BookOpen,
     href: "/admin/grupo-estudos",
+  },
+  {
+    title: "Reuniões",
+    icon: Calendar,
+    href: "/admin/reunioes",
+    subItems: [
+      { title: "Vida e Ministério", href: "/admin/reunioes/vida-ministerio" },
+      { title: "Estudo de A Sentinela", href: "/admin/reunioes/estudo-sentinela" },
+    ],
   },
   {
     title: "Alçadas",
