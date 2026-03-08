@@ -340,6 +340,83 @@ const estudosMarco: Estudo[] = [
         resposta: "Estou determinado a mostrar minha gratidão pelo resgate todos os dias, não apenas na época da Celebração. Quero viver de um modo que honre a Jeová e mostre que valorizo o sacrifício de Jesus. Quero ajudar outros a aprender sobre o resgate para que eles também possam se beneficiar dele."
       }
     ]
+  },
+  {
+    id: 5,
+    semana: "Semana 5",
+    dataInicio: "30 de março",
+    dataFim: "5 de abril",
+    cantico: 76,
+    titulo: "Fale a verdade de modo agradável",
+    textoTema: "Jeová, [o] Deus da verdade. — Salmo 31:5",
+    objetivo: "Ver como podemos falar a verdade de uma forma que traga bons resultados.",
+    perguntas: [
+      {
+        paragrafo: "1",
+        pergunta: "O que precisamos fazer para nos tornar parte da família de Jeová?",
+        resposta: "A verdade da Palavra de Deus influencia toda a nossa vida. Só podemos nos tornar parte da família de Jeová se amarmos a verdade e vivermos de acordo com ela. Isso inclui sermos honestos no que falamos e fazemos."
+      },
+      {
+        paragrafo: "2",
+        pergunta: "Jesus sempre falava a verdade? Como as pessoas reagiam? (Mateus 10:35)",
+        resposta: "Jesus sempre falava a verdade, mesmo que suas palavras não agradassem a todos. Até mesmo os inimigos dele reconheciam isso. Jesus disse que viria causar divisão entre as pessoas. Ele sabia que a mensagem que pregava dividiria o mundo em dois grupos: aqueles que amam a verdade da Bíblia e aqueles que não amam."
+      },
+      {
+        paragrafo: "3",
+        pergunta: "O que vamos ver neste estudo?",
+        resposta: "Vamos responder às perguntas: Onde podemos encontrar a verdade? Por que, como e quando devemos falar a verdade? Isso vai nos ajudar a falar a verdade de maneira ainda mais agradável, ou seja, com jeito e no momento certo."
+      },
+      {
+        paragrafo: "4",
+        pergunta: "Por que podemos dizer que Jeová é a Fonte da verdade?",
+        resposta: "Tudo o que Jeová diz é verdadeiro. Ele fala a verdade quando diz o que é certo e o que é errado. Tudo o que ele prediz sobre o futuro se cumpre. Ele nunca quebra uma promessa. A Bíblia chega até a dizer que é impossível Jeová mentir. Não é à toa que Jeová seja conhecido como o 'Deus da verdade'."
+      },
+      {
+        paragrafo: "5",
+        pergunta: "Por que não é difícil conhecer o 'Deus da verdade'? (Atos 17:27)",
+        resposta: "Para qualquer lugar que olhamos, vemos provas de que Deus existe. Paulo disse que Deus quer que 'o achemos' e que ele 'não está longe de cada um de nós'. Na realidade, Jeová atrai pessoas humildes que estão procurando pela verdade."
+      },
+      {
+        paragrafo: "6",
+        pergunta: "Quais são algumas das verdades que encontramos na Bíblia? Por que você ama conhecer essas verdades?",
+        resposta: "A Bíblia ensina verdades sobre a origem do Universo e da vida na Terra, a origem do pecado, do sofrimento e da morte. Podemos confiar na promessa de que Jeová, por meio de seu Filho, vai desfazer todos os danos causados pelo Diabo. Jesus vai destruir os maus, ressuscitar os mortos, restaurar a Terra e nos levar à perfeição."
+      },
+      {
+        paragrafo: "7-8",
+        pergunta: "Faz diferença a nossa motivação ao falar a verdade? Dê um exemplo. (Marcos 3:11,12)",
+        resposta: "Sim, faz diferença. Quando Jesus pregava, algumas pessoas possuídas por demônios gritavam: 'Você é o Filho de Deus.' Os demônios disseram a verdade, mas talvez quisessem ganhar a confiança das pessoas para depois desviá-las de servir a Jeová. A motivação deles era egoísta. Jesus não gostou e ordenou que não pregassem sobre ele."
+      },
+      {
+        paragrafo: "9",
+        pergunta: "O que devemos evitar fazer, e por quê?",
+        resposta: "Devemos evitar chamar atenção para nós mesmos. Imagine que um irmão nos confiou uma informação confidencial e nós a divulgamos para outros. Isso pode nos fazer subir no conceito das pessoas, mas não no conceito de Jeová. Por quê? Porque além de divulgarmos informações confidenciais, falamos a verdade com a motivação errada."
+      },
+      {
+        paragrafo: "10",
+        pergunta: "O que significa falar palavras 'agradáveis'? (Colossenses 4:6)",
+        resposta: "Paulo lembrou aos cristãos de Colossos que nossas palavras devem ser 'sempre agradáveis'. A expressão no idioma original passa a ideia de que nossas palavras, além de beneficiar os nossos ouvintes, precisam ser bondosas e atraentes."
+      },
+      {
+        paragrafo: "11-12",
+        pergunta: "Por que devemos ensinar a verdade com cuidado? Dê um exemplo.",
+        resposta: "A Bíblia é comparada a uma espada afiada que pode revelar quem nós realmente somos por dentro. Mas se não usarmos a Bíblia com cuidado, podemos acabar ofendendo as pessoas. Por exemplo, se alguém comemora o Natal e nós logo na primeira conversa falamos que essa comemoração não é aprovada por Deus, isso não seria falar de modo agradável."
+      },
+      {
+        paragrafo: "13",
+        pergunta: "O que significa temperar nossas palavras com sal?",
+        resposta: "Paulo disse que devemos 'temperar' nossas palavras para apresentar a verdade de uma forma que agrade o 'gosto' do nosso ouvinte. Assim como ao cozinhar para outros devemos pensar no gosto deles, não no nosso, ao falar a verdade devemos adaptar nossas palavras de acordo com o gosto e a cultura do nosso ouvinte."
+      },
+      {
+        paragrafo: "14-15",
+        pergunta: "Jesus ensinava tudo o que sabia para os seus discípulos? Por que devemos seguir o exemplo dele? (Provérbios 25:11)",
+        resposta: "Jesus ensinava de forma agradável e bondosamente ensinava muitas coisas para seus seguidores. Mas ele não tentava ensinar tudo o que sabia porque levava em conta as limitações dos seus discípulos. Ele entendia que não era a hora certa de eles aprenderem algumas verdades. Da mesma forma, devemos dizer o que os estudantes precisam saber na hora em que eles precisam saber."
+      },
+      {
+        paragrafo: "16",
+        pergunta: "Como podemos ajudar nossos estudantes a 'continuar andando na verdade'?",
+        resposta: "Devemos dar um bom exemplo, mostrar pelo nosso modo de vida que acreditamos nas promessas de Deus, ensinar a verdade com a motivação correta e no momento certo, falar de forma agradável usando palavras gentis e bondosas, e dar todo o crédito a Jeová quando recebermos um elogio."
+      }
+    ]
   }
 ]
 
@@ -368,12 +445,12 @@ export default function EstudoSentinelaPage() {
         </div>
         <Badge variant="outline" className="text-lg px-4 py-2">
           <BookOpen className="w-5 h-5 mr-2" />
-          4 Estudos
+          5 Estudos
         </Badge>
       </div>
 
       <Tabs defaultValue="semana1" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 h-auto">
+        <TabsList className="grid w-full grid-cols-5 h-auto">
           {estudosMarco.map((estudo) => (
             <TabsTrigger 
               key={estudo.id} 
