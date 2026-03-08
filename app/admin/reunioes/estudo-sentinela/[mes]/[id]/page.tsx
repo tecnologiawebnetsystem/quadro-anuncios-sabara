@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Music, ChevronDown, ChevronUp } from "lucide-react"
+import { ArrowLeft, Music, ChevronDown, ChevronUp, ImageIcon } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { processarTextoBiblico } from "@/components/biblia-referencia"
 
 interface Pergunta {
   paragrafo: string
@@ -12,6 +13,8 @@ interface Pergunta {
   resposta: string
   textoBase?: string
   imagem?: string
+  imagemDescricao?: string
+  imagemLegenda?: string
 }
 
 interface PerguntaRecapitulacao {
@@ -80,9 +83,12 @@ const estudosMarco: Estudo[] = [
       },
       {
         paragrafo: "5",
-        pergunta: "Que qualidades a mulher fenícia demonstrou e qual foi a reação de Jesus?",
+        pergunta: "Que qualidades a mulher fenícia demonstrou e qual foi a reação de Jesus? (Veja também a imagem.)",
         textoBase: "A mulher fenícia mostrou verdadeira humildade, persistência e fé. Ela não ficou ofendida quando Jesus a comparou a um cachorrinho. Continuou implorando porque tinha fé em Jesus. E Jesus ficou tão impressionado com a fé dela que expulsou o demônio.",
-        resposta: "A mulher fenícia mostrou verdadeira humildade, persistência e fé. Ela não ficou ofendida quando Jesus a comparou a um cachorrinho. Continuou implorando porque tinha fé em Jesus. E Jesus ficou tão impressionado com a fé dela que expulsou o demônio que atormentava a filha dela."
+        resposta: "A mulher fenícia mostrou verdadeira humildade, persistência e fé. Ela não ficou ofendida quando Jesus a comparou a um cachorrinho. Continuou implorando porque tinha fé em Jesus. E Jesus ficou tão impressionado com a fé dela que expulsou o demônio que atormentava a filha dela.",
+        imagem: "https://assetsnffrgf-a.akamaihd.net/assets/m/2026001/univ/art/2026001_univ_lsr_xl.jpg",
+        imagemLegenda: "A mulher fenícia precisou de humildade, persistência e fé para receber a ajuda que queria",
+        imagemDescricao: "Mulher fenícia ajoelhada diante de Jesus, demonstrando humildade ao pedir ajuda para sua filha que estava possuída por um demônio."
       },
       {
         paragrafo: "6",
@@ -556,6 +562,25 @@ export default function EstudoDetalhePage() {
         <div className="space-y-4 mb-8">
           {estudo.perguntas.map((pergunta, index) => (
             <div key={index} className="border-b border-zinc-800 pb-4">
+              {/* Imagem do parágrafo (se houver) */}
+              {pergunta.imagem && (
+                <div className="mb-4 rounded-lg overflow-hidden">
+                  <img 
+                    src={pergunta.imagem} 
+                    alt={pergunta.imagemLegenda || `Imagem do parágrafo ${pergunta.paragrafo}`}
+                    className="w-full h-auto"
+                  />
+                  {pergunta.imagemLegenda && (
+                    <div className="bg-zinc-800 p-3">
+                      <p className="text-zinc-300 text-sm italic">{pergunta.imagemLegenda}</p>
+                      {pergunta.imagemDescricao && (
+                        <p className="text-zinc-400 text-xs mt-1">{pergunta.imagemDescricao}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Pergunta */}
               <div 
                 className="cursor-pointer"
@@ -565,7 +590,7 @@ export default function EstudoDetalhePage() {
               >
                 <p className="text-zinc-300 mb-2">
                   <span className="font-bold text-white">{pergunta.paragrafo}. </span>
-                  {pergunta.pergunta}
+                  {processarTextoBiblico(pergunta.pergunta)}
                 </p>
                 
                 {/* Caixa de resposta */}
@@ -580,7 +605,7 @@ export default function EstudoDetalhePage() {
                         <span className="text-green-400 text-sm font-medium">RESPOSTA</span>
                         <ChevronUp className="w-5 h-5 text-green-400" />
                       </div>
-                      <p className="text-green-100">{pergunta.resposta}</p>
+                      <p className="text-green-100">{processarTextoBiblico(pergunta.resposta)}</p>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between text-zinc-400">
@@ -594,7 +619,7 @@ export default function EstudoDetalhePage() {
               {/* Texto Base */}
               {pergunta.textoBase && expandedPergunta === `${estudo.id}-${index}` && (
                 <div className="mt-4 text-zinc-400 text-sm leading-relaxed">
-                  <p>{pergunta.textoBase}</p>
+                  <p>{processarTextoBiblico(pergunta.textoBase)}</p>
                 </div>
               )}
             </div>
