@@ -49,6 +49,18 @@ interface MesData {
 // Dados dos meses
 const mesesData: MesData[] = [
   {
+    id: "fevereiro-2026",
+    nome: "Fevereiro",
+    ano: 2026,
+    cor: "#8b5cf6",
+    estudos: [
+      { id: 1, semana: "Semana 1", dataInicio: "6", dataFim: "12 de abril", titulo: "Como podemos ajudar nossos parentes descrentes?", cantico: 82 },
+      { id: 2, semana: "Semana 2", dataInicio: "13", dataFim: "19 de abril", titulo: "O significado e a importância do batismo", cantico: 52 },
+      { id: 3, semana: "Semana 3", dataInicio: "20", dataFim: "26 de abril", titulo: "Continue se esforçando para se batizar", cantico: 49 },
+      { id: 4, semana: "Semana 4", dataInicio: "27 de abril", dataFim: "3 de maio", titulo: "Como se preparar para desafios que podem surgir depois do batismo?", cantico: 99 },
+    ]
+  },
+  {
     id: "marco-2026",
     nome: "Março",
     ano: 2026,
