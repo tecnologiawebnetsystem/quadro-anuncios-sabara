@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { processarTextoBiblico } from "@/components/biblia-referencia"
-import Image from "next/image"
 
 interface Pergunta {
   paragrafo: string
