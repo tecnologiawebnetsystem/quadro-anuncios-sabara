@@ -30,6 +30,17 @@ export default function AdminDashboard() {
   const totalPioneirosRegulares = publicadores.filter((p) => p.pioneiro_regular && p.ativo).length
   const totalPioneirosAuxiliares = publicadores.filter((p) => p.pioneiro_auxiliar && p.ativo).length
 
+  // Debug - verificar contagens
+  console.log("[v0] Dashboard - Total publicadores carregados:", publicadores.length)
+  console.log("[v0] Dashboard - Contagens:", {
+    totalAtivos,
+    totalAnciaos,
+    totalServos,
+    totalPioneirosRegulares,
+    totalPioneirosAuxiliares
+  })
+  console.log("[v0] Dashboard - Exemplo publicador:", publicadores[0])
+
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
