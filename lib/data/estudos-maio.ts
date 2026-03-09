@@ -241,7 +241,7 @@ export const estudosMaio: Estudo[] = [
         paragrafo: "14-15",
         pergunta: "O que Jeová quer fazer por seus servos leais, e por quê? (Jó 14:15) (Veja também a imagem da capa.)",
         textoBase: "Leia Jó 14:15. Nosso Pai celestial é leal com aqueles que são leais a ele. Jeová os ama tanto que, se eles morrerem, ele vai trazê-los de volta à vida. Jeová vai transformar em alegria toda a dor causada pela morte. — Isa. 65:17. É verdade que Jó continuou vivendo num mundo dominado por Satanás. Mas a Bíblia diz que Jeová recompensou Jó por curá-lo e dar a ele muito mais bênçãos do que ele tinha antes. Essas bênçãos foram só uma amostra do que Jeová vai fazer por Jó no futuro. Na verdade, Jeová quer que todos os seus servos leais tenham verdadeira felicidade e prazer na vida. Ele vai recompensar a todos eles com vida eterna no Paraíso na Terra. (Apo. 21:3, 4) Como Jeová é o Soberano do Universo, ninguém pode impedi-lo de fazer o que ele quer pelos seus servos. Pensar em como Jeová vai nos recompensar nos consola muito quando passamos por problemas!",
-        resposta: "Jeová é leal com os leais a ele. Se morrerem, ele vai trazê-los de volta à vida. Jeová recompensou Jó com bênçãos, uma amostra do futuro. Ele quer que seus servos tenham felicidade e vida eterna no Paraíso. Ninguém pode impedi-lo!"
+        resposta: "Jeová é leal com os leais a ele. Se morrerem, ele vai trazê-los de volta à vida. Jeová recompensou Jó com bênçãos, uma amostra do futuro. Ele quer que seus servos tenham felicidade e vida eterna no Paraíso. Ningu��m pode impedi-lo!"
       },
       {
         paragrafo: "16",
@@ -597,22 +597,70 @@ export const estudosMaio: Estudo[] = [
       {
         paragrafo: "6",
         pergunta: "Como entender que somos odiados por causa do 'nome' de Jesus pode nos ajudar? (Marcos 13:13)",
-        textoBase: "Somos odiados porque apoiamos Jesus. Jesus disse que os verdadeiros cristãos seriam odiados por todas as pessoas 'por causa do [seu] nome'. (Leia Marcos 13:13.) Mas o que o 'nome' de Jesus representa? Representa quem ele é e o direito que ele tem de ser o Rei do Reino de Deus. Nós somos odiados pelas pessoas que preferem confiar nos governantes humanos, em vez de confiar naquele que Jeová escolheu para governar o Universo, Jesus Cristo. Mas essa situação não vai durar muito tempo. Em breve, todos os que se opõem ao Reino de Cristo vão ser forçados a reconhecer a sua autoridade. — Fil. 2:9-11.",
+        textoBase: "Somos odiados porque apoiamos Jesus. Jesus disse que os verdadeiros cristãos seriam odiados por todas as pessoas 'por causa do [seu] nome'. (Leia Marcos 13:13.) Mas o que o 'nome' de Jesus representa? Representa quem ele é e o direito que ele tem de ser o Rei do Reino de Deus. Nós somos odiados pelas pessoas que preferem confiar nos governantes humanos, em vez de confiar naquele que Jeová escolheu para governar o Universo, Jesus Cristo. Mas essa situação não vai durar muito tempo. Jesus já está governando como Rei do Reino de Deus desde 1914 e logo ele vai acabar com todos os governos que são contra sua autoridade.",
         resposta: "Somos odiados porque apoiamos Jesus como Rei do Reino de Deus. As pessoas preferem confiar nos governantes humanos. Mas em breve, todos que se opõem ao Reino serão forçados a reconhecer a autoridade de Cristo."
+      },
+      {
+        paragrafo: "7-8",
+        pergunta: "Qual é ainda outra razão de o povo de Jeová ser alvo de ódio? (João 15:18-20) (Veja também as imagens.)",
+        textoBase: "Somos odiados porque rejeitamos o mundo de Satanás. Jesus explicou que seus seguidores seriam odiados porque 'não fazem parte do mundo'. (Leia João 15:18-20.) Assim como os primeiros cristãos, nós nos recusamos a ter o mesmo modo de pensar, agir e falar que o mundo de Satanás. Por causa disso, muitos irmãos e irmãs são maltratados no trabalho ou na escola. (1 Ped. 4:3, 4) Mas ficamos felizes quando um opositor muda de atitude e começa a nos respeitar. Veja a experiência de Ignacio, da América Central. Por anos, um de seus professores da escola fazia piada do estilo de vida que ele levava por servir a Jeová. Mas antes de Ignacio terminar a escola, aquele professor perguntou como ele conseguia seguir os princípios da Bíblia, mesmo num ambiente tão desafiador. Ignacio explicou que, para ele, as leis de Deus são uma proteção. Daí ele convidou o professor para assistir a uma reunião e, para a surpresa de Ignacio, o professor aceitou o convite! O professor ficou tão impressionado com a forma amorosa que foi tratado que continuou assistindo às reuniões. Depois, o próprio professor sofreu oposição porque estava estudando a Bíblia, mas continuou fazendo progresso e foi batizado.",
+        resposta: "Somos odiados porque rejeitamos o mundo de Satanás. Nos recusamos a ter o mesmo modo de pensar que o mundo. Ignacio convidou seu professor opositor para uma reunião. O professor ficou impressionado e acabou se batizando."
+      },
+      {
+        paragrafo: "9-10",
+        pergunta: "Por qual outro motivo os cristãos são diferentes do mundo de Satanás? O que podemos aprender do exemplo do apóstolo Paulo?",
+        textoBase: "Outra coisa que deixa claro que somos diferentes do mundo de Satanás é que não nos envolvemos na política ou nas guerras. (João 18:36) É verdade que nós seguimos o conselho em Romanos 13:1 e nos esforçamos para obedecer às leis do governo. Mas, como cristãos, não tomamos nenhum lado na política. Por isso, não nos candidatamos a cargos políticos e nem votamos em nenhum candidato. Por quê? Porque somos leais a Jeová e ao seu Reino, que tem Cristo como Rei. Muitas Testemunhas de Jeová são presas por causa da sua fé. Mesmo assim, esses irmãos e irmãs continuam pregando. Fazendo isso, eles imitam o exemplo do apóstolo Paulo, que passou anos em prisão domiciliar e na cadeia. (Atos 24:27; 28:16, 30) Mesmo assim, ele continuou compartilhando as boas novas com quem quer que o escutasse, incluindo guardas da prisão, oficiais da corte, governadores, reis e talvez até oficiais do imperador romano Nero. (Atos 9:15) Nossos irmãos que estão presos também pregam a quem quer que os escute, o que inclui juízes, oficiais do governo e guardas da prisão. Certo irmão passou mais de seis anos preso por não se envolver na política. Ele conta que não encarava esse tempo na prisão como uma punição, mas como uma designação de Jeová para encontrar pessoas sinceras. Imagine só que alegria ser usado por Jeová para alcançar essas pessoas com as boas novas! — Col. 4:3.",
+        resposta: "Não nos envolvemos na política ou nas guerras. Somos leais a Jeová e ao seu Reino. Paulo continuou pregando mesmo preso. Nossos irmãos presos também pregam a juízes, guardas e outros, como uma designação de Jeová."
+      },
+      {
+        paragrafo: "11",
+        pergunta: "Como a perseguição pode fortalecer nossa fé? Dê um exemplo.",
+        textoBase: "Nós sabemos que o ódio do mundo cumpre a profecia da Bíblia. Logo na primeira profecia registrada na Bíblia, Jeová deixou claro que Satanás e sua descendência — ou seja, aqueles que o seguem — odiariam aqueles que amam e servem a Jeová. (Gên. 3:15) Jesus várias vezes confirmou que essa profecia era verdadeira. E as palavras dele foram registradas nos quatro Evangelhos. (Mat. 10:22; Mar. 13:9-12; Luc. 6:22, 23; João 15:20) Outros escritores da Bíblia também falaram sobre isso. (2 Tim. 3:12; Tia. 1:2; 1 Ped. 4:12-14; Judas 3, 17-19) Então, quando somos perseguidos, nós não ficamos surpresos. Na verdade, ficamos felizes de ver que a profecia da Bíblia está se cumprindo. Isso nos dá a certeza de que estamos servindo ao Deus verdadeiro. Uma irmã que vive num país onde a nossa obra está restrita diz: 'Quando me dediquei a Jeová, eu sabia que uma hora ou outra eu enfrentaria perseguição. Então, os desafios nunca me pegaram de surpresa nem me deixaram com medo.' Entre os muitos opositores que essa irmã enfrentou, estava seu próprio marido. Ele a maltratava e até mesmo queimou a Bíblia e as publicações dela. Mas em vez de deixar o medo tomar conta, ela ficou com a fé ainda mais forte. (Heb. 10:39) Ela conclui: 'A Bíblia já dizia que a gente seria perseguido, então eu sabia que isso iria acontecer. Passar por isso me convenceu de que essa é a religião verdadeira.'",
+        resposta: "O ódio do mundo cumpre a profecia bíblica. Quando somos perseguidos, ficamos felizes de ver a profecia se cumprindo. Uma irmã disse: 'A Bíblia já dizia que seríamos perseguidos. Passar por isso me convenceu de que essa é a religião verdadeira.'"
+      },
+      {
+        paragrafo: "12",
+        pergunta: "O que ajudou um irmão a suportar perseguição?",
+        textoBase: "Apesar de saber que vamos ser perseguidos, pode ser difícil perseverar. Um irmão escreveu o seguinte sobre o tempo que ficou na prisão: 'Às vezes, eu me sentia deprimido ou preocupado, e só chorava.' O que ajudou esse irmão a perseverar? Ele disse: 'Eu já começava o dia orando. Ao longo do dia, quando uma coisa ruim acontecia, eu orava de novo. E quando alguma injustiça me deixava com raiva, eu me trancava no banheiro e fazia outra oração.' Além disso, nosso irmão meditava nos exemplos, tanto do passado quanto do presente, de pessoas que perseveraram apesar de perseguição. Isso o ajudou a não desistir e a sentir a paz que Jesus prometeu a seus seguidores. — João 14:27; 16:33.",
+        resposta: "Um irmão disse que orava várias vezes por dia na prisão. Ele também meditava nos exemplos de pessoas que perseveraram. Isso o ajudou a não desistir e a sentir a paz que Jesus prometeu."
+      },
+      {
+        paragrafo: "13-14",
+        pergunta: "O que pode nos ajudar a vencer o ódio? O que ajudou Paulo a continuar fiel mesmo diante da morte?",
+        textoBase: "Nosso amor é mais forte do que o ódio. Até dar seu último suspiro, Jesus amou seu Pai de todo o coração. Ele também amou seus amigos. (João 13:1; 15:13) Quando cultivamos esse mesmo amor, tanto por Jeová como pelos nossos irmãos, nós também conseguimos vencer o ódio. Como? Pouco antes de ser morto, Paulo escreveu para o seu querido amigo Timóteo: 'Deus não nos deu um espírito de covardia, mas de poder, de amor.' (2 Tim. 1:7) O que ele quis dizer? Paulo estava dizendo que o forte amor por Jeová pode ajudar um cristão a estar disposto a enfrentar situações muito difíceis. (2 Tim. 1:8) E realmente foi o amor que Paulo tinha por Jeová que o ajudou a continuar fiel e a enfrentar a morte com coragem. — Atos 20:22-24.",
+        resposta: "Nosso amor é mais forte do que o ódio. Paulo disse que o forte amor por Jeová pode ajudar a enfrentar situações difíceis. Foi o amor por Jeová que o ajudou a continuar fiel e enfrentar a morte com coragem."
+      },
+      {
+        paragrafo: "15",
+        pergunta: "Como nossos irmãos hoje têm mostrado amor abnegado uns pelos outros? (Veja também a imagem.)",
+        textoBase: "Nós com certeza amamos muito nossos queridos irmãos que continuam fiéis mesmo sofrendo perseguição. Alguns hoje estão dispostos a se arriscar para ajudar seus irmãos, assim como Áquila e Priscila arriscaram suas vidas para ajudar Paulo. (Rom. 16:3, 4) Por exemplo, na Rússia, muitos vão a tribunais para encorajar os irmãos que são presos. Quando uma irmã que tinha sido presa viu vários irmãos e irmãs no tribunal, ela ficou tão emocionada que não conseguia nem falar. O amor abnegado deles a fortaleceu num momento em que ela precisava muito. Somos muito felizes em saber que nosso amor é mais forte do que o ódio!",
+        resposta: "Alguns se arriscam para ajudar irmãos, como Áquila e Priscila. Na Rússia, muitos vão a tribunais para encorajar os presos. Uma irmã ficou tão emocionada ao ver os irmãos no tribunal que não conseguia falar."
+      },
+      {
+        paragrafo: "16",
+        pergunta: "Por que o apóstolo Pedro disse que aqueles que são maltratados por servirem a Deus podem ser felizes? (1 Pedro 4:14)",
+        textoBase: "Nós sabemos que Jeová fica feliz quando perseveramos apesar do ódio. (Leia 1 Pedro 4:14.) O apóstolo Pedro disse que aqueles que perseveram, mesmo quando são maltratados por servirem a Deus, têm um bom motivo para serem felizes. Mas por quê? Porque isso é uma prova de que o espírito de Deus 'está repousando sobre [nós]'. Pedro se sentia feliz por perseverar apesar de perseguição porque sabia que tinha a aprovação de Deus. Logo depois do Pentecostes do ano 33, os guardas do templo foram enviados para prender Pedro e outros apóstolos porque eles estavam pregando. Mas Pedro defendeu sua fé com coragem. (Atos 5:24-29) Mesmo depois de terem sido açoitados, Pedro e seus companheiros não pararam de pregar. Muito pelo contrário, eles ficaram felizes porque tinham sido 'considerados dignos de ser desonrados por causa do nome [de Jesus]'. Nós também podemos sentir essa mesma alegria quando perseveramos apesar de oposição. — Atos 5:40-42.",
+        resposta: "Pedro disse que aqueles que perseveram têm um bom motivo para serem felizes, porque o espírito de Deus 'está repousando sobre eles'. Mesmo depois de açoitados, os apóstolos ficaram felizes por serem 'considerados dignos de ser desonrados por causa de Jesus'."
+      },
+      {
+        paragrafo: "17",
+        pergunta: "O que Jesus disse aos seus discípulos na noite antes de morrer?",
+        textoBase: "Na noite antes da sua morte, Jesus disse aos seus discípulos: 'Quem me ama será amado pelo meu Pai, e eu o amarei.' (João 14:21) Estamos ansiosos para o dia em que as pessoas vão nos amar — e não nos odiar — por servir a Jeová! (2 Tes. 1:6-8) Até que esse dia chegue, podemos encontrar consolo e força por nos concentrar nas muitas razões que temos para ser felizes mesmo sendo odiados.",
+        resposta: "Jesus disse: 'Quem me ama será amado pelo meu Pai.' Estamos ansiosos para o dia em que as pessoas vão nos amar por servir a Jeová. Até lá, podemos encontrar consolo nas muitas razões que temos para ser felizes mesmo sendo odiados."
       }
     ],
     recapitulacao: [
       {
-        pergunta: "Por que somos odiados por adorar a Jeová?",
-        resposta: "Porque Satanás, 'o deus deste mundo', cega as pessoas para que não conheçam a Jeová e as influencia a perseguir quem conhece e ama a Deus."
+        pergunta: "Por que os seguidores de Jesus são odiados?",
+        resposta: "Porque adoramos a Jeová e as pessoas são enganadas por Satanás. Porque apoiamos Jesus como Rei do Reino de Deus. E porque rejeitamos o mundo de Satanás e não nos envolvemos na política ou nas guerras."
       },
       {
-        pergunta: "O que podemos aprender de Jesus e Estêvão sobre como tratar os perseguidores?",
-        resposta: "Devemos orar por eles, não odiá-los. Jesus e Estêvão pediram perdão para seus perseguidores. Muitos acabaram se arrependendo, incluindo Saulo de Tarso."
+        pergunta: "Em que sentido nosso amor é mais forte do que o ódio?",
+        resposta: "O forte amor por Jeová nos ajuda a enfrentar situações difíceis. Muitos irmãos se arriscam para ajudar outros que estão sendo perseguidos, mostrando amor abnegado."
       },
       {
-        pergunta: "Por que somos odiados por apoiar Jesus?",
-        resposta: "Porque apoiamos Jesus como Rei do Reino de Deus, e muitos preferem confiar nos governantes humanos em vez de confiar naquele que Jeová escolheu para governar."
+        pergunta: "Por que podemos ser felizes mesmo sendo odiados?",
+        resposta: "Porque a perseguição cumpre a profecia bíblica, confirmando que estamos servindo ao Deus verdadeiro. Porque o espírito de Deus 'está repousando sobre nós'. E porque Jeová e Jesus nos amam."
       }
     ]
   }
