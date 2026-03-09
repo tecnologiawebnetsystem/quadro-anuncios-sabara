@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { processarTextoBiblico } from "@/components/biblia-referencia"
 import { BarraProgresso } from "@/components/sentinela/barra-progresso"
-import { estudosFevereiro } from "@/lib/data/estudos-fevereiro"
+import { estudosAbril } from "@/lib/data/estudos-abril"
+import { estudosMarco } from "@/lib/data/estudos-marco"
 
 interface Pergunta {
   paragrafo: string
@@ -42,14 +43,28 @@ interface Estudo {
   recapitulacao: PerguntaRecapitulacao[]
 }
 
-// Dados dos estudos de Março 2026
-const estudosMarco: Estudo[] = [
-  {
-    id: 1,
-    semana: "Semana 1",
-    dataInicio: "2",
-    dataFim: "8 de março",
-    canticoInicial: 97,
+// Dados importados dos arquivos:
+// - @/lib/data/estudos-marco.ts (estudosMarco)
+// - @/lib/data/estudos-abril.ts (estudosAbril)
+
+// Componente auxiliar para o número do parágrafo em círculo
+const ParagrafoNumero = ({ numero }: { numero: string }) => (
+  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+    {numero.split('-')[0]}
+  </div>
+)
+
+// INÍCIO DOS COMPONENTES - Dados importados dos arquivos externos
+// estudosMarco importado de @/lib/data/estudos-marco.ts
+// estudosAbril importado de @/lib/data/estudos-abril.ts
+
+/* Código antigo de dados removido - agora usa arquivos externos */
+
+// Componente de Pergunta otimizado com memo (dados vêm dos arquivos importados)
+const _dataSourceInfo = "Dados carregados de estudos-marco.ts e estudos-abril.ts"
+
+/*
+INÍCIO DO BLOCO A SER REMOVIDO - código antigo
     canticoInicialTitulo: "A Palavra de Deus nos ajuda a viver",
     canticoFinal: 162,
     canticoFinalTitulo: "Preciso de ti",
@@ -155,14 +170,14 @@ const estudosMarco: Estudo[] = [
       {
         paragrafo: "17",
         pergunta: "Como podemos imitar Davi?",
-        textoBase: "Podemos imitar o exemplo de Davi buscando as orientações de Jeová antes de tomar decisões. Também entendemos que às vezes sofremos, não porque Jeová deixou de nos proteger, mas porque nós tomamos decisões ruins.",
-        resposta: "Podemos imitar Davi buscando as orientações de Jeová antes de tomar decisões. Quando sofremos por causa das ações de outros, abrimos nosso coração para Jeová, confiando que ele vai proteger nossa mente e nosso coração."
+        textoBase: "Podemos imitar o exemplo de Davi buscando as orientações de Jeová antes de tomar decisões. Também entendemos que às vezes sofremos, não porque Jeová deixou de nos proteger, mas porque nós tomamos decisões ruins. (Gál. 6:7, 8) E quando sofremos por causa das ações de outros, abrimos nosso coração para Jeová, confiando que ele vai proteger nossa mente e nosso coração. — Fil. 4:6, 7.",
+        resposta: "Podemos imitar Davi buscando as orientações de Jeová antes de tomar decisões. Também entendemos que às vezes sofremos, não porque Jeová deixou de nos proteger, mas porque nós tomamos decisões ruins. E quando sofremos por causa das ações de outros, abrimos nosso coração para Jeová, confiando que ele vai proteger nossa mente e nosso coração."
       },
       {
         paragrafo: "18",
-        pergunta: "O que não devemos permitir, e como podemos continuar cuidando da nossa necessidade espiritual?",
-        textoBase: "Nosso texto do ano para 2026 diz: 'Felizes os que têm consciência de sua necessidade espiritual.' Não devemos permitir que a atitude das pessoas que negam ter uma necessidade espiritual nos influencie.",
-        resposta: "Não devemos permitir que a atitude de pessoas que negam ter uma necessidade espiritual nos influencie. Podemos continuar cuidando da nossa necessidade espiritual por aproveitar o alimento espiritual que Jeová provê, nos revestir da nova personalidade e buscar a proteção que Jeová nos dá."
+        pergunta: "O que não devemos permitir, e como podemos continuar cuidando da nossa necessidade espiritual? (Veja também as imagens.)",
+        textoBase: "Nosso texto do ano para 2026 diz: 'Felizes os que têm consciência de sua necessidade espiritual.' Hoje isso é mais verdade do que nunca. Em todo lugar, vemos pessoas infelizes. Por quê? Porque muitas negam que têm uma necessidade espiritual. Outras até acreditam em Deus, mas o adoram do jeito errado. E ainda outras confiam nas orientações de simples humanos. Não devemos permitir que a atitude dessas pessoas nos influencie. Como podemos continuar cuidando da nossa necessidade espiritual? Por aproveitar o alimento espiritual que Jeová provê, nos revestir da nova personalidade e buscar a proteção que Jeová nos dá.",
+        resposta: "Nosso texto do ano para 2026 diz: 'Felizes os que têm consciência de sua necessidade espiritual.' Hoje isso é mais verdade do que nunca. Em todo lugar, vemos pessoas infelizes porque muitas negam que têm uma necessidade espiritual, outras adoram a Deus do jeito errado, e outras confiam nas orientações de simples humanos. Não devemos permitir que a atitude dessas pessoas nos influencie. Podemos continuar cuidando da nossa necessidade espiritual por aproveitar o alimento espiritual que Jeová provê, nos revestir da nova personalidade e buscar a proteção que Jeová nos dá."
       }
     ],
     recapitulacao: [
@@ -296,7 +311,7 @@ const estudosMarco: Estudo[] = [
         paragrafo: "6-7",
         pergunta: "Por que Jeová providenciou o resgate?",
         textoBase: "Jeová providenciou o resgate por causa do seu grande amor pela humanidade. Ele não queria que os humanos sofressem para sempre as consequências do pecado de Adão.",
-        resposta: "Jeová providenciou o resgate por causa do seu grande amor pela humanidade. Ele não queria que os humanos sofressem para sempre as consequências do pecado de Adão. Jeová encontrou uma forma justa de salvar a humanidade."
+        resposta: "Jeová providenciou o resgate por causa do seu grande amor pela humanidade. Ele não queria que os humanos sofressem para sempre as consequências do pecado de Ad��o. Jeová encontrou uma forma justa de salvar a humanidade."
       },
       {
         paragrafo: "8-9",
@@ -511,10 +526,9 @@ const estudosMarco: Estudo[] = [
       {
         pergunta: "Quando devemos falar a verdade?",
         resposta: "Devemos falar a verdade no momento certo, levando em conta as limitações do ouvinte. Assim como Jesus, devemos ensinar o que a pessoa precisa saber na hora em que ela precisa saber."
-      }
-    ]
   }
-]
+FIM DO BLOCO A SER REMOVIDO */
+
 
 // Componente de Pergunta otimizado com memo
 const PerguntaItem = ({ 
@@ -554,12 +568,15 @@ const PerguntaItem = ({
         </div>
       )}
 
-      {/* Texto do Parágrafo - SEMPRE VISÍVEL */}
-      {pergunta.textoBase && (
-        <div className="mb-4 p-4 bg-zinc-900/60 rounded-lg border-l-4 border-blue-500">
-          <p className="text-zinc-300 text-base leading-relaxed">{processarTextoBiblico(pergunta.textoBase)}</p>
-        </div>
-      )}
+{/* Texto do Parágrafo - SEMPRE VISÍVEL */}
+  {pergunta.textoBase && (
+    <div className="mb-4 p-4 bg-zinc-900/60 rounded-lg border-l-4 border-blue-500 flex gap-3">
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+        {pergunta.paragrafo.split('-')[0]}
+      </div>
+      <p className="text-zinc-300 text-base leading-relaxed flex-1">{processarTextoBiblico(pergunta.textoBase)}</p>
+    </div>
+  )}
 
       {/* Pergunta */}
       <div className="mb-3">
@@ -622,8 +639,8 @@ export default function EstudoDetalhePage() {
 
 // Memoize estudo lookup - busca no mês correto
   const estudo = useMemo(() => {
-    if (mes.startsWith("fevereiro")) {
-      return estudosFevereiro.find(e => e.id === id)
+    if (mes.startsWith("abril")) {
+      return estudosAbril.find(e => e.id === id)
     }
     return estudosMarco.find(e => e.id === id)
   }, [id, mes])
@@ -727,7 +744,7 @@ export default function EstudoDetalhePage() {
 
   // Navigation helpers
   const { prevEstudo, nextEstudo } = useMemo(() => {
-    const estudos = mes.startsWith("fevereiro") ? estudosFevereiro : estudosMarco
+    const estudos = mes.startsWith("abril") ? estudosAbril : estudosMarco
     const currentIndex = estudos.findIndex(e => e.id === id)
     return {
       prevEstudo: currentIndex > 0 ? estudos[currentIndex - 1] : null,

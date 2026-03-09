@@ -49,18 +49,6 @@ interface MesData {
 // Dados dos meses
 const mesesData: MesData[] = [
   {
-    id: "fevereiro-2026",
-    nome: "Fevereiro",
-    ano: 2026,
-    cor: "#8b5cf6",
-    estudos: [
-      { id: 1, semana: "Semana 1", dataInicio: "6", dataFim: "12 de abril", titulo: "Como podemos ajudar nossos parentes descrentes?", cantico: 82 },
-      { id: 2, semana: "Semana 2", dataInicio: "13", dataFim: "19 de abril", titulo: "O significado e a importância do batismo", cantico: 52 },
-      { id: 3, semana: "Semana 3", dataInicio: "20", dataFim: "26 de abril", titulo: "Continue se esforçando para se batizar", cantico: 49 },
-      { id: 4, semana: "Semana 4", dataInicio: "27 de abril", dataFim: "3 de maio", titulo: "Como se preparar para desafios que podem surgir depois do batismo?", cantico: 99 },
-    ]
-  },
-  {
     id: "marco-2026",
     nome: "Março",
     ano: 2026,
@@ -71,6 +59,18 @@ const mesesData: MesData[] = [
       { id: 3, semana: "Semana 3", dataInicio: "16", dataFim: "22 de março", titulo: "Por que precisamos do resgate?", cantico: 20 },
       { id: 4, semana: "Semana 4", dataInicio: "23", dataFim: "29 de março", titulo: "Como você vai mostrar sua gratidão pelo resgate?", cantico: 18 },
       { id: 5, semana: "Semana 5", dataInicio: "30 de março", dataFim: "5 de abril", titulo: "Fale a verdade de modo agradável", cantico: 76 },
+    ]
+  },
+  {
+    id: "abril-2026",
+    nome: "Abril",
+    ano: 2026,
+    cor: "#8b5cf6",
+    estudos: [
+      { id: 1, semana: "Semana 1", dataInicio: "6", dataFim: "12 de abril", titulo: "Como podemos ajudar nossos parentes descrentes?", cantico: 82 },
+      { id: 2, semana: "Semana 2", dataInicio: "13", dataFim: "19 de abril", titulo: "O significado e a importância do batismo", cantico: 52 },
+      { id: 3, semana: "Semana 3", dataInicio: "20", dataFim: "26 de abril", titulo: "Continue se esforçando para se batizar", cantico: 49 },
+      { id: 4, semana: "Semana 4", dataInicio: "27 de abril", dataFim: "3 de maio", titulo: "Como se preparar para desafios que podem surgir depois do batismo?", cantico: 99 },
     ]
   }
 ]

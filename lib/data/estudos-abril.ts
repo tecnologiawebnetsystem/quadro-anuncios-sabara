@@ -1,4 +1,4 @@
-// Dados dos estudos de Fevereiro 2026 (para semanas de abril-maio 2026)
+// Dados dos estudos de Abril 2026 (fonte: PDF w_T_202602)
 
 export interface Pergunta {
   paragrafo: string
@@ -33,7 +33,7 @@ export interface Estudo {
   recapitulacao: PerguntaRecapitulacao[]
 }
 
-export const estudosFevereiro: Estudo[] = [
+export const estudosAbril: Estudo[] = [
   {
     id: 1,
     semana: "Semana 1",
