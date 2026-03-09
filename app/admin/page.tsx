@@ -13,6 +13,10 @@ export default function AdminDashboard() {
     async function carregarDados() {
       try {
         const data = await getPublicadores()
+        // Debug: verificar quantos servos ministeriais
+        const servos = data.filter((p) => p.servo_ministerial && p.ativo)
+        console.log("[v0] Total servos ministeriais:", servos.length)
+        console.log("[v0] Servos ministeriais:", servos.map(s => s.nome))
         setPublicadores(data)
       } catch (error) {
         console.error("Erro ao carregar publicadores:", error)
