@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
-import { ChevronLeft, ChevronRight, BookOpen, FileText } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ArrowLeft, ArrowRight, BookOpen, FileText } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 import { reunioesMarco2026 } from "@/lib/data/vida-ministerio-marco"
 import { semanasAbril } from "@/lib/data/vida-ministerio-abril"
 import { getTodosEstudosSentinela, type EstudoSentinela } from "@/lib/data/estudo-sentinela"
@@ -101,84 +101,89 @@ export default function ReunioesPage() {
   const semanaFormatada = semanaAtual.semana.toLowerCase()
 
   return (
-    <div className="space-y-8 p-6 max-w-3xl mx-auto">
+    <div className="space-y-10 p-6 max-w-2xl mx-auto">
       {/* Navegação da Semana */}
-      <div className="flex items-center justify-center gap-6">
-        <Button
-          variant="ghost"
-          size="icon"
+      <div className="flex items-center justify-center gap-8">
+        <button
           onClick={irParaSemanaAnterior}
           disabled={indiceAtual === 0}
-          className="h-8 w-8 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-purple-200 bg-purple-50 text-purple-600 transition-all hover:bg-purple-100 hover:border-purple-300 hover:scale-105 disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-purple-50 dark:border-purple-800 dark:bg-purple-950 dark:hover:bg-purple-900"
         >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
+          <ArrowLeft className="h-5 w-5" />
+        </button>
         
-        <div className="text-center">
-          <span className="text-base text-foreground">
+        <div className="text-center min-w-[200px]">
+          <p className="text-lg font-medium text-foreground">
             {semanaFormatada}
             {isEstaSemana && (
-              <span className="text-muted-foreground"> · Esta semana</span>
+              <span className="text-muted-foreground font-normal"> · Esta semana</span>
             )}
-          </span>
+          </p>
         </div>
         
-        <Button
-          variant="ghost"
-          size="icon"
+        <button
           onClick={irParaProximaSemana}
           disabled={indiceAtual === todasSemanasVidaMinisterio.length - 1}
-          className="h-8 w-8 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-purple-200 bg-purple-50 text-purple-600 transition-all hover:bg-purple-100 hover:border-purple-300 hover:scale-105 disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-purple-50 dark:border-purple-800 dark:bg-purple-950 dark:hover:bg-purple-900"
         >
-          <ChevronRight className="h-5 w-5" />
-        </Button>
+          <ArrowRight className="h-5 w-5" />
+        </button>
       </div>
       
       {/* Cards das Reuniões */}
-      <div className="space-y-8">
+      <div className="space-y-6">
         {/* Vida e Ministério */}
         <section>
-          <h2 className="mb-4 text-lg font-bold text-foreground">Vida e Ministério</h2>
-          <Link href={`/admin/reunioes/vida-ministerio/${semanaAtual.id}`}>
-            <div className="flex items-center gap-4 py-3 px-2 cursor-pointer group rounded-lg hover:bg-accent/50 transition-colors">
-              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex-shrink-0 shadow-md">
-                <BookOpen className="h-7 w-7 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-base font-medium text-blue-500 group-hover:text-blue-400 group-hover:underline transition-colors">
-                  {semanaFormatada}
-                </p>
-              </div>
-            </div>
+          <h2 className="mb-4 text-xl font-bold text-foreground">Vida e Ministério</h2>
+          <Link href={`/admin/reunioes/vida-ministerio/${semanaAtual.id}`} className="block">
+            <Card className="group cursor-pointer border-0 bg-card/50 shadow-sm transition-all hover:shadow-md hover:bg-accent/30">
+              <CardContent className="flex items-center gap-5 p-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex-shrink-0 shadow-lg group-hover:shadow-blue-500/25 transition-shadow">
+                  <BookOpen className="h-8 w-8 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-base font-medium text-blue-500 transition-colors group-hover:text-blue-400">
+                    {semanaFormatada}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {semanaAtual.leituraSemana}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </Link>
         </section>
         
         {/* Estudo de A Sentinela */}
         <section>
-          <h2 className="mb-4 text-lg font-bold text-foreground">Estudo de A Sentinela</h2>
+          <h2 className="mb-4 text-xl font-bold text-foreground">Estudo de A Sentinela</h2>
           {estudoSentinela ? (
-            <Link href={`/admin/reunioes/estudo-sentinela/${estudoSentinela.mes}/${estudoSentinela.id}`}>
-              <div className="flex items-center gap-4 py-3 px-2 cursor-pointer group rounded-lg hover:bg-accent/50 transition-colors">
-                <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-red-700 to-red-900 flex-shrink-0 shadow-md">
-                  <FileText className="h-7 w-7 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs uppercase text-muted-foreground tracking-wide font-medium">{estudoSentinela.semana}</p>
-                  <p className="text-base font-medium text-red-500 group-hover:text-red-400 group-hover:underline transition-colors">
-                    {estudoSentinela.titulo}
-                  </p>
-                </div>
-              </div>
+            <Link href={`/admin/reunioes/estudo-sentinela/${estudoSentinela.mes}/${estudoSentinela.id}`} className="block">
+              <Card className="group cursor-pointer border-0 bg-card/50 shadow-sm transition-all hover:shadow-md hover:bg-accent/30">
+                <CardContent className="flex items-center gap-5 p-4">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex-shrink-0 shadow-lg group-hover:shadow-red-500/25 transition-shadow">
+                    <FileText className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs uppercase text-muted-foreground tracking-wider font-medium mb-1">{estudoSentinela.semana}</p>
+                    <p className="text-base font-medium text-red-500 transition-colors group-hover:text-red-400">
+                      {estudoSentinela.titulo}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </Link>
           ) : (
-            <div className="flex items-center gap-4 py-3 px-2">
-              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-muted flex-shrink-0">
-                <FileText className="h-7 w-7 text-muted-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-muted-foreground">Não disponível para esta semana</p>
-              </div>
-            </div>
+            <Card className="border-0 bg-muted/30">
+              <CardContent className="flex items-center gap-5 p-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-muted flex-shrink-0">
+                  <FileText className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-muted-foreground">Não disponível para esta semana</p>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </section>
       </div>
