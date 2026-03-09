@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar, ChevronRight, BookOpen, Gem, Wheat, Heart, Music } from "lucide-react"
 import Link from "next/link"
 import { reunioesMarco2026 } from "@/lib/data/vida-ministerio-marco"
+import { semanasAbril } from "@/lib/data/vida-ministerio-abril"
 
 export default function VidaMinisterioPage() {
   const [mesSelecionado, setMesSelecionado] = useState("marco-2026")
@@ -21,8 +22,12 @@ export default function VidaMinisterioPage() {
 
   const mesAtual = mesesDisponiveis.find(m => m.id === mesSelecionado)
 
-  // Por enquanto só temos dados de março
-  const reunioes = mesSelecionado === "marco-2026" ? reunioesMarco2026 : []
+  // Selecionar reuniões de acordo com o mês
+  const reunioes = mesSelecionado === "marco-2026" 
+    ? reunioesMarco2026 
+    : mesSelecionado === "abril-2026" 
+      ? semanasAbril 
+      : []
 
   return (
     <div className="space-y-6">

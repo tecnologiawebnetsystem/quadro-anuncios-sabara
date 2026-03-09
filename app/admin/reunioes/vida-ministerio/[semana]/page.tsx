@@ -8,13 +8,15 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, BookOpen, Gem, Wheat, Heart, Music, Clock, FileText } from "lucide-react"
 import { reunioesMarco2026 } from "@/lib/data/vida-ministerio-marco"
+import { semanasAbril } from "@/lib/data/vida-ministerio-abril"
 
 export default function SemanaDetalhesPage({ params }: { params: Promise<{ semana: string }> }) {
   const { semana } = use(params)
   const router = useRouter()
 
-  // Buscar a reunião pelo ID
-  const reuniao = reunioesMarco2026.find(r => r.id === semana)
+  // Buscar a reunião pelo ID em todos os meses
+  const todasReunioes = [...reunioesMarco2026, ...semanasAbril]
+  const reuniao = todasReunioes.find(r => r.id === semana)
 
   if (!reuniao) {
     return (
