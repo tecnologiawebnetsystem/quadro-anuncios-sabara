@@ -250,24 +250,59 @@ export default function EstudoSentinelaPage() {
             {/* Seletor de mês */}
             <Select value={mesSelecionado} onValueChange={setMesSelecionado}>
               <SelectTrigger className="w-[180px] bg-zinc-800 border-zinc-700 text-white">
-                <SelectValue placeholder="Selecione o mês" />
-              </SelectTrigger>
-              <SelectContent className="bg-zinc-800 border-zinc-700 z-[100]">
-                {mesesData.map((mes) => (
-                  <SelectItem 
-                    key={mes.id} 
-                    value={mes.id}
-                    className="text-white focus:bg-zinc-700 focus:text-white"
-                  >
+                <SelectValue>
+                  {mesSelecionado === "marco-2026" && (
                     <div className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: mes.cor }}
-                      />
-                      {mes.nome} {mes.ano}
+                      <div className="w-3 h-3 rounded-full bg-blue-500" />
+                      Março/2026
                     </div>
-                  </SelectItem>
-                ))}
+                  )}
+                  {mesSelecionado === "abril-2026" && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-purple-500" />
+                      Abril/2026
+                    </div>
+                  )}
+                  {mesSelecionado === "maio-2026" && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                      Maio/2026
+                    </div>
+                  )}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent 
+                className="bg-zinc-800 border-zinc-700 z-[9999]"
+                position="popper"
+                sideOffset={5}
+              >
+                <SelectItem 
+                  value="marco-2026"
+                  className="text-white focus:bg-zinc-700 focus:text-white cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-blue-500" />
+                    Março/2026
+                  </div>
+                </SelectItem>
+                <SelectItem 
+                  value="abril-2026"
+                  className="text-white focus:bg-zinc-700 focus:text-white cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-purple-500" />
+                    Abril/2026
+                  </div>
+                </SelectItem>
+                <SelectItem 
+                  value="maio-2026"
+                  className="text-white focus:bg-zinc-700 focus:text-white cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                    Maio/2026
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
