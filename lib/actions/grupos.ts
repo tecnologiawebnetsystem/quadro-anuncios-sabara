@@ -148,9 +148,11 @@ export async function getPublicadores() {
     .order("nome", { ascending: true })
   
   if (error) {
-    console.error("Erro ao buscar publicadores:", error)
+    console.error("[v0] Erro ao buscar publicadores:", error)
     return []
   }
+  
+  console.log("[v0] getPublicadores - Total encontrado:", data?.length || 0)
   
   return data as PublicadorGrupo[]
 }

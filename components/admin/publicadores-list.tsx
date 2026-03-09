@@ -70,6 +70,8 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
     setLoading(true)
     try {
       const data = await getPublicadores()
+      console.log("[v0] Publicadores carregados do Supabase:", data)
+      console.log("[v0] Total de publicadores:", data.length)
       // Converter para o formato estendido - usa campos do banco quando disponíveis
       const publicadoresConvertidos: Publicador[] = data.map(p => ({
         ...p,
