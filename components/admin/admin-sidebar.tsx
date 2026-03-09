@@ -67,10 +67,6 @@ const menuItems = [
     title: "Reuniões",
     icon: Calendar,
     href: "/admin/reunioes",
-    subItems: [
-      { title: "Vida e Ministério", href: "/admin/reunioes/vida-ministerio" },
-      { title: "Estudo de A Sentinela", href: "/admin/reunioes/estudo-sentinela" },
-    ],
   },
   {
     title: "Alçadas",
