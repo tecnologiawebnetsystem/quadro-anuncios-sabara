@@ -43,17 +43,28 @@ interface Estudo {
   recapitulacao: PerguntaRecapitulacao[]
 }
 
-// Dados importados de @/lib/data/estudos-marco.ts
-// const estudosMarco está importado no topo do arquivo
+// Dados importados dos arquivos:
+// - @/lib/data/estudos-marco.ts (estudosMarco)
+// - @/lib/data/estudos-fevereiro.ts (estudosFevereiro)
 
-// Dados adicionais dos estudos 3, 4 e 5 de março
-const estudosMarcoAdicionais: Estudo[] = [
-  {
-    id: 1,
-    semana: "Semana 1",
-    dataInicio: "2",
-    dataFim: "8 de março",
-    canticoInicial: 97,
+// Componente auxiliar para o número do parágrafo em círculo
+const ParagrafoNumero = ({ numero }: { numero: string }) => (
+  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+    {numero.split('-')[0]}
+  </div>
+)
+
+// INÍCIO DOS COMPONENTES - Dados importados dos arquivos externos
+// estudosMarco importado de @/lib/data/estudos-marco.ts
+// estudosFevereiro importado de @/lib/data/estudos-fevereiro.ts
+
+/* Código antigo de dados removido - agora usa arquivos externos */
+
+// Componente de Pergunta otimizado com memo (dados vêm dos arquivos importados)
+const _dataSourceInfo = "Dados carregados de estudos-marco.ts e estudos-fevereiro.ts"
+
+/*
+INÍCIO DO BLOCO A SER REMOVIDO - código antigo
     canticoInicialTitulo: "A Palavra de Deus nos ajuda a viver",
     canticoFinal: 162,
     canticoFinalTitulo: "Preciso de ti",
@@ -515,10 +526,9 @@ const estudosMarcoAdicionais: Estudo[] = [
       {
         pergunta: "Quando devemos falar a verdade?",
         resposta: "Devemos falar a verdade no momento certo, levando em conta as limitações do ouvinte. Assim como Jesus, devemos ensinar o que a pessoa precisa saber na hora em que ela precisa saber."
-      }
-    ]
   }
-]
+FIM DO BLOCO A SER REMOVIDO */
+
 
 // Componente de Pergunta otimizado com memo
 const PerguntaItem = ({ 
