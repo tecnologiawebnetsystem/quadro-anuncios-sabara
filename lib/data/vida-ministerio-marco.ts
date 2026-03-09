@@ -150,10 +150,10 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
     semana: "16-22 de Março",
     dataInicio: "2026-03-16",
     dataFim: "2026-03-22",
-    leituraSemana: "ISAÍAS 45-46",
-    canticoInicial: 45,
-    canticoMeio: 103,
-    canticoFinal: 150,
+    leituraSemana: "ISAÍAS 45-47",
+    canticoInicial: 2,
+    canticoMeio: 38,
+    canticoFinal: 148,
     comentariosIniciais: "1 min",
     comentariosFinais: "3 min",
     tesouros: {
@@ -163,9 +163,9 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
       partes: [
         {
           numero: 1,
-          titulo: "Jeová é incomparável",
+          titulo: '"Eu sou Deus, e não há ninguém igual a mim"',
           duracao: "10 min",
-          descricao: "Isaías mostra como Jeová é diferente dos ídolos feitos por homens. Jeová pode predizer o futuro e fazer acontecer."
+          descricao: "Não existe ninguém igual a Jeová. (Isa. 46:9; w20.06 5 § 14)\n\nNada pode impedir Jeová de fazer o que ele quer. (Isa. 46:10, 11; cl 42 § 14; it 'Exilados retornam de Babilônia' § 1)\n\nQuem confia em deuses falsos ficará decepcionado. (Isa. 46:6, 7; w99 15/5 14 §§ 18-19)"
         },
         {
           numero: 2,
@@ -174,8 +174,8 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
           joiasEspirituais: [
             {
               texto: "Isa. 46:10",
-              pergunta: "O que aprendemos sobre a capacidade de Jeová de predizer o futuro?",
-              referencia: "w23.05 15 § 4"
+              pergunta: "Será que Jeová sabia 'desde o princípio' que Adão e Eva iam pecar?",
+              referencia: "w11 1/1 14 §§ 2-3"
             }
           ]
         },
@@ -183,8 +183,8 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
           numero: 3,
           titulo: "Leitura da Bíblia",
           duracao: "4 min",
-          descricao: "Isa. 46:1-13",
-          referencia: "th lição 11"
+          descricao: "Isa. 45:1-11",
+          referencia: "th lição 5"
         }
       ]
     },
@@ -196,26 +196,25 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
         {
           numero: 4,
           titulo: "Iniciando conversas",
-          duracao: "2 min",
-          tipo: "DE CASA EM CASA",
-          descricao: "Use uma pergunta para iniciar uma conversa.",
-          referencia: "lmd lição 5 ponto 1"
+          duracao: "3 min",
+          tipo: "TESTEMUNHO PÚBLICO",
+          descricao: "Explique para uma pessoa de uma cultura não cristã como é a Celebração.",
+          referencia: "lmd lição 5 ponto 3"
         },
         {
           numero: 5,
-          titulo: "Fazendo revisitas",
+          titulo: "Cultivando o interesse",
           duracao: "4 min",
-          tipo: "REVISITA",
-          descricao: "Visite alguém que mostrou interesse.",
-          referencia: "lmd lição 8 ponto 2"
+          tipo: "DE CASA EM CASA",
+          descricao: "Ofereça um estudo bíblico para uma pessoa que aceitou o convite da Celebração numa conversa anterior.",
+          referencia: "lmd lição 9 ponto 5"
         },
         {
           numero: 6,
-          titulo: "Explicando suas crenças",
+          titulo: "Fazendo discípulos",
           duracao: "5 min",
-          tipo: "ESTUDO BÍBLICO",
-          descricao: "Explique por que servimos a Jeová.",
-          referencia: "lmd lição 9 ponto 3"
+          descricao: "lff lição 19 introdução e pontos 1-3",
+          referencia: "lmd lição 11 ponto 3"
         }
       ]
     },
@@ -223,15 +222,22 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
       nome: "NOSSA VIDA CRISTÃ",
       cor: "red",
       icone: "heart",
-      cantico: 103,
+      cantico: 38,
       partes: [
         {
           numero: 7,
-          titulo: "Necessidades locais",
-          duracao: "10 min"
+          titulo: "A única fonte de ajuda em que podemos confiar",
+          duracao: "7 min",
+          descricao: "Consideração. Quando passamos por problemas, a única pessoa em quem podemos confiar totalmente para nos ajudar é o nosso Deus, Jeová. — Heb. 13:5, 6.\n\nLeia Salmo 55:22. Depois, considere com a assistência as seguintes situações:\n\n• Perdemos o emprego, e fica difícil sustentar nossa família.\n• As autoridades nos proíbem de nos reunir e de pregar.\n• Enfrentamos sérios problemas de saúde.\n• Passamos por uma tragédia, como um desastre natural ou a morte de alguém que amamos."
         },
         {
           numero: 8,
+          titulo: "Atualizações do Departamento Local de Projeto/Construção — 2026",
+          duracao: "8 min",
+          descricao: "Discurso. Mostre o VÍDEO."
+        },
+        {
+          numero: 9,
           titulo: "Estudo bíblico de congregação",
           duracao: "30 min",
           descricao: "lfb histórias 70-71"
