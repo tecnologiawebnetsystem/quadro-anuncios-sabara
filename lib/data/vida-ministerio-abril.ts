@@ -327,5 +327,98 @@ export const semanasAbril: SemanaVidaMinisterio[] = [
         }
       ]
     }
+  },
+  {
+    id: "semana-27-abril-3-maio",
+    semana: "27 de Abril – 3 de Maio",
+    dataInicio: "2026-04-27",
+    dataFim: "2026-05-03",
+    leituraSemana: "ISAÍAS 56-57",
+    canticoInicial: 12,
+    canticoMeio: 58,
+    canticoFinal: 28,
+    comentariosIniciais: "1 min",
+    comentariosFinais: "3 min",
+    tesouros: {
+      nome: "TESOUROS DA PALAVRA DE DEUS",
+      cor: "blue",
+      icone: "diamond",
+      partes: [
+        {
+          numero: 1,
+          titulo: "Somos felizes por Jeová ser o nosso Deus",
+          duracao: "10 min",
+          descricao: "Os que adoram ídolos não são ouvidos quando gritam por socorro. (Isa. 57:13; ip-2 269 §§ 14-16)\n\nAs pessoas que não têm Jeová ficam inquietas e divididas. (Isa. 57:20; w18.06 7 § 16; it 'Terra' § 21)\n\nOs maus não têm paz. (Isa. 57:21; it 'Paz' § 3)\n\nPERGUNTE-SE: Como uma boa amizade com Jeová me ajuda a ter uma vida melhor?"
+        },
+        {
+          numero: 2,
+          titulo: "Joias espirituais",
+          duracao: "10 min",
+          joiasEspirituais: [
+            {
+              texto: "Isa. 56:6, 7",
+              pergunta: "Como essa profecia está se cumprindo?",
+              referencia: "w07 15/1 10 § 3; w06 1/11 27 § 1"
+            }
+          ]
+        },
+        {
+          numero: 3,
+          titulo: "Leitura da Bíblia",
+          duracao: "4 min",
+          descricao: "Isa. 56:4-12",
+          referencia: "th lição 5"
+        }
+      ]
+    },
+    ministerio: {
+      nome: "FAÇA SEU MELHOR NO MINISTÉRIO",
+      cor: "amber",
+      icone: "wheat",
+      partes: [
+        {
+          numero: 4,
+          titulo: "Iniciando conversas",
+          duracao: "3 min",
+          tipo: "TESTEMUNHO INFORMAL",
+          descricao: "Fale sobre algo que você aprendeu recentemente numa reunião.",
+          referencia: "lmd lição 2 ponto 4"
+        },
+        {
+          numero: 5,
+          titulo: "Explicando suas crenças",
+          duracao: "5 min",
+          descricao: "Discurso. ijwbq artigo 90 — Tema: Será que é necessário pertencer a uma organização religiosa?",
+          referencia: "th lição 16"
+        },
+        {
+          numero: 6,
+          titulo: "Fazendo discípulos",
+          duracao: "4 min",
+          descricao: "lff lição 19 ponto 4",
+          referencia: "lmd lição 11 ponto 3"
+        }
+      ]
+    },
+    vidaCrista: {
+      nome: "NOSSA VIDA CRISTÃ",
+      cor: "red",
+      icone: "heart",
+      cantico: 58,
+      partes: [
+        {
+          numero: 7,
+          titulo: "Nunca deixe de falar sobre Jeová",
+          duracao: "15 min",
+          descricao: "Consideração.\n\nAs pessoas que não servem a Jeová não têm um guia confiável para tomar boas decisões, não têm um objetivo na vida que as faça felizes de verdade nem uma esperança real de um futuro melhor. Apesar disso, muitos rejeitam a mensagem do Reino e nem imaginam como ela poderia os ajudar. Mas nós não ficamos desanimados nem desistimos, mesmo quando as pessoas não querem nos escutar. Por quê? Vamos ver alguns motivos. — Ecl. 11:6.\n\n• Nosso território está sempre mudando. Pessoas que não estavam interessadas podem se mudar, e os novos moradores talvez tenham interesse.\n• Nem sempre é a mesma pessoa que nos atende. Outra pessoa pode vir atender à porta, como um idoso que mora com a família, um filho que agora é adulto, um novo colega de quarto ou uma pessoa que está de visita.\n• As pessoas mudam. (1 Tim. 1:13) Por observar a situação mundial, que está piorando, ou por ter passado por uma tragédia na vida, a pessoa pode querer nos ouvir.\n• Quando perseveramos, mostramos que amamos a Jeová. — Luc. 6:45; 1 João 5:3.\n\nMostre o VÍDEO Jeová 'não Está Longe'. Depois, pergunte:\nO que você aprendeu sobre pregar sem desistir?"
+        },
+        {
+          numero: 8,
+          titulo: "Estudo bíblico de congregação",
+          duracao: "30 min",
+          descricao: "lfb histórias 80-81"
+        }
+      ]
+    }
   }
 ]
