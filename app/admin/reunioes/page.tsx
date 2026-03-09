@@ -4,7 +4,6 @@ import { useState, useMemo } from "react"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight, BookOpen, FileText, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { reunioesMarco2026 } from "@/lib/data/vida-ministerio-marco"
 import { semanasAbril } from "@/lib/data/vida-ministerio-abril"
 import { getTodosEstudosSentinela, type EstudoSentinela } from "@/lib/data/estudo-sentinela"
@@ -98,29 +97,30 @@ export default function ReunioesPage() {
     )
   }
 
+  // Formatar semana para exibição (ex: "9-15 de março")
+  const semanaFormatada = semanaAtual.semana.toLowerCase()
+
   return (
-    <div className="space-y-8 p-6">
+    <div className="space-y-8 p-6 max-w-3xl mx-auto">
       {/* Navegação da Semana */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-6">
         <Button
           variant="ghost"
           size="icon"
           onClick={irParaSemanaAnterior}
           disabled={indiceAtual === 0}
-          className="h-10 w-10 rounded-full"
+          className="h-8 w-8 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
         
         <div className="text-center">
-          <h1 className="text-xl font-semibold text-foreground">
-            {semanaAtual.semana}
+          <span className="text-base text-foreground">
+            {semanaFormatada}
             {isEstaSemana && (
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
-                · Esta semana
-              </span>
+              <span className="text-muted-foreground"> · Esta semana</span>
             )}
-          </h1>
+          </span>
         </div>
         
         <Button
@@ -128,73 +128,59 @@ export default function ReunioesPage() {
           size="icon"
           onClick={irParaProximaSemana}
           disabled={indiceAtual === todasSemanasVidaMinisterio.length - 1}
-          className="h-10 w-10 rounded-full"
+          className="h-8 w-8 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
       
       {/* Cards das Reuniões */}
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Vida e Ministério */}
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-foreground">Vida e Ministério</h2>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">Vida e Ministério</h2>
           <Link href={`/admin/reunioes/vida-ministerio/${semanaAtual.id}`}>
-            <Card className="group cursor-pointer transition-all hover:bg-accent/50 hover:shadow-md">
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-16 w-24 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-800">
-                  <BookOpen className="h-8 w-8 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">{semanaAtual.semana}</p>
-                  <p className="font-medium text-foreground">{semanaAtual.leituraSemana}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Cânticos: {semanaAtual.canticoInicial}, {semanaAtual.canticoMeio}, {semanaAtual.canticoFinal}
-                  </p>
-                </div>
-                <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100">
-                  <MoreHorizontal className="h-5 w-5" />
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="flex items-center gap-4 py-2 cursor-pointer group">
+              <div className="flex h-14 w-20 items-center justify-center rounded bg-gradient-to-br from-blue-600 to-blue-800 flex-shrink-0">
+                <BookOpen className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-purple-600 group-hover:underline">{semanaFormatada}</p>
+              </div>
+              <Button variant="ghost" size="icon" className="flex-shrink-0 text-muted-foreground">
+                <MoreHorizontal className="h-5 w-5" />
+              </Button>
+            </div>
           </Link>
         </section>
         
         {/* Estudo de A Sentinela */}
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-foreground">Estudo de A Sentinela</h2>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">Estudo de A Sentinela</h2>
           {estudoSentinela ? (
             <Link href={`/admin/reunioes/estudo-sentinela/${estudoSentinela.mes}/${estudoSentinela.id}`}>
-              <Card className="group cursor-pointer transition-all hover:bg-accent/50 hover:shadow-md">
-                <CardContent className="flex items-center gap-4 p-4">
-                  <div className="flex h-16 w-24 items-center justify-center rounded-lg bg-gradient-to-br from-red-700 to-red-900">
-                    <FileText className="h-8 w-8 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm uppercase text-muted-foreground">{estudoSentinela.semana}</p>
-                    <p className="font-medium text-primary">{estudoSentinela.titulo}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {estudoSentinela.textoTema}
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100">
-                    <MoreHorizontal className="h-5 w-5" />
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="flex items-center gap-4 py-2 cursor-pointer group">
+                <div className="flex h-14 w-20 items-center justify-center rounded bg-gradient-to-br from-red-700 to-red-900 flex-shrink-0">
+                  <FileText className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs uppercase text-muted-foreground tracking-wide">{estudoSentinela.semana}</p>
+                  <p className="text-sm text-purple-600 group-hover:underline">{estudoSentinela.titulo}</p>
+                </div>
+                <Button variant="ghost" size="icon" className="flex-shrink-0 text-muted-foreground">
+                  <MoreHorizontal className="h-5 w-5" />
+                </Button>
+              </div>
             </Link>
           ) : (
-            <Card className="bg-muted/50">
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-16 w-24 items-center justify-center rounded-lg bg-muted">
-                  <FileText className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Estudo da Sentinela</p>
-                  <p className="font-medium text-muted-foreground">Não disponível para esta semana</p>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex items-center gap-4 py-2">
+              <div className="flex h-14 w-20 items-center justify-center rounded bg-muted flex-shrink-0">
+                <FileText className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-muted-foreground">Não disponível para esta semana</p>
+              </div>
+            </div>
           )}
         </section>
       </div>
