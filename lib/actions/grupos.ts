@@ -22,6 +22,17 @@ export interface PublicadorGrupo {
   ativo: boolean
   criado_em: string
   atualizado_em: string
+  // Campos adicionais
+  anciao?: boolean
+  servo_ministerial?: boolean
+  pioneiro_regular?: boolean
+  pioneiro_auxiliar?: boolean
+  telefone?: string
+  email?: string
+  endereco?: string
+  data_nascimento?: string
+  data_batismo?: string
+  observacoes?: string
 }
 
 // ========== GRUPOS ==========
@@ -184,7 +195,17 @@ export async function createPublicador(dados: {
   nome: string
   grupo_id?: string | null
   is_lider?: boolean
-  is_auxiliar?: boolean 
+  is_auxiliar?: boolean
+  anciao?: boolean
+  servo_ministerial?: boolean
+  pioneiro_regular?: boolean
+  pioneiro_auxiliar?: boolean
+  telefone?: string
+  email?: string
+  endereco?: string
+  data_nascimento?: string
+  data_batismo?: string
+  observacoes?: string
 }) {
   const supabase = await createClient()
   
@@ -193,8 +214,18 @@ export async function createPublicador(dados: {
     .insert({
       nome: dados.nome,
       grupo_id: dados.grupo_id || null,
-      is_lider: dados.is_lider || false,
-      is_auxiliar: dados.is_auxiliar || false,
+      is_lider: dados.is_lider || dados.anciao || false,
+      is_auxiliar: dados.is_auxiliar || dados.servo_ministerial || false,
+      anciao: dados.anciao || dados.is_lider || false,
+      servo_ministerial: dados.servo_ministerial || dados.is_auxiliar || false,
+      pioneiro_regular: dados.pioneiro_regular || false,
+      pioneiro_auxiliar: dados.pioneiro_auxiliar || false,
+      telefone: dados.telefone || null,
+      email: dados.email || null,
+      endereco: dados.endereco || null,
+      data_nascimento: dados.data_nascimento || null,
+      data_batismo: dados.data_batismo || null,
+      observacoes: dados.observacoes || null,
     })
     .select()
     .single()
@@ -205,6 +236,7 @@ export async function createPublicador(dados: {
   }
   
   revalidatePath("/admin/grupo-estudos")
+  revalidatePath("/admin/publicadores")
   return { success: true, data }
 }
 
@@ -214,15 +246,45 @@ export async function updatePublicador(id: string, dados: {
   is_lider?: boolean
   is_auxiliar?: boolean
   ativo?: boolean
+  anciao?: boolean
+  servo_ministerial?: boolean
+  pioneiro_regular?: boolean
+  pioneiro_auxiliar?: boolean
+  telefone?: string
+  email?: string
+  endereco?: string
+  data_nascimento?: string
+  data_batismo?: string
+  observacoes?: string
 }) {
   const supabase = await createClient()
   
+  // Sincronizar campos antigos com novos
+  const dadosAtualizados: Record<string, unknown> = {
+    ...dados,
+    atualizado_em: new Date().toISOString(),
+  }
+  
+  // Se anciao foi definido, sincronizar com is_lider
+  if (dados.anciao !== undefined) {
+    dadosAtualizados.is_lider = dados.anciao
+  }
+  // Se is_lider foi definido, sincronizar com anciao
+  if (dados.is_lider !== undefined) {
+    dadosAtualizados.anciao = dados.is_lider
+  }
+  // Se servo_ministerial foi definido, sincronizar com is_auxiliar
+  if (dados.servo_ministerial !== undefined) {
+    dadosAtualizados.is_auxiliar = dados.servo_ministerial
+  }
+  // Se is_auxiliar foi definido, sincronizar com servo_ministerial
+  if (dados.is_auxiliar !== undefined) {
+    dadosAtualizados.servo_ministerial = dados.is_auxiliar
+  }
+  
   const { data, error } = await supabase
     .from("publicadores")
-    .update({
-      ...dados,
-      atualizado_em: new Date().toISOString(),
-    })
+    .update(dadosAtualizados)
     .eq("id", id)
     .select()
     .single()
@@ -233,6 +295,7 @@ export async function updatePublicador(id: string, dados: {
   }
   
   revalidatePath("/admin/grupo-estudos")
+  revalidatePath("/admin/publicadores")
   return { success: true, data }
 }
 
@@ -255,6 +318,7 @@ export async function movePublicador(publicadorId: string, novoGrupoId: string |
   }
   
   revalidatePath("/admin/grupo-estudos")
+  revalidatePath("/admin/publicadores")
   return { success: true, data }
 }
 
@@ -272,6 +336,7 @@ export async function deletePublicador(id: string) {
   }
   
   revalidatePath("/admin/grupo-estudos")
+  revalidatePath("/admin/publicadores")
   return { success: true }
 }
 

@@ -70,16 +70,16 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
     setLoading(true)
     try {
       const data = await getPublicadores()
-      // Converter para o formato estendido
+      // Converter para o formato estendido - usa campos do banco quando disponíveis
       const publicadoresConvertidos: Publicador[] = data.map(p => ({
         ...p,
-        anciao: p.is_lider, // Líderes são anciãos
-        servoMinisterial: p.is_auxiliar, // Auxiliares são servos
-        pioneiroRegular: false, // TODO: adicionar campo no banco
-        pioneiroAuxiliar: false, // TODO: adicionar campo no banco
-        telefone: undefined,
-        email: undefined,
-        observacoes: undefined,
+        anciao: p.anciao ?? p.is_lider, // Usa campo do banco ou fallback para is_lider
+        servoMinisterial: p.servo_ministerial ?? p.is_auxiliar, // Usa campo do banco ou fallback
+        pioneiroRegular: p.pioneiro_regular ?? false,
+        pioneiroAuxiliar: p.pioneiro_auxiliar ?? false,
+        telefone: p.telefone,
+        email: p.email,
+        observacoes: p.observacoes,
       }))
       setPublicadores(publicadoresConvertidos)
     } catch (error) {
@@ -118,8 +118,13 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
       if (editingPublicador) {
         const result = await updatePublicadorAction(editingPublicador.id, {
           nome: data.nome,
-          is_lider: data.anciao,
-          is_auxiliar: data.servoMinisterial,
+          anciao: data.anciao,
+          servo_ministerial: data.servoMinisterial,
+          pioneiro_regular: data.pioneiroRegular,
+          pioneiro_auxiliar: data.pioneiroAuxiliar,
+          telefone: data.telefone,
+          email: data.email,
+          observacoes: data.observacoes,
           ativo: data.ativo,
         })
         if (result.success) {
@@ -131,8 +136,13 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
       } else {
         const result = await createPublicador({
           nome: data.nome,
-          is_lider: data.anciao,
-          is_auxiliar: data.servoMinisterial,
+          anciao: data.anciao,
+          servo_ministerial: data.servoMinisterial,
+          pioneiro_regular: data.pioneiroRegular,
+          pioneiro_auxiliar: data.pioneiroAuxiliar,
+          telefone: data.telefone,
+          email: data.email,
+          observacoes: data.observacoes,
         })
         if (result.success) {
           toast.success("Publicador adicionado com sucesso!")
