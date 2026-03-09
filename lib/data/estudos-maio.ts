@@ -241,7 +241,7 @@ export const estudosMaio: Estudo[] = [
         paragrafo: "14-15",
         pergunta: "O que Jeová quer fazer por seus servos leais, e por quê? (Jó 14:15) (Veja também a imagem da capa.)",
         textoBase: "Leia Jó 14:15. Nosso Pai celestial é leal com aqueles que são leais a ele. Jeová os ama tanto que, se eles morrerem, ele vai trazê-los de volta à vida. Jeová vai transformar em alegria toda a dor causada pela morte. — Isa. 65:17. É verdade que Jó continuou vivendo num mundo dominado por Satanás. Mas a Bíblia diz que Jeová recompensou Jó por curá-lo e dar a ele muito mais bênçãos do que ele tinha antes. Essas bênçãos foram só uma amostra do que Jeová vai fazer por Jó no futuro. Na verdade, Jeová quer que todos os seus servos leais tenham verdadeira felicidade e prazer na vida. Ele vai recompensar a todos eles com vida eterna no Paraíso na Terra. (Apo. 21:3, 4) Como Jeová é o Soberano do Universo, ninguém pode impedi-lo de fazer o que ele quer pelos seus servos. Pensar em como Jeová vai nos recompensar nos consola muito quando passamos por problemas!",
-        resposta: "Jeová é leal com os leais a ele. Se morrerem, ele vai trazê-los de volta à vida. Jeová recompensou Jó com bênçãos, uma amostra do futuro. Ele quer que seus servos tenham felicidade e vida eterna no Paraíso. Ningu��m pode impedi-lo!"
+        resposta: "Jeová é leal com os leais a ele. Se morrerem, ele vai trazê-los de volta à vida. Jeová recompensou Jó com bênçãos, uma amostra do futuro. Ele quer que seus servos tenham felicidade e vida eterna no Paraíso. Ningu����m pode impedi-lo!"
       },
       {
         paragrafo: "16",
@@ -397,7 +397,7 @@ export const estudosMaio: Estudo[] = [
       {
         paragrafo: "19",
         pergunta: "O que pode acontecer se a nossa prioridade for viajar e relaxar?",
-        textoBase: "Nós também precisamos ter bom senso em relação a viagens e outras coisas que fazemos para relaxar. É verdade que todos nós precisamos sair da rotina de vez em quando — isso é bom e contribui para a nossa saúde. Mas se essas coisas forem a nossa prioridade, corremos o risco de perder o equilíbrio e não ter tempo para as coisas mais importantes. (Fil. 1:10) Cada um deve decidir por conta própria como vai gastar seu tempo. Mas ao tomar essa decisão, pense: 'Será que o tempo que passo viajando ou relaxando mostra que eu tenho bom senso? Estou dando prioridade ao que é realmente importante e me preparando para "o fim de todas as coisas"?'",
+        textoBase: "Nós também precisamos ter bom senso em relação a viagens e outras coisas que fazemos para relaxar. É verdade que todos nós precisamos sair da rotina de vez em quando — isso é bom e contribui para a nossa saúde. Mas se essas coisas forem a nossa prioridade, corremos o risco de perder o equilíbrio e não ter tempo para as coisas mais importantes. (Fil. 1:10) Cada um deve decidir por conta própria como vai gastar seu tempo. Mas ao tomar essa decisão, pense: 'Será que o tempo que passo viajando ou relaxando mostra que eu tenho bom senso? Estou dando prioridade ao que é realmente importante e me preparando para 'o fim de todas as coisas'?'",
         resposta: "Todos precisamos sair da rotina às vezes. Mas se viagens e lazer forem nossa prioridade, podemos perder o equilíbrio e não ter tempo para as coisas mais importantes. Pergunte-se se está dando prioridade ao realmente importante."
       },
       {
