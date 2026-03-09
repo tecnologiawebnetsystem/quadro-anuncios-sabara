@@ -12,13 +12,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
-import { Publicador } from "@/lib/store/publicadores"
+import { Publicador } from "./publicadores-list"
 
 interface PublicadorModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   publicador?: Publicador | null
-  onSave: (data: Omit<Publicador, "id" | "criadoEm" | "atualizadoEm">) => void
+  onSave: (data: Omit<Publicador, "id" | "criado_em" | "atualizado_em">) => void
 }
 
 export function PublicadorModal({
