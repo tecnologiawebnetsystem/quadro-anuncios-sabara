@@ -72,6 +72,19 @@ const mesesData: MesData[] = [
       { id: 3, semana: "Semana 3", dataInicio: "20", dataFim: "26 de abril", titulo: "Continue se esforçando para se batizar", cantico: 49 },
       { id: 4, semana: "Semana 4", dataInicio: "27 de abril", dataFim: "3 de maio", titulo: "Como se preparar para desafios que podem surgir depois do batismo?", cantico: 99 },
     ]
+  },
+  {
+    id: "maio-2026",
+    nome: "Maio",
+    ano: 2026,
+    cor: "#10b981",
+    estudos: [
+      { id: 1, semana: "Semana 1", dataInicio: "4", dataFim: "10 de maio", titulo: "Como melhorar nossa 'arte de ensino'", cantico: 53 },
+      { id: 2, semana: "Semana 2", dataInicio: "11", dataFim: "17 de maio", titulo: "Confie no Soberano do Universo", cantico: 7 },
+      { id: 3, semana: "Semana 3", dataInicio: "18", dataFim: "24 de maio", titulo: "Tome cuidado com as distrações", cantico: 35 },
+      { id: 4, semana: "Semana 4", dataInicio: "25", dataFim: "31 de maio", titulo: "Mostre perspicácia e você 'será bem-sucedido'", cantico: 135 },
+      { id: 5, semana: "Semana 5", dataInicio: "1", dataFim: "7 de junho", titulo: "Você pode ser feliz mesmo sendo odiado!", cantico: 111 },
+    ]
   }
 ]
 
