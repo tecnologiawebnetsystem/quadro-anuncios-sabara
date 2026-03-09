@@ -1,28 +1,39 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Users, UserCheck, Shield, Flag } from "lucide-react"
+import { Users, UserCheck, Shield, Flag, Loader2 } from "lucide-react"
 import { StatsCard } from "@/components/admin/stats-card"
-import { usePublicadoresStore } from "@/lib/store/publicadores"
+import { getPublicadores, type PublicadorGrupo } from "@/lib/actions/grupos"
 
 export default function AdminDashboard() {
-  const [mounted, setMounted] = useState(false)
-  const { publicadores } = usePublicadoresStore()
+  const [loading, setLoading] = useState(true)
+  const [publicadores, setPublicadores] = useState<PublicadorGrupo[]>([])
   
   useEffect(() => {
-    setMounted(true)
+    async function carregarDados() {
+      try {
+        const data = await getPublicadores()
+        setPublicadores(data)
+      } catch (error) {
+        console.error("Erro ao carregar publicadores:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    carregarDados()
   }, [])
 
+  // Usar os campos do banco de dados
   const totalAtivos = publicadores.filter((p) => p.ativo).length
-  const totalAnciaos = publicadores.filter((p) => p.anciao && p.ativo).length
-  const totalServos = publicadores.filter((p) => p.servoMinisterial && p.ativo).length
-  const totalPioneirosRegulares = publicadores.filter((p) => p.pioneiroRegular && p.ativo).length
-  const totalPioneirosAuxiliares = publicadores.filter((p) => p.pioneiroAuxiliar && p.ativo).length
+  const totalAnciaos = publicadores.filter((p) => (p.anciao || p.is_lider) && p.ativo).length
+  const totalServos = publicadores.filter((p) => (p.servo_ministerial || p.is_auxiliar) && p.ativo).length
+  const totalPioneirosRegulares = publicadores.filter((p) => p.pioneiro_regular && p.ativo).length
+  const totalPioneirosAuxiliares = publicadores.filter((p) => p.pioneiro_auxiliar && p.ativo).length
 
-  if (!mounted) {
+  if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Carregando...</div>
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     )
   }
