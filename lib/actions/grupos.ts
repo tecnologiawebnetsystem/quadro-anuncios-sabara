@@ -261,31 +261,13 @@ export async function updatePublicador(id: string, dados: {
 }) {
   const supabase = await createClient()
   
-  // Sincronizar campos antigos com novos
+  // Campos são independentes - NÃO sincronizar:
+  // - is_lider/is_auxiliar = dirigente/auxiliar do GRUPO DE ESTUDO
+  // - anciao/servo_ministerial = cargo na CONGREGAÇÃO
+  // Esses 4 campos são independentes e não devem ser sincronizados
   const dadosAtualizados: Record<string, unknown> = {
     ...dados,
     atualizado_em: new Date().toISOString(),
-  }
-  
-  // Se is_lider foi definido, sincronizar com anciao
-  if (dados.is_lider !== undefined) {
-    dadosAtualizados.anciao = dados.is_lider
-    dadosAtualizados.is_lider = dados.is_lider
-  }
-  // Se anciao foi definido, sincronizar com is_lider
-  if (dados.anciao !== undefined) {
-    dadosAtualizados.is_lider = dados.anciao
-    dadosAtualizados.anciao = dados.anciao
-  }
-  // Se is_auxiliar foi definido, sincronizar com servo_ministerial
-  if (dados.is_auxiliar !== undefined) {
-    dadosAtualizados.servo_ministerial = dados.is_auxiliar
-    dadosAtualizados.is_auxiliar = dados.is_auxiliar
-  }
-  // Se servo_ministerial foi definido, sincronizar com is_auxiliar
-  if (dados.servo_ministerial !== undefined) {
-    dadosAtualizados.is_auxiliar = dados.servo_ministerial
-    dadosAtualizados.servo_ministerial = dados.servo_ministerial
   }
   
   const { data, error } = await supabase
