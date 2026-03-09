@@ -265,21 +265,25 @@ export async function updatePublicador(id: string, dados: {
     atualizado_em: new Date().toISOString(),
   }
   
-  // Se anciao foi definido, sincronizar com is_lider
-  if (dados.anciao !== undefined) {
-    dadosAtualizados.is_lider = dados.anciao
-  }
   // Se is_lider foi definido, sincronizar com anciao
   if (dados.is_lider !== undefined) {
     dadosAtualizados.anciao = dados.is_lider
+    dadosAtualizados.is_lider = dados.is_lider
   }
-  // Se servo_ministerial foi definido, sincronizar com is_auxiliar
-  if (dados.servo_ministerial !== undefined) {
-    dadosAtualizados.is_auxiliar = dados.servo_ministerial
+  // Se anciao foi definido, sincronizar com is_lider
+  if (dados.anciao !== undefined) {
+    dadosAtualizados.is_lider = dados.anciao
+    dadosAtualizados.anciao = dados.anciao
   }
   // Se is_auxiliar foi definido, sincronizar com servo_ministerial
   if (dados.is_auxiliar !== undefined) {
     dadosAtualizados.servo_ministerial = dados.is_auxiliar
+    dadosAtualizados.is_auxiliar = dados.is_auxiliar
+  }
+  // Se servo_ministerial foi definido, sincronizar com is_auxiliar
+  if (dados.servo_ministerial !== undefined) {
+    dadosAtualizados.is_auxiliar = dados.servo_ministerial
+    dadosAtualizados.servo_ministerial = dados.servo_ministerial
   }
   
   const { data, error } = await supabase

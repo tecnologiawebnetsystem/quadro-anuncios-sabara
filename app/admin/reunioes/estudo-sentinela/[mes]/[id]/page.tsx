@@ -49,12 +49,12 @@ interface Estudo {
 // - @/lib/data/estudos-abril.ts (estudosAbril)
 // - @/lib/data/estudos-maio.ts (estudosMaio)
 
-// Componente auxiliar para o número do parágrafo em círculo
-const ParagrafoNumero = ({ numero }: { numero: string }) => (
-  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-    {numero.split('-')[0]}
+// Componente auxiliar para o número do parágrafo em círculo (AZUL)
+  const ParagrafoNumero = ({ numero }: { numero: string }) => (
+  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
+  {numero.split('-')[0]}
   </div>
-)
+  )
 
 // INÍCIO DOS COMPONENTES - Dados importados dos arquivos externos
 // estudosMarco importado de @/lib/data/estudos-marco.ts
@@ -573,20 +573,20 @@ const PerguntaItem = ({
 
 {/* Texto do Parágrafo - SEMPRE VISÍVEL */}
   {pergunta.textoBase && (
-    <div className="mb-4 p-4 bg-zinc-900/60 rounded-lg border-l-4 border-blue-500 flex gap-3">
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-        {pergunta.paragrafo.split('-')[0]}
-      </div>
+<div className="mb-4 p-4 bg-zinc-900/60 rounded-lg border-l-4 border-blue-500 flex gap-3">
+  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
+  {pergunta.paragrafo.split('-')[0]}
+  </div>
       <p className="text-zinc-300 text-base leading-relaxed flex-1">{processarTextoBiblico(pergunta.textoBase)}</p>
     </div>
   )}
 
-      {/* Pergunta */}
-      <div className="mb-3">
-        <p className="text-zinc-200 text-lg leading-relaxed">
-          <span className="font-bold text-white bg-blue-600 px-2 py-0.5 rounded mr-2 text-base">
-            {pergunta.paragrafo}
-          </span>
+{/* Pergunta */}
+  <div className="mb-3">
+  <p className="text-zinc-200 text-lg leading-relaxed">
+  <span className="font-bold text-white bg-red-600 px-1.5 py-0.5 rounded mr-2 text-sm">
+  {pergunta.paragrafo}
+  </span>
           {processarTextoBiblico(pergunta.pergunta)}
         </p>
       </div>

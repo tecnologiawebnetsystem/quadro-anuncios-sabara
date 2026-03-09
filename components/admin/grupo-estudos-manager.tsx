@@ -426,7 +426,6 @@ export function GrupoEstudosManager() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {grupos.map((grupo) => {
             const publicadoresGrupo = getPublicadoresDoGrupo(grupo.id)
-            const lider = publicadoresGrupo.find((p) => p.is_lider)
             const isDragOver = dragOverGrupoId === grupo.id
 
             return (
@@ -482,11 +481,6 @@ export function GrupoEstudosManager() {
                       </Button>
                     </div>
                   </div>
-                  {lider && (
-                    <p className="text-sm font-medium text-primary">
-                      Dirigente: {lider.nome}
-                    </p>
-                  )}
                 </CardHeader>
                 <CardContent className="flex-1 pt-0">
                   <ScrollArea className="h-[280px] pr-4">
