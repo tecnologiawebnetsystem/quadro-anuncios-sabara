@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useTransition } from "react"
 import {
   Table,
   TableBody,
@@ -28,9 +28,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Search, MoreHorizontal, Edit, Trash2, Power, Plus } from "lucide-react"
-import { Publicador, usePublicadoresStore } from "@/lib/store/publicadores"
+import { Search, MoreHorizontal, Edit, Trash2, Power, Plus, Loader2 } from "lucide-react"
+import { 
+  getPublicadores, 
+  createPublicador, 
+  updatePublicador as updatePublicadorAction, 
+  deletePublicador as deletePublicadorAction,
+  type PublicadorGrupo 
+} from "@/lib/actions/grupos"
 import { PublicadorModal } from "./publicador-modal"
+import { toast } from "sonner"
+
+// Interface estendida para compatibilidade com o modal existente
+export interface Publicador extends PublicadorGrupo {
+  anciao: boolean
+  servoMinisterial: boolean
+  pioneiroRegular: boolean
+  pioneiroAuxiliar: boolean
+  telefone?: string
+  email?: string
+  observacoes?: string
+}
 
 interface PublicadoresListProps {
   filtro?: "anciaos" | "servos" | "pioneiros-regulares" | "pioneiros-auxiliares"
@@ -38,13 +56,43 @@ interface PublicadoresListProps {
 }
 
 export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
-  const { publicadores, addPublicador, updatePublicador, deletePublicador, toggleAtivo } =
-    usePublicadoresStore()
+  const [publicadores, setPublicadores] = useState<Publicador[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isPending, startTransition] = useTransition()
   const [busca, setBusca] = useState("")
   const [modalOpen, setModalOpen] = useState(false)
   const [editingPublicador, setEditingPublicador] = useState<Publicador | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [publicadorToDelete, setPublicadorToDelete] = useState<Publicador | null>(null)
+
+  // Carregar publicadores do Supabase
+  async function carregarPublicadores() {
+    setLoading(true)
+    try {
+      const data = await getPublicadores()
+      // Converter para o formato estendido - usa campos do banco quando disponíveis
+      const publicadoresConvertidos: Publicador[] = data.map(p => ({
+        ...p,
+        anciao: p.anciao ?? p.is_lider, // Usa campo do banco ou fallback para is_lider
+        servoMinisterial: p.servo_ministerial ?? p.is_auxiliar, // Usa campo do banco ou fallback
+        pioneiroRegular: p.pioneiro_regular ?? false,
+        pioneiroAuxiliar: p.pioneiro_auxiliar ?? false,
+        telefone: p.telefone,
+        email: p.email,
+        observacoes: p.observacoes,
+      }))
+      setPublicadores(publicadoresConvertidos)
+    } catch (error) {
+      console.error("Erro ao carregar publicadores:", error)
+      toast.error("Erro ao carregar publicadores")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    carregarPublicadores()
+  }, [])
 
   // Filtrar publicadores
   let filteredPublicadores = publicadores
@@ -65,13 +113,46 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
     )
   }
 
-  const handleSave = (data: Omit<Publicador, "id" | "criadoEm" | "atualizadoEm">) => {
-    if (editingPublicador) {
-      updatePublicador(editingPublicador.id, data)
-    } else {
-      addPublicador(data)
-    }
-    setEditingPublicador(null)
+  const handleSave = async (data: Omit<Publicador, "id" | "criado_em" | "atualizado_em">) => {
+    startTransition(async () => {
+      if (editingPublicador) {
+        const result = await updatePublicadorAction(editingPublicador.id, {
+          nome: data.nome,
+          anciao: data.anciao,
+          servo_ministerial: data.servoMinisterial,
+          pioneiro_regular: data.pioneiroRegular,
+          pioneiro_auxiliar: data.pioneiroAuxiliar,
+          telefone: data.telefone,
+          email: data.email,
+          observacoes: data.observacoes,
+          ativo: data.ativo,
+        })
+        if (result.success) {
+          toast.success("Publicador atualizado com sucesso!")
+          carregarPublicadores()
+        } else {
+          toast.error(result.error || "Erro ao atualizar publicador")
+        }
+      } else {
+        const result = await createPublicador({
+          nome: data.nome,
+          anciao: data.anciao,
+          servo_ministerial: data.servoMinisterial,
+          pioneiro_regular: data.pioneiroRegular,
+          pioneiro_auxiliar: data.pioneiroAuxiliar,
+          telefone: data.telefone,
+          email: data.email,
+          observacoes: data.observacoes,
+        })
+        if (result.success) {
+          toast.success("Publicador adicionado com sucesso!")
+          carregarPublicadores()
+        } else {
+          toast.error(result.error || "Erro ao adicionar publicador")
+        }
+      }
+      setEditingPublicador(null)
+    })
   }
 
   const handleEdit = (publicador: Publicador) => {
@@ -84,17 +165,47 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
     setDeleteDialogOpen(true)
   }
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (publicadorToDelete) {
-      deletePublicador(publicadorToDelete.id)
-      setPublicadorToDelete(null)
+      startTransition(async () => {
+        const result = await deletePublicadorAction(publicadorToDelete.id)
+        if (result.success) {
+          toast.success("Publicador excluído com sucesso!")
+          carregarPublicadores()
+        } else {
+          toast.error(result.error || "Erro ao excluir publicador")
+        }
+        setPublicadorToDelete(null)
+        setDeleteDialogOpen(false)
+      })
     }
-    setDeleteDialogOpen(false)
+  }
+
+  const handleToggleAtivo = async (publicador: Publicador) => {
+    startTransition(async () => {
+      const result = await updatePublicadorAction(publicador.id, {
+        ativo: !publicador.ativo,
+      })
+      if (result.success) {
+        toast.success(publicador.ativo ? "Publicador desativado" : "Publicador ativado")
+        carregarPublicadores()
+      } else {
+        toast.error(result.error || "Erro ao alterar status")
+      }
+    })
   }
 
   const handleNewPublicador = () => {
     setEditingPublicador(null)
     setModalOpen(true)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
   }
 
   return (
@@ -213,7 +324,7 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => toggleAtivo(publicador.id)} className="cursor-pointer">
+                        <DropdownMenuItem onClick={() => handleToggleAtivo(publicador)} className="cursor-pointer">
                           <Power className="mr-2 h-4 w-4" />
                           {publicador.ativo ? "Desativar" : "Ativar"}
                         </DropdownMenuItem>
