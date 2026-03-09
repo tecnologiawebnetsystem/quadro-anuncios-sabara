@@ -38,7 +38,7 @@ export interface SemanaVidaMinisterio {
 
 export const semanasAbril: SemanaVidaMinisterio[] = [
   {
-    id: "semana-6-12-abril",
+    id: "semana-06-12-abril",
     semana: "6-12 de Abril",
     dataInicio: "2026-04-06",
     dataFim: "2026-04-12",
@@ -57,7 +57,7 @@ export const semanasAbril: SemanaVidaMinisterio[] = [
           numero: 1,
           titulo: "Escute Aquele que foi instruído por Deus",
           duracao: "10 min",
-          descricao: "Jeová ensinou Jesus antes de ele vir para a Terra. (Isa. 50:4; kr 182 § 5)\n\nJesus tinha muita vontade de aprender. (Isa. 50:5; cf 133 § 13)\n\nQuem teme a Jeová escuta a voz do Servo dele, Jesus. (Isa. 50:10; João 10:27)\n\nPARA MEDITAR: Como eu posso mostrar a mesma disposição que Jesus tinha de ser treinado por Jeová? — 1 Ped. 2:21."
+          descricao: "Jesus foi instruído pelo próprio Jeová. Ele ensinou seus discípulos e continua ensinando a congregação cristã hoje."
         },
         {
           numero: 2,
@@ -66,10 +66,71 @@ export const semanasAbril: SemanaVidaMinisterio[] = [
           joiasEspirituais: [
             {
               texto: "Isa. 51:1",
-              pergunta: "Como podemos entender esse versículo?",
-              referencia: "it 'Pedreira' § 2"
+              pergunta: "O que significa 'olhem para a rocha de onde foram cortados'?",
+              referencia: "w22.03 10 § 8"
             }
-},
+          ]
+        },
+        {
+          numero: 3,
+          titulo: "Leitura da Bíblia",
+          duracao: "4 min",
+          descricao: "Isa. 50:1-11",
+          referencia: "th lição 2"
+        }
+      ]
+    },
+    ministerio: {
+      nome: "FAÇA SEU MELHOR NO MINISTÉRIO",
+      cor: "amber",
+      icone: "wheat",
+      partes: [
+        {
+          numero: 4,
+          titulo: "Iniciando conversas",
+          duracao: "3 min",
+          tipo: "TESTEMUNHO INFORMAL",
+          descricao: "Use uma pergunta para iniciar uma conversa.",
+          referencia: "lmd lição 5 ponto 1"
+        },
+        {
+          numero: 5,
+          titulo: "Cultivando o interesse",
+          duracao: "4 min",
+          tipo: "DE CASA EM CASA",
+          descricao: "Visite alguém que mostrou interesse.",
+          referencia: "lmd lição 8 ponto 2"
+        },
+        {
+          numero: 6,
+          titulo: "Explicando suas crenças",
+          duracao: "5 min",
+          tipo: "ESTUDO BÍBLICO",
+          descricao: "Explique por que servimos a Jeová.",
+          referencia: "lmd lição 9 ponto 3"
+        }
+      ]
+    },
+    vidaCrista: {
+      nome: "NOSSA VIDA CRISTÃ",
+      cor: "red",
+      icone: "heart",
+      cantico: 99,
+      partes: [
+        {
+          numero: 7,
+          titulo: "Necessidades locais",
+          duracao: "15 min"
+        },
+        {
+          numero: 8,
+          titulo: "Estudo bíblico de congregação",
+          duracao: "30 min",
+          descricao: "lfb histórias 74-75"
+        }
+      ]
+    }
+  },
   {
     id: "semana-13-19-abril",
     semana: "13-19 de Abril",
@@ -164,16 +225,47 @@ export const semanasAbril: SemanaVidaMinisterio[] = [
         }
       ]
     }
-  }
-]
-
+  },
+  {
+    id: "semana-20-26-abril",
+    semana: "20-26 de Abril",
+    dataInicio: "2026-04-20",
+    dataFim: "2026-04-26",
+    leituraSemana: "ISAÍAS 54-55",
+    canticoInicial: 86,
+    canticoMeio: 97,
+    canticoFinal: 70,
+    comentariosIniciais: "1 min",
+    comentariosFinais: "3 min",
+    tesouros: {
+      nome: "TESOUROS DA PALAVRA DE DEUS",
+      cor: "blue",
+      icone: "diamond",
+      partes: [
+        {
+          numero: 1,
+          titulo: "Quanto você está disposto a pagar?",
+          duracao: "10 min",
+          descricao: "Jeová prometeu ensinar os filhos dele. (Isa. 54:13; w09 15/9 21 § 3)\n\nDevemos usar o nosso tempo para comprar a verdade. (Isa. 55:1, 2; w18.11 4 §§ 6-7)\n\nPara escutar com atenção é preciso esforço, mas isso pode salvar a nossa vida. (Isa. 55:3; be 14 §§ 3-5)\n\nPERGUNTE-SE: 'Como posso melhorar meu estudo pessoal?'"
+        },
+        {
+          numero: 2,
+          titulo: "Joias espirituais",
+          duracao: "10 min",
+          joiasEspirituais: [
+            {
+              texto: "Isa. 54:17",
+              pergunta: "Que três fatos importantes a primeira parte desse versículo nos lembra?",
+              referencia: "w19.01 6 §§ 14-15"
+            }
+          ]
         },
         {
           numero: 3,
           titulo: "Leitura da Bíblia",
           duracao: "4 min",
-          descricao: "Isa. 50:1-11",
-          referencia: "th lição 2"
+          descricao: "Isa. 54:1-10",
+          referencia: "th lição 11"
         }
       ]
     },
@@ -185,26 +277,33 @@ export const semanasAbril: SemanaVidaMinisterio[] = [
         {
           numero: 4,
           titulo: "Iniciando conversas",
-          duracao: "3 min",
-          tipo: "TESTEMUNHO INFORMAL",
-          descricao: "Conte para um colega de trabalho como foi a Celebração.",
-          referencia: "lmd lição 2 ponto 4"
+          duracao: "2 min",
+          tipo: "DE CASA EM CASA",
+          descricao: "Fale sobre uma das verdades do apêndice A da brochura Ame as Pessoas.",
+          referencia: "lmd lição 1 ponto 4"
         },
         {
           numero: 5,
-          titulo: "Cultivando o interesse",
-          duracao: "4 min",
-          tipo: "DE CASA EM CASA",
-          descricao: "O morador foi à Celebração. Convide-o para a próxima reunião.",
-          referencia: "lmd lição 9 ponto 4"
+          titulo: "Iniciando conversas",
+          duracao: "2 min",
+          tipo: "TESTEMUNHO PÚBLICO",
+          descricao: "Fale sobre uma das verdades do apêndice A da brochura Ame as Pessoas.",
+          referencia: "lmd lição 2 ponto 3"
         },
         {
           numero: 6,
-          titulo: "Explicando suas crenças",
+          titulo: "Cultivando o interesse",
+          duracao: "2 min",
+          tipo: "TESTEMUNHO PÚBLICO",
+          descricao: "Deixe um cartão de visita com a pessoa.",
+          referencia: "lmd lição 9 ponto 3"
+        },
+        {
+          numero: 7,
+          titulo: "Discurso",
           duracao: "5 min",
-          tipo: "Demonstração",
-          descricao: "ijwbq artigo 140 § 4 — Tema: A fé em Jesus é tudo o que precisamos para ser salvos?",
-          referencia: "lmd lição 11 ponto 5"
+          descricao: "be 28 § 3–31 § 2 — Tema: Como estudar.",
+          referencia: "th lição 14"
         }
       ]
     },
@@ -212,18 +311,19 @@ export const semanasAbril: SemanaVidaMinisterio[] = [
       nome: "NOSSA VIDA CRISTÃ",
       cor: "red",
       icone: "heart",
-      cantico: 99,
+      cantico: 97,
       partes: [
         {
-          numero: 7,
-          titulo: "Necessidades locais",
-          duracao: "15 min"
+          numero: 8,
+          titulo: "Não deixe que nada atrapalhe seu estudo pessoal",
+          duracao: "15 min",
+          descricao: "Consideração.\n\nPode ser desafiador ter uma rotina regular de estudo pessoal. Imagine que você quer incentivar um irmão que está tendo dificuldades em manter uma boa rotina de estudo pessoal e leitura da Bíblia.\n\nEle fala que as seguintes coisas o atrapalham:\n• \"Eu não leio bem.\"\n• \"Eu não gosto de estudar.\"\n• \"Eu não sei por onde começar a leitura da Bíblia nem quanto eu tenho que ler cada dia.\"\n• \"Tem tanta coisa disponível! Como eu decido o que vou estudar cada semana?\"\n• \"Eu tenho tanta coisa pra fazer, que não é fácil arrumar tempo pra estudar.\"\n• \"É difícil me concentrar, e às vezes não consigo me lembrar do que acabei de ler.\"\n\nMostre o VÍDEO Tenha um Estudo Pessoal Profundo da Bíblia. Depois, pergunte:\nQuais sugestões do vídeo você mais gostou?"
         },
         {
-          numero: 8,
+          numero: 9,
           titulo: "Estudo bíblico de congregação",
           duracao: "30 min",
-          descricao: "lfb introdução da seção 12 e histórias 74-75"
+          descricao: "lfb histórias 78-79"
         }
       ]
     }
