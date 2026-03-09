@@ -252,7 +252,7 @@ export default function EstudoSentinelaPage() {
               <SelectTrigger className="w-[180px] bg-zinc-800 border-zinc-700 text-white">
                 <SelectValue placeholder="Selecione o mês" />
               </SelectTrigger>
-              <SelectContent className="bg-zinc-800 border-zinc-700">
+              <SelectContent className="bg-zinc-800 border-zinc-700 z-[100]">
                 {mesesData.map((mes) => (
                   <SelectItem 
                     key={mes.id} 
