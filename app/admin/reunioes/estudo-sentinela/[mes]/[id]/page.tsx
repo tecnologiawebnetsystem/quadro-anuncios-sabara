@@ -9,6 +9,7 @@ import { processarTextoBiblico } from "@/components/biblia-referencia"
 import { BarraProgresso } from "@/components/sentinela/barra-progresso"
 import { estudosAbril } from "@/lib/data/estudos-abril"
 import { estudosMarco } from "@/lib/data/estudos-marco"
+import { estudosMaio } from "@/lib/data/estudos-maio"
 
 interface Pergunta {
   paragrafo: string
@@ -46,6 +47,7 @@ interface Estudo {
 // Dados importados dos arquivos:
 // - @/lib/data/estudos-marco.ts (estudosMarco)
 // - @/lib/data/estudos-abril.ts (estudosAbril)
+// - @/lib/data/estudos-maio.ts (estudosMaio)
 
 // Componente auxiliar para o número do parágrafo em círculo
 const ParagrafoNumero = ({ numero }: { numero: string }) => (
@@ -57,11 +59,12 @@ const ParagrafoNumero = ({ numero }: { numero: string }) => (
 // INÍCIO DOS COMPONENTES - Dados importados dos arquivos externos
 // estudosMarco importado de @/lib/data/estudos-marco.ts
 // estudosAbril importado de @/lib/data/estudos-abril.ts
+// estudosMaio importado de @/lib/data/estudos-maio.ts
 
 /* Código antigo de dados removido - agora usa arquivos externos */
 
 // Componente de Pergunta otimizado com memo (dados vêm dos arquivos importados)
-const _dataSourceInfo = "Dados carregados de estudos-marco.ts e estudos-abril.ts"
+const _dataSourceInfo = "Dados carregados de estudos-marco.ts, estudos-abril.ts e estudos-maio.ts"
 
 /*
 INÍCIO DO BLOCO A SER REMOVIDO - código antigo
@@ -639,10 +642,13 @@ export default function EstudoDetalhePage() {
 
 // Memoize estudo lookup - busca no mês correto
   const estudo = useMemo(() => {
-    if (mes.startsWith("abril")) {
-      return estudosAbril.find(e => e.id === id)
-    }
-    return estudosMarco.find(e => e.id === id)
+  if (mes.startsWith("abril")) {
+  return estudosAbril.find(e => e.id === id)
+  }
+  if (mes.startsWith("maio")) {
+  return estudosMaio.find(e => e.id === id)
+  }
+  return estudosMarco.find(e => e.id === id)
   }, [id, mes])
 
   // Carregar dados do localStorage
@@ -743,8 +749,8 @@ export default function EstudoDetalhePage() {
   }, [isPresentationMode])
 
   // Navigation helpers
-  const { prevEstudo, nextEstudo } = useMemo(() => {
-    const estudos = mes.startsWith("abril") ? estudosAbril : estudosMarco
+const { prevEstudo, nextEstudo } = useMemo(() => {
+  const estudos = mes.startsWith("abril") ? estudosAbril : mes.startsWith("maio") ? estudosMaio : estudosMarco
     const currentIndex = estudos.findIndex(e => e.id === id)
     return {
       prevEstudo: currentIndex > 0 ? estudos[currentIndex - 1] : null,
