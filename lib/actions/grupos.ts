@@ -214,10 +214,12 @@ export async function createPublicador(dados: {
     .insert({
       nome: dados.nome,
       grupo_id: dados.grupo_id || null,
-      is_lider: dados.is_lider || dados.anciao || false,
-      is_auxiliar: dados.is_auxiliar || dados.servo_ministerial || false,
-      anciao: dados.anciao || dados.is_lider || false,
-      servo_ministerial: dados.servo_ministerial || dados.is_auxiliar || false,
+      // Campos do grupo (independentes)
+      is_lider: dados.is_lider || false,
+      is_auxiliar: dados.is_auxiliar || false,
+      // Campos de designação na congregação (independentes)
+      anciao: dados.anciao || false,
+      servo_ministerial: dados.servo_ministerial || false,
       pioneiro_regular: dados.pioneiro_regular || false,
       pioneiro_auxiliar: dados.pioneiro_auxiliar || false,
       telefone: dados.telefone || null,
