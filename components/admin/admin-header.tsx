@@ -1,6 +1,6 @@
 "use client"
 
-import { Bell, Search, Menu } from "lucide-react"
+import { Bell, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SidebarTrigger } from "@/components/ui/sidebar"
@@ -18,9 +18,7 @@ export function AdminHeader() {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background px-4 md:px-6">
       <div className="flex items-center gap-4">
-        <SidebarTrigger className="md:hidden">
-          <Menu className="h-5 w-5" />
-        </SidebarTrigger>
+        <SidebarTrigger />
         <div className="hidden md:flex">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

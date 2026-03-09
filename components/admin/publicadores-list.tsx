@@ -81,6 +81,8 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
         email: p.email,
         observacoes: p.observacoes,
       }))
+      // Ordenar em ordem alfabética
+      publicadoresConvertidos.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
       setPublicadores(publicadoresConvertidos)
     } catch (error) {
       console.error("Erro ao carregar publicadores:", error)
