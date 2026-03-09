@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { processarTextoBiblico } from "@/components/biblia-referencia"
 import { BarraProgresso } from "@/components/sentinela/barra-progresso"
-import { estudosFevereiro } from "@/lib/data/estudos-fevereiro"
+import { estudosAbril } from "@/lib/data/estudos-abril"
 import { estudosMarco } from "@/lib/data/estudos-marco"
 
 interface Pergunta {
@@ -45,7 +45,7 @@ interface Estudo {
 
 // Dados importados dos arquivos:
 // - @/lib/data/estudos-marco.ts (estudosMarco)
-// - @/lib/data/estudos-fevereiro.ts (estudosFevereiro)
+// - @/lib/data/estudos-abril.ts (estudosAbril)
 
 // Componente auxiliar para o número do parágrafo em círculo
 const ParagrafoNumero = ({ numero }: { numero: string }) => (
@@ -56,12 +56,12 @@ const ParagrafoNumero = ({ numero }: { numero: string }) => (
 
 // INÍCIO DOS COMPONENTES - Dados importados dos arquivos externos
 // estudosMarco importado de @/lib/data/estudos-marco.ts
-// estudosFevereiro importado de @/lib/data/estudos-fevereiro.ts
+// estudosAbril importado de @/lib/data/estudos-abril.ts
 
 /* Código antigo de dados removido - agora usa arquivos externos */
 
 // Componente de Pergunta otimizado com memo (dados vêm dos arquivos importados)
-const _dataSourceInfo = "Dados carregados de estudos-marco.ts e estudos-fevereiro.ts"
+const _dataSourceInfo = "Dados carregados de estudos-marco.ts e estudos-abril.ts"
 
 /*
 INÍCIO DO BLOCO A SER REMOVIDO - código antigo
@@ -311,7 +311,7 @@ INÍCIO DO BLOCO A SER REMOVIDO - código antigo
         paragrafo: "6-7",
         pergunta: "Por que Jeová providenciou o resgate?",
         textoBase: "Jeová providenciou o resgate por causa do seu grande amor pela humanidade. Ele não queria que os humanos sofressem para sempre as consequências do pecado de Adão.",
-        resposta: "Jeová providenciou o resgate por causa do seu grande amor pela humanidade. Ele não queria que os humanos sofressem para sempre as consequências do pecado de Adão. Jeová encontrou uma forma justa de salvar a humanidade."
+        resposta: "Jeová providenciou o resgate por causa do seu grande amor pela humanidade. Ele não queria que os humanos sofressem para sempre as consequências do pecado de Ad��o. Jeová encontrou uma forma justa de salvar a humanidade."
       },
       {
         paragrafo: "8-9",
@@ -639,8 +639,8 @@ export default function EstudoDetalhePage() {
 
 // Memoize estudo lookup - busca no mês correto
   const estudo = useMemo(() => {
-    if (mes.startsWith("fevereiro")) {
-      return estudosFevereiro.find(e => e.id === id)
+    if (mes.startsWith("abril")) {
+      return estudosAbril.find(e => e.id === id)
     }
     return estudosMarco.find(e => e.id === id)
   }, [id, mes])
@@ -744,7 +744,7 @@ export default function EstudoDetalhePage() {
 
   // Navigation helpers
   const { prevEstudo, nextEstudo } = useMemo(() => {
-    const estudos = mes.startsWith("fevereiro") ? estudosFevereiro : estudosMarco
+    const estudos = mes.startsWith("abril") ? estudosAbril : estudosMarco
     const currentIndex = estudos.findIndex(e => e.id === id)
     return {
       prevEstudo: currentIndex > 0 ? estudos[currentIndex - 1] : null,
