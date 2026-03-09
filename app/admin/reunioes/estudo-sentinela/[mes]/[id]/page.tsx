@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { processarTextoBiblico } from "@/components/biblia-referencia"
 import { BarraProgresso } from "@/components/sentinela/barra-progresso"
 import { estudosFevereiro } from "@/lib/data/estudos-fevereiro"
+import { estudosMarco } from "@/lib/data/estudos-marco"
 
 interface Pergunta {
   paragrafo: string
@@ -42,8 +43,11 @@ interface Estudo {
   recapitulacao: PerguntaRecapitulacao[]
 }
 
-// Dados dos estudos de Março 2026
-const estudosMarco: Estudo[] = [
+// Dados importados de @/lib/data/estudos-marco.ts
+// const estudosMarco está importado no topo do arquivo
+
+// Dados adicionais dos estudos 3, 4 e 5 de março
+const estudosMarcoAdicionais: Estudo[] = [
   {
     id: 1,
     semana: "Semana 1",
