@@ -70,11 +70,14 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
     setLoading(true)
     try {
       const data = await getPublicadores()
-      // Converter para o formato estendido - usa campos do banco quando disponíveis
+      // Converter para o formato estendido
+      // IMPORTANTE: anciao/servo_ministerial são cargos na CONGREGAÇÃO (independentes)
+      // is_lider/is_auxiliar são funções no GRUPO DE ESTUDO (independentes)
+      // NÃO usar fallback entre eles - são campos completamente diferentes
       const publicadoresConvertidos: Publicador[] = data.map(p => ({
         ...p,
-        anciao: p.anciao ?? p.is_lider, // Usa campo do banco ou fallback para is_lider
-        servoMinisterial: p.servo_ministerial ?? p.is_auxiliar, // Usa campo do banco ou fallback
+        anciao: p.anciao ?? false,
+        servoMinisterial: p.servo_ministerial ?? false,
         pioneiroRegular: p.pioneiro_regular ?? false,
         pioneiroAuxiliar: p.pioneiro_auxiliar ?? false,
         telefone: p.telefone,

@@ -13,6 +13,10 @@ export default function AdminDashboard() {
     async function carregarDados() {
       try {
         const data = await getPublicadores()
+        // Debug: verificar quantos servos ministeriais
+        const servos = data.filter((p) => p.servo_ministerial && p.ativo)
+        console.log("[v0] Total servos ministeriais:", servos.length)
+        console.log("[v0] Servos ministeriais:", servos.map(s => s.nome))
         setPublicadores(data)
       } catch (error) {
         console.error("Erro ao carregar publicadores:", error)
@@ -23,10 +27,11 @@ export default function AdminDashboard() {
     carregarDados()
   }, [])
 
-  // Usar os campos do banco de dados
+  // Usar APENAS os campos específicos de cargo na congregação
+  // NÃO usar is_lider/is_auxiliar que são para dirigente/auxiliar de GRUPO DE ESTUDO
   const totalAtivos = publicadores.filter((p) => p.ativo).length
-  const totalAnciaos = publicadores.filter((p) => (p.anciao || p.is_lider) && p.ativo).length
-  const totalServos = publicadores.filter((p) => (p.servo_ministerial || p.is_auxiliar) && p.ativo).length
+  const totalAnciaos = publicadores.filter((p) => p.anciao && p.ativo).length
+  const totalServos = publicadores.filter((p) => p.servo_ministerial && p.ativo).length
   const totalPioneirosRegulares = publicadores.filter((p) => p.pioneiro_regular && p.ativo).length
   const totalPioneirosAuxiliares = publicadores.filter((p) => p.pioneiro_auxiliar && p.ativo).length
 
