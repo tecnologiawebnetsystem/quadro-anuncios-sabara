@@ -250,10 +250,10 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
     semana: "23-29 de Março",
     dataInicio: "2026-03-23",
     dataFim: "2026-03-29",
-    leituraSemana: "ISAÍAS 47-49",
-    canticoInicial: 22,
-    canticoMeio: 88,
-    canticoFinal: 114,
+    leituraSemana: "ISAÍAS 48-49",
+    canticoInicial: 89,
+    canticoMeio: 107,
+    canticoFinal: 134,
     comentariosIniciais: "1 min",
     comentariosFinais: "3 min",
     tesouros: {
@@ -263,9 +263,9 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
       partes: [
         {
           numero: 1,
-          titulo: "Jeová nunca se esquece de nós",
+          titulo: "Sinta os benefícios de prestar atenção ao que Jeová diz",
           duracao: "10 min",
-          descricao: "Jeová compara seu amor por seu povo ao amor de uma mãe. Ele gravou Sião nas palmas de suas mãos."
+          descricao: "Jeová ensina os servos dele. (Isa. 48:17; it 'Instrutor, Ensino' § 2)\n\nDevemos escolher prestar atenção ao que Jeová diz. (Isa. 48:18a; ijwbq artigo 44 §§ 2-3)\n\nAssim, nossa paz será 'como um rio', e a nossa justiça 'como as ondas do mar'. (Isa. 48:18b; lv 199 § 8)\n\nSIGNIFICADO: A palavra hebraica traduzida 'paz' pode passar a ideia de saúde, segurança, boas condições, bem-estar, amizade, inteireza ou totalidade."
         },
         {
           numero: 2,
@@ -273,9 +273,9 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
           duracao: "10 min",
           joiasEspirituais: [
             {
-              texto: "Isa. 49:15, 16",
-              pergunta: "Como esse texto nos consola?",
-              referencia: "w22.08 20 § 10"
+              texto: "Isa. 49:8",
+              pergunta: "Quais são os três cumprimentos dessa profecia?",
+              referencia: "it 'Tempo aceitável' §§ 1-3"
             }
           ]
         },
@@ -283,8 +283,8 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
           numero: 3,
           titulo: "Leitura da Bíblia",
           duracao: "4 min",
-          descricao: "Isa. 49:1-17",
-          referencia: "th lição 12"
+          descricao: "Isa. 48:9-20",
+          referencia: "th lição 11"
         }
       ]
     },
@@ -296,25 +296,26 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
         {
           numero: 4,
           titulo: "Iniciando conversas",
-          duracao: "2 min",
-          tipo: "DE CASA EM CASA",
-          descricao: "Fale sobre a esperança do Reino.",
-          referencia: "lmd lição 10 ponto 1"
+          duracao: "3 min",
+          tipo: "TESTEMUNHO INFORMAL",
+          descricao: "Convide um parente que está inativo para o discurso especial e para a Celebração.",
+          referencia: "lmd lição 5 ponto 3"
         },
         {
           numero: 5,
-          titulo: "Fazendo revisitas",
-          duracao: "3 min",
-          tipo: "REVISITA",
-          descricao: "Continue a conversa sobre o Reino.",
-          referencia: "lmd lição 10 ponto 2"
+          titulo: "Cultivando o interesse",
+          duracao: "4 min",
+          tipo: "TESTEMUNHO INFORMAL",
+          descricao: "Explique o que acontece numa Celebração para alguém que está pensando em assistir.",
+          referencia: "lmd lição 9 ponto 3"
         },
         {
           numero: 6,
-          titulo: "Discurso",
+          titulo: "Cultivando o interesse",
           duracao: "5 min",
-          descricao: "Por que devemos orar a Jeová?",
-          referencia: "th lição 15"
+          tipo: "TESTEMUNHO INFORMAL",
+          descricao: "Depois que a Celebração terminar, responda as perguntas de alguém que assistiu à reunião.",
+          referencia: "lmd lição 8 ponto 3"
         }
       ]
     },
@@ -322,12 +323,13 @@ export const reunioesMarco2026: ReuniaoVidaMinisterio[] = [
       nome: "NOSSA VIDA CRISTÃ",
       cor: "red",
       icone: "heart",
-      cantico: 88,
+      cantico: 107,
       partes: [
         {
           numero: 7,
-          titulo: "Como se preparar para a Celebração",
-          duracao: "15 min"
+          titulo: "Aproveite bem as oportunidades do dia mais importante do ano",
+          duracao: "15 min",
+          descricao: "Consideração.\n\nTodos os anos, quando assistimos à Celebração, temos a oportunidade de mostrar obediência a Jesus e gratidão pelo presente que Jeová nos deu, o resgate. (Luc. 22:19) Mas também é uma época em que somos lembrados de como é grande o amor de Jeová e de Jesus por nós. (Gál. 2:20; 1 João 4:9, 10) Como podemos aproveitar ao máximo a época da Celebração e mostrar gratidão a Jeová? Como podemos ajudar pessoas interessadas a fazer o mesmo?\n\n• Prepare seu coração lendo diariamente os trechos da Leitura da Bíblia para a Celebração;\n• Medite no presente do resgate e em como você pode viver de uma maneira que mostre gratidão por ele;\n• Faça o seu máximo na campanha, convidando parentes, pessoas que você conhece e pessoas do seu território para o discurso especial e a Celebração;\n• Seja simpático e receba com um sorriso as pessoas que forem assistir à Celebração;\n• Esteja disposto a tirar um tempo para responder as perguntas dos visitantes;\n• Fique atento para receber bem os inativos.\n\nMostre o VÍDEO Jesus 'Veio Procurar e Salvar o Que Estava Perdido'. Depois, pergunte:\nPor que é importante receber bem os inativos que forem à Celebração?"
         },
         {
           numero: 8,
