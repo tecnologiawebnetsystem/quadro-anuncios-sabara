@@ -44,14 +44,13 @@ export interface Publicador extends PublicadorGrupo {
   anciao: boolean
   servoMinisterial: boolean
   pioneiroRegular: boolean
-  pioneiroAuxiliar: boolean
   telefone?: string
   email?: string
   observacoes?: string
 }
 
 interface PublicadoresListProps {
-  filtro?: "anciaos" | "servos" | "pioneiros-regulares" | "pioneiros-auxiliares"
+  filtro?: "anciaos" | "servos" | "pioneiros-regulares"
   titulo: string
 }
 
@@ -79,7 +78,6 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
         anciao: p.anciao ?? false,
         servoMinisterial: p.servo_ministerial ?? false,
         pioneiroRegular: p.pioneiro_regular ?? false,
-        pioneiroAuxiliar: p.pioneiro_auxiliar ?? false,
         telefone: p.telefone,
         email: p.email,
         observacoes: p.observacoes,
@@ -107,8 +105,6 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
     filteredPublicadores = publicadores.filter((p) => p.servoMinisterial)
   } else if (filtro === "pioneiros-regulares") {
     filteredPublicadores = publicadores.filter((p) => p.pioneiroRegular)
-  } else if (filtro === "pioneiros-auxiliares") {
-    filteredPublicadores = publicadores.filter((p) => p.pioneiroAuxiliar)
   }
 
   // Busca por nome
@@ -126,7 +122,6 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
           anciao: data.anciao,
           servo_ministerial: data.servoMinisterial,
           pioneiro_regular: data.pioneiroRegular,
-          pioneiro_auxiliar: data.pioneiroAuxiliar,
           telefone: data.telefone,
           email: data.email,
           observacoes: data.observacoes,
@@ -144,7 +139,6 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
           anciao: data.anciao,
           servo_ministerial: data.servoMinisterial,
           pioneiro_regular: data.pioneiroRegular,
-          pioneiro_auxiliar: data.pioneiroAuxiliar,
           telefone: data.telefone,
           email: data.email,
           observacoes: data.observacoes,
@@ -280,9 +274,6 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
                       {publicador.pioneiroRegular && (
                         <Badge variant="outline" className="text-xs">PR</Badge>
                       )}
-                      {publicador.pioneiroAuxiliar && (
-                        <Badge variant="outline" className="text-xs">PA</Badge>
-                      )}
                     </div>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
@@ -300,10 +291,7 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
                       {publicador.pioneiroRegular && (
                         <Badge variant="outline">Pioneiro Regular</Badge>
                       )}
-                      {publicador.pioneiroAuxiliar && (
-                        <Badge variant="outline">Pioneiro Auxiliar</Badge>
-                      )}
-                      {!publicador.anciao && !publicador.servoMinisterial && !publicador.pioneiroRegular && !publicador.pioneiroAuxiliar && (
+                      {!publicador.anciao && !publicador.servoMinisterial && !publicador.pioneiroRegular && (
                         <Badge variant="secondary">Publicador</Badge>
                       )}
                     </div>

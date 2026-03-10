@@ -26,7 +26,6 @@ export interface PublicadorGrupo {
   anciao?: boolean
   servo_ministerial?: boolean
   pioneiro_regular?: boolean
-  pioneiro_auxiliar?: boolean
   telefone?: string
   email?: string
   endereco?: string
@@ -199,7 +198,6 @@ export async function createPublicador(dados: {
   anciao?: boolean
   servo_ministerial?: boolean
   pioneiro_regular?: boolean
-  pioneiro_auxiliar?: boolean
   telefone?: string
   email?: string
   endereco?: string
@@ -221,7 +219,6 @@ export async function createPublicador(dados: {
       anciao: dados.anciao || false,
       servo_ministerial: dados.servo_ministerial || false,
       pioneiro_regular: dados.pioneiro_regular || false,
-      pioneiro_auxiliar: dados.pioneiro_auxiliar || false,
       telefone: dados.telefone || null,
       email: dados.email || null,
       endereco: dados.endereco || null,
@@ -251,7 +248,6 @@ export async function updatePublicador(id: string, dados: {
   anciao?: boolean
   servo_ministerial?: boolean
   pioneiro_regular?: boolean
-  pioneiro_auxiliar?: boolean
   telefone?: string
   email?: string
   endereco?: string
