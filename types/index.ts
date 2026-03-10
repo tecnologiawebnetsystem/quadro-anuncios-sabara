@@ -93,7 +93,6 @@ export interface Publicador {
   anciao: boolean
   servoMinisterial: boolean
   pioneiroRegular: boolean
-  pioneiroAuxiliar: boolean
   ativo: boolean
   
   // Campos opcionais
@@ -208,7 +207,6 @@ export interface FiltroPublicador {
   anciao?: boolean
   servoMinisterial?: boolean
   pioneiroRegular?: boolean
-  pioneiroAuxiliar?: boolean
   ativo?: boolean
   busca?: string
   congregacaoId?: string

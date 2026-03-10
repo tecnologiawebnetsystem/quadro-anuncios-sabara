@@ -55,7 +55,6 @@ const menuItems = [
       { title: "Anciãos", href: "/admin/publicadores/anciaos" },
       { title: "Servos Ministeriais", href: "/admin/publicadores/servos-ministeriais" },
       { title: "Pioneiros Regulares", href: "/admin/publicadores/pioneiros-regulares" },
-      { title: "Pioneiros Auxiliares", href: "/admin/publicadores/pioneiros-auxiliares" },
     ],
   },
   {

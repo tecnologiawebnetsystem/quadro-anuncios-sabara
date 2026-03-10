@@ -35,7 +35,6 @@ export function PublicadorModal({
     anciao: false,
     servoMinisterial: false,
     pioneiroRegular: false,
-    pioneiroAuxiliar: false,
     ativo: true,
   })
 
@@ -49,7 +48,6 @@ export function PublicadorModal({
         anciao: publicador.anciao,
         servoMinisterial: publicador.servoMinisterial,
         pioneiroRegular: publicador.pioneiroRegular,
-        pioneiroAuxiliar: publicador.pioneiroAuxiliar,
         ativo: publicador.ativo,
       })
     } else {
@@ -61,7 +59,6 @@ export function PublicadorModal({
         anciao: false,
         servoMinisterial: false,
         pioneiroRegular: false,
-        pioneiroAuxiliar: false,
         ativo: true,
       })
     }
@@ -156,18 +153,6 @@ export function PublicadorModal({
                 />
                 <Label htmlFor="pioneiroRegular" className="text-sm font-normal cursor-pointer">
                   Pioneiro Regular
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="pioneiroAuxiliar"
-                  checked={formData.pioneiroAuxiliar}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, pioneiroAuxiliar: checked as boolean })
-                  }
-                />
-                <Label htmlFor="pioneiroAuxiliar" className="text-sm font-normal cursor-pointer">
-                  Pioneiro Auxiliar
                 </Label>
               </div>
             </div>
