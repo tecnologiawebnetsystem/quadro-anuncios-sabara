@@ -91,16 +91,16 @@ export function SeletorPublicador({
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-[280px] p-0 bg-zinc-900 border-zinc-700 z-50" 
+        className="w-[280px] p-0 bg-zinc-800 border-zinc-600 z-50 shadow-xl" 
         align="start" 
         side={side}
         sideOffset={4}
       >
-        <Command className="bg-transparent">
-          <CommandInput placeholder="Buscar publicador..." className="border-zinc-700" />
-          <CommandList>
-            <CommandEmpty>Nenhum publicador encontrado.</CommandEmpty>
-            <CommandGroup>
+        <Command className="bg-zinc-800">
+          <CommandInput placeholder="Buscar publicador..." className="border-zinc-600 bg-zinc-800" />
+          <CommandList className="bg-zinc-800 max-h-[300px]">
+            <CommandEmpty className="py-4 text-center text-sm text-muted-foreground">Nenhum publicador encontrado.</CommandEmpty>
+            <CommandGroup className="bg-zinc-800">
               {/* Opção para limpar seleção */}
               {value && (
                 <CommandItem
@@ -109,7 +109,7 @@ export function SeletorPublicador({
                     onSelect(null)
                     setOpen(false)
                   }}
-                  className="text-muted-foreground"
+                  className="text-muted-foreground bg-zinc-800 hover:bg-zinc-700 cursor-pointer"
                 >
                   <span className="italic">Limpar seleção</span>
                 </CommandItem>
@@ -122,6 +122,7 @@ export function SeletorPublicador({
                     onSelect(publicador)
                     setOpen(false)
                   }}
+                  className="bg-zinc-800 hover:bg-zinc-700 data-[selected=true]:bg-blue-600 cursor-pointer"
                 >
                   <Check
                     className={cn(
