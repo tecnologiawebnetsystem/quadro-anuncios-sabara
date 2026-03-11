@@ -23,13 +23,13 @@ export interface Publicador {
 const publicadoresIniciais: Omit<Publicador, "criadoEm" | "atualizadoEm">[] = [
   // GRUPO 1 - ANTÔNIO V. (Dirigente)
   { id: "1", nome: "Antônio V.", grupoServicoId: "1", anciao: true, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "2", nome: "Áquila V.", grupoServicoId: "1", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "2", nome: "Áquila V.", grupoServicoId: "1", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "3", nome: "Érica V.", grupoServicoId: "1", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "4", nome: "Eliana V.", grupoServicoId: "1", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "5", nome: "Ricardo", grupoServicoId: "1", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "5", nome: "Ricardo", grupoServicoId: "1", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "6", nome: "Natália", grupoServicoId: "1", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "7", nome: "Allan", grupoServicoId: "1", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "8", nome: "Marcelo", grupoServicoId: "1", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "7", nome: "Allan", grupoServicoId: "1", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
+  { id: "8", nome: "Marcelo", grupoServicoId: "1", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "9", nome: "Carolina", grupoServicoId: "1", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "10", nome: "Edna Melo", grupoServicoId: "1", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "11", nome: "Edson Oliv.", grupoServicoId: "1", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
@@ -43,11 +43,11 @@ const publicadoresIniciais: Omit<Publicador, "criadoEm" | "atualizadoEm">[] = [
   
   // GRUPO 2 - CRISTIAN (Dirigente)
   { id: "19", nome: "Cristian", grupoServicoId: "2", anciao: true, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "20", nome: "Cláudio", grupoServicoId: "2", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "20", nome: "Cláudio", grupoServicoId: "2", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "21", nome: "Rafaela", grupoServicoId: "2", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "22", nome: "Jocilene", grupoServicoId: "2", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "23", nome: "Roberto", grupoServicoId: "2", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "24", nome: "Diego", grupoServicoId: "2", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "23", nome: "Roberto", grupoServicoId: "2", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
+  { id: "24", nome: "Diego", grupoServicoId: "2", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "25", nome: "Adeyne", grupoServicoId: "2", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "26", nome: "Irineu", grupoServicoId: "2", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "27", nome: "Ângela", grupoServicoId: "2", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
@@ -66,10 +66,10 @@ const publicadoresIniciais: Omit<Publicador, "criadoEm" | "atualizadoEm">[] = [
   
   // GRUPO 3 - GUIDO (Dirigente)
   { id: "40", nome: "Guido", grupoServicoId: "3", anciao: true, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "41", nome: "Wesley", grupoServicoId: "3", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "41", nome: "Wesley", grupoServicoId: "3", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "42", nome: "Francisca", grupoServicoId: "3", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "43", nome: "Lucas", grupoServicoId: "3", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "44", nome: "Paulo", grupoServicoId: "3", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "43", nome: "Lucas", grupoServicoId: "3", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
+  { id: "44", nome: "Paulo", grupoServicoId: "3", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "45", nome: "Leyene", grupoServicoId: "3", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "46", nome: "Adriano", grupoServicoId: "3", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "47", nome: "Conceição", grupoServicoId: "3", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
@@ -88,10 +88,10 @@ const publicadoresIniciais: Omit<Publicador, "criadoEm" | "atualizadoEm">[] = [
   
   // GRUPO 4 - MARCOS (Dirigente)
   { id: "60", nome: "Marcos", grupoServicoId: "4", anciao: true, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "61", nome: "Alessandro", grupoServicoId: "4", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "61", nome: "Alessandro", grupoServicoId: "4", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "62", nome: "Adriana", grupoServicoId: "4", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "63", nome: "Renata", grupoServicoId: "4", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "64", nome: "Vagner", grupoServicoId: "4", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "64", nome: "Vagner", grupoServicoId: "4", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "65", nome: "Lucia", grupoServicoId: "4", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "66", nome: "Caique", grupoServicoId: "4", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "67", nome: "Caroline", grupoServicoId: "4", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
@@ -108,11 +108,11 @@ const publicadoresIniciais: Omit<Publicador, "criadoEm" | "atualizadoEm">[] = [
   
   // GRUPO 5 - REINALDO (Dirigente)
   { id: "78", nome: "Reinaldo", grupoServicoId: "5", anciao: true, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "79", nome: "Junior", grupoServicoId: "5", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "79", nome: "Junior", grupoServicoId: "5", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "80", nome: "Heluana", grupoServicoId: "5", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "81", nome: "Gisseli", grupoServicoId: "5", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "82", nome: "Guilherme", grupoServicoId: "5", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "83", nome: "Clayton", grupoServicoId: "5", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "82", nome: "Guilherme", grupoServicoId: "5", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
+  { id: "83", nome: "Clayton", grupoServicoId: "5", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "84", nome: "Dione", grupoServicoId: "5", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "85", nome: "Ana Lucia", grupoServicoId: "5", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "86", nome: "Daniella", grupoServicoId: "5", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
@@ -129,12 +129,12 @@ const publicadoresIniciais: Omit<Publicador, "criadoEm" | "atualizadoEm">[] = [
   
   // GRUPO 6 - FLÁVIO (Dirigente)
   { id: "97", nome: "Flávio", grupoServicoId: "6", anciao: true, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "98", nome: "Francion Rod.", grupoServicoId: "6", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "98", nome: "Francion Rod.", grupoServicoId: "6", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "99", nome: "Ana Lucia F.", grupoServicoId: "6", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "100", nome: "Vanessa Rod.", grupoServicoId: "6", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "101", nome: "Heraldo", grupoServicoId: "6", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "101", nome: "Heraldo", grupoServicoId: "6", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "102", nome: "Marciana", grupoServicoId: "6", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
-  { id: "103", nome: "Tarcisio", grupoServicoId: "6", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
+  { id: "103", nome: "Tarcisio", grupoServicoId: "6", anciao: false, servoMinisterial: true, pioneiroRegular: false, ativo: true },
   { id: "104", nome: "Teresa", grupoServicoId: "6", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "105", nome: "Juliana", grupoServicoId: "6", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
   { id: "106", nome: "Pedro", grupoServicoId: "6", anciao: false, servoMinisterial: false, pioneiroRegular: false, ativo: true },
