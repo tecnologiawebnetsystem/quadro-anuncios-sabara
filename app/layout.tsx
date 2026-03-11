@@ -10,14 +10,14 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'Quadro de Anúncios',
-  description: 'Sistema de gerenciamento de quadro de anúncios',
+  title: 'InfoFlow',
+  description: 'Sistema de informações da congregação',
   generator: 'v0.app',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Quadro de Anúncios',
+    title: 'InfoFlow',
   },
   formatDetection: {
     telephone: false,

@@ -46,19 +46,24 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 flex flex-col items-center justify-center p-4">
-      {/* Logo Preto e Vermelho */}
+      {/* Logo InfoFlow - Preto, Branco e Vermelho */}
       <div className="mb-6">
-        <div className="w-24 h-24 rounded-2xl bg-zinc-950 border-2 border-red-600/50 flex items-center justify-center shadow-lg shadow-red-500/10">
-          <div className="text-center">
-            <div className="text-red-500 text-xs font-bold tracking-wider">QUADRO</div>
-            <div className="text-red-400 text-lg font-black">QA</div>
-            <div className="text-red-500 text-xs font-bold tracking-wider">SABARÀ</div>
+        <div className="w-28 h-28 rounded-2xl bg-zinc-950 border-2 border-red-600 flex items-center justify-center shadow-xl shadow-red-600/20 relative overflow-hidden">
+          {/* Efeito de gradiente sutil */}
+          <div className="absolute inset-0 bg-gradient-to-br from-red-600/10 via-transparent to-transparent" />
+          <div className="text-center z-10">
+            <div className="text-white text-2xl font-black tracking-tight">
+              Info<span className="text-red-500">Flow</span>
+            </div>
+            <div className="w-12 h-0.5 bg-red-500 mx-auto mt-1" />
           </div>
         </div>
       </div>
 
       {/* Título */}
-      <h1 className="text-2xl font-bold text-white mb-1">QUADRO DE ANÚNCIOS</h1>
+      <h1 className="text-3xl font-black text-white mb-1">
+        Info<span className="text-red-500">Flow</span>
+      </h1>
       <p className="text-zinc-500 text-sm tracking-[0.3em] mb-8">CONGREGAÇÃO SABARÀ</p>
 
       {!mostrarSenha ? (
@@ -176,7 +181,7 @@ export default function Home() {
       )}
 
       {/* Rodapé com versão */}
-      <p className="text-zinc-600 text-xs tracking-[0.2em] mt-8">QUADRO DE ANÚNCIOS v1.0</p>
+      <p className="text-zinc-600 text-xs tracking-[0.2em] mt-8">INFOFLOW v1.0</p>
     </div>
   )
 }
