@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ChevronRight, Calendar, Gem } from "lucide-react"
-import { reunioesMarco } from "@/lib/data/vida-ministerio-marco"
+import { reunioesMarco2026 } from "@/lib/data/vida-ministerio-marco"
 
 export default function VidaMinisterioConsultaPage() {
   return (
@@ -34,7 +34,7 @@ export default function VidaMinisterioConsultaPage() {
             Março 2025
           </h2>
           <div className="space-y-3">
-            {reunioesMarco.map((reuniao) => (
+            {reunioesMarco2026.map((reuniao) => (
               <Link 
                 key={reuniao.id} 
                 href={`/consulta/reunioes/vida-ministerio/${reuniao.id}`}

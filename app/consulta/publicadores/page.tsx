@@ -5,11 +5,22 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { BookOpen, Search, User, Shield, Users } from "lucide-react"
-import { publicadores, gruposServico } from "@/lib/store/publicadores"
+import { usePublicadoresStore } from "@/lib/store/publicadores"
+
+// Grupos de serviço
+const gruposServico = [
+  { id: "1", nome: "Grupo 1 - Antônio V." },
+  { id: "2", nome: "Grupo 2 - Cristian" },
+  { id: "3", nome: "Grupo 3 - Guido" },
+  { id: "4", nome: "Grupo 4 - Marcos" },
+  { id: "5", nome: "Grupo 5 - Reinaldo" },
+  { id: "6", nome: "Grupo 6 - Flávio" },
+]
 
 export default function PublicadoresConsultaPage() {
   const [busca, setBusca] = useState("")
   const [filtroTipo, setFiltroTipo] = useState<"todos" | "anciao" | "servo">("todos")
+  const publicadores = usePublicadoresStore((state) => state.publicadores)
 
   const publicadoresFiltrados = useMemo(() => {
     return publicadores
@@ -26,14 +37,14 @@ export default function PublicadoresConsultaPage() {
         return true
       })
       .sort((a, b) => a.nome.localeCompare(b.nome))
-  }, [busca, filtroTipo])
+  }, [busca, filtroTipo, publicadores])
 
   const stats = useMemo(() => ({
     total: publicadores.filter(p => p.ativo).length,
     anciaos: publicadores.filter(p => p.ativo && p.anciao).length,
     servos: publicadores.filter(p => p.ativo && p.servoMinisterial).length,
     pioneiros: publicadores.filter(p => p.ativo && p.pioneiroRegular).length,
-  }), [])
+  }), [publicadores])
 
   const getGrupoNome = (grupoId?: string) => {
     if (!grupoId) return null

@@ -1,9 +1,23 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Users, User, Crown, Shield } from "lucide-react"
-import { gruposServico, publicadores } from "@/lib/store/publicadores"
+import { usePublicadoresStore } from "@/lib/store/publicadores"
+
+// Grupos de serviço
+const gruposServico = [
+  { id: "1", nome: "Grupo 1 - Antônio V." },
+  { id: "2", nome: "Grupo 2 - Cristian" },
+  { id: "3", nome: "Grupo 3 - Guido" },
+  { id: "4", nome: "Grupo 4 - Marcos" },
+  { id: "5", nome: "Grupo 5 - Reinaldo" },
+  { id: "6", nome: "Grupo 6 - Flávio" },
+]
 
 export default function GruposConsultaPage() {
+  const publicadores = usePublicadoresStore((state) => state.publicadores)
+  
   // Agrupar publicadores por grupo
   const publicadoresPorGrupo = gruposServico.map(grupo => {
     const membros = publicadores.filter(p => p.grupoServicoId === grupo.id && p.ativo)

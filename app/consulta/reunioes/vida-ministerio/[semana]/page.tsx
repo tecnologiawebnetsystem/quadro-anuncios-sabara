@@ -14,7 +14,7 @@ import {
   User,
   Users
 } from "lucide-react"
-import { reunioesMarco } from "@/lib/data/vida-ministerio-marco"
+import { reunioesMarco2026 } from "@/lib/data/vida-ministerio-marco"
 import { useDesignacoes } from "@/lib/hooks/use-designacoes"
 
 export default function VidaMinisterioDetalheConsulta({ 
@@ -23,7 +23,7 @@ export default function VidaMinisterioDetalheConsulta({
   params: Promise<{ semana: string }> 
 }) {
   const { semana } = use(params)
-  const reuniao = reunioesMarco.find(r => r.id === semana)
+  const reuniao = reunioesMarco2026.find(r => r.id === semana)
   const { getDesignacao, carregando } = useDesignacoes(semana)
 
   if (!reuniao) {
