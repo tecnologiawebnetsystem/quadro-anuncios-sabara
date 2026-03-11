@@ -72,7 +72,7 @@ export default function ConsultaLayout({
             <ChevronLeft className="w-5 h-5 text-zinc-400" />
             <span className="text-zinc-400 text-sm">Voltar</span>
           </Link>
-          <h1 className="text-lg font-semibold text-white">Consulta</h1>
+          <h1 className="text-lg font-semibold text-white">Info<span className="text-red-500">Flow</span></h1>
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 text-zinc-400 hover:text-white transition-colors"
@@ -157,8 +157,8 @@ export default function ConsultaLayout({
               <ChevronLeft className="w-5 h-5" />
               <span className="text-sm">Voltar ao Início</span>
             </Link>
-            <h1 className="text-xl font-bold text-white">Consulta</h1>
-            <p className="text-sm text-zinc-500">Visualização de dados</p>
+            <h1 className="text-xl font-bold text-white">Info<span className="text-red-500">Flow</span></h1>
+            <p className="text-sm text-zinc-500">Informações da Congregação</p>
           </div>
 
           <nav className="flex-1 space-y-2">
@@ -223,7 +223,7 @@ export default function ConsultaLayout({
 
           <div className="pt-4 border-t border-zinc-800">
             <p className="text-xs text-zinc-600 text-center">
-              Quadro de Anúncios v1.0
+              InfoFlow v1.0
             </p>
           </div>
         </aside>
