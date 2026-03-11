@@ -127,14 +127,14 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
     const isSalvandoAjudante = salvando === `${tipoParte}_ajudante`
 
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
           <SeletorPublicador
             value={designacao?.publicador_id}
             onSelect={(p) => handleSelecionarPublicador(tipoParte, p)}
             filtro={filtro}
             placeholder={FILTRO_LABELS[filtro]}
-            className="w-[200px]"
+            className="w-[180px]"
             disabled={isSalvando}
           />
           {isSalvando && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
@@ -147,8 +147,8 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
               value={designacao?.ajudante_id || undefined}
               onSelect={(p) => handleSelecionarAjudante(tipoParte, p)}
               filtro="todos"
-              placeholder="Selecionar ajudante..."
-              className="w-[180px]"
+              placeholder="Selecionar..."
+              className="w-[160px]"
               disabled={isSalvandoAjudante}
               side="right"
             />
@@ -168,29 +168,30 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
     const isSalvandoLeitor = salvando === tipoParteLeitor
 
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground w-[70px]">Dirigente:</span>
+          <span className="text-xs text-muted-foreground">Dirigente:</span>
           <SeletorPublicador
             value={designacao?.publicador_id}
             onSelect={(p) => handleSelecionarPublicador(tipoParte, p)}
             filtro="anciao"
             placeholder="Apenas anciãos"
-            className="w-[180px]"
+            className="w-[160px]"
             disabled={isSalvando}
           />
           {isSalvando && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
         </div>
         
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground w-[70px]">Leitor:</span>
+          <span className="text-xs text-muted-foreground">Leitor:</span>
           <SeletorPublicador
             value={designacaoLeitor?.publicador_id}
             onSelect={(p) => handleSelecionarPublicador(tipoParteLeitor, p)}
             filtro="todos"
             placeholder="Qualquer irmão"
-            className="w-[180px]"
+            className="w-[160px]"
             disabled={isSalvandoLeitor}
+            side="right"
           />
           {isSalvandoLeitor && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
         </div>
