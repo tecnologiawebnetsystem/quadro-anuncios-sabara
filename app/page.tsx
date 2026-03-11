@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
-import { Users, ShieldCheck, Lock, ChevronRight, Delete, Search } from "lucide-react"
+import { ShieldCheck, Lock, ChevronRight, Delete, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const SENHA_ADMIN = "123456"
@@ -40,23 +40,19 @@ export default function Home() {
     setErro(false)
   }
 
-  const handleCongregacao = () => {
-    // Por enquanto não faz nada, será definido depois
-  }
-
   const handleConsulta = () => {
     router.push("/consulta")
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 flex flex-col items-center justify-center p-4">
-      {/* Logo */}
+      {/* Logo Preto e Vermelho */}
       <div className="mb-6">
-        <div className="w-24 h-24 rounded-2xl bg-zinc-900 border-2 border-amber-500/50 flex items-center justify-center shadow-lg shadow-amber-500/10">
+        <div className="w-24 h-24 rounded-2xl bg-zinc-950 border-2 border-red-600/50 flex items-center justify-center shadow-lg shadow-red-500/10">
           <div className="text-center">
-            <div className="text-amber-500 text-xs font-bold tracking-wider">QUADRO</div>
-            <div className="text-amber-400 text-lg font-black">QA</div>
-            <div className="text-amber-500 text-xs font-bold tracking-wider">SABARÀ</div>
+            <div className="text-red-500 text-xs font-bold tracking-wider">QUADRO</div>
+            <div className="text-red-400 text-lg font-black">QA</div>
+            <div className="text-red-500 text-xs font-bold tracking-wider">SABARÀ</div>
           </div>
         </div>
       </div>
@@ -69,32 +65,17 @@ export default function Home() {
         // Card com opções
         <Card className="w-full max-w-sm bg-zinc-900/80 border-zinc-800 shadow-2xl">
           <CardContent className="p-0">
-            {/* Congregação */}
-            <button
-              onClick={handleCongregacao}
-              className="w-full flex items-center gap-4 p-4 hover:bg-zinc-800/50 transition-colors border-b border-zinc-800"
-            >
-              <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center">
-                <Users className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-white font-semibold">Congregação</p>
-                <p className="text-zinc-500 text-sm">Informações da congregação</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-zinc-600" />
-            </button>
-
-            {/* Consulta */}
+            {/* Informações da Congregação */}
             <button
               onClick={handleConsulta}
               className="w-full flex items-center gap-4 p-4 hover:bg-zinc-800/50 transition-colors border-b border-zinc-800"
             >
-              <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center">
-                <Search className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center">
+                <Info className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-white font-semibold">Consulta</p>
-                <p className="text-zinc-500 text-sm">Consultar designações</p>
+                <p className="text-white font-semibold">Informações da Congregação</p>
+                <p className="text-zinc-500 text-sm">Consultar designações e grupos</p>
               </div>
               <ChevronRight className="w-5 h-5 text-zinc-600" />
             </button>
