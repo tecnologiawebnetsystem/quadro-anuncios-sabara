@@ -32,8 +32,8 @@ const FILTROS_PARTES: Record<string, FiltroPublicador> = {
   vida_crista_9: "anciao_servo",
   vida_crista_10: "anciao_servo",
   vida_crista_estudo: "anciao",
-  // Oração final - irmãos batizados (ancião, servo ou publicador masculino)
-  oracao_final: "irmaos",
+  // Oração final - qualquer publicador (igual à leitura da Bíblia)
+  oracao_final: "todos",
 }
 
 // Labels para os filtros
