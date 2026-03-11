@@ -2,17 +2,17 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, User, Crown, Shield } from "lucide-react"
+import { Users, User, Shield } from "lucide-react"
 import { usePublicadoresStore } from "@/lib/store/publicadores"
 
-// Grupos de serviço
+// Grupos de serviço com dirigente e auxiliar
 const gruposServico = [
-  { id: "1", nome: "Grupo 1 - Antônio V." },
-  { id: "2", nome: "Grupo 2 - Cristian" },
-  { id: "3", nome: "Grupo 3 - Guido" },
-  { id: "4", nome: "Grupo 4 - Marcos" },
-  { id: "5", nome: "Grupo 5 - Reinaldo" },
-  { id: "6", nome: "Grupo 6 - Flávio" },
+  { id: "1", nome: "Grupo 1", dirigenteId: "1", auxiliarId: "2" },
+  { id: "2", nome: "Grupo 2", dirigenteId: "19", auxiliarId: "20" },
+  { id: "3", nome: "Grupo 3", dirigenteId: "40", auxiliarId: "41" },
+  { id: "4", nome: "Grupo 4", dirigenteId: "60", auxiliarId: "61" },
+  { id: "5", nome: "Grupo 5", dirigenteId: "78", auxiliarId: "79" },
+  { id: "6", nome: "Grupo 6", dirigenteId: "97", auxiliarId: "98" },
 ]
 
 export default function GruposConsultaPage() {
@@ -21,19 +21,14 @@ export default function GruposConsultaPage() {
   // Agrupar publicadores por grupo
   const publicadoresPorGrupo = gruposServico.map(grupo => {
     const membros = publicadores.filter(p => p.grupoServicoId === grupo.id && p.ativo)
-    const dirigente = membros.find(m => m.anciao && m.id === (
-      grupo.id === "1" ? "1" :
-      grupo.id === "2" ? "19" :
-      grupo.id === "3" ? "40" :
-      grupo.id === "4" ? "60" :
-      grupo.id === "5" ? "78" :
-      grupo.id === "6" ? "97" : ""
-    ))
+    const dirigente = publicadores.find(p => p.id === grupo.dirigenteId)
+    const auxiliar = publicadores.find(p => p.id === grupo.auxiliarId)
     
     return {
       ...grupo,
       membros,
       dirigente,
+      auxiliar,
       totalMembros: membros.length,
       anciaos: membros.filter(m => m.anciao).length,
       servos: membros.filter(m => m.servoMinisterial).length,
@@ -72,9 +67,15 @@ export default function GruposConsultaPage() {
                   <div>
                     <h3 className="text-white font-semibold">Grupo {grupo.id}</h3>
                     {grupo.dirigente && (
-                      <p className="text-emerald-400 text-sm flex items-center gap-1">
-                        <Crown className="w-3 h-3" />
-                        {grupo.dirigente.nome}
+                      <p className="text-sm">
+                        <span className="text-zinc-500">Dirigente:</span>{" "}
+                        <span className="text-emerald-400">{grupo.dirigente.nome}</span>
+                      </p>
+                    )}
+                    {grupo.auxiliar && (
+                      <p className="text-sm">
+                        <span className="text-zinc-500">Auxiliar:</span>{" "}
+                        <span className="text-blue-400">{grupo.auxiliar.nome}</span>
                       </p>
                     )}
                   </div>
@@ -98,7 +99,7 @@ export default function GruposConsultaPage() {
                 )}
               </div>
               
-              <div className="space-y-2 max-h-48 overflow-y-auto">
+              <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
                 {grupo.membros.map((membro) => (
                   <div 
                     key={membro.id} 
