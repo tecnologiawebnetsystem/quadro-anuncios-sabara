@@ -32,8 +32,8 @@ const FILTROS_PARTES: Record<string, FiltroPublicador> = {
   vida_crista_9: "anciao_servo",
   vida_crista_10: "anciao_servo",
   vida_crista_estudo: "anciao",
-  // Oração final
-  oracao_final: "anciao_servo",
+  // Oração final - irmãos batizados (ancião, servo ou publicador masculino)
+  oracao_final: "irmaos",
 }
 
 // Labels para os filtros
@@ -42,6 +42,7 @@ const FILTRO_LABELS: Record<FiltroPublicador, string> = {
   servo: "Apenas servos",
   anciao_servo: "Ancião ou Servo",
   todos: "Qualquer publicador",
+  irmaos: "Irmão batizado",
 }
 
 export default function SemanaDetalhesPage({ params }: { params: Promise<{ semana: string }> }) {

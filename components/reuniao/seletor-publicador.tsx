@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/popover"
 import { usePublicadoresStore, type Publicador } from "@/lib/store/publicadores"
 
-export type FiltroPublicador = "todos" | "anciao" | "servo" | "anciao_servo"
+export type FiltroPublicador = "todos" | "anciao" | "servo" | "anciao_servo" | "irmaos"
 
 interface SeletorPublicadorProps {
   value?: string
@@ -54,6 +54,9 @@ export function SeletorPublicador({
         return p.servoMinisterial
       case "anciao_servo":
         return p.anciao || p.servoMinisterial
+      case "irmaos":
+        // Irmãos batizados do sexo masculino (para oração final, leitura, etc.)
+        return p.sexo === "M"
       default:
         return true
     }
