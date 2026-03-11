@@ -150,6 +150,7 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
               placeholder="Selecionar ajudante..."
               className="w-[180px]"
               disabled={isSalvandoAjudante}
+              side="right"
             />
             {isSalvandoAjudante && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
           </div>
