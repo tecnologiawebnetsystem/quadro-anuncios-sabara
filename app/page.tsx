@@ -45,7 +45,7 @@ export default function Home() {
   }
 
   const handleConsulta = () => {
-    // Por enquanto não faz nada, será definido depois
+    router.push("/consulta")
   }
 
   return (
