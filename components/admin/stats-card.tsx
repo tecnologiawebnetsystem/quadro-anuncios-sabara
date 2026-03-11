@@ -30,12 +30,12 @@ export function StatsCard({
 }: StatsCardProps) {
   const cardContent = (
     <Card className={cn(
-      "border-border bg-card transition-all duration-200",
+      "border-border bg-card transition-all duration-200 h-full",
       href && "cursor-pointer hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10",
       variant === "primary" && "border-primary/30 bg-primary/5",
       variant === "accent" && "border-accent/30 bg-accent/5"
     )}>
-      <CardContent className="p-6">
+      <CardContent className="p-6 h-full">
         <div className="flex items-start justify-between">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
@@ -77,11 +77,11 @@ export function StatsCard({
 
   if (href) {
     return (
-      <Link href={href} className="block">
+      <Link href={href} className="block h-full">
         {cardContent}
       </Link>
     )
   }
 
-  return <div className="block">{cardContent}</div>
+  return <div className="block h-full">{cardContent}</div>
 }
