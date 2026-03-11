@@ -10,6 +10,9 @@ import { BarraProgresso } from "@/components/sentinela/barra-progresso"
 import { estudosAbril } from "@/lib/data/estudos-abril"
 import { estudosMarco } from "@/lib/data/estudos-marco"
 import { estudosMaio } from "@/lib/data/estudos-maio"
+import { SeletorPublicador } from "@/components/reuniao/seletor-publicador"
+import { useDesignacoes } from "@/lib/hooks/use-designacoes"
+import { Loader2 } from "lucide-react"
 
 interface Pergunta {
   paragrafo: string
@@ -314,7 +317,7 @@ INÍCIO DO BLOCO A SER REMOVIDO - código antigo
         paragrafo: "6-7",
         pergunta: "Por que Jeová providenciou o resgate?",
         textoBase: "Jeová providenciou o resgate por causa do seu grande amor pela humanidade. Ele não queria que os humanos sofressem para sempre as consequências do pecado de Adão.",
-        resposta: "Jeová providenciou o resgate por causa do seu grande amor pela humanidade. Ele não queria que os humanos sofressem para sempre as consequências do pecado de Ad��o. Jeová encontrou uma forma justa de salvar a humanidade."
+        resposta: "Jeov�� providenciou o resgate por causa do seu grande amor pela humanidade. Ele não queria que os humanos sofressem para sempre as consequências do pecado de Ad��o. Jeová encontrou uma forma justa de salvar a humanidade."
       },
       {
         paragrafo: "8-9",
@@ -639,6 +642,11 @@ export default function EstudoDetalhePage() {
   
   const id = Number(params.id)
   const mes = params.mes as string
+  
+  // Hook para designações da Sentinela
+  const reuniaoId = `sentinela_${mes}_${id}`
+  const { getDesignacao, salvarDesignacao, carregando: carregandoDesignacoes } = useDesignacoes(reuniaoId)
+  const [salvandoDesignacao, setSalvandoDesignacao] = useState<string | null>(null)
 
 // Memoize estudo lookup - busca no mês correto
   const estudo = useMemo(() => {
@@ -1169,6 +1177,57 @@ const { prevEstudo, nextEstudo } = useMemo(() => {
             <p className="text-zinc-400 text-sm">{estudo.canticoInicialTitulo}</p>
           </div>
         </div>
+
+        {/* Designações: Dirigente e Leitor */}
+        <Card className="bg-zinc-900/50 border-zinc-800 mb-6">
+          <CardContent className="pt-4">
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              {/* Dirigente */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-zinc-400">Dirigente:</span>
+                <SeletorPublicador
+                  value={getDesignacao("sentinela_dirigente")?.publicador_id}
+                  onSelect={async (p) => {
+                    setSalvandoDesignacao("dirigente")
+                    if (p) {
+                      await salvarDesignacao("sentinela_dirigente", p.id, p.nome)
+                    }
+                    setSalvandoDesignacao(null)
+                  }}
+                  filtro="anciao"
+                  placeholder="Selecionar dirigente"
+                  className="w-[160px]"
+                  disabled={salvandoDesignacao === "dirigente"}
+                />
+                {salvandoDesignacao === "dirigente" && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
+
+              {/* Leitor */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-zinc-400">Leitor:</span>
+                <SeletorPublicador
+                  value={getDesignacao("sentinela_leitor")?.publicador_id}
+                  onSelect={async (p) => {
+                    setSalvandoDesignacao("leitor")
+                    if (p) {
+                      await salvarDesignacao("sentinela_leitor", p.id, p.nome)
+                    }
+                    setSalvandoDesignacao(null)
+                  }}
+                  filtro="todos"
+                  placeholder="Selecionar leitor"
+                  className="w-[160px]"
+                  disabled={salvandoDesignacao === "leitor"}
+                />
+                {salvandoDesignacao === "leitor" && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Título e Tema */}
         <div className="text-center mb-8">

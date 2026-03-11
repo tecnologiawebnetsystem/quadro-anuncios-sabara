@@ -469,7 +469,7 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-white">Oração final:</span>
               </div>
-              <DesignacaoSelector tipoParte="oracao_final" filtro="anciao_servo" />
+              <DesignacaoSelector tipoParte="oracao_final" filtro="todos" />
             </div>
           </div>
         </CardContent>

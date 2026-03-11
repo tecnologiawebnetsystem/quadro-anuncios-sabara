@@ -4,7 +4,6 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
-  Megaphone,
   Users,
   Settings,
   ChevronDown,
@@ -12,6 +11,7 @@ import {
   ShieldCheck,
   BookOpen,
   Calendar,
+  Wrench,
 } from "lucide-react"
 import {
   Sidebar,
@@ -42,9 +42,14 @@ const menuItems = [
     href: "/admin",
   },
   {
-    title: "Anúncios",
-    icon: Megaphone,
-    href: "/admin/anuncios",
+    title: "Equipe Técnica",
+    icon: Wrench,
+    href: "/admin/equipe-tecnica",
+    subItems: [
+      { title: "Indicadores", href: "/admin/equipe-tecnica/indicadores" },
+      { title: "Volantes", href: "/admin/equipe-tecnica/volantes" },
+      { title: "Som", href: "/admin/equipe-tecnica/som" },
+    ],
   },
   {
     title: "Publicadores",
