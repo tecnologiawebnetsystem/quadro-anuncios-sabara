@@ -2,27 +2,47 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, User, Shield } from "lucide-react"
-import { usePublicadoresStore } from "@/lib/store/publicadores"
-
-// Grupos de serviço com dirigente e auxiliar
-const gruposServico = [
-  { id: "1", nome: "Grupo 1", dirigenteId: "1", auxiliarId: "2" },
-  { id: "2", nome: "Grupo 2", dirigenteId: "19", auxiliarId: "20" },
-  { id: "3", nome: "Grupo 3", dirigenteId: "40", auxiliarId: "41" },
-  { id: "4", nome: "Grupo 4", dirigenteId: "60", auxiliarId: "61" },
-  { id: "5", nome: "Grupo 5", dirigenteId: "78", auxiliarId: "79" },
-  { id: "6", nome: "Grupo 6", dirigenteId: "97", auxiliarId: "98" },
-]
+import { Users, User, Shield, Loader2 } from "lucide-react"
+import { usePublicadoresSupabase } from "@/lib/hooks/use-publicadores-supabase"
 
 export default function GruposConsultaPage() {
-  const publicadores = usePublicadoresStore((state) => state.publicadores)
+  const { 
+    publicadores, 
+    grupos, 
+    carregando, 
+    erro,
+    getPublicadoresPorGrupo,
+    getDirigente,
+    getAuxiliar 
+  } = usePublicadoresSupabase()
   
+  if (carregando) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+          <p className="text-zinc-400">Carregando grupos...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (erro) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-red-400 mb-2">{erro}</p>
+          <p className="text-zinc-500 text-sm">Tente recarregar a página</p>
+        </div>
+      </div>
+    )
+  }
+
   // Agrupar publicadores por grupo
-  const publicadoresPorGrupo = gruposServico.map(grupo => {
-    const membros = publicadores.filter(p => p.grupoServicoId === grupo.id && p.ativo)
-    const dirigente = publicadores.find(p => p.id === grupo.dirigenteId)
-    const auxiliar = publicadores.find(p => p.id === grupo.auxiliarId)
+  const publicadoresPorGrupo = grupos.map(grupo => {
+    const membros = getPublicadoresPorGrupo(grupo.id)
+    const dirigente = getDirigente(grupo.id)
+    const auxiliar = getAuxiliar(grupo.id)
     
     return {
       ...grupo,
@@ -31,7 +51,7 @@ export default function GruposConsultaPage() {
       auxiliar,
       totalMembros: membros.length,
       anciaos: membros.filter(m => m.anciao).length,
-      servos: membros.filter(m => m.servoMinisterial).length,
+      servos: membros.filter(m => m.servo_ministerial).length,
     }
   })
 
@@ -48,7 +68,7 @@ export default function GruposConsultaPage() {
               Grupos de Serviço
             </h1>
             <p className="text-zinc-400 text-sm">
-              {gruposServico.length} grupos | {publicadores.filter(p => p.ativo).length} publicadores ativos
+              {grupos.length} grupos | {publicadores.filter(p => p.ativo).length} publicadores ativos
             </p>
           </div>
         </div>
@@ -62,10 +82,10 @@ export default function GruposConsultaPage() {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-emerald-600/20 flex items-center justify-center text-emerald-400 font-bold">
-                    {grupo.id}
+                    {grupo.numero}
                   </div>
                   <div>
-                    <h3 className="text-white font-semibold">Grupo {grupo.id}</h3>
+                    <h3 className="text-white font-semibold">Grupo {grupo.numero}</h3>
                     {grupo.dirigente && (
                       <p className="text-sm">
                         <span className="text-zinc-500">Dirigente:</span>{" "}
@@ -115,12 +135,12 @@ export default function GruposConsultaPage() {
                           <Shield className="w-3 h-3" />
                         </Badge>
                       )}
-                      {membro.servoMinisterial && (
+                      {membro.servo_ministerial && (
                         <Badge className="bg-amber-600/20 text-amber-400 border-0 text-xs px-1.5">
                           SM
                         </Badge>
                       )}
-                      {membro.pioneiroRegular && (
+                      {membro.pioneiro_regular && (
                         <Badge className="bg-emerald-600/20 text-emerald-400 border-0 text-xs px-1.5">
                           PR
                         </Badge>

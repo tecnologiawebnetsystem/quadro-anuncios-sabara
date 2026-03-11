@@ -4,23 +4,14 @@ import { useState, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { BookOpen, Search, User, Shield, Users } from "lucide-react"
-import { usePublicadoresStore } from "@/lib/store/publicadores"
-
-// Grupos de serviço
-const gruposServico = [
-  { id: "1", nome: "Grupo 1 - Antônio V." },
-  { id: "2", nome: "Grupo 2 - Cristian" },
-  { id: "3", nome: "Grupo 3 - Guido" },
-  { id: "4", nome: "Grupo 4 - Marcos" },
-  { id: "5", nome: "Grupo 5 - Reinaldo" },
-  { id: "6", nome: "Grupo 6 - Flávio" },
-]
+import { BookOpen, Search, User, Shield, Users, Loader2 } from "lucide-react"
+import { usePublicadoresSupabase } from "@/lib/hooks/use-publicadores-supabase"
 
 export default function PublicadoresConsultaPage() {
   const [busca, setBusca] = useState("")
-  const [filtroTipo, setFiltroTipo] = useState<"todos" | "anciao" | "servo">("todos")
-  const publicadores = usePublicadoresStore((state) => state.publicadores)
+  const [filtroTipo, setFiltroTipo] = useState<"todos" | "anciao" | "servo" | "pioneiro">("todos")
+  
+  const { publicadores, grupos, carregando, erro } = usePublicadoresSupabase()
 
   const publicadoresFiltrados = useMemo(() => {
     return publicadores
@@ -33,7 +24,8 @@ export default function PublicadoresConsultaPage() {
       })
       .filter(p => {
         if (filtroTipo === "anciao") return p.anciao
-        if (filtroTipo === "servo") return p.servoMinisterial
+        if (filtroTipo === "servo") return p.servo_ministerial
+        if (filtroTipo === "pioneiro") return p.pioneiro_regular
         return true
       })
       .sort((a, b) => a.nome.localeCompare(b.nome))
@@ -42,14 +34,36 @@ export default function PublicadoresConsultaPage() {
   const stats = useMemo(() => ({
     total: publicadores.filter(p => p.ativo).length,
     anciaos: publicadores.filter(p => p.ativo && p.anciao).length,
-    servos: publicadores.filter(p => p.ativo && p.servoMinisterial).length,
-    pioneiros: publicadores.filter(p => p.ativo && p.pioneiroRegular).length,
+    servos: publicadores.filter(p => p.ativo && p.servo_ministerial).length,
+    pioneiros: publicadores.filter(p => p.ativo && p.pioneiro_regular).length,
   }), [publicadores])
 
-  const getGrupoNome = (grupoId?: string) => {
+  const getGrupoNome = (grupoId: string | null) => {
     if (!grupoId) return null
-    const grupo = gruposServico.find(g => g.id === grupoId)
-    return grupo ? `Grupo ${grupo.id}` : null
+    const grupo = grupos.find(g => g.id === grupoId)
+    return grupo ? `Grupo ${grupo.numero}` : null
+  }
+
+  if (carregando) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+          <p className="text-zinc-400">Carregando publicadores...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (erro) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-red-400 mb-2">{erro}</p>
+          <p className="text-zinc-500 text-sm">Tente recarregar a página</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -110,7 +124,7 @@ export default function PublicadoresConsultaPage() {
             className="pl-10 bg-zinc-900/50 border-zinc-700 text-white"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setFiltroTipo("todos")}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -141,6 +155,16 @@ export default function PublicadoresConsultaPage() {
           >
             Servos
           </button>
+          <button
+            onClick={() => setFiltroTipo("pioneiro")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              filtroTipo === "pioneiro"
+                ? "bg-emerald-600/30 text-emerald-300"
+                : "bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800"
+            }`}
+          >
+            Pioneiros
+          </button>
         </div>
       </div>
 
@@ -165,30 +189,35 @@ export default function PublicadoresConsultaPage() {
                     <div>
                       <p className="font-medium text-white">{pub.nome}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        {getGrupoNome(pub.grupoServicoId) && (
+                        {getGrupoNome(pub.grupo_id) && (
                           <span className="text-xs text-zinc-500 flex items-center gap-1">
                             <Users className="w-3 h-3" />
-                            {getGrupoNome(pub.grupoServicoId)}
+                            {getGrupoNome(pub.grupo_id)}
                           </span>
                         )}
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-1.5 flex-wrap justify-end">
                     {pub.anciao && (
                       <Badge className="bg-blue-600/20 text-blue-400 border-0 text-xs">
                         <Shield className="w-3 h-3 mr-1" />
                         Ancião
                       </Badge>
                     )}
-                    {pub.servoMinisterial && (
+                    {pub.servo_ministerial && (
                       <Badge className="bg-amber-600/20 text-amber-400 border-0 text-xs">
                         Servo
                       </Badge>
                     )}
-                    {pub.pioneiroRegular && (
+                    {pub.pioneiro_regular && (
                       <Badge className="bg-emerald-600/20 text-emerald-400 border-0 text-xs">
                         Pioneiro
+                      </Badge>
+                    )}
+                    {pub.pioneiro_auxiliar && (
+                      <Badge className="bg-teal-600/20 text-teal-400 border-0 text-xs">
+                        Aux.
                       </Badge>
                     )}
                   </div>
