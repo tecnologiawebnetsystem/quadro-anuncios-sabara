@@ -88,7 +88,7 @@ export function SeletorPublicador({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[280px] p-0 bg-zinc-900 border-zinc-700">
+      <PopoverContent className="w-[280px] p-0 bg-zinc-900 border-zinc-700 z-50" align="start" sideOffset={4}>
         <Command className="bg-transparent">
           <CommandInput placeholder="Buscar publicador..." className="border-zinc-700" />
           <CommandList>
