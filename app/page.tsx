@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
+import { Users, ShieldCheck, Lock, ChevronRight, Delete, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Users, ShieldCheck, Delete } from "lucide-react"
 
 const SENHA_ADMIN = "123456"
 
@@ -44,109 +44,158 @@ export default function Home() {
     // Por enquanto não faz nada, será definido depois
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-zinc-900/80 border-zinc-800 shadow-2xl">
-        <CardContent className="p-8">
-          {/* Título */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Quadro de Anúncios</h1>
-            <p className="text-zinc-400">Congregação Sabarå</p>
-          </div>
+  const handleConsulta = () => {
+    router.push("/consulta")
+  }
 
-          {!mostrarSenha ? (
-            // Botões principais
-            <div className="space-y-4">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 flex flex-col items-center justify-center p-4">
+      {/* Logo */}
+      <div className="mb-6">
+        <div className="w-24 h-24 rounded-2xl bg-zinc-900 border-2 border-amber-500/50 flex items-center justify-center shadow-lg shadow-amber-500/10">
+          <div className="text-center">
+            <div className="text-amber-500 text-xs font-bold tracking-wider">QUADRO</div>
+            <div className="text-amber-400 text-lg font-black">QA</div>
+            <div className="text-amber-500 text-xs font-bold tracking-wider">SABARÀ</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Título */}
+      <h1 className="text-2xl font-bold text-white mb-1">QUADRO DE ANÚNCIOS</h1>
+      <p className="text-zinc-500 text-sm tracking-[0.3em] mb-8">CONGREGAÇÃO SABARÀ</p>
+
+      {!mostrarSenha ? (
+        // Card com opções
+        <Card className="w-full max-w-sm bg-zinc-900/80 border-zinc-800 shadow-2xl">
+          <CardContent className="p-0">
+            {/* Congregação */}
+            <button
+              onClick={handleCongregacao}
+              className="w-full flex items-center gap-4 p-4 hover:bg-zinc-800/50 transition-colors border-b border-zinc-800"
+            >
+              <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center">
+                <Users className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-white font-semibold">Congregação</p>
+                <p className="text-zinc-500 text-sm">Informações da congregação</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-zinc-600" />
+            </button>
+
+            {/* Consulta */}
+            <button
+              onClick={handleConsulta}
+              className="w-full flex items-center gap-4 p-4 hover:bg-zinc-800/50 transition-colors border-b border-zinc-800"
+            >
+              <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center">
+                <Search className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-white font-semibold">Consulta</p>
+                <p className="text-zinc-500 text-sm">Consultar designações</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-zinc-600" />
+            </button>
+
+            {/* Administrador */}
+            <button
+              onClick={() => setMostrarSenha(true)}
+              className="w-full flex items-center gap-4 p-4 hover:bg-zinc-800/50 transition-colors"
+            >
+              <div className="w-12 h-12 rounded-xl bg-zinc-700 flex items-center justify-center">
+                <ShieldCheck className="w-6 h-6 text-zinc-300" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-white font-semibold">Administrador</p>
+                <p className="text-zinc-500 text-sm">Acesso completo ao sistema</p>
+              </div>
+              <Lock className="w-4 h-4 text-zinc-600 mr-1" />
+              <ChevronRight className="w-5 h-5 text-zinc-600" />
+            </button>
+          </CardContent>
+        </Card>
+      ) : (
+        // Teclado numérico para senha
+        <Card className="w-full max-w-sm bg-zinc-900/80 border-zinc-800 shadow-2xl">
+          <CardContent className="p-6">
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-zinc-700 flex items-center justify-center mx-auto mb-4">
+                <ShieldCheck className="w-6 h-6 text-zinc-300" />
+              </div>
+              <p className="text-white font-semibold mb-1">Administrador</p>
+              <p className="text-zinc-500 text-sm">Digite a senha de acesso</p>
+            </div>
+            
+            {/* Indicadores de dígitos */}
+            <div className="flex justify-center gap-3 mb-6">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    erro 
+                      ? "bg-red-500" 
+                      : i < senha.length 
+                        ? "bg-amber-500" 
+                        : "bg-zinc-700"
+                  }`}
+                />
+              ))}
+            </div>
+            
+            {erro && (
+              <p className="text-red-500 text-sm text-center mb-4">Senha incorreta</p>
+            )}
+
+            {/* Teclado numérico */}
+            <div className="grid grid-cols-3 gap-2">
+              {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
+                <Button
+                  key={num}
+                  onClick={() => handleDigito(num)}
+                  variant="outline"
+                  className="h-14 text-xl font-bold border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600"
+                >
+                  {num}
+                </Button>
+              ))}
+              
+              {/* Linha inferior: Voltar, 0, Apagar */}
               <Button
-                onClick={handleCongregacao}
-                className="w-full h-20 text-xl font-semibold bg-blue-600 hover:bg-blue-700 transition-all"
+                onClick={() => {
+                  setMostrarSenha(false)
+                  setSenha("")
+                  setErro(false)
+                }}
+                variant="ghost"
+                className="h-14 text-xs text-zinc-500 hover:text-white"
               >
-                <Users className="w-8 h-8 mr-3" />
-                Congregação
+                Voltar
               </Button>
               
               <Button
-                onClick={() => setMostrarSenha(true)}
+                onClick={() => handleDigito("0")}
                 variant="outline"
-                className="w-full h-20 text-xl font-semibold border-zinc-700 hover:bg-zinc-800 transition-all"
+                className="h-14 text-xl font-bold border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600"
               >
-                <ShieldCheck className="w-8 h-8 mr-3" />
-                Admin
+                0
+              </Button>
+              
+              <Button
+                onClick={handleApagar}
+                variant="ghost"
+                className="h-14 text-zinc-500 hover:text-white"
+              >
+                <Delete className="w-5 h-5" />
               </Button>
             </div>
-          ) : (
-            // Teclado numérico para senha
-            <div className="space-y-6">
-              <div className="text-center">
-                <p className="text-zinc-400 mb-4">Digite a senha de acesso</p>
-                
-                {/* Indicadores de dígitos */}
-                <div className="flex justify-center gap-3 mb-6">
-                  {[0, 1, 2, 3, 4, 5].map((i) => (
-                    <div
-                      key={i}
-                      className={`w-4 h-4 rounded-full transition-all ${
-                        erro 
-                          ? "bg-red-500" 
-                          : i < senha.length 
-                            ? "bg-blue-500" 
-                            : "bg-zinc-700"
-                      }`}
-                    />
-                  ))}
-                </div>
-                
-                {erro && (
-                  <p className="text-red-500 text-sm mb-4">Senha incorreta</p>
-                )}
-              </div>
+          </CardContent>
+        </Card>
+      )}
 
-              {/* Teclado numérico */}
-              <div className="grid grid-cols-3 gap-3">
-                {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
-                  <Button
-                    key={num}
-                    onClick={() => handleDigito(num)}
-                    variant="outline"
-                    className="h-16 text-2xl font-bold border-zinc-700 hover:bg-zinc-800"
-                  >
-                    {num}
-                  </Button>
-                ))}
-                
-                {/* Linha inferior: Voltar, 0, Apagar */}
-                <Button
-                  onClick={() => {
-                    setMostrarSenha(false)
-                    setSenha("")
-                    setErro(false)
-                  }}
-                  variant="ghost"
-                  className="h-16 text-sm text-zinc-400 hover:text-white"
-                >
-                  Voltar
-                </Button>
-                
-                <Button
-                  onClick={() => handleDigito("0")}
-                  variant="outline"
-                  className="h-16 text-2xl font-bold border-zinc-700 hover:bg-zinc-800"
-                >
-                  0
-                </Button>
-                
-                <Button
-                  onClick={handleApagar}
-                  variant="ghost"
-                  className="h-16 text-zinc-400 hover:text-white"
-                >
-                  <Delete className="w-6 h-6" />
-                </Button>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Rodapé com versão */}
+      <p className="text-zinc-600 text-xs tracking-[0.2em] mt-8">QUADRO DE ANÚNCIOS v1.0</p>
     </div>
   )
 }
