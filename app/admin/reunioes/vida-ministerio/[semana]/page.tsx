@@ -61,12 +61,46 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
     setSalvando(tipoParte)
     
     if (publicador) {
-      await salvarDesignacao(tipoParte, publicador.id, publicador.nome)
+      // Manter o ajudante existente se houver
+      const designacaoExistente = getDesignacao(tipoParte)
+      await salvarDesignacao(
+        tipoParte, 
+        publicador.id, 
+        publicador.nome,
+        designacaoExistente?.ajudante_id,
+        designacaoExistente?.ajudante_nome
+      )
     } else {
       await removerDesignacao(tipoParte)
     }
     
     setSalvando(null)
+  }
+
+  // Handler para selecionar ajudante
+  const handleSelecionarAjudante = async (tipoParte: string, ajudante: Publicador | null) => {
+    setSalvando(`${tipoParte}_ajudante`)
+    
+    const designacaoExistente = getDesignacao(tipoParte)
+    if (designacaoExistente) {
+      await salvarDesignacao(
+        tipoParte,
+        designacaoExistente.publicador_id,
+        designacaoExistente.publicador_nome,
+        ajudante?.id || null,
+        ajudante?.nome || null
+      )
+    }
+    
+    setSalvando(null)
+  }
+
+  // Partes que podem ter ajudante (Iniciando conversa, Cultivando interesse)
+  const partesComAjudante = ["Iniciando conversa", "Cultivando o interesse"]
+  
+  // Verificar se é parte com ajudante
+  const temAjudante = (titulo: string) => {
+    return partesComAjudante.some(p => titulo.toLowerCase().includes(p.toLowerCase()))
   }
 
   if (!reuniao) {
@@ -79,21 +113,86 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
   }
 
   // Componente para mostrar o seletor de publicador
-  const DesignacaoSelector = ({ tipoParte, filtro }: { tipoParte: string; filtro: FiltroPublicador }) => {
+  const DesignacaoSelector = ({ 
+    tipoParte, 
+    filtro, 
+    mostrarAjudante = false 
+  }: { 
+    tipoParte: string; 
+    filtro: FiltroPublicador;
+    mostrarAjudante?: boolean;
+  }) => {
     const designacao = getDesignacao(tipoParte)
     const isSalvando = salvando === tipoParte
+    const isSalvandoAjudante = salvando === `${tipoParte}_ajudante`
 
     return (
-      <div className="flex items-center gap-2">
-        <SeletorPublicador
-          value={designacao?.publicador_id}
-          onSelect={(p) => handleSelecionarPublicador(tipoParte, p)}
-          filtro={filtro}
-          placeholder={FILTRO_LABELS[filtro]}
-          className="w-[200px]"
-          disabled={isSalvando}
-        />
-        {isSalvando && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <SeletorPublicador
+            value={designacao?.publicador_id}
+            onSelect={(p) => handleSelecionarPublicador(tipoParte, p)}
+            filtro={filtro}
+            placeholder={FILTRO_LABELS[filtro]}
+            className="w-[200px]"
+            disabled={isSalvando}
+          />
+          {isSalvando && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        </div>
+        
+        {mostrarAjudante && designacao?.publicador_id && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Ajudante:</span>
+            <SeletorPublicador
+              value={designacao?.ajudante_id || undefined}
+              onSelect={(p) => handleSelecionarAjudante(tipoParte, p)}
+              filtro="todos"
+              placeholder="Selecionar ajudante..."
+              className="w-[180px]"
+              disabled={isSalvandoAjudante}
+            />
+            {isSalvandoAjudante && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Componente para o Estudo Bíblico com leitor
+  const EstudoBiblicoSelector = ({ tipoParte }: { tipoParte: string }) => {
+    const designacao = getDesignacao(tipoParte)
+    const tipoParteLeitor = `${tipoParte}_leitor`
+    const designacaoLeitor = getDesignacao(tipoParteLeitor)
+    const isSalvando = salvando === tipoParte
+    const isSalvandoLeitor = salvando === tipoParteLeitor
+
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground w-[70px]">Dirigente:</span>
+          <SeletorPublicador
+            value={designacao?.publicador_id}
+            onSelect={(p) => handleSelecionarPublicador(tipoParte, p)}
+            filtro="anciao"
+            placeholder="Apenas anciãos"
+            className="w-[180px]"
+            disabled={isSalvando}
+          />
+          {isSalvando && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground w-[70px]">Leitor:</span>
+          <SeletorPublicador
+            value={designacaoLeitor?.publicador_id}
+            onSelect={(p) => handleSelecionarPublicador(tipoParteLeitor, p)}
+            filtro="todos"
+            placeholder="Qualquer irmão"
+            className="w-[180px]"
+            disabled={isSalvandoLeitor}
+          />
+          {isSalvandoLeitor && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        </div>
       </div>
     )
   }
@@ -237,6 +336,7 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
           {reuniao.ministerio.partes.map((parte) => {
             const tipoParte = `ministerio_${parte.numero}`
             const filtro = FILTROS_PARTES[tipoParte] || "todos"
+            const podeAjudante = temAjudante(parte.titulo)
             
             return (
               <Card key={parte.numero} className="bg-zinc-900/50 border-zinc-800 border-l-4 border-l-amber-600">
@@ -246,22 +346,27 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
                       {parte.numero}
                     </div>
                     <div className="flex-1 space-y-2">
-                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold text-amber-300">{parte.titulo}</h3>
-                          <Badge variant="outline" className="text-muted-foreground">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {parte.duracao}
-                          </Badge>
+                      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-semibold text-amber-300">{parte.titulo}</h3>
+                            <Badge variant="outline" className="text-muted-foreground">
+                              <Clock className="w-3 h-3 mr-1" />
+                              {parte.duracao}
+                            </Badge>
+                          </div>
+                          {parte.tipo && (
+                            <Badge className="bg-amber-600/20 text-amber-300 border-amber-600/30 w-fit">
+                              {parte.tipo}
+                            </Badge>
+                          )}
                         </div>
-                        <DesignacaoSelector tipoParte={tipoParte} filtro={filtro} />
+                        <DesignacaoSelector 
+                          tipoParte={tipoParte} 
+                          filtro={filtro} 
+                          mostrarAjudante={podeAjudante}
+                        />
                       </div>
-                      
-                      {parte.tipo && (
-                        <Badge className="bg-amber-600/20 text-amber-300 border-amber-600/30">
-                          {parte.tipo}
-                        </Badge>
-                      )}
 
                       {parte.descricao && (
                         <p className="text-sm text-muted-foreground">{parte.descricao}</p>
@@ -300,7 +405,8 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
 
         <div className="space-y-3">
           {reuniao.vidaCrista.partes.map((parte) => {
-            const tipoParte = `vida_crista_${parte.numero}`
+            const isEstudoBiblico = parte.titulo.toLowerCase().includes("estudo bíblico")
+            const tipoParte = isEstudoBiblico ? "vida_crista_estudo" : `vida_crista_${parte.numero}`
             const filtro = FILTROS_PARTES[tipoParte] || "anciao_servo"
             
             return (
@@ -311,7 +417,7 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
                       {parte.numero}
                     </div>
                     <div className="flex-1 space-y-2">
-                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+                      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-semibold text-red-300">{parte.titulo}</h3>
                           <Badge variant="outline" className="text-muted-foreground">
@@ -319,7 +425,11 @@ export default function SemanaDetalhesPage({ params }: { params: Promise<{ seman
                             {parte.duracao}
                           </Badge>
                         </div>
-                        <DesignacaoSelector tipoParte={tipoParte} filtro={filtro} />
+                        {isEstudoBiblico ? (
+                          <EstudoBiblicoSelector tipoParte={tipoParte} />
+                        ) : (
+                          <DesignacaoSelector tipoParte={tipoParte} filtro={filtro} />
+                        )}
                       </div>
 
                       {parte.descricao && (
