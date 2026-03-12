@@ -17,9 +17,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { getPublicadores, type PublicadorGrupo } from "@/lib/actions/grupos"
 
 export type FiltroPublicador = "todos" | "anciao" | "servo" | "anciao_servo" | "irmaos"
+
+// Interface do banco de dados
+interface PublicadorDB {
+  id: string
+  nome: string
+  anciao: boolean | null
+  servo_ministerial: boolean | null
+  ativo: boolean
+}
 
 // Interface compatível com o formato esperado
 export interface Publicador {
@@ -54,11 +62,17 @@ export function SeletorPublicador({
   const [publicadores, setPublicadores] = useState<Publicador[]>([])
   const [loading, setLoading] = useState(true)
   
-  // Carregar publicadores do Supabase
+  // Carregar publicadores via API
   useEffect(() => {
     async function carregarPublicadores() {
       try {
-        const data = await getPublicadores()
+        const response = await fetch("/api/publicadores")
+        if (!response.ok) {
+          throw new Error("Erro ao buscar publicadores")
+        }
+        const data: PublicadorDB[] = await response.json()
+        console.log("[v0] Publicadores carregados:", data.length, data.slice(0, 3))
+        
         // Converter para o formato esperado
         const publicadoresConvertidos: Publicador[] = data.map(p => ({
           id: p.id,
@@ -66,11 +80,11 @@ export function SeletorPublicador({
           anciao: p.anciao ?? false,
           servoMinisterial: p.servo_ministerial ?? false,
           ativo: p.ativo,
-          sexo: undefined, // Não temos esse campo no banco ainda
+          sexo: undefined,
         }))
         setPublicadores(publicadoresConvertidos)
       } catch (error) {
-        console.error("Erro ao carregar publicadores:", error)
+        console.error("[v0] Erro ao carregar publicadores:", error)
       } finally {
         setLoading(false)
       }
