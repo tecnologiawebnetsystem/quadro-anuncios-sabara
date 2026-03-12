@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const mes = searchParams.get("mes")
+  const data = searchParams.get("data")
   
   const supabase = await createClient()
   
@@ -16,13 +17,17 @@ export async function GET(request: Request) {
     query = query.eq("mes", mes)
   }
   
-  const { data, error } = await query
+  if (data) {
+    query = query.eq("data", data)
+  }
+  
+  const { data: result, error } = await query
   
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
   
-  return NextResponse.json(data)
+  return NextResponse.json(result)
 }
 
 export async function POST(request: Request) {
