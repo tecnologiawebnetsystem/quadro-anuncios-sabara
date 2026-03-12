@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   Users,
-  Settings,
   ClipboardList,
   ShieldCheck,
   BookOpen,
@@ -17,7 +16,6 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -26,7 +24,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 const menuItems = [
   {
@@ -108,40 +105,7 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Sistema
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/admin/configuracoes"}>
-                  <Link href="/admin/configuracoes" className="flex items-center gap-3">
-                    <Settings className="h-4 w-4" />
-                    <span>Configurações</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="border-t border-sidebar-border p-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-accent text-accent-foreground text-sm">
-              AD
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-sidebar-foreground">
-              Administrador
-            </span>
-            <span className="text-xs text-muted-foreground">admin@igreja.com</span>
-          </div>
-        </div>
-      </SidebarFooter>
     </Sidebar>
   )
 }
