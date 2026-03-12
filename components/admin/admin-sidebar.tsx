@@ -114,8 +114,8 @@ export function AdminSidebar() {
             <SidebarMenu>
               {menuItems.map((item) =>
                 item.subItems ? (
-                  <SidebarMenuItem key={item.title}>
-                    <Collapsible className="group/collapsible w-full">
+                  <Collapsible key={item.title} asChild className="group/collapsible">
+                    <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton
                           isActive={pathname.startsWith(item.href)}
@@ -142,8 +142,8 @@ export function AdminSidebar() {
                           ))}
                         </SidebarMenuSub>
                       </CollapsibleContent>
-                    </Collapsible>
-                  </SidebarMenuItem>
+                    </SidebarMenuItem>
+                  </Collapsible>
                 ) : (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={pathname === item.href}>
