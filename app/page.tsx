@@ -62,7 +62,7 @@ export default function Home() {
 
       {/* Título */}
       <h1 className="text-3xl font-black text-white mb-1">
-        Info<span className="text-red-500">Flow</span>
+        Quadro de <span className="text-red-500">Anúncios</span>
       </h1>
       <p className="text-zinc-500 text-sm tracking-[0.3em] mb-8">CONGREGAÇÃO SABARÀ</p>
 
