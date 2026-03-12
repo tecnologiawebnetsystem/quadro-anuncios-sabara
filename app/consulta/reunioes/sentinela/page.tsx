@@ -144,7 +144,7 @@ export default function SentinelaConsultaPage() {
       </div>
 
       {/* Lista de Estudos do Mês */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {mesExibido.estudos.map((estudo) => (
           <EstudoCard key={estudo.id} estudo={estudo} mes={mesExibido.key} />
         ))}

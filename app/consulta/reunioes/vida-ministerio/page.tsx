@@ -33,33 +33,35 @@ export default function VidaMinisterioConsultaPage() {
             <Calendar className="w-5 h-5 text-zinc-500" />
             Março 2025
           </h2>
-          <div className="space-y-3">
-            {reunioesMarco2026.map((reuniao) => (
-              <Link 
-                key={reuniao.id} 
-                href={`/consulta/reunioes/vida-ministerio/${reuniao.id}`}
-              >
-                <Card className="bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800/50 hover:border-zinc-700 transition-all cursor-pointer group">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-1">
-                          <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">
-                            {reuniao.semana}
-                          </h3>
-                          <Badge variant="outline" className="text-xs text-zinc-500 border-zinc-700">
-                            {reuniao.leituraSemanal}
-                          </Badge>
+          <div className="space-y-5">
+            {reunioesMarco2026.map((reuniao, index) => (
+              <div key={reuniao.id}>
+                <Link href={`/consulta/reunioes/vida-ministerio/${reuniao.id}`}>
+                  <Card className="bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800/50 hover:border-zinc-700 transition-all cursor-pointer group">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-1">
+                            <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">
+                              {reuniao.semana}
+                            </h3>
+                            <Badge variant="outline" className="text-xs text-zinc-500 border-zinc-700">
+                              {reuniao.leituraSemanal}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-zinc-500">
+                            {reuniao.tesouros.partes.length + reuniao.ministerio.partes.length + reuniao.vidaCrista.partes.length} partes programadas
+                          </p>
                         </div>
-                        <p className="text-sm text-zinc-500">
-                          {reuniao.tesouros.partes.length + reuniao.ministerio.partes.length + reuniao.vidaCrista.partes.length} partes programadas
-                        </p>
+                        <ChevronRight className="w-5 h-5 text-zinc-600 group-hover:text-zinc-400 group-hover:translate-x-1 transition-all" />
                       </div>
-                      <ChevronRight className="w-5 h-5 text-zinc-600 group-hover:text-zinc-400 group-hover:translate-x-1 transition-all" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                    </CardContent>
+                  </Card>
+                </Link>
+                {index < reunioesMarco2026.length - 1 && (
+                  <div className="border-b border-zinc-800/50 mt-5" />
+                )}
+              </div>
             ))}
           </div>
         </div>
