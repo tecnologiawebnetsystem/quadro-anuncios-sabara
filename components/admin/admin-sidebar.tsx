@@ -1,5 +1,6 @@
 "use client"
 
+// Menu simplificado sem submenus
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -92,7 +93,10 @@ export function AdminSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href || pathname.startsWith(item.href + "/")}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href)}
+                  >
                     <Link href={item.href} className="flex items-center gap-3">
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
