@@ -25,12 +25,23 @@ interface LimpezaSemana {
   semana: number
 }
 
+// Função para obter início e fim da semana (segunda a domingo)
+function getWeekRange(date: Date) {
+  const day = date.getDay()
+  const diffToMonday = day === 0 ? -6 : 1 - day
+  const monday = new Date(date)
+  monday.setDate(date.getDate() + diffToMonday)
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+  return { monday, sunday }
+}
+
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [publicadores, setPublicadores] = useState<PublicadorGrupo[]>([])
-  const [equipeHoje, setEquipeHoje] = useState<EquipeTecnica | null>(null)
+  const [equipeSemana, setEquipeSemana] = useState<EquipeTecnica[]>([])
   const [limpezaSemana, setLimpezaSemana] = useState<LimpezaSemana | null>(null)
-  const [diaReuniao, setDiaReuniao] = useState<string>("")
+  const [periodoSemana, setPeriodoSemana] = useState<string>("")
   
   useEffect(() => {
     async function carregarDados() {
@@ -39,27 +50,26 @@ export default function AdminDashboard() {
         const data = await getPublicadores()
         setPublicadores(data)
         
-        // Carregar equipe técnica de hoje
         const hoje = new Date()
-        const diaSemana = hoje.getDay() // 0=domingo, 4=quinta
+        const { monday, sunday } = getWeekRange(hoje)
         
-        // Verificar se hoje é dia de reunião (quinta=4 ou domingo=0)
-        if (diaSemana === 4 || diaSemana === 0) {
-          const dataFormatada = format(hoje, "yyyy-MM-dd")
-          const diaTexto = diaSemana === 4 ? "quinta" : "domingo"
-          setDiaReuniao(diaTexto === "quinta" ? "Quinta-feira" : "Domingo")
-          
-          const resEquipe = await fetch(`/api/equipe-tecnica?data=${dataFormatada}`)
-          if (resEquipe.ok) {
-            const equipeData = await resEquipe.json()
-            if (equipeData.length > 0) {
-              setEquipeHoje(equipeData[0])
-            }
-          }
+        // Definir período da semana
+        setPeriodoSemana(`${format(monday, "d", { locale: ptBR })} a ${format(sunday, "d 'de' MMMM", { locale: ptBR })}`)
+        
+        // Buscar equipe técnica da semana toda
+        const mesAtual = format(hoje, "yyyy-MM")
+        const resEquipe = await fetch(`/api/equipe-tecnica?mes=${mesAtual}`)
+        if (resEquipe.ok) {
+          const equipeData = await resEquipe.json()
+          // Filtrar apenas as reuniões da semana atual
+          const reunioesSemana = equipeData.filter((e: EquipeTecnica) => {
+            const dataReuniao = new Date(e.data)
+            return dataReuniao >= monday && dataReuniao <= sunday
+          })
+          setEquipeSemana(reunioesSemana)
         }
         
         // Carregar limpeza da semana atual
-        const mesAtual = format(hoje, "yyyy-MM")
         const resLimpeza = await fetch(`/api/limpeza-salao?mes=${mesAtual}`)
         if (resLimpeza.ok) {
           const limpezaData = await resLimpeza.json()
@@ -145,54 +155,59 @@ export default function AdminDashboard() {
         />
       </div>
 
-      {/* Equipe de Hoje e Limpeza da Semana */}
+      {/* Equipe da Semana e Limpeza da Semana */}
       <div className="grid gap-4 md:grid-cols-2">
-        {/* Equipe Técnica de Hoje */}
+        {/* Equipe Técnica da Semana */}
         <Card className="border-border bg-card">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Calendar className="h-5 w-5 text-primary" />
-              {diaReuniao ? `Reunião de Hoje (${diaReuniao})` : "Próxima Reunião"}
+              Reuniões da Semana
             </CardTitle>
+            <p className="text-sm text-muted-foreground">Semana de {periodoSemana}</p>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {equipeHoje ? (
-              <>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <Wrench className="h-4 w-4 text-green-500" />
-                    Indicadores
+          <CardContent className="space-y-6">
+            {equipeSemana.length > 0 ? (
+              equipeSemana.map((reuniao, index) => (
+                <div key={index} className="space-y-3">
+                  <div className="flex items-center gap-2 border-b border-border pb-2">
+                    <span className="text-sm font-semibold text-foreground">
+                      {reuniao.dia_semana === "quinta" ? "Quinta-feira" : "Domingo"} - {format(new Date(reuniao.data), "dd/MM", { locale: ptBR })}
+                    </span>
                   </div>
-                  <div className="ml-6 space-y-1">
-                    <p className="text-sm text-foreground">{equipeHoje.indicador1_nome || "Não designado"}</p>
-                    <p className="text-sm text-foreground">{equipeHoje.indicador2_nome || "Não designado"}</p>
+                  
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <div className="flex items-center gap-1 text-muted-foreground mb-1">
+                        <Wrench className="h-3 w-3 text-green-500" />
+                        <span className="text-xs">Indicadores</span>
+                      </div>
+                      <p className="text-foreground">{reuniao.indicador1_nome || "-"}</p>
+                      <p className="text-foreground">{reuniao.indicador2_nome || "-"}</p>
+                    </div>
+                    
+                    <div>
+                      <div className="flex items-center gap-1 text-muted-foreground mb-1">
+                        <Mic className="h-3 w-3 text-purple-500" />
+                        <span className="text-xs">Microfone</span>
+                      </div>
+                      <p className="text-foreground">{reuniao.microvolante1_nome || "-"}</p>
+                      <p className="text-foreground">{reuniao.microvolante2_nome || "-"}</p>
+                    </div>
+                    
+                    <div>
+                      <div className="flex items-center gap-1 text-muted-foreground mb-1">
+                        <Volume2 className="h-3 w-3 text-blue-500" />
+                        <span className="text-xs">Som</span>
+                      </div>
+                      <p className="text-foreground">{reuniao.som_nome || "-"}</p>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <Mic className="h-4 w-4 text-purple-500" />
-                    Microfone Volante
-                  </div>
-                  <div className="ml-6 space-y-1">
-                    <p className="text-sm text-foreground">{equipeHoje.microvolante1_nome || "Não designado"}</p>
-                    <p className="text-sm text-foreground">{equipeHoje.microvolante2_nome || "Não designado"}</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <Volume2 className="h-4 w-4 text-blue-500" />
-                    Som
-                  </div>
-                  <div className="ml-6">
-                    <p className="text-sm text-foreground">{equipeHoje.som_nome || "Não designado"}</p>
-                  </div>
-                </div>
-              </>
+              ))
             ) : (
               <p className="text-sm text-muted-foreground">
-                {diaReuniao ? "Nenhuma designação cadastrada para hoje" : "Não há reunião hoje"}
+                Nenhuma designação cadastrada para esta semana
               </p>
             )}
           </CardContent>
