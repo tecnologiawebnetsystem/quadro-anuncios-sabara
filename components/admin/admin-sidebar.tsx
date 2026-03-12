@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Users,
   ClipboardList,
-  ShieldCheck,
   BookOpen,
   Calendar,
   Wrench,
@@ -55,11 +54,6 @@ const menuItems = [
     title: "Limpeza do Salão",
     icon: Sparkles,
     href: "/admin/limpeza-salao",
-  },
-  {
-    title: "Alçadas",
-    icon: ShieldCheck,
-    href: "/admin/alcadas",
   },
 ]
 
