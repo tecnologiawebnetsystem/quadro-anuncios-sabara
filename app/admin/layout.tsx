@@ -1,3 +1,4 @@
+// Layout do Admin - InfoFlow v2
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
 import { AdminHeader } from "@/components/admin/admin-header"
@@ -8,7 +9,7 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <AdminSidebar />
       <SidebarInset>
         <AdminHeader />

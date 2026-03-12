@@ -6,7 +6,12 @@ import {
   BookOpen, 
   ChevronRight,
   BookMarked,
-  Gem
+  Gem,
+  Wrench,
+  Sparkles,
+  Shield,
+  UserCheck,
+  Flag
 } from "lucide-react"
 
 const quickLinks = [
@@ -29,7 +34,25 @@ const quickLinks = [
     borderColor: "border-purple-700/30",
   },
   {
-    title: "Grupos de Serviço",
+    title: "Equipe Técnica",
+    description: "Indicadores, microfone e som",
+    href: "/consulta/equipe-tecnica",
+    icon: Wrench,
+    color: "from-orange-600/20 to-orange-800/10",
+    iconColor: "text-orange-400",
+    borderColor: "border-orange-700/30",
+  },
+  {
+    title: "Limpeza do Salão",
+    description: "Escala semanal de limpeza",
+    href: "/consulta/limpeza-salao",
+    icon: Sparkles,
+    color: "from-cyan-600/20 to-cyan-800/10",
+    iconColor: "text-cyan-400",
+    borderColor: "border-cyan-700/30",
+  },
+  {
+    title: "Grupos de Estudo",
     description: "Membros de cada grupo",
     href: "/consulta/grupos",
     icon: Users,
@@ -45,6 +68,33 @@ const quickLinks = [
     color: "from-amber-600/20 to-amber-800/10",
     iconColor: "text-amber-400",
     borderColor: "border-amber-700/30",
+  },
+  {
+    title: "Anciãos",
+    description: "Lista de anciãos da congregação",
+    href: "/consulta/anciaos",
+    icon: Shield,
+    color: "from-red-600/20 to-red-800/10",
+    iconColor: "text-red-400",
+    borderColor: "border-red-700/30",
+  },
+  {
+    title: "Servos Ministeriais",
+    description: "Lista de servos ministeriais",
+    href: "/consulta/servos-ministeriais",
+    icon: UserCheck,
+    color: "from-indigo-600/20 to-indigo-800/10",
+    iconColor: "text-indigo-400",
+    borderColor: "border-indigo-700/30",
+  },
+  {
+    title: "Pioneiros",
+    description: "Lista de pioneiros regulares",
+    href: "/consulta/pioneiros",
+    icon: Flag,
+    color: "from-pink-600/20 to-pink-800/10",
+    iconColor: "text-pink-400",
+    borderColor: "border-pink-700/30",
   },
 ]
 

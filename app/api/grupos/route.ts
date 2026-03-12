@@ -6,19 +6,18 @@ export async function GET() {
     const supabase = await createClient()
     
     const { data, error } = await supabase
-      .from("publicadores")
-      .select("id, nome, anciao, servo_ministerial, pioneiro_regular, ativo")
-      .eq("ativo", true)
+      .from("grupos")
+      .select("id, nome")
       .order("nome", { ascending: true })
     
     if (error) {
-      console.error("Erro ao buscar publicadores:", error)
+      console.error("Erro ao buscar grupos:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
     
     return NextResponse.json(data || [])
   } catch (error) {
-    console.error("Erro na API de publicadores:", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    console.error("Erro ao buscar grupos:", error)
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }

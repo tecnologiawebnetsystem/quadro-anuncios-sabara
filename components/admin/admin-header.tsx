@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Bell, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +16,11 @@ import {
 import { Badge } from "@/components/ui/badge"
 
 export function AdminHeader() {
+  const router = useRouter()
+  
+  const handleLogout = () => {
+    router.push("/")
+  }
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background px-4 md:px-6">
       <div className="flex items-center gap-4">
@@ -73,12 +79,11 @@ export function AdminHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => router.push("/admin/configuracoes")}>
+              Configurações
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Perfil</DropdownMenuItem>
-            <DropdownMenuItem>Configurações</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Sair</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive" onClick={handleLogout}>Sair</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

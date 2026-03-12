@@ -1,22 +1,21 @@
 "use client"
 
+// Menu simplificado - InfoFlow v2
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   Users,
-  Settings,
-  ChevronDown,
   ClipboardList,
   ShieldCheck,
   BookOpen,
   Calendar,
   Wrench,
+  Sparkles,
 } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -24,16 +23,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 const menuItems = [
   {
@@ -42,25 +32,9 @@ const menuItems = [
     href: "/admin",
   },
   {
-    title: "Equipe Técnica",
-    icon: Wrench,
-    href: "/admin/equipe-tecnica",
-    subItems: [
-      { title: "Indicadores", href: "/admin/equipe-tecnica/indicadores" },
-      { title: "Volantes", href: "/admin/equipe-tecnica/volantes" },
-      { title: "Som", href: "/admin/equipe-tecnica/som" },
-    ],
-  },
-  {
     title: "Publicadores",
     icon: Users,
     href: "/admin/publicadores",
-    subItems: [
-      { title: "Todos", href: "/admin/publicadores" },
-      { title: "Anciãos", href: "/admin/publicadores/anciaos" },
-      { title: "Servos Ministeriais", href: "/admin/publicadores/servos-ministeriais" },
-      { title: "Pioneiros Regulares", href: "/admin/publicadores/pioneiros-regulares" },
-    ],
   },
   {
     title: "Grupo de Estudos",
@@ -73,16 +47,19 @@ const menuItems = [
     href: "/admin/reunioes",
   },
   {
+    title: "Equipe Técnica",
+    icon: Wrench,
+    href: "/admin/equipe-tecnica",
+  },
+  {
+    title: "Limpeza do Salão",
+    icon: Sparkles,
+    href: "/admin/limpeza-salao",
+  },
+  {
     title: "Alçadas",
     icon: ShieldCheck,
     href: "/admin/alcadas",
-    subItems: [
-      { title: "Todas as Alçadas", href: "/admin/alcadas" },
-      { title: "Alçada de Anciãos", href: "/admin/alcadas/anciaos" },
-      { title: "Alçada de Servos", href: "/admin/alcadas/servos" },
-      { title: "Alçada de Pioneiros", href: "/admin/alcadas/pioneiros" },
-      { title: "Alçada de Publicadores", href: "/admin/alcadas/publicadores" },
-    ],
   },
 ]
 
@@ -98,7 +75,7 @@ export function AdminSidebar() {
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-sidebar-foreground">
-              Quadro de Anúncios
+              Info<span className="text-primary">Flow</span>
             </span>
           </div>
         </Link>
@@ -111,87 +88,26 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) =>
-                item.subItems ? (
-                  <Collapsible key={item.title} className="group/collapsible">
-                    <SidebarMenuItem>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton
-                          isActive={pathname.startsWith(item.href)}
-                          className="w-full justify-between"
-                        >
-                          <span className="flex items-center gap-3">
-                            <item.icon className="h-4 w-4" />
-                            <span>{item.title}</span>
-                          </span>
-                          <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {item.subItems.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.href}>
-                              <SidebarMenuSubButton
-                                asChild
-                                isActive={pathname === subItem.href}
-                              >
-                                <Link href={subItem.href}>{subItem.title}</Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </SidebarMenuItem>
-                  </Collapsible>
-                ) : (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={pathname === item.href}>
-                      <Link href={item.href} className="flex items-center gap-3">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              )}
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href)}
+                  >
+                    <Link href={item.href} className="flex items-center gap-3">
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Sistema
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/admin/configuracoes"}>
-                  <Link href="/admin/configuracoes" className="flex items-center gap-3">
-                    <Settings className="h-4 w-4" />
-                    <span>Configurações</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="border-t border-sidebar-border p-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-accent text-accent-foreground text-sm">
-              AD
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-sidebar-foreground">
-              Administrador
-            </span>
-            <span className="text-xs text-muted-foreground">admin@igreja.com</span>
-          </div>
-        </div>
-      </SidebarFooter>
     </Sidebar>
   )
 }
+
+// Menu atualizado: InfoFlow - sem Configurações e sem Administrador
