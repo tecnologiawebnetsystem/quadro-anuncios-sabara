@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Users,
   Settings,
-  ChevronDown,
   ClipboardList,
   ShieldCheck,
   BookOpen,
@@ -25,15 +24,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 const menuItems = [
@@ -43,25 +34,9 @@ const menuItems = [
     href: "/admin",
   },
   {
-    title: "Equipe Técnica",
-    icon: Wrench,
-    href: "/admin/equipe-tecnica",
-  },
-  {
-    title: "Limpeza do Salão",
-    icon: Sparkles,
-    href: "/admin/limpeza-salao",
-  },
-  {
     title: "Publicadores",
     icon: Users,
     href: "/admin/publicadores",
-    subItems: [
-      { title: "Todos", href: "/admin/publicadores" },
-      { title: "Anciãos", href: "/admin/publicadores/anciaos" },
-      { title: "Servos Ministeriais", href: "/admin/publicadores/servos-ministeriais" },
-      { title: "Pioneiros Regulares", href: "/admin/publicadores/pioneiros-regulares" },
-    ],
   },
   {
     title: "Grupo de Estudos",
@@ -74,16 +49,19 @@ const menuItems = [
     href: "/admin/reunioes",
   },
   {
+    title: "Equipe Técnica",
+    icon: Wrench,
+    href: "/admin/equipe-tecnica",
+  },
+  {
+    title: "Limpeza do Salão",
+    icon: Sparkles,
+    href: "/admin/limpeza-salao",
+  },
+  {
     title: "Alçadas",
     icon: ShieldCheck,
     href: "/admin/alcadas",
-    subItems: [
-      { title: "Todas as Alçadas", href: "/admin/alcadas" },
-      { title: "Alçada de Anciãos", href: "/admin/alcadas/anciaos" },
-      { title: "Alçada de Servos", href: "/admin/alcadas/servos" },
-      { title: "Alçada de Pioneiros", href: "/admin/alcadas/pioneiros" },
-      { title: "Alçada de Publicadores", href: "/admin/alcadas/publicadores" },
-    ],
   },
 ]
 
@@ -112,49 +90,16 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) =>
-                item.subItems ? (
-                  <Collapsible key={item.title} asChild className="group/collapsible">
-                    <SidebarMenuItem>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton
-                          isActive={pathname.startsWith(item.href)}
-                          className="w-full justify-between"
-                        >
-                          <span className="flex items-center gap-3">
-                            <item.icon className="h-4 w-4" />
-                            <span>{item.title}</span>
-                          </span>
-                          <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {item.subItems.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.href}>
-                              <SidebarMenuSubButton
-                                asChild
-                                isActive={pathname === subItem.href}
-                              >
-                                <Link href={subItem.href}>{subItem.title}</Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </SidebarMenuItem>
-                  </Collapsible>
-                ) : (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={pathname === item.href}>
-                      <Link href={item.href} className="flex items-center gap-3">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              )}
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={pathname === item.href || pathname.startsWith(item.href + "/")}>
+                    <Link href={item.href} className="flex items-center gap-3">
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
