@@ -11,7 +11,14 @@ import {
   ChevronLeft,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Wrench,
+  Sparkles,
+  Shield,
+  UserCheck,
+  Flag,
+  Gem,
+  BookMarked
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -31,7 +38,17 @@ const menuItems = [
     ]
   },
   {
-    title: "Grupos de Serviço",
+    title: "Equipe Técnica",
+    href: "/consulta/equipe-tecnica",
+    icon: Wrench,
+  },
+  {
+    title: "Limpeza do Salão",
+    href: "/consulta/limpeza-salao",
+    icon: Sparkles,
+  },
+  {
+    title: "Grupos de Estudo",
     href: "/consulta/grupos",
     icon: Users,
   },
@@ -39,6 +56,12 @@ const menuItems = [
     title: "Publicadores",
     href: "/consulta/publicadores",
     icon: BookOpen,
+    subItems: [
+      { title: "Todos", href: "/consulta/publicadores" },
+      { title: "Anciãos", href: "/consulta/anciaos" },
+      { title: "Servos Ministeriais", href: "/consulta/servos-ministeriais" },
+      { title: "Pioneiros", href: "/consulta/pioneiros" },
+    ]
   },
 ]
 

@@ -7,7 +7,7 @@ export async function GET() {
     
     const { data, error } = await supabase
       .from("publicadores")
-      .select("id, nome, anciao, servo_ministerial, ativo")
+      .select("id, nome, anciao, servo_ministerial, pioneiro_regular, ativo")
       .eq("ativo", true)
       .order("nome", { ascending: true })
     
