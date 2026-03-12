@@ -99,18 +99,21 @@ export function SeletorPublicador({
     
     switch (filtro) {
       case "anciao":
-        return p.anciao
+        return p.anciao === true
       case "servo":
-        return p.servoMinisterial
+        return p.servoMinisterial === true
       case "anciao_servo":
-        return p.anciao || p.servoMinisterial
+        return p.anciao === true || p.servoMinisterial === true
       case "irmaos":
-        // Qualquer publicador ativo (não temos campo sexo no banco ainda)
         return true
       default:
         return true
     }
   })
+  
+  // Debug
+  console.log("[v0] Filtro:", filtro, "| Total:", publicadores.length, "| Filtrados:", publicadoresFiltrados.length)
+  console.log("[v0] Anciãos no banco:", publicadores.filter(p => p.anciao === true).map(p => p.nome))
 
   // Ordenar por nome
   const publicadoresOrdenados = [...publicadoresFiltrados].sort((a, b) =>

@@ -8,6 +8,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from("publicadores")
       .select("id, nome, anciao, servo_ministerial, ativo")
+      .eq("ativo", true)
       .order("nome", { ascending: true })
     
     if (error) {
