@@ -6,7 +6,9 @@ import {
   BookOpen, 
   ChevronRight,
   BookMarked,
-  Gem
+  Gem,
+  Wrench,
+  Sparkles
 } from "lucide-react"
 
 const quickLinks = [
@@ -29,7 +31,25 @@ const quickLinks = [
     borderColor: "border-purple-700/30",
   },
   {
-    title: "Grupos de Serviço",
+    title: "Equipe Técnica",
+    description: "Indicadores, microfone e som",
+    href: "/consulta/equipe-tecnica",
+    icon: Wrench,
+    color: "from-orange-600/20 to-orange-800/10",
+    iconColor: "text-orange-400",
+    borderColor: "border-orange-700/30",
+  },
+  {
+    title: "Limpeza do Salão",
+    description: "Escala semanal de limpeza",
+    href: "/consulta/limpeza-salao",
+    icon: Sparkles,
+    color: "from-cyan-600/20 to-cyan-800/10",
+    iconColor: "text-cyan-400",
+    borderColor: "border-cyan-700/30",
+  },
+  {
+    title: "Grupos de Estudo",
     description: "Membros de cada grupo",
     href: "/consulta/grupos",
     icon: Users,
