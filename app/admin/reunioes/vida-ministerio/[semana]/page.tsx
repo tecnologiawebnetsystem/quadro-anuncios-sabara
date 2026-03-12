@@ -9,9 +9,8 @@ import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, Gem, Wheat, Heart, Music, Clock, FileText, Loader2 } from "lucide-react"
 import { reunioesMarco2026 } from "@/lib/data/vida-ministerio-marco"
 import { semanasAbril } from "@/lib/data/vida-ministerio-abril"
-import { SeletorPublicador, type FiltroPublicador } from "@/components/reuniao/seletor-publicador"
+import { SeletorPublicador, type FiltroPublicador, type Publicador } from "@/components/reuniao/seletor-publicador"
 import { useDesignacoes } from "@/lib/hooks/use-designacoes"
-import { type Publicador } from "@/lib/store/publicadores"
 import { useEffect, useState } from "react"
 
 // Mapeamento de partes para seus filtros de publicador

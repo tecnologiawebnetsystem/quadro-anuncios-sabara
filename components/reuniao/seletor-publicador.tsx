@@ -17,9 +17,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { usePublicadoresStore, type Publicador } from "@/lib/store/publicadores"
+import { getPublicadores, type PublicadorGrupo } from "@/lib/actions/grupos"
 
 export type FiltroPublicador = "todos" | "anciao" | "servo" | "anciao_servo" | "irmaos"
+
+// Interface compatível com o formato esperado
+export interface Publicador {
+  id: string
+  nome: string
+  anciao: boolean
+  servoMinisterial: boolean
+  ativo: boolean
+  sexo?: "M" | "F"
+}
 
 interface SeletorPublicadorProps {
   value?: string
@@ -41,7 +51,33 @@ export function SeletorPublicador({
   side = "bottom",
 }: SeletorPublicadorProps) {
   const [open, setOpen] = useState(false)
-  const publicadores = usePublicadoresStore((state) => state.publicadores)
+  const [publicadores, setPublicadores] = useState<Publicador[]>([])
+  const [loading, setLoading] = useState(true)
+  
+  // Carregar publicadores do Supabase
+  useEffect(() => {
+    async function carregarPublicadores() {
+      try {
+        const data = await getPublicadores()
+        // Converter para o formato esperado
+        const publicadoresConvertidos: Publicador[] = data.map(p => ({
+          id: p.id,
+          nome: p.nome,
+          anciao: p.anciao ?? false,
+          servoMinisterial: p.servo_ministerial ?? false,
+          ativo: p.ativo,
+          sexo: undefined, // Não temos esse campo no banco ainda
+        }))
+        setPublicadores(publicadoresConvertidos)
+      } catch (error) {
+        console.error("Erro ao carregar publicadores:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    carregarPublicadores()
+  }, [])
   
   // Filtrar publicadores baseado no filtro
   const publicadoresFiltrados = publicadores.filter((p) => {
@@ -55,8 +91,8 @@ export function SeletorPublicador({
       case "anciao_servo":
         return p.anciao || p.servoMinisterial
       case "irmaos":
-        // Irmãos batizados do sexo masculino (para oração final, leitura, etc.)
-        return p.sexo === "M"
+        // Qualquer publicador ativo (não temos campo sexo no banco ainda)
+        return true
       default:
         return true
     }
