@@ -17,9 +17,27 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { usePublicadoresStore, type Publicador } from "@/lib/store/publicadores"
 
 export type FiltroPublicador = "todos" | "anciao" | "servo" | "anciao_servo" | "irmaos"
+
+// Interface do banco de dados
+interface PublicadorDB {
+  id: string
+  nome: string
+  anciao: boolean | null
+  servo_ministerial: boolean | null
+  ativo: boolean
+}
+
+// Interface compatível com o formato esperado
+export interface Publicador {
+  id: string
+  nome: string
+  anciao: boolean
+  servoMinisterial: boolean
+  ativo: boolean
+  sexo?: "M" | "F"
+}
 
 interface SeletorPublicadorProps {
   value?: string
@@ -41,7 +59,39 @@ export function SeletorPublicador({
   side = "bottom",
 }: SeletorPublicadorProps) {
   const [open, setOpen] = useState(false)
-  const publicadores = usePublicadoresStore((state) => state.publicadores)
+  const [publicadores, setPublicadores] = useState<Publicador[]>([])
+  const [loading, setLoading] = useState(true)
+  
+  // Carregar publicadores via API
+  useEffect(() => {
+    async function carregarPublicadores() {
+      try {
+        const response = await fetch("/api/publicadores")
+        if (!response.ok) {
+          throw new Error("Erro ao buscar publicadores")
+        }
+        const data: PublicadorDB[] = await response.json()
+        console.log("[v0] Publicadores carregados:", data.length, data.slice(0, 3))
+        
+        // Converter para o formato esperado
+        const publicadoresConvertidos: Publicador[] = data.map(p => ({
+          id: p.id,
+          nome: p.nome,
+          anciao: p.anciao ?? false,
+          servoMinisterial: p.servo_ministerial ?? false,
+          ativo: p.ativo,
+          sexo: undefined,
+        }))
+        setPublicadores(publicadoresConvertidos)
+      } catch (error) {
+        console.error("[v0] Erro ao carregar publicadores:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    carregarPublicadores()
+  }, [])
   
   // Filtrar publicadores baseado no filtro
   const publicadoresFiltrados = publicadores.filter((p) => {
@@ -49,18 +99,21 @@ export function SeletorPublicador({
     
     switch (filtro) {
       case "anciao":
-        return p.anciao
+        return p.anciao === true
       case "servo":
-        return p.servoMinisterial
+        return p.servoMinisterial === true
       case "anciao_servo":
-        return p.anciao || p.servoMinisterial
+        return p.anciao === true || p.servoMinisterial === true
       case "irmaos":
-        // Irmãos batizados do sexo masculino (para oração final, leitura, etc.)
-        return p.sexo === "M"
+        return true
       default:
         return true
     }
   })
+  
+  // Debug
+  console.log("[v0] Filtro:", filtro, "| Total:", publicadores.length, "| Filtrados:", publicadoresFiltrados.length)
+  console.log("[v0] Anciãos no banco:", publicadores.filter(p => p.anciao === true).map(p => p.nome))
 
   // Ordenar por nome
   const publicadoresOrdenados = [...publicadoresFiltrados].sort((a, b) =>
