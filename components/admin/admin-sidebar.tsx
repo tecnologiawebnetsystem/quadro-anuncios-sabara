@@ -12,6 +12,7 @@ import {
   BookOpen,
   Calendar,
   Wrench,
+  Sparkles,
 } from "lucide-react"
 import {
   Sidebar,
@@ -45,6 +46,11 @@ const menuItems = [
     title: "Equipe Técnica",
     icon: Wrench,
     href: "/admin/equipe-tecnica",
+  },
+  {
+    title: "Limpeza do Salão",
+    icon: Sparkles,
+    href: "/admin/limpeza-salao",
   },
   {
     title: "Publicadores",
