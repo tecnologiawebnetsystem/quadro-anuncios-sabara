@@ -10,7 +10,8 @@ import {
   Calendar,
   ChevronLeft,
   Menu,
-  X
+  X,
+  LogOut
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -68,17 +69,16 @@ export default function ConsultaLayout({
       {/* Header Mobile */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800">
         <div className="flex items-center justify-between px-4 py-3">
-          <Link href="/" className="flex items-center gap-2">
-            <ChevronLeft className="w-5 h-5 text-zinc-400" />
-            <span className="text-zinc-400 text-sm">Voltar</span>
-          </Link>
-          <h1 className="text-lg font-semibold text-white">Info<span className="text-red-500">Flow</span></h1>
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 text-zinc-400 hover:text-white transition-colors"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
+          <h1 className="text-lg font-semibold text-white">Quadro de <span className="text-red-500">Anúncios</span></h1>
+          <Link href="/" className="flex items-center gap-1 text-zinc-400 hover:text-red-400 transition-colors">
+            <LogOut className="w-5 h-5" />
+          </Link>
         </div>
       </header>
 
@@ -153,11 +153,7 @@ export default function ConsultaLayout({
         {/* Sidebar Desktop */}
         <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-zinc-900/50 border-r border-zinc-800 p-4">
           <div className="mb-8">
-            <Link href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors mb-4">
-              <ChevronLeft className="w-5 h-5" />
-              <span className="text-sm">Voltar ao Início</span>
-            </Link>
-            <h1 className="text-xl font-bold text-white">Info<span className="text-red-500">Flow</span></h1>
+            <h1 className="text-xl font-bold text-white">Quadro de <span className="text-red-500">Anúncios</span></h1>
             <p className="text-sm text-zinc-500">Informações da Congregação</p>
           </div>
 
@@ -222,9 +218,13 @@ export default function ConsultaLayout({
           </nav>
 
           <div className="pt-4 border-t border-zinc-800">
-            <p className="text-xs text-zinc-600 text-center">
-              InfoFlow v1.0
-            </p>
+            <Link 
+              href="/" 
+              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-zinc-400 hover:bg-red-600/20 hover:text-red-400 transition-all"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="font-medium">Sair</span>
+            </Link>
           </div>
         </aside>
 
