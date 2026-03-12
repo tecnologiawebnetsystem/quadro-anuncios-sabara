@@ -106,7 +106,7 @@ export default function AdminDashboard() {
           Dashboard
         </h1>
         <p className="text-muted-foreground">
-          Bem-vindo ao painel administrativo do Quadro de Anúncios
+          Bem-vindo ao painel administrativo do InfoFlow
         </p>
       </div>
 
@@ -223,9 +223,11 @@ export default function AdminDashboard() {
             ) : (
               <p className="text-sm text-muted-foreground">Nenhum grupo designado para esta semana</p>
             )}
-          </CardContent>
+            </CardContent>
         </Card>
       </div>
     </div>
   )
 }
+
+// Dashboard atualizado: mostra Equipe Técnica do dia e Limpeza da Semana

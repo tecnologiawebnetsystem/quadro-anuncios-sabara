@@ -1,7 +1,7 @@
 {
-  "name": "Quadro de Anúncios",
-  "short_name": "Quadro",
-  "description": "Sistema de gerenciamento de quadro de anúncios",
+  "name": "InfoFlow",
+  "short_name": "InfoFlow",
+  "description": "Sistema de gerenciamento de informações da congregação",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

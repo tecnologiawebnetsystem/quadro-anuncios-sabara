@@ -1,6 +1,6 @@
 "use client"
 
-// Menu simplificado sem submenus
+// Menu simplificado - InfoFlow v2
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -75,7 +75,7 @@ export function AdminSidebar() {
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-sidebar-foreground">
-              Quadro de Anúncios
+              Info<span className="text-primary">Flow</span>
             </span>
           </div>
         </Link>
@@ -109,3 +109,5 @@ export function AdminSidebar() {
     </Sidebar>
   )
 }
+
+// Menu atualizado: InfoFlow - sem Configurações e sem Administrador
