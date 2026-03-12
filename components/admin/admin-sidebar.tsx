@@ -45,11 +45,6 @@ const menuItems = [
     title: "Equipe Técnica",
     icon: Wrench,
     href: "/admin/equipe-tecnica",
-    subItems: [
-      { title: "Indicadores", href: "/admin/equipe-tecnica/indicadores" },
-      { title: "Volantes", href: "/admin/equipe-tecnica/volantes" },
-      { title: "Som", href: "/admin/equipe-tecnica/som" },
-    ],
   },
   {
     title: "Publicadores",

@@ -71,8 +71,6 @@ export function SeletorPublicador({
           throw new Error("Erro ao buscar publicadores")
         }
         const data: PublicadorDB[] = await response.json()
-        console.log("[v0] Publicadores carregados:", data.length, data.slice(0, 3))
-        
         // Converter para o formato esperado
         const publicadoresConvertidos: Publicador[] = data.map(p => ({
           id: p.id,
@@ -110,10 +108,6 @@ export function SeletorPublicador({
         return true
     }
   })
-  
-  // Debug
-  console.log("[v0] Filtro:", filtro, "| Total:", publicadores.length, "| Filtrados:", publicadoresFiltrados.length)
-  console.log("[v0] Anciãos no banco:", publicadores.filter(p => p.anciao === true).map(p => p.nome))
 
   // Ordenar por nome
   const publicadoresOrdenados = [...publicadoresFiltrados].sort((a, b) =>
