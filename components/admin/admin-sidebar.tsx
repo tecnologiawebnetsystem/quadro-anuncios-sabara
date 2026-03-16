@@ -21,7 +21,6 @@ import {
   UserCheck,
   Shield,
   Flag,
-  BarChart3,
   Wand2,
   type LucideIcon
 } from "lucide-react"

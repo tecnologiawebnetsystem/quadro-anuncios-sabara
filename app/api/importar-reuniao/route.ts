@@ -98,19 +98,17 @@ Para Sentinela:
       console.error("Erro ao fazer parse do JSON:", parseError)
       console.error("Texto recebido:", result.text)
       return Response.json({ 
-        error: "Erro ao interpretar a resposta da IA. Tente novamente." 
+        erro: "Erro ao interpretar a resposta da IA. Tente novamente." 
       }, { status: 500 })
     }
 
-    return Response.json({ 
-      success: true, 
-      dados 
-    })
+    // Retorna os dados diretamente no objeto raiz
+    return Response.json(dados)
 
   } catch (error) {
     console.error("Erro ao processar texto:", error)
     return Response.json({ 
-      error: "Erro ao processar o texto. Verifique se o formato está correto e tente novamente." 
+      erro: "Erro ao processar o texto. Verifique se o formato esta correto e tente novamente." 
     }, { status: 500 })
   }
 }
