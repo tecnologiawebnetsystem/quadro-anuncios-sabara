@@ -98,7 +98,9 @@ export default function ImportarPage() {
   async function salvarDados() {
     if (!dados) return
 
+    console.log("[v0] Iniciando salvamento:", { tipo: dados.tipo, dataInicio: dados.dataInicio, dataFim: dados.dataFim })
     setSalvando(true)
+    toast.loading("Salvando dados...", { id: "salvando" })
 
     try {
       if (dados.tipo === "vida_ministerio") {
@@ -129,14 +131,20 @@ export default function ImportarPage() {
         }
 
         // Verificar se a semana já existe
-        const { data: semanaExistente } = await supabase
+        const { data: semanaExistente, error: erroVerificacao } = await supabase
           .from("vida_ministerio_semanas")
           .select("id")
           .eq("data_inicio", dados.dataInicio)
-          .single()
+          .maybeSingle()
+
+        console.log("[v0] Verificando semana existente:", { dataInicio: dados.dataInicio, semanaExistente, erroVerificacao })
 
         if (semanaExistente) {
-          toast.error("Esta semana já foi cadastrada! Edite pela página de Vida e Ministério.")
+          toast.dismiss("salvando")
+          toast.error("Esta semana já foi cadastrada!", {
+            duration: 5000,
+            description: `Semana de ${dados.dataInicio} já existe. Edite pela página de Vida e Ministério.`
+          })
           setSalvando(false)
           return
         }
@@ -178,14 +186,18 @@ export default function ImportarPage() {
           if (erroPartes) throw erroPartes
         }
 
-        toast.success("Vida e Ministério cadastrado com sucesso! Redirecionando...")
+        toast.dismiss("salvando")
+        toast.success("Vida e Ministério cadastrado com sucesso!", {
+          duration: 3000,
+          description: "Redirecionando para a página de Vida e Ministério..."
+        })
         
         // Limpar e redirecionar
         setDados(null)
         setTexto("")
         setTimeout(() => {
           router.push("/admin/vida-ministerio")
-        }, 1500)
+        }, 2000)
 
       } else if (dados.tipo === "sentinela") {
         // Buscar ou criar o mês
@@ -219,10 +231,16 @@ export default function ImportarPage() {
           .from("sentinela_estudos")
           .select("id")
           .eq("data_inicio", dados.dataInicio)
-          .single()
+          .maybeSingle()
+
+        console.log("[v0] Verificando estudo existente:", { dataInicio: dados.dataInicio, estudoExistente })
 
         if (estudoExistente) {
-          toast.error("Este estudo já foi cadastrado! Edite pela página de Sentinela.")
+          toast.dismiss("salvando")
+          toast.error("Este estudo já foi cadastrado!", {
+            duration: 5000,
+            description: `Estudo da semana de ${dados.dataInicio} já existe. Edite pela página de Sentinela.`
+          })
           setSalvando(false)
           return
         }
@@ -274,20 +292,38 @@ export default function ImportarPage() {
           if (erroParagrafos) throw erroParagrafos
         }
 
-        toast.success("Estudo da Sentinela cadastrado com sucesso! Redirecionando...")
+        toast.dismiss("salvando")
+        toast.success("Estudo da Sentinela cadastrado com sucesso!", {
+          duration: 3000,
+          description: "Redirecionando para a página de Sentinela..."
+        })
         
         // Limpar e redirecionar
         setDados(null)
         setTexto("")
         setTimeout(() => {
           router.push("/admin/sentinela")
-        }, 1500)
+        }, 2000)
       }
 
     } catch (error: unknown) {
-      console.error("Erro ao salvar:", error)
-      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
-      toast.error(`Erro ao salvar: ${errorMessage}`)
+      console.error("[v0] Erro ao salvar:", error)
+      toast.dismiss("salvando")
+      
+      // Verificar se é erro de duplicata
+      const errorObj = error as { code?: string; message?: string }
+      if (errorObj?.code === "23505") {
+        toast.error("Registro duplicado!", {
+          duration: 5000,
+          description: "Esta semana/estudo já foi cadastrado. Edite pela página correspondente."
+        })
+      } else {
+        const errorMessage = errorObj?.message || "Erro desconhecido ao salvar"
+        toast.error(`Erro ao salvar`, {
+          duration: 5000,
+          description: errorMessage
+        })
+      }
     } finally {
       setSalvando(false)
     }
