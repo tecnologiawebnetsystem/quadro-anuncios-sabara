@@ -25,7 +25,6 @@ interface DiscursoPublico {
   id?: string
   data: string
   tema: string
-  orador_id: string | null
   orador_nome: string | null
   orador_congregacao: string | null
   observacoes: string | null
@@ -198,43 +197,37 @@ export default function ReunioesPublicasPage() {
   }
 
   // Salvar discurso público
-  async function salvarDiscurso(data: string, campo: string, valor: string | Publicador | null) {
-    const existente = discursos.find(d => d.data === data)
-    
-    const dadosBase: Partial<DiscursoPublico> = { data }
-    
-    if (campo === "tema") {
-      dadosBase.tema = valor as string
-    } else if (campo === "orador") {
-      const pub = valor as Publicador | null
-      dadosBase.orador_id = pub?.id || null
-      dadosBase.orador_nome = pub?.nome || null
-    } else if (campo === "orador_nome") {
-      dadosBase.orador_nome = valor as string
-      dadosBase.orador_id = null
-    } else if (campo === "orador_congregacao") {
-      dadosBase.orador_congregacao = valor as string
-    }
-    
-    try {
-      if (existente?.id) {
-        const { error } = await supabase
-          .from("discursos_publicos")
-          .update(dadosBase)
-          .eq("id", existente.id)
-        
-        if (error) throw error
-        
-        setDiscursos(prev => prev.map(d => d.id === existente.id ? { ...d, ...dadosBase } as DiscursoPublico : d))
-      } else {
-        const novosDados: DiscursoPublico = {
-          data,
-          tema: campo === "tema" ? (valor as string) : "",
-          orador_id: campo === "orador" ? ((valor as Publicador)?.id || null) : null,
-          orador_nome: campo === "orador" ? ((valor as Publicador)?.nome || null) : (campo === "orador_nome" ? (valor as string) : null),
-          orador_congregacao: campo === "orador_congregacao" ? (valor as string) : null,
-          observacoes: null,
-        }
+  async function salvarDiscurso(data: string, campo: string, valor: string) {
+  const existente = discursos.find(d => d.data === data)
+  
+  const dadosBase: Partial<DiscursoPublico> = { data }
+  
+  if (campo === "tema") {
+  dadosBase.tema = valor
+  } else if (campo === "orador_nome") {
+  dadosBase.orador_nome = valor
+  } else if (campo === "orador_congregacao") {
+  dadosBase.orador_congregacao = valor
+  }
+  
+  try {
+  if (existente?.id) {
+  const { error } = await supabase
+  .from("discursos_publicos")
+  .update(dadosBase)
+  .eq("id", existente.id)
+  
+  if (error) throw error
+  
+  setDiscursos(prev => prev.map(d => d.id === existente.id ? { ...d, ...dadosBase } as DiscursoPublico : d))
+  } else {
+  const novosDados: DiscursoPublico = {
+  data,
+  tema: campo === "tema" ? valor : "",
+  orador_nome: campo === "orador_nome" ? valor : null,
+  orador_congregacao: campo === "orador_congregacao" ? valor : null,
+  observacoes: null,
+  }
         
         const { data: novoData, error } = await supabase
           .from("discursos_publicos")
@@ -445,53 +438,41 @@ export default function ReunioesPublicasPage() {
                         <span className="font-medium text-foreground">{formatarData(data)}</span>
                         <span className="text-xs text-muted-foreground">Domingo</span>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Tema do Discurso</label>
-                          <Input
-                            value={registro?.tema || ""}
-                            onChange={(e) => setDiscursos(prev => {
-                              const existe = prev.find(d => d.data === data)
-                              if (existe) {
-                                return prev.map(d => d.data === data ? { ...d, tema: e.target.value } : d)
-                              }
-                              return [...prev, { data, tema: e.target.value } as DiscursoPublico]
-                            })}
-                            onBlur={(e) => salvarDiscurso(data, "tema", e.target.value)}
-                            placeholder="Digite o tema do discurso..."
-                            className="bg-zinc-800/50 border-zinc-700"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Orador (da congregação)</label>
-                          <SeletorPublicador
-                            value={registro?.orador_id || undefined}
-                            onSelect={(p) => salvarDiscurso(data, "orador", p)}
-                            filtro="irmaos"
-                            placeholder="Selecionar orador..."
-                            className="w-full"
-                          />
-                        </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-muted-foreground">Tema do Discurso</label>
+                        <Input
+                          value={registro?.tema || ""}
+                          onChange={(e) => setDiscursos(prev => {
+                            const existe = prev.find(d => d.data === data)
+                            if (existe) {
+                              return prev.map(d => d.data === data ? { ...d, tema: e.target.value } : d)
+                            }
+                            return [...prev, { data, tema: e.target.value } as DiscursoPublico]
+                          })}
+                          onBlur={(e) => salvarDiscurso(data, "tema", e.target.value)}
+                          placeholder="Digite o tema do discurso..."
+                          className="bg-zinc-800/50 border-zinc-700"
+                        />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Orador Visitante (nome)</label>
+                          <label className="text-xs text-muted-foreground">Nome do Orador</label>
                           <Input
                             value={registro?.orador_nome || ""}
                             onChange={(e) => setDiscursos(prev => {
                               const existe = prev.find(d => d.data === data)
                               if (existe) {
-                                return prev.map(d => d.data === data ? { ...d, orador_nome: e.target.value, orador_id: null } : d)
+                                return prev.map(d => d.data === data ? { ...d, orador_nome: e.target.value } : d)
                               }
                               return [...prev, { data, orador_nome: e.target.value, tema: "" } as DiscursoPublico]
                             })}
                             onBlur={(e) => salvarDiscurso(data, "orador_nome", e.target.value)}
-                            placeholder="Nome do orador visitante..."
+                            placeholder="Nome do orador..."
                             className="bg-zinc-800/50 border-zinc-700"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">Congregação do Visitante</label>
+                          <label className="text-xs text-muted-foreground">Congregação</label>
                           <Input
                             value={registro?.orador_congregacao || ""}
                             onChange={(e) => setDiscursos(prev => {
