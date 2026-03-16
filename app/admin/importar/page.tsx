@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -57,6 +58,7 @@ export default function ImportarPage() {
   const [dados, setDados] = useState<DadosReuniao | null>(null)
   const [erro, setErro] = useState<string | null>(null)
 
+  const router = useRouter()
   const supabase = createClient()
 
   async function processarTexto() {
@@ -126,6 +128,19 @@ export default function ImportarPage() {
           mesId = novoMes.id
         }
 
+        // Verificar se a semana já existe
+        const { data: semanaExistente } = await supabase
+          .from("vida_ministerio_semanas")
+          .select("id")
+          .eq("data_inicio", dados.dataInicio)
+          .single()
+
+        if (semanaExistente) {
+          toast.error("Esta semana já foi cadastrada! Edite pela página de Vida e Ministério.")
+          setSalvando(false)
+          return
+        }
+
         // Criar a semana
         const { data: semana, error: erroSemana } = await supabase
           .from("vida_ministerio_semanas")
@@ -163,7 +178,14 @@ export default function ImportarPage() {
           if (erroPartes) throw erroPartes
         }
 
-        toast.success("Vida e Ministério cadastrado com sucesso!")
+        toast.success("Vida e Ministério cadastrado com sucesso! Redirecionando...")
+        
+        // Limpar e redirecionar
+        setDados(null)
+        setTexto("")
+        setTimeout(() => {
+          router.push("/admin/vida-ministerio")
+        }, 1500)
 
       } else if (dados.tipo === "sentinela") {
         // Buscar ou criar o mês
@@ -190,6 +212,19 @@ export default function ImportarPage() {
 
           if (erroMes) throw erroMes
           mesId = novoMes.id
+        }
+
+        // Verificar se o estudo já existe
+        const { data: estudoExistente } = await supabase
+          .from("sentinela_estudos")
+          .select("id")
+          .eq("data_inicio", dados.dataInicio)
+          .single()
+
+        if (estudoExistente) {
+          toast.error("Este estudo já foi cadastrado! Edite pela página de Sentinela.")
+          setSalvando(false)
+          return
         }
 
         // Contar estudos existentes para definir o número
@@ -239,16 +274,20 @@ export default function ImportarPage() {
           if (erroParagrafos) throw erroParagrafos
         }
 
-        toast.success("Estudo da Sentinela cadastrado com sucesso!")
+        toast.success("Estudo da Sentinela cadastrado com sucesso! Redirecionando...")
+        
+        // Limpar e redirecionar
+        setDados(null)
+        setTexto("")
+        setTimeout(() => {
+          router.push("/admin/sentinela")
+        }, 1500)
       }
 
-      // Limpar após salvar
-      setDados(null)
-      setTexto("")
-
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Erro ao salvar:", error)
-      toast.error("Erro ao salvar os dados")
+      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
+      toast.error(`Erro ao salvar: ${errorMessage}`)
     } finally {
       setSalvando(false)
     }
