@@ -629,10 +629,12 @@ Exemplo para Sentinela:
                   </span>
                 </div>
 
-                <div className="p-3 rounded bg-zinc-800/50">
-                  <p className="font-medium">{dados.titulo}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{dados.textoTema}</p>
-                </div>
+                {dados.tipo === "sentinela" && (
+                  <div className="p-3 rounded bg-zinc-800/50">
+                    <p className="font-medium">{dados.titulo}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{dados.textoTema}</p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div className="p-2 rounded bg-zinc-800/50">
@@ -645,22 +647,24 @@ Exemplo para Sentinela:
                   </div>
                 </div>
 
-                <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Paragrafos ({dados.paragrafos.length}):
-                  </p>
-                  {dados.paragrafos.slice(0, 5).map((p, idx) => (
-                    <div key={idx} className="p-2 rounded bg-zinc-800/30 text-sm">
-                      <span className="font-medium">Par. {p.numero}:</span>
-                      <span className="ml-2 text-muted-foreground line-clamp-1">{p.pergunta}</span>
-                    </div>
-                  ))}
-                  {dados.paragrafos.length > 5 && (
-                    <p className="text-xs text-muted-foreground text-center">
-                      + {dados.paragrafos.length - 5} paragrafos
+                {dados.tipo === "sentinela" && dados.paragrafos && (
+                  <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Paragrafos ({dados.paragrafos.length}):
                     </p>
-                  )}
-                </div>
+                    {dados.paragrafos.slice(0, 5).map((p, idx) => (
+                      <div key={idx} className="p-2 rounded bg-zinc-800/30 text-sm">
+                        <span className="font-medium">Par. {p.numero}:</span>
+                        <span className="ml-2 text-muted-foreground line-clamp-1">{p.pergunta}</span>
+                      </div>
+                    ))}
+                    {dados.paragrafos.length > 5 && (
+                      <p className="text-xs text-muted-foreground text-center">
+                        + {dados.paragrafos.length - 5} paragrafos
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <Button
                   onClick={() => salvarDados(false)}
