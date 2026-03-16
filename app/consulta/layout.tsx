@@ -239,20 +239,21 @@ export default function ConsultaLayout({
               </div>
             ))}
           </nav>
-
-          <div className="pt-4 border-t border-zinc-800">
-            <Link 
-              href="/" 
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-zinc-400 hover:bg-red-600/20 hover:text-red-400 transition-all"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Sair</span>
-            </Link>
-          </div>
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 min-h-screen pt-16 lg:pt-0">
+          {/* Header Desktop com botão Sair */}
+          <div className="hidden lg:flex items-center justify-end px-6 py-3 border-b border-zinc-800/50">
+            <Link 
+              href="/" 
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-zinc-500 hover:text-red-400 hover:bg-zinc-800/50 transition-all"
+              title="Sair"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Sair</span>
+            </Link>
+          </div>
           <div className="p-4 lg:p-8">
             {children}
           </div>
