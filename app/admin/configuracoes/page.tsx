@@ -209,7 +209,7 @@ export default function ConfiguracoesPage() {
                   <Input
                     id="numero-cong"
                     type="number"
-                    value={congregacao.numero}
+                    value={congregacao.numero || ""}
                     onChange={(e) => setCongregacao(prev => ({ ...prev, numero: e.target.value }))}
                     placeholder="Ex: 12345678"
                     maxLength={8}
