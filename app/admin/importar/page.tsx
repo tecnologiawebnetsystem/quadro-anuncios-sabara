@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Sparkles, CheckCircle2, AlertCircle, BookOpen, FileText, Trash2, RefreshCw } from "lucide-react"
+import { Loader2, Sparkles, CheckCircle2, AlertCircle, BookOpen, FileText, Trash2, RefreshCw, Wand2, ImagePlus, Brain } from "lucide-react"
 import { toast } from "sonner"
 import {
   AlertDialog,
@@ -75,6 +75,16 @@ export default function ImportarPage() {
   const [erro, setErro] = useState<string | null>(null)
   const [mostrarModalAtualizar, setMostrarModalAtualizar] = useState(false)
   const [registroExistente, setRegistroExistente] = useState<RegistroExistente | null>(null)
+  
+  // Estados para funcionalidades de IA
+  const [gerandoRespostas, setGerandoRespostas] = useState(false)
+  const [gerandoAplicacoes, setGerandoAplicacoes] = useState(false)
+  const [aplicacoesGeradas, setAplicacoesGeradas] = useState<Record<number, string[]>>({})
+  const [respostasGeradas, setRespostasGeradas] = useState<Record<number, string>>({})
+  const [uploadandoImagem, setUploadandoImagem] = useState(false)
+  const [imagemUrl, setImagemUrl] = useState<string | null>(null)
+  const [analisandoImagem, setAnalisandoImagem] = useState(false)
+  const [analiseImagem, setAnaliseImagem] = useState<string | null>(null)
 
   const router = useRouter()
   const supabase = createClient()
@@ -141,6 +151,167 @@ export default function ImportarPage() {
     }
 
     return null
+  }
+
+  // Gerar respostas com IA para parágrafos da Sentinela
+  async function gerarRespostasIA() {
+    if (!dados || dados.tipo !== "sentinela" || !dados.paragrafos) return
+    
+    setGerandoRespostas(true)
+    toast.loading("Gerando respostas com IA...", { id: "gerando-respostas" })
+    
+    const novasRespostas: Record<number, string> = {}
+    
+    try {
+      for (let i = 0; i < dados.paragrafos.length; i++) {
+        const paragrafo = dados.paragrafos[i]
+        
+        const response = await fetch("/api/gerar-resposta-ia", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tipo: "resposta_paragrafo",
+            pergunta: paragrafo.pergunta,
+            textoBase: paragrafo.textoBase,
+            contexto: dados.titulo
+          })
+        })
+        
+        if (response.ok) {
+          const result = await response.json()
+          if (result.resposta) {
+            novasRespostas[i] = result.resposta
+          }
+        }
+      }
+      
+      setRespostasGeradas(novasRespostas)
+      
+      // Atualizar os dados com as respostas geradas
+      if (dados.tipo === "sentinela") {
+        const novosParagrafos = dados.paragrafos.map((p, idx) => ({
+          ...p,
+          resposta: novasRespostas[idx] || p.resposta
+        }))
+        setDados({ ...dados, paragrafos: novosParagrafos })
+      }
+      
+      toast.dismiss("gerando-respostas")
+      toast.success(`${Object.keys(novasRespostas).length} respostas geradas com sucesso!`)
+    } catch (error) {
+      console.error("Erro ao gerar respostas:", error)
+      toast.dismiss("gerando-respostas")
+      toast.error("Erro ao gerar respostas")
+    } finally {
+      setGerandoRespostas(false)
+    }
+  }
+
+  // Gerar textos de aplicação para Vida e Ministério
+  async function gerarAplicacoesIA(parteIndex: number, titulo: string) {
+    setGerandoAplicacoes(true)
+    toast.loading("Gerando aplicacoes praticas...", { id: "gerando-aplicacoes" })
+    
+    try {
+      const response = await fetch("/api/gerar-resposta-ia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipo: "aplicacao_vida",
+          contexto: titulo
+        })
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        if (result.aplicacoes) {
+          setAplicacoesGeradas(prev => ({
+            ...prev,
+            [parteIndex]: result.aplicacoes
+          }))
+          toast.dismiss("gerando-aplicacoes")
+          toast.success("Aplicacoes praticas geradas!")
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao gerar aplicacoes:", error)
+      toast.dismiss("gerando-aplicacoes")
+      toast.error("Erro ao gerar aplicacoes")
+    } finally {
+      setGerandoAplicacoes(false)
+    }
+  }
+
+  // Upload de imagem
+  async function uploadImagem(file: File) {
+    setUploadandoImagem(true)
+    toast.loading("Enviando imagem...", { id: "upload-imagem" })
+    
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      
+      const response = await fetch("/api/upload-imagem", {
+        method: "POST",
+        body: formData
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        setImagemUrl(result.url)
+        toast.dismiss("upload-imagem")
+        toast.success("Imagem enviada com sucesso!")
+      } else {
+        const error = await response.json()
+        toast.dismiss("upload-imagem")
+        toast.error(error.erro || "Erro no upload")
+      }
+    } catch (error) {
+      console.error("Erro no upload:", error)
+      toast.dismiss("upload-imagem")
+      toast.error("Erro ao enviar imagem")
+    } finally {
+      setUploadandoImagem(false)
+    }
+  }
+
+  // Analisar imagem com IA
+  async function analisarImagemIA() {
+    if (!imagemUrl) return
+    
+    setAnalisandoImagem(true)
+    toast.loading("Analisando imagem com IA...", { id: "analisando-imagem" })
+    
+    try {
+      const contexto = dados?.tipo === "vida_ministerio" 
+        ? dados.partes?.[0]?.titulo 
+        : dados?.tipo === "sentinela" 
+          ? dados.titulo 
+          : ""
+      
+      const response = await fetch("/api/gerar-resposta-ia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipo: "analise_imagem",
+          imagemUrl,
+          contexto
+        })
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        setAnaliseImagem(result.resposta)
+        toast.dismiss("analisando-imagem")
+        toast.success("Imagem analisada!")
+      }
+    } catch (error) {
+      console.error("Erro ao analisar imagem:", error)
+      toast.dismiss("analisando-imagem")
+      toast.error("Erro ao analisar imagem")
+    } finally {
+      setAnalisandoImagem(false)
+    }
   }
 
   async function salvarDados(forcarAtualizacao = false) {
@@ -589,15 +760,45 @@ Exemplo para Sentinela:
                   </div>
                 </div>
 
-                <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                <div className="space-y-2 max-h-[300px] overflow-y-auto">
                   <p className="text-sm font-medium text-muted-foreground">Partes ({dados.partes.length}):</p>
                   {dados.partes.map((parte, idx) => (
-                    <div key={idx} className="p-2 rounded bg-zinc-800/30 text-sm">
+                    <div key={idx} className="p-3 rounded bg-zinc-800/30 text-sm space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="font-medium">{parte.titulo}</span>
                         <Badge variant="outline" className="text-xs">{parte.tempo}</Badge>
                       </div>
                       <span className="text-xs text-muted-foreground">{parte.secao}</span>
+                      
+                      {/* Botão para gerar aplicações práticas */}
+                      <div className="pt-2 border-t border-zinc-700/50">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => gerarAplicacoesIA(idx, parte.titulo)}
+                          disabled={gerandoAplicacoes}
+                          className="w-full text-xs"
+                        >
+                          {gerandoAplicacoes ? (
+                            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                          ) : (
+                            <Brain className="mr-1 h-3 w-3" />
+                          )}
+                          Gerar Aplicacoes Praticas
+                        </Button>
+                        
+                        {/* Mostrar aplicações geradas */}
+                        {aplicacoesGeradas[idx] && (
+                          <div className="mt-2 space-y-1">
+                            <p className="text-xs font-medium text-amber-400">Aplicacoes para a vida:</p>
+                            {aplicacoesGeradas[idx].map((aplicacao, aIdx) => (
+                              <div key={aIdx} className="p-2 rounded bg-amber-500/10 text-xs text-amber-200 border border-amber-500/20">
+                                {aIdx + 1}. {aplicacao}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -650,23 +851,103 @@ Exemplo para Sentinela:
                 </div>
 
                 {dados.tipo === "sentinela" && dados.paragrafos && (
-                  <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Paragrafos ({dados.paragrafos.length}):
-                    </p>
-                    {dados.paragrafos.slice(0, 5).map((p, idx) => (
-                      <div key={idx} className="p-2 rounded bg-zinc-800/30 text-sm">
-                        <span className="font-medium">Par. {p.numero}:</span>
-                        <span className="ml-2 text-muted-foreground line-clamp-1">{p.pergunta}</span>
-                      </div>
-                    ))}
-                    {dados.paragrafos.length > 5 && (
-                      <p className="text-xs text-muted-foreground text-center">
-                        + {dados.paragrafos.length - 5} paragrafos
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Paragrafos ({dados.paragrafos.length}):
                       </p>
-                    )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={gerarRespostasIA}
+                        disabled={gerandoRespostas}
+                        className="text-xs"
+                      >
+                        {gerandoRespostas ? (
+                          <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                        ) : (
+                          <Wand2 className="mr-1 h-3 w-3" />
+                        )}
+                        Gerar Todas as Respostas com IA
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2 max-h-[250px] overflow-y-auto">
+                      {dados.paragrafos.map((p, idx) => (
+                        <div key={idx} className="p-3 rounded bg-zinc-800/30 text-sm space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <span className="font-medium text-blue-400">Par. {p.numero}:</span>
+                              <p className="text-muted-foreground mt-1">{p.pergunta}</p>
+                            </div>
+                          </div>
+                          {p.resposta && (
+                            <div className="p-2 rounded bg-green-500/10 border border-green-500/20">
+                              <p className="text-xs font-medium text-green-400 mb-1">Resposta:</p>
+                              <p className="text-xs text-green-200">{p.resposta}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
+
+                {/* Upload de Imagem */}
+                <div className="border border-dashed border-zinc-700 rounded-lg p-4">
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Imagem do Estudo (opcional):</p>
+                  <div className="flex items-center gap-3">
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) uploadImagem(file)
+                        }}
+                        disabled={uploadandoImagem}
+                      />
+                      <div className="flex items-center gap-2 px-3 py-2 rounded bg-zinc-800 hover:bg-zinc-700 transition-colors">
+                        {uploadandoImagem ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <ImagePlus className="h-4 w-4" />
+                        )}
+                        <span className="text-sm">Enviar Imagem</span>
+                      </div>
+                    </label>
+                    
+                    {imagemUrl && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={analisarImagemIA}
+                        disabled={analisandoImagem}
+                      >
+                        {analisandoImagem ? (
+                          <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                        ) : (
+                          <Brain className="mr-1 h-3 w-3" />
+                        )}
+                        Analisar com IA
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {imagemUrl && (
+                    <div className="mt-3">
+                      <img src={imagemUrl} alt="Imagem do estudo" className="rounded max-h-32 object-cover" />
+                    </div>
+                  )}
+                  
+                  {analiseImagem && (
+                    <div className="mt-3 p-3 rounded bg-purple-500/10 border border-purple-500/20">
+                      <p className="text-xs font-medium text-purple-400 mb-1">Analise da Imagem (IA):</p>
+                      <p className="text-xs text-purple-200">{analiseImagem}</p>
+                    </div>
+                  )}
+                </div>
 
                 <Button
                   onClick={() => salvarDados(false)}
