@@ -77,8 +77,8 @@ const menuGroups: MenuGroup[] = [
     items: [
       { title: "Todos", icon: Users, href: "/admin/publicadores" },
       { title: "Anciaos", icon: UserCheck, href: "/admin/publicadores/anciaos" },
-      { title: "Servos Ministeriais", icon: Shield, href: "/admin/publicadores/servos-ministeriais" },
-      { title: "Pioneiros Regulares", icon: Flag, href: "/admin/publicadores/pioneiros-regulares" },
+      { title: "Servos", icon: Shield, href: "/admin/publicadores/servos-ministeriais" },
+      { title: "Pioneiros", icon: Flag, href: "/admin/publicadores/pioneiros-regulares" },
     ]
   },
   {
@@ -86,8 +86,8 @@ const menuGroups: MenuGroup[] = [
     icon: Calendar,
     items: [
       { title: "Vida e Ministerio", icon: Gem, href: "/admin/reunioes" },
-      { title: "Estudo de A Sentinela", icon: BookMarked, href: "/admin/reunioes/sentinela" },
-      { title: "Reunioes Publicas", icon: Mic, href: "/admin/reunioes-publicas" },
+      { title: "Sentinela", icon: BookMarked, href: "/admin/reunioes/sentinela" },
+      { title: "Discursos", icon: Mic, href: "/admin/reunioes-publicas" },
       { title: "Equipe Tecnica", icon: Wrench, href: "/admin/equipe-tecnica" },
       { title: "Assistencia", icon: BarChart3, href: "/admin/reunioes-publicas" },
     ]
