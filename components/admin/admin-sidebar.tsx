@@ -11,6 +11,8 @@ import {
   Calendar,
   Wrench,
   Sparkles,
+  MapPin,
+  Mic,
 } from "lucide-react"
 import {
   Sidebar,
@@ -54,6 +56,16 @@ const menuItems = [
     title: "Limpeza do Salão",
     icon: Sparkles,
     href: "/admin/limpeza-salao",
+  },
+  {
+    title: "Serviço de Campo",
+    icon: MapPin,
+    href: "/admin/servico-campo",
+  },
+  {
+    title: "Reuniões Públicas",
+    icon: Mic,
+    href: "/admin/reunioes-publicas",
   },
 ]
 
@@ -104,4 +116,4 @@ export function AdminSidebar() {
   )
 }
 
-// Menu atualizado: InfoFlow - sem Configurações e sem Administrador
+// Menu atualizado: InfoFlow v2 - todos os módulos sincronizados com banco de dados

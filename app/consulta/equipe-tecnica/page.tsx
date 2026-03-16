@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Wrench, Users, Mic, Volume2, Calendar } from "lucide-react"
 import Link from "next/link"
+import { useSync } from "@/lib/contexts/sync-context"
 
 interface EquipeTecnica {
   id: string
@@ -29,27 +30,28 @@ export default function ConsultaEquipeTecnicaPage() {
   const [mesAtual, setMesAtual] = useState(0)
   const [designacoes, setDesignacoes] = useState<EquipeTecnica[]>([])
   const [loading, setLoading] = useState(true)
+  const { syncTrigger } = useSync()
 
   const mes = meses[mesAtual]
 
-  useEffect(() => {
-    async function carregarDesignacoes() {
-      setLoading(true)
-      try {
-        const response = await fetch(`/api/equipe-tecnica?mes=${mes.valor}`)
-        if (response.ok) {
-          const data = await response.json()
-          setDesignacoes(data)
-        }
-      } catch (error) {
-        console.error("Erro ao carregar designações:", error)
-      } finally {
-        setLoading(false)
+  const carregarDesignacoes = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/equipe-tecnica?mes=${mes.valor}`)
+      if (response.ok) {
+        const data = await response.json()
+        setDesignacoes(data)
       }
+    } catch (error) {
+      console.error("Erro ao carregar designações:", error)
+    } finally {
+      setLoading(false)
     }
-    
-    carregarDesignacoes()
   }, [mes.valor])
+
+  useEffect(() => {
+    carregarDesignacoes()
+  }, [carregarDesignacoes, syncTrigger])
 
   const navegarMes = (direcao: "anterior" | "proximo") => {
     if (direcao === "anterior" && mesAtual > 0) {

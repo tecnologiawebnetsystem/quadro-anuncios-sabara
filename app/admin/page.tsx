@@ -98,7 +98,6 @@ export default function AdminDashboard() {
   const totalAnciaos = publicadores.filter((p) => p.anciao && p.ativo).length
   const totalServos = publicadores.filter((p) => p.servo_ministerial && p.ativo).length
   const totalPioneirosRegulares = publicadores.filter((p) => p.pioneiro_regular && p.ativo).length
-  const totalPioneirosAuxiliares = publicadores.filter((p) => p.pioneiro_auxiliar && p.ativo).length
 
   if (loading) {
     return (
@@ -151,7 +150,6 @@ export default function AdminDashboard() {
           description="Clique para ver todos"
           icon={Flag}
           href="/admin/publicadores/pioneiros-regulares"
-          badge={{ label: "Auxiliares", value: totalPioneirosAuxiliares }}
         />
       </div>
 
