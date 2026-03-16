@@ -12,6 +12,7 @@ import {
   Wrench,
   Sparkles,
   MapPin,
+  Mic,
 } from "lucide-react"
 import {
   Sidebar,
@@ -60,6 +61,11 @@ const menuItems = [
     title: "Serviço de Campo",
     icon: MapPin,
     href: "/admin/servico-campo",
+  },
+  {
+    title: "Reuniões Públicas",
+    icon: Mic,
+    href: "/admin/reunioes-publicas",
   },
 ]
 

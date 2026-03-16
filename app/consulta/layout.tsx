@@ -20,7 +20,8 @@ import {
   Gem,
   BookMarked,
   RefreshCw,
-  MapPin
+  MapPin,
+  Mic
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SyncProvider, useSync } from "@/lib/contexts/sync-context"
@@ -54,6 +55,11 @@ const menuItems = [
     title: "Serviço de Campo",
     href: "/consulta/servico-campo",
     icon: MapPin,
+  },
+  {
+    title: "Reuniões Públicas",
+    href: "/consulta/reunioes-publicas",
+    icon: Mic,
   },
   {
     title: "Grupos de Estudo",
