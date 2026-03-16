@@ -11,6 +11,7 @@ import {
   Calendar,
   Wrench,
   Sparkles,
+  MapPin,
 } from "lucide-react"
 import {
   Sidebar,
@@ -54,6 +55,11 @@ const menuItems = [
     title: "Limpeza do Salão",
     icon: Sparkles,
     href: "/admin/limpeza-salao",
+  },
+  {
+    title: "Serviço de Campo",
+    icon: MapPin,
+    href: "/admin/servico-campo",
   },
 ]
 

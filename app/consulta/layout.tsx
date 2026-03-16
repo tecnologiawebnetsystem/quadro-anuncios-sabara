@@ -19,7 +19,8 @@ import {
   Flag,
   Gem,
   BookMarked,
-  RefreshCw
+  RefreshCw,
+  MapPin
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SyncProvider, useSync } from "@/lib/contexts/sync-context"
@@ -48,6 +49,11 @@ const menuItems = [
     title: "Limpeza do Salão",
     href: "/consulta/limpeza-salao",
     icon: Sparkles,
+  },
+  {
+    title: "Serviço de Campo",
+    href: "/consulta/servico-campo",
+    icon: MapPin,
   },
   {
     title: "Grupos de Estudo",
