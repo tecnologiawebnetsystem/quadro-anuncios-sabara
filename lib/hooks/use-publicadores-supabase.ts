@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { useSync } from "@/lib/contexts/sync-context"
 
 export interface PublicadorDB {
   id: string
@@ -39,42 +40,45 @@ export function usePublicadoresSupabase() {
   const [grupos, setGrupos] = useState<GrupoDB[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
+  
+  // Hook de sincronização
+  const { syncTrigger } = useSync()
+
+  const carregarDados = useCallback(async () => {
+    try {
+      setCarregando(true)
+      const supabase = createClient()
+
+      // Carregar publicadores
+      const { data: pubData, error: pubError } = await supabase
+        .from("publicadores")
+        .select("*")
+        .order("nome")
+
+      if (pubError) throw pubError
+
+      // Carregar grupos
+      const { data: gruposData, error: gruposError } = await supabase
+        .from("grupos")
+        .select("*")
+        .order("numero")
+
+      if (gruposError) throw gruposError
+
+      setPublicadores(pubData || [])
+      setGrupos(gruposData || [])
+      setErro(null)
+    } catch (err) {
+      console.error("Erro ao carregar dados:", err)
+      setErro("Erro ao carregar dados do banco")
+    } finally {
+      setCarregando(false)
+    }
+  }, [])
 
   useEffect(() => {
-    async function carregarDados() {
-      try {
-        setCarregando(true)
-        const supabase = createClient()
-
-        // Carregar publicadores
-        const { data: pubData, error: pubError } = await supabase
-          .from("publicadores")
-          .select("*")
-          .order("nome")
-
-        if (pubError) throw pubError
-
-        // Carregar grupos
-        const { data: gruposData, error: gruposError } = await supabase
-          .from("grupos")
-          .select("*")
-          .order("numero")
-
-        if (gruposError) throw gruposError
-
-        setPublicadores(pubData || [])
-        setGrupos(gruposData || [])
-        setErro(null)
-      } catch (err) {
-        console.error("Erro ao carregar dados:", err)
-        setErro("Erro ao carregar dados do banco")
-      } finally {
-        setCarregando(false)
-      }
-    }
-
     carregarDados()
-  }, [])
+  }, [carregarDados, syncTrigger])
 
   // Funções auxiliares
   const getPublicadoresPorGrupo = (grupoId: string) => {

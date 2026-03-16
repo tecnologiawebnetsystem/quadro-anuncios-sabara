@@ -18,9 +18,11 @@ import {
   UserCheck,
   Flag,
   Gem,
-  BookMarked
+  BookMarked,
+  RefreshCw
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { SyncProvider, useSync } from "@/lib/contexts/sync-context"
 
 const menuItems = [
   {
@@ -65,11 +67,44 @@ const menuItems = [
   },
 ]
 
-export default function ConsultaLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+function SyncButton() {
+  const { isSyncing, lastSync, triggerSync } = useSync()
+  
+  const formatLastSync = () => {
+    if (!lastSync) return null
+    const now = new Date()
+    const diff = Math.floor((now.getTime() - lastSync.getTime()) / 1000)
+    if (diff < 60) return "agora"
+    if (diff < 3600) return `${Math.floor(diff / 60)}min atrás`
+    return lastSync.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+  }
+
+  return (
+    <button
+      onClick={triggerSync}
+      disabled={isSyncing}
+      className={cn(
+        "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all",
+        isSyncing 
+          ? "bg-blue-600/20 text-blue-400" 
+          : "text-zinc-400 hover:text-blue-400 hover:bg-zinc-800/50"
+      )}
+      title="Atualizar dados"
+    >
+      <RefreshCw className={cn("w-4 h-4", isSyncing && "animate-spin")} />
+      <span className="hidden sm:inline">
+        {isSyncing ? "Atualizando..." : "Atualizar"}
+      </span>
+      {lastSync && !isSyncing && (
+        <span className="hidden md:inline text-xs text-zinc-600">
+          ({formatLastSync()})
+        </span>
+      )}
+    </button>
+  )
+}
+
+function ConsultaLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [expandedItems, setExpandedItems] = useState<string[]>(["Reuniões"])
@@ -99,9 +134,12 @@ export default function ConsultaLayout({
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
           <h1 className="text-lg font-semibold text-white">Quadro de <span className="text-red-500">Anúncios</span></h1>
-          <Link href="/" className="flex items-center gap-1 text-zinc-400 hover:text-red-400 transition-colors">
-            <LogOut className="w-5 h-5" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <SyncButton />
+            <Link href="/" className="flex items-center gap-1 text-zinc-400 hover:text-red-400 transition-colors">
+              <LogOut className="w-5 h-5" />
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -243,8 +281,10 @@ export default function ConsultaLayout({
 
         {/* Main Content */}
         <main className="flex-1 min-h-screen pt-16 lg:pt-0">
-          {/* Header Desktop com botão Sair */}
-          <div className="hidden lg:flex items-center justify-end px-6 py-3 border-b border-zinc-800/50">
+          {/* Header Desktop com botão Atualizar e Sair */}
+          <div className="hidden lg:flex items-center justify-end gap-2 px-6 py-3 border-b border-zinc-800/50">
+            <SyncButton />
+            <div className="w-px h-4 bg-zinc-800" />
             <Link 
               href="/" 
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-zinc-500 hover:text-red-400 hover:bg-zinc-800/50 transition-all"
@@ -260,5 +300,17 @@ export default function ConsultaLayout({
         </main>
       </div>
     </div>
+  )
+}
+
+export default function ConsultaLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <SyncProvider>
+      <ConsultaLayoutContent>{children}</ConsultaLayoutContent>
+    </SyncProvider>
   )
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { useSync } from "@/lib/contexts/sync-context"
 
 export interface Designacao {
   id?: string
@@ -19,6 +20,15 @@ export function useDesignacoes(reuniaoId: string) {
   const [designacoes, setDesignacoes] = useState<Designacao[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Hook de sincronização - pode ser undefined se usado fora do SyncProvider
+  let syncTrigger = 0
+  try {
+    const sync = useSync()
+    syncTrigger = sync.syncTrigger
+  } catch {
+    // Usado fora do SyncProvider, não faz nada
+  }
 
   const supabase = createClient()
 
@@ -124,7 +134,7 @@ export function useDesignacoes(reuniaoId: string) {
 
   useEffect(() => {
     fetchDesignacoes()
-  }, [fetchDesignacoes])
+  }, [fetchDesignacoes, syncTrigger])
 
   return {
     designacoes,
