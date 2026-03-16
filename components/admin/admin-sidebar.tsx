@@ -1,8 +1,9 @@
 "use client"
 
-// Menu simplificado - InfoFlow v2
+// Menu aprimorado - InfoFlow v3 com grupos organizados
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useState, useEffect } from "react"
 import {
   LayoutDashboard,
   Users,
@@ -14,6 +15,14 @@ import {
   MapPin,
   Mic,
   Settings,
+  ChevronDown,
+  Gem,
+  BookMarked,
+  UserCheck,
+  Shield,
+  Flag,
+  BarChart3,
+  type LucideIcon
 } from "lucide-react"
 import {
   Sidebar,
@@ -25,51 +34,86 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from "@/components/ui/sidebar"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+import { createClient } from "@/lib/supabase/client"
 
-const menuItems = [
+interface MenuItem {
+  title: string
+  icon: LucideIcon
+  href: string
+  badge?: number
+  badgeColor?: string
+}
+
+interface MenuGroup {
+  title: string
+  icon: LucideIcon
+  items: MenuItem[]
+}
+
+const mainItems: MenuItem[] = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
     href: "/admin",
   },
+]
+
+const menuGroups: MenuGroup[] = [
   {
     title: "Publicadores",
     icon: Users,
-    href: "/admin/publicadores",
+    items: [
+      { title: "Todos", icon: Users, href: "/admin/publicadores" },
+      { title: "Anciaos", icon: UserCheck, href: "/admin/publicadores/anciaos" },
+      { title: "Servos Ministeriais", icon: Shield, href: "/admin/publicadores/servos-ministeriais" },
+      { title: "Pioneiros Regulares", icon: Flag, href: "/admin/publicadores/pioneiros-regulares" },
+    ]
   },
+  {
+    title: "Reunioes",
+    icon: Calendar,
+    items: [
+      { title: "Vida e Ministerio", icon: Gem, href: "/admin/reunioes" },
+      { title: "Estudo de A Sentinela", icon: BookMarked, href: "/admin/reunioes/sentinela" },
+      { title: "Reunioes Publicas", icon: Mic, href: "/admin/reunioes-publicas" },
+      { title: "Equipe Tecnica", icon: Wrench, href: "/admin/equipe-tecnica" },
+      { title: "Assistencia", icon: BarChart3, href: "/admin/reunioes-publicas" },
+    ]
+  },
+]
+
+const singleItems: MenuItem[] = [
   {
     title: "Grupo de Estudos",
     icon: BookOpen,
     href: "/admin/grupo-estudos",
   },
   {
-    title: "Reuniões",
-    icon: Calendar,
-    href: "/admin/reunioes",
-  },
-  {
-    title: "Equipe Técnica",
-    icon: Wrench,
-    href: "/admin/equipe-tecnica",
-  },
-  {
-    title: "Limpeza do Salão",
+    title: "Limpeza do Salao",
     icon: Sparkles,
     href: "/admin/limpeza-salao",
   },
   {
-    title: "Serviço de Campo",
+    title: "Servico de Campo",
     icon: MapPin,
     href: "/admin/servico-campo",
   },
+]
+
+const configItems: MenuItem[] = [
   {
-    title: "Reuniões Públicas",
-    icon: Mic,
-    href: "/admin/reunioes-publicas",
-  },
-  {
-    title: "Configurações",
+    title: "Configuracoes",
     icon: Settings,
     href: "/admin/configuracoes",
   },
@@ -77,6 +121,79 @@ const menuItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const [openGroups, setOpenGroups] = useState<string[]>(["Publicadores", "Reunioes"])
+  const [stats, setStats] = useState({
+    totalPublicadores: 0,
+    totalAnciaos: 0,
+    totalServos: 0,
+    totalPioneiros: 0,
+  })
+
+  // Carregar estatisticas para badges
+  useEffect(() => {
+    async function loadStats() {
+      const supabase = createClient()
+      
+      const { count: total } = await supabase
+        .from("publicadores")
+        .select("*", { count: "exact", head: true })
+        .eq("ativo", true)
+      
+      const { count: anciaos } = await supabase
+        .from("publicadores")
+        .select("*", { count: "exact", head: true })
+        .eq("ativo", true)
+        .eq("anciao", true)
+      
+      const { count: servos } = await supabase
+        .from("publicadores")
+        .select("*", { count: "exact", head: true })
+        .eq("ativo", true)
+        .eq("servo_ministerial", true)
+      
+      const { count: pioneiros } = await supabase
+        .from("publicadores")
+        .select("*", { count: "exact", head: true })
+        .eq("ativo", true)
+        .eq("pioneiro_regular", true)
+      
+      setStats({
+        totalPublicadores: total || 0,
+        totalAnciaos: anciaos || 0,
+        totalServos: servos || 0,
+        totalPioneiros: pioneiros || 0,
+      })
+    }
+    loadStats()
+  }, [])
+
+  const toggleGroup = (title: string) => {
+    setOpenGroups(prev => 
+      prev.includes(title) 
+        ? prev.filter(g => g !== title)
+        : [...prev, title]
+    )
+  }
+
+  const isItemActive = (href: string) => {
+    if (href === "/admin") return pathname === "/admin"
+    return pathname.startsWith(href)
+  }
+
+  const isGroupActive = (group: MenuGroup) => {
+    return group.items.some(item => isItemActive(item.href))
+  }
+
+  // Adicionar badges dinamicos aos items
+  const getBadgeForItem = (href: string): number | undefined => {
+    const badgeMap: Record<string, number> = {
+      "/admin/publicadores": stats.totalPublicadores,
+      "/admin/publicadores/anciaos": stats.totalAnciaos,
+      "/admin/publicadores/servos-ministeriais": stats.totalServos,
+      "/admin/publicadores/pioneiros-regulares": stats.totalPioneiros,
+    }
+    return badgeMap[href]
+  }
 
   return (
     <Sidebar className="border-r border-sidebar-border">
@@ -89,22 +206,21 @@ export function AdminSidebar() {
             <span className="text-sm font-semibold text-sidebar-foreground">
               Info<span className="text-primary">Flow</span>
             </span>
+            <span className="text-[10px] text-muted-foreground">Administracao</span>
           </div>
         </Link>
       </SidebarHeader>
 
       <SidebarContent className="px-2 py-4">
+        {/* Main Items */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Menu Principal
-          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
-                    isActive={item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href)}
+                    isActive={isItemActive(item.href)}
                   >
                     <Link href={item.href} className="flex items-center gap-3">
                       <item.icon className="h-4 w-4" />
@@ -117,9 +233,121 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Grouped Items */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Gerenciamento
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuGroups.map((group) => (
+                <Collapsible
+                  key={group.title}
+                  open={openGroups.includes(group.title)}
+                  onOpenChange={() => toggleGroup(group.title)}
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton 
+                        className={cn(
+                          "w-full justify-between",
+                          isGroupActive(group) && "bg-sidebar-accent text-sidebar-accent-foreground"
+                        )}
+                      >
+                        <span className="flex items-center gap-3">
+                          <group.icon className="h-4 w-4" />
+                          <span>{group.title}</span>
+                        </span>
+                        <ChevronDown className={cn(
+                          "h-4 w-4 transition-transform duration-200",
+                          openGroups.includes(group.title) && "rotate-180"
+                        )} />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {group.items.map((item) => {
+                          const badge = getBadgeForItem(item.href)
+                          return (
+                            <SidebarMenuSubItem key={item.href}>
+                              <SidebarMenuSubButton 
+                                asChild 
+                                isActive={isItemActive(item.href)}
+                              >
+                                <Link href={item.href} className="flex items-center justify-between w-full">
+                                  <span className="flex items-center gap-2">
+                                    <item.icon className="h-3.5 w-3.5" />
+                                    <span className="text-sm">{item.title}</span>
+                                  </span>
+                                  {badge !== undefined && badge > 0 && (
+                                    <Badge 
+                                      variant="secondary" 
+                                      className="h-5 min-w-5 px-1.5 text-[10px] bg-zinc-700 text-zinc-300"
+                                    >
+                                      {badge}
+                                    </Badge>
+                                  )}
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          )
+                        })}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Single Items */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Organizacao
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {singleItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isItemActive(item.href)}
+                  >
+                    <Link href={item.href} className="flex items-center gap-3">
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Config Items */}
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {configItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isItemActive(item.href)}
+                  >
+                    <Link href={item.href} className="flex items-center gap-3">
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   )
 }
 
-// Menu atualizado: InfoFlow v2 - todos os módulos sincronizados com banco de dados
+// Menu atualizado: InfoFlow v3 - com grupos colapsaveis e badges de contagem

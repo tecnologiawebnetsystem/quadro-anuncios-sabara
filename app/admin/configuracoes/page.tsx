@@ -53,7 +53,9 @@ export default function ConfiguracoesPage() {
   const [congregacao, setCongregacao] = useState({
     nome: "Congregação Sabará",
     cidade: "Sabará",
-    estado: "MG"
+    estado: "MG",
+    circuito: "",
+    numero: ""
   })
   
   // Configurações de horários de campo
@@ -200,6 +202,27 @@ export default function ConfiguracoesPage() {
                     value={congregacao.nome}
                     onChange={(e) => setCongregacao(prev => ({ ...prev, nome: e.target.value }))}
                     placeholder="Ex: Congregação Central"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="numero-cong">Número da Congregação</Label>
+                  <Input
+                    id="numero-cong"
+                    type="number"
+                    value={congregacao.numero}
+                    onChange={(e) => setCongregacao(prev => ({ ...prev, numero: e.target.value }))}
+                    placeholder="Ex: 12345678"
+                    maxLength={8}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="circuito">Circuito</Label>
+                  <Input
+                    id="circuito"
+                    value={congregacao.circuito}
+                    onChange={(e) => setCongregacao(prev => ({ ...prev, circuito: e.target.value.toUpperCase() }))}
+                    placeholder="Ex: SP-45"
+                    maxLength={7}
                   />
                 </div>
                 <div className="space-y-2">
