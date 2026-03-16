@@ -262,11 +262,53 @@ export default function ImportarPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Importação Inteligente</h1>
+        <h1 className="text-2xl font-bold text-foreground">Importacao Inteligente</h1>
         <p className="text-muted-foreground">
           Cole o texto copiado do JW Library ou jw.org e a IA vai identificar e cadastrar automaticamente
         </p>
       </div>
+
+      {/* Tutorial - Como Usar */}
+      <Card className="border-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Sparkles className="h-5 w-5 text-amber-500" />
+            Como Usar - Passo a Passo
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white font-bold text-sm shrink-0">1</div>
+              <div>
+                <p className="font-medium text-sm">Abra o JW Library</p>
+                <p className="text-xs text-muted-foreground">Ou acesse jw.org no navegador</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white font-bold text-sm shrink-0">2</div>
+              <div>
+                <p className="font-medium text-sm">Copie o texto da reuniao</p>
+                <p className="text-xs text-muted-foreground">Vida e Ministerio ou Sentinela</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white font-bold text-sm shrink-0">3</div>
+              <div>
+                <p className="font-medium text-sm">Cole no campo abaixo</p>
+                <p className="text-xs text-muted-foreground">Clique em "Processar com IA"</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-white font-bold text-sm shrink-0">4</div>
+              <div>
+                <p className="font-medium text-sm">Confira e salve</p>
+                <p className="text-xs text-muted-foreground">Dados vao direto para o banco</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Área de entrada */}
