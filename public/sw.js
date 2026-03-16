@@ -2,7 +2,7 @@ const CACHE_NAME = 'quadro-anuncios-v2';
 const urlsToCache = [
   '/',
   '/admin',
-  '/admin/reunioes/estudo-sentinela',
+  '/admin/sentinela',
   '/manifest.json',
 ];
 

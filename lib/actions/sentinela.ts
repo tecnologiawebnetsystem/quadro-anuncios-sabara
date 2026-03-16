@@ -288,7 +288,7 @@ export async function inserirMes(mes: number, ano: number, corTema: string = "#3
     console.error("Erro ao inserir mês:", error)
     return null
   }
-  revalidatePath("/admin/reunioes/estudo-sentinela")
+  revalidatePath("/admin/sentinela")
   return data
 }
 

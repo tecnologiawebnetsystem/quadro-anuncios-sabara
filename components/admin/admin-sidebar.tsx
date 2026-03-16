@@ -13,6 +13,7 @@ import {
   Sparkles,
   MapPin,
   Mic,
+  Settings,
 } from "lucide-react"
 import {
   Sidebar,
@@ -66,6 +67,11 @@ const menuItems = [
     title: "Reuniões Públicas",
     icon: Mic,
     href: "/admin/reunioes-publicas",
+  },
+  {
+    title: "Configurações",
+    icon: Settings,
+    href: "/admin/configuracoes",
   },
 ]
 
