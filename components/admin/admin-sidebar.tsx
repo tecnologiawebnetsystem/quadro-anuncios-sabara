@@ -13,6 +13,8 @@ import {
   Sparkles,
   MapPin,
   Mic,
+  BookMarked,
+  FileText,
 } from "lucide-react"
 import {
   Sidebar,
@@ -66,6 +68,16 @@ const menuItems = [
     title: "Reuniões Públicas",
     icon: Mic,
     href: "/admin/reunioes-publicas",
+  },
+  {
+    title: "Vida e Ministério",
+    icon: BookMarked,
+    href: "/admin/vida-ministerio",
+  },
+  {
+    title: "Estudo Sentinela",
+    icon: FileText,
+    href: "/admin/sentinela",
   },
 ]
 
