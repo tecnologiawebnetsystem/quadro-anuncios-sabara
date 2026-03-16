@@ -146,14 +146,19 @@ export default function ImportarPage() {
   async function salvarDados(forcarAtualizacao = false) {
     if (!dados) return
 
+    console.log("[v0] Iniciando salvamento:", { tipo: dados.tipo, dataInicio: dados.dataInicio, forcarAtualizacao })
+    
     setSalvando(true)
     toast.loading(forcarAtualizacao ? "Atualizando dados..." : "Salvando dados...", { id: "salvando" })
 
     try {
       // Verificar se já existe (somente se não estiver forçando atualização)
       if (!forcarAtualizacao) {
+        console.log("[v0] Verificando se registro existe...")
         const existente = await verificarExistente()
+        console.log("[v0] Resultado verificação:", existente)
         if (existente) {
+          console.log("[v0] Registro existe! Mostrando modal de atualização")
           setRegistroExistente(existente)
           setMostrarModalAtualizar(true)
           toast.dismiss("salvando")
@@ -162,16 +167,21 @@ export default function ImportarPage() {
         }
       }
 
+      console.log("[v0] Prosseguindo para salvar/atualizar...")
       if (dados.tipo === "vida_ministerio") {
+        console.log("[v0] Salvando Vida e Ministério...")
         await salvarVidaMinisterio(forcarAtualizacao)
       } else if (dados.tipo === "sentinela") {
+        console.log("[v0] Salvando Sentinela...")
         await salvarSentinela(forcarAtualizacao)
       }
 
     } catch (error: unknown) {
+      console.error("[v0] Erro ao salvar:", error)
       toast.dismiss("salvando")
-      const errorObj = error as { code?: string; message?: string }
-      const errorMessage = errorObj?.message || "Erro desconhecido ao salvar"
+      const errorObj = error as { code?: string; message?: string; details?: string }
+      const errorMessage = errorObj?.message || errorObj?.details || "Erro desconhecido ao salvar"
+      console.error("[v0] Mensagem de erro:", errorMessage)
       toast.error("Erro ao salvar", { duration: 5000, description: errorMessage })
     } finally {
       setSalvando(false)
@@ -181,9 +191,12 @@ export default function ImportarPage() {
   async function salvarVidaMinisterio(atualizar: boolean) {
     if (!dados || dados.tipo !== "vida_ministerio") return
 
+    console.log("[v0] salvarVidaMinisterio - atualizar:", atualizar, "registroExistente:", registroExistente)
+
     const dataInicio = dados.dataInicio ? new Date(dados.dataInicio) : new Date()
     const mes = dataInicio.getMonth() + 1
     const ano = dataInicio.getFullYear()
+    console.log("[v0] Mes:", mes, "Ano:", ano)
 
     // Buscar ou criar o mês
     let { data: mesExistente } = await supabase
@@ -274,6 +287,7 @@ export default function ImportarPage() {
       if (erroPartes) throw erroPartes
     }
 
+    console.log("[v0] Vida e Ministério salvo com sucesso!")
     toast.dismiss("salvando")
     toast.success(atualizar ? "Vida e Ministerio atualizado!" : "Vida e Ministerio cadastrado!", {
       duration: 3000,
@@ -287,6 +301,7 @@ export default function ImportarPage() {
   }
 
   async function salvarSentinela(atualizar: boolean) {
+    console.log("[v0] salvarSentinela - atualizar:", atualizar, "registroExistente:", registroExistente)
     if (!dados || dados.tipo !== "sentinela") return
 
     const dataInicio = dados.dataInicio ? new Date(dados.dataInicio) : new Date()
