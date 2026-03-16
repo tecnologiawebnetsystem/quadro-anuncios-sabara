@@ -199,7 +199,7 @@ export default function ConfiguracoesPage() {
                   <Label htmlFor="nome-cong">Nome da Congregação</Label>
                   <Input
                     id="nome-cong"
-                    value={congregacao.nome}
+                    value={congregacao.nome || ""}
                     onChange={(e) => setCongregacao(prev => ({ ...prev, nome: e.target.value }))}
                     placeholder="Ex: Congregação Central"
                   />
@@ -219,7 +219,7 @@ export default function ConfiguracoesPage() {
                   <Label htmlFor="circuito">Circuito</Label>
                   <Input
                     id="circuito"
-                    value={congregacao.circuito}
+                    value={congregacao.circuito || ""}
                     onChange={(e) => setCongregacao(prev => ({ ...prev, circuito: e.target.value.toUpperCase() }))}
                     placeholder="Ex: SP-45"
                     maxLength={7}
@@ -229,7 +229,7 @@ export default function ConfiguracoesPage() {
                   <Label htmlFor="cidade">Cidade</Label>
                   <Input
                     id="cidade"
-                    value={congregacao.cidade}
+                    value={congregacao.cidade || ""}
                     onChange={(e) => setCongregacao(prev => ({ ...prev, cidade: e.target.value }))}
                     placeholder="Ex: São Paulo"
                   />
@@ -238,7 +238,7 @@ export default function ConfiguracoesPage() {
                   <Label htmlFor="estado">Estado</Label>
                   <Input
                     id="estado"
-                    value={congregacao.estado}
+                    value={congregacao.estado || ""}
                     onChange={(e) => setCongregacao(prev => ({ ...prev, estado: e.target.value }))}
                     placeholder="Ex: SP"
                     maxLength={2}
