@@ -85,11 +85,10 @@ const menuGroups: MenuGroup[] = [
     title: "Reunioes",
     icon: Calendar,
     items: [
-      { title: "Vida e Ministerio", icon: Gem, href: "/admin/reunioes" },
-      { title: "Sentinela", icon: BookMarked, href: "/admin/reunioes/sentinela" },
+      { title: "Vida e Ministerio", icon: Gem, href: "/admin/vida-ministerio" },
+      { title: "Sentinela", icon: BookMarked, href: "/admin/sentinela" },
       { title: "Discursos", icon: Mic, href: "/admin/reunioes-publicas" },
       { title: "Equipe Tecnica", icon: Wrench, href: "/admin/equipe-tecnica" },
-      { title: "Assistencia", icon: BarChart3, href: "/admin/reunioes-publicas" },
     ]
   },
 ]
