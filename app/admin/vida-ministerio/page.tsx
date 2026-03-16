@@ -393,48 +393,37 @@ export default function AdminVidaMinisterioPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Informações da Semana */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Cânticos da Semana */}
+                  <div className="grid grid-cols-3 gap-3">
                     <div className="space-y-2">
-                      <Label className="text-zinc-400">Leitura Semanal</Label>
+                      <Label className="text-zinc-400 text-xs">Cantico Inicial</Label>
                       <Input
-                        value={semanaAtualData.leitura_semanal || ""}
-                        onChange={(e) => atualizarSemana(semanaAtualData.id, "leitura_semanal", e.target.value)}
-                        placeholder="Ex: 1 Samuel 1-3"
+                        type="number"
+                        value={semanaAtualData.cantico_inicial || ""}
+                        onChange={(e) => atualizarSemana(semanaAtualData.id, "cantico_inicial", e.target.value ? parseInt(e.target.value) : null)}
+                        placeholder="Numero"
                         className="bg-zinc-800 border-zinc-700"
                       />
                     </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="space-y-2">
-                        <Label className="text-zinc-400 text-xs">Cântico Inicial</Label>
-                        <Input
-                          type="number"
-                          value={semanaAtualData.cantico_inicial || ""}
-                          onChange={(e) => atualizarSemana(semanaAtualData.id, "cantico_inicial", e.target.value ? parseInt(e.target.value) : null)}
-                          placeholder="Nº"
-                          className="bg-zinc-800 border-zinc-700"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-zinc-400 text-xs">Cântico Meio</Label>
-                        <Input
-                          type="number"
-                          value={semanaAtualData.cantico_meio || ""}
-                          onChange={(e) => atualizarSemana(semanaAtualData.id, "cantico_meio", e.target.value ? parseInt(e.target.value) : null)}
-                          placeholder="Nº"
-                          className="bg-zinc-800 border-zinc-700"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-zinc-400 text-xs">Cântico Final</Label>
-                        <Input
-                          type="number"
-                          value={semanaAtualData.cantico_final || ""}
-                          onChange={(e) => atualizarSemana(semanaAtualData.id, "cantico_final", e.target.value ? parseInt(e.target.value) : null)}
-                          placeholder="Nº"
-                          className="bg-zinc-800 border-zinc-700"
-                        />
-                      </div>
+                    <div className="space-y-2">
+                      <Label className="text-zinc-400 text-xs">Cantico Meio</Label>
+                      <Input
+                        type="number"
+                        value={semanaAtualData.cantico_meio || ""}
+                        onChange={(e) => atualizarSemana(semanaAtualData.id, "cantico_meio", e.target.value ? parseInt(e.target.value) : null)}
+                        placeholder="Numero"
+                        className="bg-zinc-800 border-zinc-700"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-zinc-400 text-xs">Cantico Final</Label>
+                      <Input
+                        type="number"
+                        value={semanaAtualData.cantico_final || ""}
+                        onChange={(e) => atualizarSemana(semanaAtualData.id, "cantico_final", e.target.value ? parseInt(e.target.value) : null)}
+                        placeholder="Numero"
+                        className="bg-zinc-800 border-zinc-700"
+                      />
                     </div>
                   </div>
 
