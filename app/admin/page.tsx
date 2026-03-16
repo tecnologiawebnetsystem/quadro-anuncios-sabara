@@ -19,12 +19,20 @@ import {
   Clock,
   ChevronRight,
   BarChart3,
-  Activity
+  Activity,
+  Plus,
+  AlertCircle,
+  Bell,
+  ClipboardList,
+  Video,
+  Zap
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { getPublicadores, type PublicadorGrupo } from "@/lib/actions/grupos"
 import { createClient } from "@/lib/supabase/client"
-import { format, startOfWeek, endOfWeek, addDays } from "date-fns"
+import { format, startOfWeek, endOfWeek, subWeeks, isToday, isTomorrow, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 
@@ -65,6 +73,49 @@ interface CampoSemana {
   horario: string
 }
 
+interface Alerta {
+  id: string
+  tipo: "warning" | "info" | "success"
+  mensagem: string
+  link?: string
+}
+
+// Componente de Skeleton Loading
+function SkeletonCard() {
+  return (
+    <Card className="border-zinc-800 bg-zinc-900/50 overflow-hidden">
+      <CardContent className="p-6">
+        <div className="animate-pulse space-y-3">
+          <div className="flex justify-between">
+            <div className="space-y-2">
+              <div className="h-4 w-24 bg-zinc-700 rounded" />
+              <div className="h-8 w-16 bg-zinc-700 rounded" />
+            </div>
+            <div className="h-12 w-12 bg-zinc-700 rounded-xl" />
+          </div>
+          <div className="h-3 w-20 bg-zinc-700 rounded" />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function SkeletonMiniCard() {
+  return (
+    <Card className="border-zinc-800 bg-zinc-900/50">
+      <CardContent className="p-4">
+        <div className="animate-pulse flex items-center gap-3">
+          <div className="h-10 w-10 bg-zinc-700 rounded-lg" />
+          <div className="space-y-2">
+            <div className="h-6 w-12 bg-zinc-700 rounded" />
+            <div className="h-3 w-20 bg-zinc-700 rounded" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [publicadores, setPublicadores] = useState<PublicadorGrupo[]>([])
@@ -74,6 +125,7 @@ export default function AdminDashboard() {
   const [proximoDiscurso, setProximoDiscurso] = useState<DiscursoPublico | null>(null)
   const [campoSemana, setCampoSemana] = useState<CampoSemana[]>([])
   const [totalGrupos, setTotalGrupos] = useState(0)
+  const [alertas, setAlertas] = useState<Alerta[]>([])
   
   const hoje = new Date()
   const inicioSemana = startOfWeek(hoje, { weekStartsOn: 1 })
@@ -83,6 +135,7 @@ export default function AdminDashboard() {
     async function carregarDados() {
       try {
         const supabase = createClient()
+        const alertasTemp: Alerta[] = []
         
         // Carregar publicadores
         const data = await getPublicadores()
@@ -104,6 +157,19 @@ export default function AdminDashboard() {
             return dataReuniao >= inicioSemana && dataReuniao <= fimSemana
           })
           setEquipeSemana(reunioesSemana)
+          
+          // Verificar alertas de equipe técnica incompleta
+          const equipesIncompletas = reunioesSemana.filter((e: EquipeTecnica) => 
+            !e.indicador1_nome || !e.som_nome
+          )
+          if (equipesIncompletas.length > 0) {
+            alertasTemp.push({
+              id: "equipe-incompleta",
+              tipo: "warning",
+              mensagem: `${equipesIncompletas.length} reunião(ões) com equipe técnica incompleta`,
+              link: "/admin/equipe-tecnica"
+            })
+          }
         }
         
         // Carregar limpeza da semana
@@ -115,16 +181,25 @@ export default function AdminDashboard() {
             const fim = new Date(l.data_fim)
             return hoje >= inicio && hoje <= fim
           })
-          if (semanaAtual) setLimpezaSemana(semanaAtual)
+          if (semanaAtual) {
+            setLimpezaSemana(semanaAtual)
+          } else {
+            alertasTemp.push({
+              id: "limpeza-pendente",
+              tipo: "info",
+              mensagem: "Nenhum grupo de limpeza designado para esta semana",
+              link: "/admin/limpeza-salao"
+            })
+          }
         }
         
-        // Carregar assistência recente
+        // Carregar assistência recente (últimas 8 semanas)
         const { data: assistenciaData } = await supabase
           .from("assistencia_reunioes")
           .select("*")
           .order("data", { ascending: false })
-          .limit(6)
-        if (assistenciaData) setAssistencia(assistenciaData)
+          .limit(16)
+        if (assistenciaData) setAssistencia(assistenciaData.reverse())
         
         // Carregar próximo discurso público
         const { data: discursoData } = await supabase
@@ -135,6 +210,16 @@ export default function AdminDashboard() {
           .limit(1)
         if (discursoData && discursoData.length > 0) {
           setProximoDiscurso(discursoData[0])
+          
+          // Verificar se o próximo discurso não tem orador
+          if (!discursoData[0].orador_nome && !discursoData[0].tema) {
+            alertasTemp.push({
+              id: "discurso-pendente",
+              tipo: "warning",
+              mensagem: "Próximo discurso público sem informações",
+              link: "/admin/reunioes-publicas"
+            })
+          }
         }
         
         // Carregar serviço de campo da semana
@@ -144,6 +229,8 @@ export default function AdminDashboard() {
           .eq("ativo", true)
           .order("dia_semana")
         if (campoData) setCampoSemana(campoData)
+        
+        setAlertas(alertasTemp)
         
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
@@ -159,20 +246,72 @@ export default function AdminDashboard() {
   const totalServos = publicadores.filter((p) => p.servo_ministerial && p.ativo).length
   const totalPioneiros = publicadores.filter((p) => p.pioneiro_regular && p.ativo).length
   
-  // Média de assistência
+  // Cálculos de assistência
   const mediaPresencial = assistencia.length > 0 
     ? Math.round(assistencia.reduce((acc, a) => acc + (a.presencial || 0), 0) / assistencia.length)
     : 0
   const mediaZoom = assistencia.length > 0 
     ? Math.round(assistencia.reduce((acc, a) => acc + (a.zoom || 0), 0) / assistencia.length)
     : 0
+    
+  // Calcular tendência (comparar últimas 4 reuniões com as 4 anteriores)
+  const ultimas4 = assistencia.slice(-4)
+  const anteriores4 = assistencia.slice(-8, -4)
+  const mediaUltimas = ultimas4.length > 0 
+    ? ultimas4.reduce((acc, a) => acc + (a.presencial || 0) + (a.zoom || 0), 0) / ultimas4.length
+    : 0
+  const mediaAnteriores = anteriores4.length > 0 
+    ? anteriores4.reduce((acc, a) => acc + (a.presencial || 0) + (a.zoom || 0), 0) / anteriores4.length
+    : 0
+  const tendencia = mediaAnteriores > 0 ? Math.round(((mediaUltimas - mediaAnteriores) / mediaAnteriores) * 100) : 0
 
+  // Skeleton Loading
   if (loading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Carregando dados...</p>
+      <div className="space-y-8">
+        {/* Header Skeleton */}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 bg-zinc-700 rounded animate-pulse" />
+            <div className="h-8 w-40 bg-zinc-700 rounded animate-pulse" />
+          </div>
+          <div className="h-4 w-80 bg-zinc-700 rounded animate-pulse mt-1" />
+        </div>
+
+        {/* Stats Cards Skeleton */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+
+        {/* Mini Cards Skeleton */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <SkeletonMiniCard />
+          <SkeletonMiniCard />
+          <SkeletonMiniCard />
+          <SkeletonMiniCard />
+        </div>
+
+        {/* Content Skeleton */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card className="border-zinc-800 bg-zinc-900/50">
+            <CardContent className="p-6">
+              <div className="animate-pulse space-y-4">
+                <div className="h-6 w-48 bg-zinc-700 rounded" />
+                <div className="h-40 bg-zinc-700 rounded" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-zinc-800 bg-zinc-900/50">
+            <CardContent className="p-6">
+              <div className="animate-pulse space-y-4">
+                <div className="h-6 w-48 bg-zinc-700 rounded" />
+                <div className="h-40 bg-zinc-700 rounded" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     )
@@ -182,15 +321,82 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <Activity className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-            Dashboard
-          </h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Activity className="h-6 w-6 text-primary" />
+            <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+              Dashboard
+            </h1>
+          </div>
+          {alertas.length > 0 && (
+            <Badge variant="outline" className="border-amber-600/50 bg-amber-600/10 text-amber-400">
+              <Bell className="h-3 w-3 mr-1" />
+              {alertas.length} alerta{alertas.length > 1 ? "s" : ""}
+            </Badge>
+          )}
         </div>
         <p className="text-muted-foreground">
-          Visão geral da congregação - {format(hoje, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+          Visao geral da congregacao - {format(hoje, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
         </p>
+      </div>
+
+      {/* Alertas/Notificacoes */}
+      {alertas.length > 0 && (
+        <div className="space-y-2">
+          {alertas.map((alerta) => (
+            <Link key={alerta.id} href={alerta.link || "#"}>
+              <div className={cn(
+                "flex items-center gap-3 rounded-lg border p-3 transition-all hover:bg-zinc-800/50",
+                alerta.tipo === "warning" && "border-amber-600/30 bg-amber-600/5",
+                alerta.tipo === "info" && "border-blue-600/30 bg-blue-600/5",
+                alerta.tipo === "success" && "border-green-600/30 bg-green-600/5"
+              )}>
+                <AlertCircle className={cn(
+                  "h-5 w-5",
+                  alerta.tipo === "warning" && "text-amber-500",
+                  alerta.tipo === "info" && "text-blue-500",
+                  alerta.tipo === "success" && "text-green-500"
+                )} />
+                <p className="flex-1 text-sm text-zinc-300">{alerta.mensagem}</p>
+                <ChevronRight className="h-4 w-4 text-zinc-500" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Acoes Rapidas */}
+      <div className="flex flex-wrap gap-3">
+        <Link href="/admin/reunioes-publicas">
+          <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
+            <Plus className="h-4 w-4 mr-2 text-amber-500" />
+            Cadastrar Discurso
+          </Button>
+        </Link>
+        <Link href="/admin/equipe-tecnica">
+          <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
+            <Wrench className="h-4 w-4 mr-2 text-green-500" />
+            Equipe Tecnica
+          </Button>
+        </Link>
+        <Link href="/admin/limpeza-salao">
+          <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
+            <Sparkles className="h-4 w-4 mr-2 text-cyan-500" />
+            Escala Limpeza
+          </Button>
+        </Link>
+        <Link href="/admin/servico-campo">
+          <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
+            <MapPin className="h-4 w-4 mr-2 text-purple-500" />
+            Servico de Campo
+          </Button>
+        </Link>
+        <Link href="/admin/publicadores/new">
+          <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
+            <Users className="h-4 w-4 mr-2 text-blue-500" />
+            Novo Publicador
+          </Button>
+        </Link>
       </div>
 
       {/* Stats Cards - Grid Principal */}
@@ -202,7 +408,7 @@ export default function AdminDashboard() {
                 <div>
                   <p className="text-sm font-medium text-zinc-400">Total de Publicadores</p>
                   <p className="mt-2 text-4xl font-bold text-white">{totalAtivos}</p>
-                  <p className="mt-1 text-xs text-zinc-500">Ativos na congregação</p>
+                  <p className="mt-1 text-xs text-zinc-500">Ativos na congregacao</p>
                 </div>
                 <div className="rounded-xl bg-blue-600 p-3">
                   <Users className="h-6 w-6 text-white" />
@@ -221,9 +427,9 @@ export default function AdminDashboard() {
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zinc-400">Anciãos</p>
+                  <p className="text-sm font-medium text-zinc-400">Anciaos</p>
                   <p className="mt-2 text-4xl font-bold text-white">{totalAnciaos}</p>
-                  <p className="mt-1 text-xs text-zinc-500">Corpo de anciãos</p>
+                  <p className="mt-1 text-xs text-zinc-500">Corpo de anciaos</p>
                 </div>
                 <div className="rounded-xl bg-red-600 p-3">
                   <UserCheck className="h-6 w-6 text-white" />
@@ -304,7 +510,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{mediaPresencial}</p>
-                <p className="text-xs text-zinc-500">Média Presencial</p>
+                <p className="text-xs text-zinc-500">Media Presencial</p>
               </div>
             </div>
           </CardContent>
@@ -314,11 +520,11 @@ export default function AdminDashboard() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-green-600/20 p-2.5">
-                <BarChart3 className="h-5 w-5 text-green-400" />
+                <Video className="h-5 w-5 text-green-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{mediaZoom}</p>
-                <p className="text-xs text-zinc-500">Média Zoom</p>
+                <p className="text-xs text-zinc-500">Media Zoom</p>
               </div>
             </div>
           </CardContent>
@@ -327,27 +533,106 @@ export default function AdminDashboard() {
         <Card className="border-zinc-800 bg-zinc-900/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-orange-600/20 p-2.5">
-                <BookOpen className="h-5 w-5 text-orange-400" />
+              <div className={cn(
+                "rounded-lg p-2.5",
+                tendencia >= 0 ? "bg-green-600/20" : "bg-red-600/20"
+              )}>
+                <Zap className={cn(
+                  "h-5 w-5",
+                  tendencia >= 0 ? "text-green-400" : "text-red-400"
+                )} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{mediaPresencial + mediaZoom}</p>
-                <p className="text-xs text-zinc-500">Média Total</p>
+                <p className={cn(
+                  "text-2xl font-bold",
+                  tendencia >= 0 ? "text-green-400" : "text-red-400"
+                )}>
+                  {tendencia >= 0 ? "+" : ""}{tendencia}%
+                </p>
+                <p className="text-xs text-zinc-500">Tendencia</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Terceira seção - Cards de informações da semana */}
+      {/* Grafico de Assistencia */}
+      <Card className="border-zinc-800 bg-zinc-900/50">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+              <BarChart3 className="h-5 w-5 text-blue-500" />
+              Assistencia das Reunioes
+            </CardTitle>
+            <Link href="/admin/reunioes-publicas" className="text-xs text-blue-400 hover:underline">
+              Ver detalhes
+            </Link>
+          </div>
+          <p className="text-sm text-zinc-500">Ultimas {assistencia.length} reunioes</p>
+        </CardHeader>
+        <CardContent>
+          {assistencia.length > 0 ? (
+            <div className="space-y-4">
+              {/* Grafico de barras simples */}
+              <div className="flex items-end justify-between gap-1 h-40">
+                {assistencia.slice(-12).map((a, i) => {
+                  const total = (a.presencial || 0) + (a.zoom || 0)
+                  const maxTotal = Math.max(...assistencia.map(x => (x.presencial || 0) + (x.zoom || 0)))
+                  const alturaPercent = maxTotal > 0 ? (total / maxTotal) * 100 : 0
+                  const presencialPercent = total > 0 ? ((a.presencial || 0) / total) * 100 : 0
+                  
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                      <div className="relative w-full flex flex-col justify-end" style={{ height: "120px" }}>
+                        <div 
+                          className="w-full rounded-t-sm bg-gradient-to-t from-blue-600 to-cyan-500 transition-all hover:opacity-80"
+                          style={{ height: `${alturaPercent}%`, minHeight: total > 0 ? "4px" : "0px" }}
+                          title={`Presencial: ${a.presencial || 0}, Zoom: ${a.zoom || 0}`}
+                        >
+                          {/* Parte do zoom (sobreposta em verde) */}
+                          <div 
+                            className="absolute bottom-0 w-full rounded-t-sm bg-green-500/50"
+                            style={{ height: `${100 - presencialPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-zinc-500">
+                        {format(parseISO(a.data), "dd/MM")}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+              
+              {/* Legenda */}
+              <div className="flex items-center justify-center gap-6 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-sm bg-gradient-to-t from-blue-600 to-cyan-500" />
+                  <span className="text-zinc-400">Presencial</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-sm bg-green-500" />
+                  <span className="text-zinc-400">Zoom</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-40 rounded-lg bg-zinc-800/30">
+              <p className="text-sm text-zinc-500">Nenhum dado de assistencia cadastrado</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Terceira secao - Cards de informacoes da semana */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Equipe Técnica da Semana */}
+        {/* Equipe Tecnica da Semana */}
         <Card className="border-zinc-800 bg-zinc-900/50">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                 <Calendar className="h-5 w-5 text-blue-500" />
-                Reuniões da Semana
+                Reunioes da Semana
               </CardTitle>
               <Link href="/admin/equipe-tecnica" className="text-xs text-blue-400 hover:underline">
                 Ver tudo
@@ -373,6 +658,12 @@ export default function AdminDashboard() {
                     <span className="text-sm text-zinc-400">
                       {format(new Date(reuniao.data), "dd/MM", { locale: ptBR })}
                     </span>
+                    {isToday(new Date(reuniao.data)) && (
+                      <Badge className="bg-green-600/20 text-green-400 text-[10px]">Hoje</Badge>
+                    )}
+                    {isTomorrow(new Date(reuniao.data)) && (
+                      <Badge className="bg-amber-600/20 text-amber-400 text-[10px]">Amanha</Badge>
+                    )}
                   </div>
                   
                   <div className="grid grid-cols-3 gap-4 text-sm">
@@ -407,14 +698,14 @@ export default function AdminDashboard() {
             ) : (
               <div className="rounded-lg bg-zinc-800/30 p-6 text-center">
                 <p className="text-sm text-zinc-500">
-                  Nenhuma designação cadastrada para esta semana
+                  Nenhuma designacao cadastrada para esta semana
                 </p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Coluna direita - Limpeza + Próximo Discurso + Campo */}
+        {/* Coluna direita - Limpeza + Proximo Discurso + Campo */}
         <div className="space-y-6">
           {/* Limpeza da Semana */}
           <Card className="border-zinc-800 bg-zinc-900/50">
@@ -450,13 +741,13 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          {/* Próximo Discurso Público */}
+          {/* Proximo Discurso Publico */}
           <Card className="border-zinc-800 bg-zinc-900/50">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                   <Mic className="h-5 w-5 text-amber-500" />
-                  Próximo Discurso Público
+                  Proximo Discurso Publico
                 </CardTitle>
                 <Link href="/admin/reunioes-publicas" className="text-xs text-amber-400 hover:underline">
                   Ver todos
@@ -472,51 +763,42 @@ export default function AdminDashboard() {
                       {format(new Date(proximoDiscurso.data), "EEEE, d 'de' MMMM", { locale: ptBR })}
                     </span>
                   </div>
-                  <p className="mb-1 text-base font-medium text-white">{proximoDiscurso.tema}</p>
+                  <p className="mb-1 text-base font-medium text-white">{proximoDiscurso.tema || "Tema nao definido"}</p>
                   {proximoDiscurso.orador_nome && (
                     <p className="text-sm text-zinc-400">Orador: {proximoDiscurso.orador_nome}</p>
                   )}
                 </div>
               ) : (
                 <div className="rounded-lg bg-zinc-800/30 p-4 text-center">
-                  <p className="text-sm text-zinc-500">Nenhum discurso programado</p>
+                  <p className="text-sm text-zinc-500">Nenhum discurso agendado</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Serviço de Campo Durante a Semana */}
+          {/* Servico de Campo */}
           <Card className="border-zinc-800 bg-zinc-900/50">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                  <MapPin className="h-5 w-5 text-green-500" />
-                  Serviço de Campo
+                  <MapPin className="h-5 w-5 text-purple-500" />
+                  Servico de Campo - Semana
                 </CardTitle>
-                <Link href="/admin/servico-campo" className="text-xs text-green-400 hover:underline">
-                  Ver escala
+                <Link href="/admin/servico-campo" className="text-xs text-purple-400 hover:underline">
+                  Ver tudo
                 </Link>
               </div>
             </CardHeader>
             <CardContent>
               {campoSemana.length > 0 ? (
-                <div className="space-y-2">
-                  {campoSemana.slice(0, 3).map((dia, index) => (
-                    <div key={index} className="flex items-center justify-between rounded-lg bg-zinc-800/50 px-3 py-2">
-                      <span className="text-sm font-medium capitalize text-zinc-400">{dia.dia_semana}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-white">{dia.dirigente_nome}</span>
-                        <span className="rounded bg-green-600/20 px-1.5 py-0.5 text-xs text-green-400">
-                          {dia.horario}
-                        </span>
-                      </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {campoSemana.slice(0, 4).map((campo, index) => (
+                    <div key={index} className="rounded-lg bg-purple-600/10 p-3">
+                      <p className="text-xs text-purple-400 capitalize">{campo.dia_semana}</p>
+                      <p className="text-sm font-medium text-white truncate">{campo.dirigente_nome}</p>
+                      <p className="text-xs text-zinc-500">{campo.horario} - {campo.periodo}</p>
                     </div>
                   ))}
-                  {campoSemana.length > 3 && (
-                    <p className="text-center text-xs text-zinc-500">
-                      +{campoSemana.length - 3} dias...
-                    </p>
-                  )}
                 </div>
               ) : (
                 <div className="rounded-lg bg-zinc-800/30 p-4 text-center">
