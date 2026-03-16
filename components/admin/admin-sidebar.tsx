@@ -128,4 +128,4 @@ export function AdminSidebar() {
   )
 }
 
-// Menu atualizado: InfoFlow - sem Configurações e sem Administrador
+// Menu atualizado: InfoFlow v2 - todos os módulos sincronizados com banco de dados
