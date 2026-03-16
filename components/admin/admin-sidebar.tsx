@@ -22,6 +22,7 @@ import {
   Shield,
   Flag,
   BarChart3,
+  Wand2,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -112,6 +113,11 @@ const singleItems: MenuItem[] = [
 ]
 
 const configItems: MenuItem[] = [
+  {
+    title: "Importar com IA",
+    icon: Wand2,
+    href: "/admin/importar",
+  },
   {
     title: "Configuracoes",
     icon: Settings,
