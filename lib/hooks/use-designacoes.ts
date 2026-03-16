@@ -21,14 +21,8 @@ export function useDesignacoes(reuniaoId: string) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Hook de sincronização - pode ser undefined se usado fora do SyncProvider
-  let syncTrigger = 0
-  try {
-    const sync = useSync()
-    syncTrigger = sync.syncTrigger
-  } catch {
-    // Usado fora do SyncProvider, não faz nada
-  }
+  // Hook de sincronização
+  const { syncTrigger } = useSync()
 
   const supabase = createClient()
 

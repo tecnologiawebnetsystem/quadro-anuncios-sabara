@@ -34,10 +34,16 @@ export function SyncProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// Valores padrão para quando usado fora do SyncProvider
+const defaultSyncContext: SyncContextType = {
+  lastSync: null,
+  isSyncing: false,
+  syncTrigger: 0,
+  triggerSync: () => {},
+}
+
 export function useSync() {
   const context = useContext(SyncContext)
-  if (context === undefined) {
-    throw new Error("useSync must be used within a SyncProvider")
-  }
-  return context
+  // Retorna valores padrão se usado fora do provider (não quebra a aplicação)
+  return context ?? defaultSyncContext
 }
