@@ -257,15 +257,15 @@ export default function ServicoCampoPage() {
   }
 
   // Salvar dirigente de sábado
-  async function salvarSabado(data: string, periodo: string, publicador: Publicador | null) {
+  async function salvarSabado(data: string, periodo: string, publicador: Publicador | null, horario?: string) {
     const existente = campoSabado.find(c => c.data === data && c.periodo === periodo)
-    const horario = periodo === "manha" ? "8:45" : "16:45"
+    const horarioFinal = horario || existente?.horario || (periodo === "manha" ? "8:45" : "16:45")
     
     const dados: Partial<CampoSabado> = {
       data,
       mes: mesAtual.value,
       periodo,
-      horario,
+      horario: horarioFinal,
       dirigente_id: publicador?.id || null,
       dirigente_nome: publicador?.nome || "",
     }
@@ -300,13 +300,14 @@ export default function ServicoCampoPage() {
   }
 
   // Salvar dirigente de domingo
-  async function salvarDomingo(data: string, publicador: Publicador | null, tipo: "individual" | "grupo") {
+  async function salvarDomingo(data: string, publicador: Publicador | null, tipo: "individual" | "grupo", horario?: string) {
     const existente = campoDomingo.find(c => c.data === data)
+    const horarioFinal = horario || existente?.horario || "8:45"
     
     const dados: Partial<CampoDomingo> = {
       data,
       mes: mesAtual.value,
-      horario: "8:45",
+      horario: horarioFinal,
       dirigente_id: tipo === "grupo" ? null : (publicador?.id || null),
       dirigente_nome: tipo === "grupo" ? "GRUPO" : (publicador?.nome || null),
       tipo,
@@ -420,7 +421,7 @@ export default function ServicoCampoPage() {
                           dia.value,
                           registro?.dirigente_id ? { id: registro.dirigente_id, nome: registro.dirigente_nome } as Publicador : null,
                           value,
-                          value === "manha" ? "8:45" : "16:45"
+                          registro?.horario || "8:45"
                         )}
                       >
                         <SelectTrigger className="w-28 bg-zinc-800/50 border-zinc-700">
@@ -431,9 +432,25 @@ export default function ServicoCampoPage() {
                           <SelectItem value="tarde">Tarde</SelectItem>
                         </SelectContent>
                       </Select>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        {registro?.horario || (registro?.periodo === "tarde" ? "16:45" : "8:45")}
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <Input
+                          value={registro?.horario || "8:45"}
+                          onChange={(e) => {
+                            const novoHorario = e.target.value
+                            setCampoSemana(prev => prev.map(c => 
+                              c.dia_semana === dia.value ? { ...c, horario: novoHorario } : c
+                            ))
+                          }}
+                          onBlur={(e) => salvarCampoSemana(
+                            dia.value,
+                            registro?.dirigente_id ? { id: registro.dirigente_id, nome: registro.dirigente_nome } as Publicador : null,
+                            registro?.periodo || "manha",
+                            e.target.value
+                          )}
+                          placeholder="8:45"
+                          className="w-20 bg-zinc-800/50 border-zinc-700 text-center text-sm"
+                        />
                       </div>
                     </div>
                   )
@@ -564,12 +581,12 @@ export default function ServicoCampoPage() {
               </button>
             </div>
 
-            {/* Sábados 8:45 */}
+            {/* Sábados Manhã */}
             <Card className="border-0 bg-card/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sun className="h-5 w-5 text-orange-500" />
-                  Dirigentes de Campo aos Sábados - 8:45h
+                  Dirigentes de Campo aos Sábados - Manhã
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -578,10 +595,29 @@ export default function ServicoCampoPage() {
                     const registro = campoSabado.find(c => c.data === data && c.periodo === "manha")
                     return (
                       <div key={`manha-${data}`} className="p-3 rounded-lg bg-zinc-800/30 space-y-2">
-                        <div className="text-sm font-medium text-foreground">{formatarData(data)}</div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-foreground">{formatarData(data)}</span>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3 text-muted-foreground" />
+                            <Input
+                              value={registro?.horario || "8:45"}
+                              onChange={(e) => {
+                                setCampoSabado(prev => prev.map(c => 
+                                  c.data === data && c.periodo === "manha" ? { ...c, horario: e.target.value } : c
+                                ))
+                              }}
+                              onBlur={(e) => {
+                                if (registro) {
+                                  salvarSabado(data, "manha", registro.dirigente_id ? { id: registro.dirigente_id, nome: registro.dirigente_nome } as Publicador : null, e.target.value)
+                                }
+                              }}
+                              className="w-16 h-7 text-xs bg-zinc-800/50 border-zinc-700 text-center"
+                            />
+                          </div>
+                        </div>
                         <SeletorPublicador
                           value={registro?.dirigente_id || undefined}
-                          onSelect={(p) => salvarSabado(data, "manha", p)}
+                          onSelect={(p) => salvarSabado(data, "manha", p, registro?.horario || "8:45")}
                           filtro="todos"
                           placeholder="Dirigente..."
                           className="w-full"
@@ -593,12 +629,12 @@ export default function ServicoCampoPage() {
               </CardContent>
             </Card>
 
-            {/* Sábados 16:45 */}
+            {/* Sábados Tarde */}
             <Card className="border-0 bg-card/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sun className="h-5 w-5 text-purple-500" />
-                  Dirigentes de Campo aos Sábados - 16:45h
+                  Dirigentes de Campo aos Sábados - Tarde
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -607,10 +643,29 @@ export default function ServicoCampoPage() {
                     const registro = campoSabado.find(c => c.data === data && c.periodo === "tarde")
                     return (
                       <div key={`tarde-${data}`} className="p-3 rounded-lg bg-zinc-800/30 space-y-2">
-                        <div className="text-sm font-medium text-foreground">{formatarData(data)}</div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-foreground">{formatarData(data)}</span>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3 text-muted-foreground" />
+                            <Input
+                              value={registro?.horario || "16:45"}
+                              onChange={(e) => {
+                                setCampoSabado(prev => prev.map(c => 
+                                  c.data === data && c.periodo === "tarde" ? { ...c, horario: e.target.value } : c
+                                ))
+                              }}
+                              onBlur={(e) => {
+                                if (registro) {
+                                  salvarSabado(data, "tarde", registro.dirigente_id ? { id: registro.dirigente_id, nome: registro.dirigente_nome } as Publicador : null, e.target.value)
+                                }
+                              }}
+                              className="w-16 h-7 text-xs bg-zinc-800/50 border-zinc-700 text-center"
+                            />
+                          </div>
+                        </div>
                         <SeletorPublicador
                           value={registro?.dirigente_id || undefined}
-                          onSelect={(p) => salvarSabado(data, "tarde", p)}
+                          onSelect={(p) => salvarSabado(data, "tarde", p, registro?.horario || "16:45")}
                           filtro="todos"
                           placeholder="Dirigente..."
                           className="w-full"
@@ -650,7 +705,7 @@ export default function ServicoCampoPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-green-500" />
-                  Dirigentes de Campo aos Domingos - 8:45h
+                  Dirigentes de Campo aos Domingos
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -662,11 +717,30 @@ export default function ServicoCampoPage() {
                       <div key={data} className="p-3 rounded-lg bg-zinc-800/30 space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-foreground">{formatarData(data)}</span>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3 text-muted-foreground" />
+                            <Input
+                              value={registro?.horario || "8:45"}
+                              onChange={(e) => {
+                                setCampoDomingo(prev => prev.map(c => 
+                                  c.data === data ? { ...c, horario: e.target.value } : c
+                                ))
+                              }}
+                              onBlur={(e) => {
+                                if (registro) {
+                                  salvarDomingo(data, registro.dirigente_id ? { id: registro.dirigente_id, nome: registro.dirigente_nome || "" } as Publicador : null, registro.tipo, e.target.value)
+                                }
+                              }}
+                              className="w-16 h-7 text-xs bg-zinc-800/50 border-zinc-700 text-center"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
                           <Button
                             size="sm"
                             variant={isGrupo ? "default" : "outline"}
                             className={isGrupo ? "bg-green-600 hover:bg-green-700 h-7 text-xs" : "h-7 text-xs"}
-                            onClick={() => salvarDomingo(data, null, isGrupo ? "individual" : "grupo")}
+                            onClick={() => salvarDomingo(data, null, isGrupo ? "individual" : "grupo", registro?.horario || "8:45")}
                           >
                             <Users className="h-3 w-3 mr-1" />
                             Grupo
@@ -675,7 +749,7 @@ export default function ServicoCampoPage() {
                         {!isGrupo && (
                           <SeletorPublicador
                             value={registro?.dirigente_id || undefined}
-                            onSelect={(p) => salvarDomingo(data, p, "individual")}
+                            onSelect={(p) => salvarDomingo(data, p, "individual", registro?.horario || "8:45")}
                             filtro="todos"
                             placeholder="Dirigente..."
                             className="w-full"

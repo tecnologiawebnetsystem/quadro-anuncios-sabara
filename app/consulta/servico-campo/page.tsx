@@ -289,7 +289,10 @@ export default function ConsultaServicoCampoPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-medium text-white flex items-center gap-2">
                   <Sun className="h-5 w-5 text-orange-500" />
-                  Dirigentes de Campo aos Sábados 8:45 Horas
+                  Dirigentes de Campo aos Sábados - Manhã
+                  {sabadosManha.length > 0 && (
+                    <span className="text-sm font-normal text-zinc-400">({sabadosManha[0]?.horario || "8:45"}h)</span>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -299,7 +302,7 @@ export default function ConsultaServicoCampoPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {sabadosManha.map((item) => (
                       <div key={item.id} className="p-3 rounded-lg bg-zinc-800/50 text-center">
-                        <div className="text-xs text-zinc-400 mb-1">{formatarData(item.data)}</div>
+                        <div className="text-xs text-zinc-400 mb-1">{formatarData(item.data)} - {item.horario}</div>
                         <div className="text-sm font-medium text-white">{item.dirigente_nome}</div>
                       </div>
                     ))}
@@ -313,7 +316,10 @@ export default function ConsultaServicoCampoPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-medium text-white flex items-center gap-2">
                   <Sun className="h-5 w-5 text-purple-500" />
-                  Dirigentes de Campo aos Sábados 16:45 Horas
+                  Dirigentes de Campo aos Sábados - Tarde
+                  {sabadosTarde.length > 0 && (
+                    <span className="text-sm font-normal text-zinc-400">({sabadosTarde[0]?.horario || "16:45"}h)</span>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -323,7 +329,7 @@ export default function ConsultaServicoCampoPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {sabadosTarde.map((item) => (
                       <div key={item.id} className="p-3 rounded-lg bg-zinc-800/50 text-center">
-                        <div className="text-xs text-zinc-400 mb-1">{formatarData(item.data)}</div>
+                        <div className="text-xs text-zinc-400 mb-1">{formatarData(item.data)} - {item.horario}</div>
                         <div className="text-sm font-medium text-white">{item.dirigente_nome}</div>
                       </div>
                     ))}
@@ -337,7 +343,10 @@ export default function ConsultaServicoCampoPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-medium text-white flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-green-500" />
-                  Dirigentes de Campo aos Domingos 8:45 Horas
+                  Dirigentes de Campo aos Domingos
+                  {campoDomingo.length > 0 && (
+                    <span className="text-sm font-normal text-zinc-400">({campoDomingo[0]?.horario || "8:45"}h)</span>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -347,7 +356,7 @@ export default function ConsultaServicoCampoPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {campoDomingo.map((item) => (
                       <div key={item.id} className="p-3 rounded-lg bg-zinc-800/50 text-center">
-                        <div className="text-xs text-zinc-400 mb-1">{formatarData(item.data)}</div>
+                        <div className="text-xs text-zinc-400 mb-1">{formatarData(item.data)} - {item.horario}</div>
                         <div className={`text-sm font-medium ${item.tipo === "grupo" ? "text-green-400" : "text-white"}`}>
                           {item.tipo === "grupo" ? (
                             <span className="flex items-center justify-center gap-1">
