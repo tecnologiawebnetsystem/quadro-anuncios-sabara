@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Settings, Clock, Calendar, Save, Loader2, Check, Building2, MapPin, Video, Globe } from "lucide-react"
+import { Settings, Clock, Calendar, Save, Loader2, Check, Building2, MapPin, Video, Globe, Bell } from "lucide-react"
+import { CentralNotificacoes } from "@/components/admin/central-notificacoes"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -162,14 +163,14 @@ export default function ConfiguracoesPage() {
       </div>
 
       <Tabs defaultValue="congregacao" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
           <TabsTrigger value="congregacao" className="gap-2">
             <Building2 className="h-4 w-4 hidden sm:inline" />
-            Congregação
+            Congregacao
           </TabsTrigger>
           <TabsTrigger value="reunioes" className="gap-2">
             <Calendar className="h-4 w-4 hidden sm:inline" />
-            Reuniões
+            Reunioes
           </TabsTrigger>
           <TabsTrigger value="campo" className="gap-2">
             <MapPin className="h-4 w-4 hidden sm:inline" />
@@ -178,6 +179,10 @@ export default function ConfiguracoesPage() {
           <TabsTrigger value="zoom" className="gap-2">
             <Video className="h-4 w-4 hidden sm:inline" />
             Zoom
+          </TabsTrigger>
+          <TabsTrigger value="notificacoes" className="gap-2">
+            <Bell className="h-4 w-4 hidden sm:inline" />
+            Notificacoes IA
           </TabsTrigger>
         </TabsList>
 
@@ -437,6 +442,11 @@ export default function ConfiguracoesPage() {
               <BotaoSalvar chave="zoom_link" valor={zoom} />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Tab Notificações com IA */}
+        <TabsContent value="notificacoes">
+          <CentralNotificacoes />
         </TabsContent>
       </Tabs>
     </div>

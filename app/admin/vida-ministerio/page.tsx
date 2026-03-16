@@ -18,8 +18,12 @@ import {
   Users,
   Gem,
   MessageSquare,
-  Heart
+  Heart,
+  Wand2,
+  Loader2,
+  Sparkles
 } from "lucide-react"
+import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 
@@ -94,6 +98,8 @@ export default function AdminVidaMinisterioPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [semanaAtiva, setSemanaAtiva] = useState<string | null>(null)
+  const [sugestoes, setSugestoes] = useState<Record<string, { id: string; nome: string; motivo: string }[]>>({})
+  const [buscandoSugestao, setBuscandoSugestao] = useState<string | null>(null)
 
   const supabase = createClient()
 
@@ -270,6 +276,49 @@ export default function AdminVidaMinisterioPage() {
     if (!error) {
       setPartes(partes.filter(p => p.id !== parteId))
     }
+  }
+
+  // Buscar sugestões de IA para uma parte
+  const buscarSugestoesIA = async (parteId: string, titulo: string, secao: string) => {
+    setBuscandoSugestao(parteId)
+    
+    try {
+      const response = await fetch("/api/ia/sugerir-designacoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipo: secao,
+          parte: titulo,
+          quantidade: 3
+        })
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setSugestoes(prev => ({
+          ...prev,
+          [parteId]: data.sugestoes || []
+        }))
+      }
+    } catch (error) {
+      console.error("Erro ao buscar sugestoes:", error)
+      toast.error("Erro ao buscar sugestoes")
+    } finally {
+      setBuscandoSugestao(null)
+    }
+  }
+
+  // Aplicar sugestão
+  const aplicarSugestao = async (parteId: string, publicadorId: string, publicadorNome: string) => {
+    await atualizarParte(parteId, "participante_id", publicadorId)
+    await atualizarParte(parteId, "participante_nome", publicadorNome)
+    toast.success(`${publicadorNome} designado!`)
+    // Limpar sugestões
+    setSugestoes(prev => {
+      const novo = { ...prev }
+      delete novo[parteId]
+      return novo
+    })
   }
 
   const mesAnterior = () => {
@@ -499,6 +548,40 @@ export default function AdminVidaMinisterioPage() {
                                     <Trash2 className="w-4 h-4 text-red-400" />
                                   </Button>
                                 </div>
+                                {/* Botão para Sugestões de IA */}
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => buscarSugestoesIA(parte.id, parte.titulo, secao.id)}
+                                    disabled={buscandoSugestao === parte.id}
+                                    className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
+                                  >
+                                    {buscandoSugestao === parte.id ? (
+                                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    ) : (
+                                      <Sparkles className="h-3 w-3 mr-1" />
+                                    )}
+                                    Sugerir com IA
+                                  </Button>
+                                  
+                                  {/* Mostrar sugestões */}
+                                  {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
+                                    <div className="flex items-center gap-1 flex-wrap">
+                                      {sugestoes[parte.id].map((sug, idx) => (
+                                        <button
+                                          key={idx}
+                                          onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
+                                          className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
+                                          title={sug.motivo}
+                                        >
+                                          {sug.nome}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                   <Select
                                     value={parte.participante_id || "none"}
