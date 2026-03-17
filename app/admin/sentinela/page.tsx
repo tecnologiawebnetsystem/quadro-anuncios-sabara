@@ -163,31 +163,42 @@ export default function AdminSentinelaPage() {
       }
 
       // Calcular próxima data de estudo (próximo domingo)
-      let dataEstudo: Date
+      let dataInicio: Date
+      let numeroEstudo = 1
+      
       if (estudos.length > 0) {
         const ultimoEstudo = estudos[estudos.length - 1]
-        dataEstudo = new Date(ultimoEstudo.data_estudo + "T12:00:00")
-        dataEstudo.setDate(dataEstudo.getDate() + 7)
+        dataInicio = new Date(ultimoEstudo.data_inicio + "T12:00:00")
+        dataInicio.setDate(dataInicio.getDate() + 7)
+        numeroEstudo = (ultimoEstudo.numero_estudo || estudos.length) + 1
       } else {
-        dataEstudo = new Date(anoAtual, mesAtual - 1, 1)
-        while (dataEstudo.getDay() !== 0) {
-          dataEstudo.setDate(dataEstudo.getDate() + 1)
+        dataInicio = new Date(anoAtual, mesAtual - 1, 1)
+        while (dataInicio.getDay() !== 0) {
+          dataInicio.setDate(dataInicio.getDate() + 1)
         }
       }
+      
+      // Data fim é 6 dias depois (sábado)
+      const dataFim = new Date(dataInicio)
+      dataFim.setDate(dataFim.getDate() + 6)
 
       const { data: novoEstudo, error } = await supabase
         .from("sentinela_estudos")
         .insert({
           mes_id: mesId,
+          numero_estudo: numeroEstudo,
           titulo: "Novo Estudo",
-          data_estudo: dataEstudo.toISOString().split("T")[0],
-          texto_tema: ""
+          data_inicio: dataInicio.toISOString().split("T")[0],
+          data_fim: dataFim.toISOString().split("T")[0],
+          cantico_inicial: 1,
+          cantico_final: 1
         })
         .select()
         .single()
 
       if (error) {
-        toast.error("Erro ao criar estudo")
+        console.log("[v0] Erro ao criar estudo:", error)
+        toast.error("Erro ao criar estudo: " + error.message)
         return
       }
       
@@ -197,6 +208,7 @@ export default function AdminSentinelaPage() {
         toast.success("Estudo criado!")
       }
     } catch (err) {
+      console.log("[v0] Erro catch:", err)
       toast.error("Erro ao adicionar estudo")
     }
   }
