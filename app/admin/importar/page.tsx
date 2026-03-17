@@ -431,6 +431,10 @@ export default function ImportarPage() {
     }
 
     // Criar as partes
+    console.log("[v0] semanaId para inserir partes:", semanaId)
+    console.log("[v0] Quantidade de partes a inserir:", dados.partes.length)
+    console.log("[v0] Partes:", JSON.stringify(dados.partes, null, 2))
+    
     if (dados.partes.length > 0) {
       const partesParaInserir = dados.partes.map(parte => ({
         semana_id: semanaId,
@@ -440,11 +444,17 @@ export default function ImportarPage() {
         ordem: parte.ordem
       }))
 
+      console.log("[v0] Partes para inserir:", JSON.stringify(partesParaInserir, null, 2))
+
       const { error: erroPartes } = await supabase
         .from("vida_ministerio_partes")
         .insert(partesParaInserir)
 
+      console.log("[v0] Erro ao inserir partes:", erroPartes)
+      
       if (erroPartes) throw erroPartes
+    } else {
+      console.log("[v0] AVISO: Nenhuma parte para inserir!")
     }
 
     toast.dismiss("salvando")
