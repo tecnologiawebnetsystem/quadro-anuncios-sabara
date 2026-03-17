@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { ArrowLeft, ArrowRight, Mic, Volume2, Users } from "lucide-react"
+import { ArrowLeft, ArrowRight, Mic, Volume2, Users, Wand2, Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { SeletorPublicador, type Publicador } from "@/components/reuniao/seletor-publicador"
 import { toast } from "sonner"
@@ -69,6 +70,7 @@ export default function EquipeTecnicaPage() {
   const [designacoes, setDesignacoes] = useState<Record<string, EquipeTecnica>>({})
   const [loading, setLoading] = useState(true)
   const [salvando, setSalvando] = useState<string | null>(null)
+  const [gerandoEscala, setGerandoEscala] = useState(false)
   
   const mesAtual = mesesDisponiveis[mesAtualIndex]
   
@@ -164,8 +166,88 @@ export default function EquipeTecnicaPage() {
     }
   }
 
+  // Gerar escala automática com IA
+  const gerarEscalaIA = async () => {
+    setGerandoEscala(true)
+    toast.loading("Gerando escala com IA...", { id: "gerando-equipe" })
+    
+    try {
+      const response = await fetch("/api/ia/gerar-escala", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo: "equipe_tecnica", mes: mesAtual.value })
+      })
+      
+      if (response.ok) {
+        const { escala } = await response.json()
+        
+        // Salvar cada designação gerada
+        for (const item of escala) {
+          await fetch("/api/equipe-tecnica", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mes: mesAtual.value,
+              data: item.data,
+              dia_semana: item.dia_semana,
+              indicador1_id: item.indicador1_id,
+              indicador1_nome: item.indicador1_nome,
+              indicador2_id: item.indicador2_id,
+              indicador2_nome: item.indicador2_nome,
+              microvolante1_id: item.microvolante1_id,
+              microvolante1_nome: item.microvolante1_nome,
+              microvolante2_id: item.microvolante2_id,
+              microvolante2_nome: item.microvolante2_nome,
+              som_id: item.som_id,
+              som_nome: item.som_nome
+            })
+          })
+        }
+        
+        // Recarregar designações
+        const resDesignacoes = await fetch(`/api/equipe-tecnica?mes=${mesAtual.value}`)
+        if (resDesignacoes.ok) {
+          const data: EquipeTecnica[] = await resDesignacoes.json()
+          const designacoesMap: Record<string, EquipeTecnica> = {}
+          data.forEach(d => {
+            designacoesMap[`${d.data}-${d.dia_semana}`] = d
+          })
+          setDesignacoes(designacoesMap)
+        }
+        
+        toast.dismiss("gerando-equipe")
+        toast.success("Escala gerada com sucesso!")
+      } else {
+        toast.dismiss("gerando-equipe")
+        toast.error("Erro ao gerar escala")
+      }
+    } catch (error) {
+      console.error("Erro ao gerar escala:", error)
+      toast.dismiss("gerando-equipe")
+      toast.error("Erro ao gerar escala")
+    } finally {
+      setGerandoEscala(false)
+    }
+  }
+
   return (
     <div className="space-y-8 p-6 max-w-4xl mx-auto">
+      {/* Header com botão IA */}
+      <div className="flex items-center justify-end">
+        <Button
+          onClick={gerarEscalaIA}
+          disabled={gerandoEscala}
+          className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+        >
+          {gerandoEscala ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Wand2 className="h-4 w-4 mr-2" />
+          )}
+          Gerar Escala com IA
+        </Button>
+      </div>
+
       {/* Navegação do Mês */}
       <div className="flex items-center justify-center gap-8">
         <button
