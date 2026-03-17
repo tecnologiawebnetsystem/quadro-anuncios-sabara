@@ -127,7 +127,51 @@ export default function AdminSentinelaPage() {
   }, [carregarDados])
 
   const adicionarEstudo = async () => {
-    if (!mesData) return
+    console.log("[v0] adicionarEstudo chamado, mesData:", mesData)
+    if (!mesData) {
+      console.log("[v0] mesData é null, criando mês...")
+      // Criar mês se não existir
+      const { data: novoMes, error: erroMes } = await supabase
+        .from("sentinela_meses")
+        .insert({ mes: mesAtual, ano: anoAtual })
+        .select()
+        .single()
+      
+      console.log("[v0] Novo mês criado:", novoMes, "erro:", erroMes)
+      
+      if (erroMes || !novoMes) {
+        console.error("[v0] Erro ao criar mês:", erroMes)
+        return
+      }
+      
+      setMesData(novoMes)
+      // Continuar com o novo mês
+      const mesParaUsar = novoMes
+      
+      const dataEstudo = new Date(anoAtual, mesAtual - 1, 1)
+      while (dataEstudo.getDay() !== 0) {
+        dataEstudo.setDate(dataEstudo.getDate() + 1)
+      }
+
+      const { data: novoEstudo, error } = await supabase
+        .from("sentinela_estudos")
+        .insert({
+          mes_id: mesParaUsar.id,
+          titulo: "Novo Estudo",
+          data_estudo: dataEstudo.toISOString().split("T")[0],
+          texto_tema: ""
+        })
+        .select()
+        .single()
+
+      console.log("[v0] Novo estudo criado:", novoEstudo, "erro:", error)
+      
+      if (!error && novoEstudo) {
+        setEstudos([novoEstudo])
+        setEstudoAtivo(novoEstudo.id)
+      }
+      return
+    }
 
     const ultimoEstudo = estudos[estudos.length - 1]
     let dataEstudo: Date
