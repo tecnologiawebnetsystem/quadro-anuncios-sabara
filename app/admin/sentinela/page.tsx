@@ -1,5 +1,5 @@
 "use client"
-
+// Sentinela Page - InfoFlow v2
 import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -127,9 +127,6 @@ export default function AdminSentinelaPage() {
   }, [carregarDados])
 
   const adicionarEstudo = async () => {
-    console.log("[v0] adicionarEstudo CHAMADO!")
-    console.log("[v0] mesData:", mesData)
-    console.log("[v0] mesAtual:", mesAtual, "anoAtual:", anoAtual)
     try {
       let mesId = mesData?.id
       
@@ -155,7 +152,6 @@ export default function AdminSentinelaPage() {
             .single()
           
           if (erroMes || !novoMes) {
-            console.log("[v0] Erro ao criar mês:", erroMes)
             return
           }
           
@@ -199,17 +195,15 @@ export default function AdminSentinelaPage() {
         .single()
 
       if (error) {
-        console.log("[v0] Erro ao criar estudo:", error)
         return
       }
       
       if (novoEstudo) {
         setEstudos(prev => [...prev, novoEstudo])
         setEstudoAtivo(novoEstudo.id)
-        console.log("[v0] Estudo criado com sucesso!")
       }
     } catch (err) {
-      console.log("[v0] Erro catch:", err)
+      // erro silencioso
     }
   }
 
@@ -256,19 +250,24 @@ export default function AdminSentinelaPage() {
 
   const adicionarParagrafo = async (estudoId: string) => {
     const paragrafosEstudo = paragrafos.filter(p => p.estudo_id === estudoId)
-    const numero = paragrafosEstudo.length + 1
+    const proximoNumero = paragrafosEstudo.length + 1
 
     const { data: novoParagrafo, error } = await supabase
       .from("sentinela_paragrafos")
       .insert({
         estudo_id: estudoId,
-        numero,
-        conteudo: ""
+        numero: String(proximoNumero),
+        pergunta: "",
+        ordem: proximoNumero
       })
       .select()
       .single()
 
-    if (!error && novoParagrafo) {
+    if (error) {
+      return
+    }
+
+    if (novoParagrafo) {
       setParagrafos([...paragrafos, novoParagrafo])
     }
   }
@@ -363,10 +362,7 @@ export default function AdminSentinelaPage() {
                 <Button 
                   size="sm" 
                   type="button"
-                  onClick={() => {
-                    console.log("[v0] Botão clicado!")
-                    adicionarEstudo()
-                  }}
+                  onClick={adicionarEstudo}
                 >
                   <Plus className="w-4 h-4 mr-1" /> Novo
                 </Button>
