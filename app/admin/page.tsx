@@ -720,19 +720,30 @@ export default function AdminDashboard() {
                   const alturaPercent = maxTotal > 0 ? (total / maxTotal) * 100 : 0
                   const presencialPercent = total > 0 ? ((a.presencial || 0) / total) * 100 : 0
                   
+                  const zoomPercent = total > 0 ? ((a.zoom || 0) / total) * 100 : 0
+                  
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                      <div className="relative w-full flex flex-col justify-end" style={{ height: "120px" }}>
+                      <div className="w-full flex flex-col justify-end" style={{ height: "120px" }}>
                         <div 
-                          className="w-full rounded-t-sm bg-gradient-to-t from-blue-600 to-cyan-500 transition-all hover:opacity-80"
+                          className="w-full flex flex-col justify-end rounded-t-sm overflow-hidden"
                           style={{ height: `${alturaPercent}%`, minHeight: total > 0 ? "4px" : "0px" }}
                           title={`Presencial: ${a.presencial || 0}, Zoom: ${a.zoom || 0}`}
                         >
-                          {/* Parte do zoom (sobreposta em verde) */}
-                          <div 
-                            className="absolute bottom-0 w-full rounded-t-sm bg-green-500/50"
-                            style={{ height: `${100 - presencialPercent}%` }}
-                          />
+                          {/* Parte do zoom (verde) */}
+                          {(a.zoom || 0) > 0 && (
+                            <div 
+                              className="w-full bg-green-500 transition-all hover:opacity-80"
+                              style={{ height: `${zoomPercent}%`, minHeight: "2px" }}
+                            />
+                          )}
+                          {/* Parte presencial (azul) */}
+                          {(a.presencial || 0) > 0 && (
+                            <div 
+                              className="w-full bg-gradient-to-t from-blue-600 to-blue-500 transition-all hover:opacity-80"
+                              style={{ height: `${presencialPercent}%`, minHeight: "2px" }}
+                            />
+                          )}
                         </div>
                       </div>
                       <span className="text-[10px] text-zinc-500">
