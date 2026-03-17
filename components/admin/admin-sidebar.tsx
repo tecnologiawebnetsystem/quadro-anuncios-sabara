@@ -22,6 +22,7 @@ import {
   Shield,
   Flag,
   Wand2,
+  FileText,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -112,7 +113,12 @@ const singleItems: MenuItem[] = [
 
 const configItems: MenuItem[] = [
   {
-    title: "Importar com IA",
+    title: "Wiki / Documentacao",
+    icon: FileText,
+    href: "/admin/wiki",
+  },
+  {
+    title: "Importar Sentinela",
     icon: Wand2,
     href: "/admin/importar",
   },

@@ -20,7 +20,8 @@ import {
   Clock,
   Megaphone,
   Info,
-  CalendarDays
+  CalendarDays,
+  Brain
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths } from "date-fns"
@@ -65,6 +66,14 @@ interface EventoCalendario {
 }
 
 const quickLinks = [
+  {
+    title: "Assistente IA",
+    description: "Ajuda com comentarios e partes",
+    href: "/consulta/assistente-ia",
+    icon: Brain,
+    color: "from-violet-600/20 to-purple-800/5",
+    iconBg: "bg-gradient-to-r from-violet-600 to-purple-600",
+  },
   {
     title: "Vida e Ministerio",
     description: "Programacao semanal",
