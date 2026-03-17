@@ -118,7 +118,7 @@ const configItems: MenuItem[] = [
     href: "/admin/wiki",
   },
   {
-    title: "Importar com IA",
+    title: "Importar Sentinela",
     icon: Wand2,
     href: "/admin/importar",
   },
