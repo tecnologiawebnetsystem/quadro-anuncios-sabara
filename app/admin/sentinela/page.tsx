@@ -16,7 +16,6 @@ import {
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
-import { toast } from "sonner"
 
 const meses = [
   { valor: 1, nome: "Janeiro" },
@@ -156,7 +155,7 @@ export default function AdminSentinelaPage() {
             .single()
           
           if (erroMes || !novoMes) {
-            toast.error("Erro ao criar mês")
+            console.log("[v0] Erro ao criar mês:", erroMes)
             return
           }
           
@@ -201,18 +200,16 @@ export default function AdminSentinelaPage() {
 
       if (error) {
         console.log("[v0] Erro ao criar estudo:", error)
-        toast.error("Erro ao criar estudo: " + error.message)
         return
       }
       
       if (novoEstudo) {
         setEstudos(prev => [...prev, novoEstudo])
         setEstudoAtivo(novoEstudo.id)
-        toast.success("Estudo criado!")
+        console.log("[v0] Estudo criado com sucesso!")
       }
     } catch (err) {
       console.log("[v0] Erro catch:", err)
-      toast.error("Erro ao adicionar estudo")
     }
   }
 
