@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 const meses = [
   { valor: 1, nome: "Janeiro" },
