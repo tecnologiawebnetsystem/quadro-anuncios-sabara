@@ -1,18 +1,28 @@
 "use client"
-// Sentinela Page - InfoFlow v2
+// Sentinela Management Page - InfoFlow v2.1
 import { useState, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { 
   Plus, 
   Trash2, 
   ChevronLeft, 
   ChevronRight,
   BookOpen,
-  FileText
+  FileText,
+  Wand2,
+  ChevronDown,
+  Save
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
@@ -41,28 +51,39 @@ interface Mes {
 interface Estudo {
   id: string
   mes_id: string
+  numero_estudo: number
   titulo: string
-  data_estudo: string
+  data_inicio: string
+  data_fim: string
   texto_tema: string | null
   cantico_inicial: number | null
   cantico_final: number | null
-  perguntas_recapitulacao: string[] | null
+  dirigente_id: string | null
+  leitor_id: string | null
 }
 
 interface Paragrafo {
   id: string
   estudo_id: string
-  numero: number
-  conteudo: string
-  perguntas: string | null
+  numero: string
+  pergunta: string
+  resposta_ia: string | null
+  ordem: number
+}
+
+interface Publicador {
+  id: string
+  nome: string
 }
 
 export default function AdminSentinelaPage() {
+  const router = useRouter()
   const [mesAtual, setMesAtual] = useState(new Date().getMonth() + 1)
   const [anoAtual, setAnoAtual] = useState(new Date().getFullYear())
   const [mesData, setMesData] = useState<Mes | null>(null)
   const [estudos, setEstudos] = useState<Estudo[]>([])
   const [paragrafos, setParagrafos] = useState<Paragrafo[]>([])
+  const [publicadores, setPublicadores] = useState<Publicador[]>([])
   const [loading, setLoading] = useState(true)
   const [estudoAtivo, setEstudoAtivo] = useState<string | null>(null)
 
@@ -71,24 +92,22 @@ export default function AdminSentinelaPage() {
   const carregarDados = useCallback(async () => {
     setLoading(true)
     try {
-      // Carregar ou criar mês
-      let { data: mes } = await supabase
+      // Carregar publicadores
+      const { data: pubsData } = await supabase
+        .from("publicadores")
+        .select("id, nome")
+        .order("nome")
+      setPublicadores(pubsData || [])
+
+      // Buscar mês existente
+      const { data: mes } = await supabase
         .from("sentinela_meses")
         .select("*")
         .eq("mes", mesAtual)
         .eq("ano", anoAtual)
         .single()
 
-      if (!mes) {
-        const { data: novoMes } = await supabase
-          .from("sentinela_meses")
-          .insert({ mes: mesAtual, ano: anoAtual })
-          .select()
-          .single()
-        mes = novoMes
-      }
-
-      setMesData(mes)
+      setMesData(mes || null)
 
       if (mes) {
         // Carregar estudos do mês
@@ -96,7 +115,7 @@ export default function AdminSentinelaPage() {
           .from("sentinela_estudos")
           .select("*")
           .eq("mes_id", mes.id)
-          .order("data_estudo")
+          .order("data_inicio")
         
         setEstudos(estudosData || [])
         
@@ -108,12 +127,17 @@ export default function AdminSentinelaPage() {
             .from("sentinela_paragrafos")
             .select("*")
             .in("estudo_id", estudosData.map(e => e.id))
-            .order("numero")
+            .order("ordem")
           
           setParagrafos(paragrafosData || [])
         } else {
+          setEstudoAtivo(null)
           setParagrafos([])
         }
+      } else {
+        setEstudos([])
+        setEstudoAtivo(null)
+        setParagrafos([])
       }
     } catch (error) {
       console.error("Erro ao carregar dados:", error)
@@ -130,34 +154,18 @@ export default function AdminSentinelaPage() {
     try {
       let mesId = mesData?.id
       
-      // Se não tem mês, criar ou buscar
+      // Se não tem mês, criar
       if (!mesId) {
-        // Primeiro tenta buscar se já existe
-        const { data: mesExistente } = await supabase
+        const { data: novoMes, error: erroMes } = await supabase
           .from("sentinela_meses")
-          .select("id")
-          .eq("mes", mesAtual)
-          .eq("ano", anoAtual)
+          .insert({ mes: mesAtual, ano: anoAtual })
+          .select()
           .single()
         
-        if (mesExistente) {
-          mesId = mesExistente.id
-          setMesData({ id: mesId, mes: mesAtual, ano: anoAtual })
-        } else {
-          // Criar novo mês
-          const { data: novoMes, error: erroMes } = await supabase
-            .from("sentinela_meses")
-            .insert({ mes: mesAtual, ano: anoAtual })
-            .select()
-            .single()
-          
-          if (erroMes || !novoMes) {
-            return
-          }
-          
-          mesId = novoMes.id
-          setMesData(novoMes)
-        }
+        if (erroMes || !novoMes) return
+        
+        mesId = novoMes.id
+        setMesData(novoMes)
       }
 
       // Calcular próxima data de estudo (próximo domingo)
@@ -194,48 +202,38 @@ export default function AdminSentinelaPage() {
         .select()
         .single()
 
-      if (error) {
-        return
-      }
+      if (error || !novoEstudo) return
       
-      if (novoEstudo) {
-        setEstudos(prev => [...prev, novoEstudo])
-        setEstudoAtivo(novoEstudo.id)
-      }
+      setEstudos(prev => [...prev, novoEstudo])
+      setEstudoAtivo(novoEstudo.id)
     } catch (err) {
-      // erro silencioso
-    }
-  }
-
-  const salvarEstudo = async (estudoId: string, campo: string, valor: string) => {
-    const { error } = await supabase
-      .from("sentinela_estudos")
-      .update({ [campo]: valor })
-      .eq("id", estudoId)
-
-    if (!error) {
-      setEstudos(prev => prev.map(e => 
-        e.id === estudoId ? { ...e, [campo]: valor } : e
-      ))
+      console.error("Erro ao adicionar estudo:", err)
     }
   }
 
   const removerEstudo = async (estudoId: string) => {
+    // Primeiro remove os parágrafos
+    await supabase
+      .from("sentinela_paragrafos")
+      .delete()
+      .eq("estudo_id", estudoId)
+
     const { error } = await supabase
       .from("sentinela_estudos")
       .delete()
       .eq("id", estudoId)
 
     if (!error) {
-      setEstudos(estudos.filter(e => e.id !== estudoId))
+      const novosEstudos = estudos.filter(e => e.id !== estudoId)
+      setEstudos(novosEstudos)
       setParagrafos(paragrafos.filter(p => p.estudo_id !== estudoId))
       if (estudoAtivo === estudoId) {
-        setEstudoAtivo(estudos[0]?.id || null)
+        setEstudoAtivo(novosEstudos[0]?.id || null)
       }
     }
   }
 
-  const atualizarEstudo = async (estudoId: string, campo: string, valor: string | number | null | string[]) => {
+  const atualizarEstudo = async (estudoId: string, campo: string, valor: string | number | null) => {
     const { error } = await supabase
       .from("sentinela_estudos")
       .update({ [campo]: valor })
@@ -263,11 +261,7 @@ export default function AdminSentinelaPage() {
       .select()
       .single()
 
-    if (error) {
-      return
-    }
-
-    if (novoParagrafo) {
+    if (!error && novoParagrafo) {
       setParagrafos([...paragrafos, novoParagrafo])
     }
   }
@@ -317,8 +311,10 @@ export default function AdminSentinelaPage() {
   const estudoAtualData = estudos.find(e => e.id === estudoAtivo)
   const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtivo)
 
-  const formatarData = (data: string) => {
-    return new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
+  const formatarData = (dataInicio: string, dataFim: string) => {
+    const inicio = new Date(dataInicio + "T12:00:00")
+    const fim = new Date(dataFim + "T12:00:00")
+    return `${inicio.getDate()} de ${inicio.toLocaleDateString("pt-BR", { month: "short" })} - ${fim.getDate()} de ${fim.toLocaleDateString("pt-BR", { month: "short" })}.`
   }
 
   return (
@@ -328,6 +324,27 @@ export default function AdminSentinelaPage() {
           <h1 className="text-3xl font-bold text-white">Estudo de A Sentinela</h1>
           <p className="text-zinc-400">Gerencie os estudos da Sentinela por mês</p>
         </div>
+        
+        {/* Menu de ações no canto superior direito */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="bg-red-600 hover:bg-red-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Adicionar
+              <ChevronDown className="w-4 h-4 ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={adicionarEstudo}>
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Estudo Manual
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/admin/importar")}>
+              <Wand2 className="w-4 h-4 mr-2" />
+              Importar com IA
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Navegação de Mês */}
@@ -357,16 +374,7 @@ export default function AdminSentinelaPage() {
           {/* Lista de Estudos */}
           <Card className="bg-zinc-900/50 border-zinc-800 lg:col-span-1">
             <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg text-white">Estudos</CardTitle>
-                <Button 
-                  size="sm" 
-                  type="button"
-                  onClick={adicionarEstudo}
-                >
-                  <Plus className="w-4 h-4 mr-1" /> Novo
-                </Button>
-              </div>
+              <CardTitle className="text-lg text-white">Estudos</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {estudos.length === 0 ? (
@@ -374,7 +382,7 @@ export default function AdminSentinelaPage() {
                   Nenhum estudo cadastrado
                 </p>
               ) : (
-                estudos.map((estudo, index) => (
+                estudos.map((estudo) => (
                   <div
                     key={estudo.id}
                     className={cn(
@@ -387,10 +395,10 @@ export default function AdminSentinelaPage() {
                   >
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">
-                        {estudo.titulo || `Estudo ${index + 1}`}
+                        {estudo.titulo || `Estudo ${estudo.numero_estudo}`}
                       </p>
                       <p className="text-xs text-zinc-400">
-                        {formatarData(estudo.data_estudo)}
+                        {formatarData(estudo.data_inicio, estudo.data_fim)}
                       </p>
                     </div>
                     <Button
@@ -432,14 +440,25 @@ export default function AdminSentinelaPage() {
                         className="bg-zinc-800 border-zinc-700"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-zinc-400">Data do Estudo</Label>
-                      <Input
-                        type="date"
-                        value={estudoAtualData.data_estudo || ""}
-                        onChange={(e) => atualizarEstudo(estudoAtualData.id, "data_estudo", e.target.value)}
-                        className="bg-zinc-800 border-zinc-700"
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <Label className="text-zinc-400">Data Início</Label>
+                        <Input
+                          type="date"
+                          value={estudoAtualData.data_inicio || ""}
+                          onChange={(e) => atualizarEstudo(estudoAtualData.id, "data_inicio", e.target.value)}
+                          className="bg-zinc-800 border-zinc-700"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-zinc-400">Data Fim</Label>
+                        <Input
+                          type="date"
+                          value={estudoAtualData.data_fim || ""}
+                          onChange={(e) => atualizarEstudo(estudoAtualData.id, "data_fim", e.target.value)}
+                          className="bg-zinc-800 border-zinc-700"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -453,14 +472,14 @@ export default function AdminSentinelaPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="space-y-2">
                       <Label className="text-zinc-400">Cântico Inicial</Label>
                       <Input
                         type="number"
                         value={estudoAtualData.cantico_inicial || ""}
                         onChange={(e) => atualizarEstudo(estudoAtualData.id, "cantico_inicial", e.target.value ? parseInt(e.target.value) : null)}
-                        placeholder="Número do cântico"
+                        placeholder="Nº"
                         className="bg-zinc-800 border-zinc-700"
                       />
                     </div>
@@ -470,9 +489,35 @@ export default function AdminSentinelaPage() {
                         type="number"
                         value={estudoAtualData.cantico_final || ""}
                         onChange={(e) => atualizarEstudo(estudoAtualData.id, "cantico_final", e.target.value ? parseInt(e.target.value) : null)}
-                        placeholder="Número do cântico"
+                        placeholder="Nº"
                         className="bg-zinc-800 border-zinc-700"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-zinc-400">Dirigente</Label>
+                      <select
+                        value={estudoAtualData.dirigente_id || ""}
+                        onChange={(e) => atualizarEstudo(estudoAtualData.id, "dirigente_id", e.target.value || null)}
+                        className="w-full h-9 rounded-md bg-zinc-800 border border-zinc-700 text-white text-sm px-3"
+                      >
+                        <option value="">Selecione...</option>
+                        {publicadores.map(p => (
+                          <option key={p.id} value={p.id}>{p.nome}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-zinc-400">Leitor</Label>
+                      <select
+                        value={estudoAtualData.leitor_id || ""}
+                        onChange={(e) => atualizarEstudo(estudoAtualData.id, "leitor_id", e.target.value || null)}
+                        className="w-full h-9 rounded-md bg-zinc-800 border border-zinc-700 text-white text-sm px-3"
+                      >
+                        <option value="">Selecione...</option>
+                        {publicadores.map(p => (
+                          <option key={p.id} value={p.id}>{p.nome}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
@@ -502,22 +547,22 @@ export default function AdminSentinelaPage() {
                             className="bg-zinc-800/50 rounded-lg p-3 space-y-2"
                           >
                             <div className="flex items-start gap-3">
-                              <span className="bg-red-600/20 text-red-400 px-2 py-1 rounded text-sm font-medium">
+                              <span className="bg-red-600/20 text-red-400 px-2 py-1 rounded text-sm font-medium min-w-8 text-center">
                                 {paragrafo.numero}
                               </span>
                               <div className="flex-1 space-y-2">
-                                <Textarea
-                                  value={paragrafo.conteudo || ""}
-                                  onChange={(e) => atualizarParagrafo(paragrafo.id, "conteudo", e.target.value)}
-                                  placeholder="Conteúdo do parágrafo"
-                                  className="bg-zinc-900 border-zinc-700 text-sm min-h-20"
-                                />
                                 <Input
-                                  value={paragrafo.perguntas || ""}
-                                  onChange={(e) => atualizarParagrafo(paragrafo.id, "perguntas", e.target.value)}
-                                  placeholder="Perguntas relacionadas (opcional)"
+                                  value={paragrafo.pergunta || ""}
+                                  onChange={(e) => atualizarParagrafo(paragrafo.id, "pergunta", e.target.value)}
+                                  placeholder="Pergunta do parágrafo"
                                   className="bg-zinc-900 border-zinc-700 text-sm"
                                 />
+                                {paragrafo.resposta_ia && (
+                                  <div className="bg-zinc-900 rounded p-2 text-sm text-zinc-300">
+                                    <span className="text-xs text-green-400 block mb-1">Resposta IA:</span>
+                                    {paragrafo.resposta_ia}
+                                  </div>
+                                )}
                               </div>
                               <Button
                                 variant="ghost"
@@ -537,7 +582,12 @@ export default function AdminSentinelaPage() {
               </>
             ) : (
               <CardContent className="py-12 text-center text-zinc-500">
-                Selecione ou crie um estudo para editar
+                <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="mb-4">Selecione ou crie um estudo para editar</p>
+                <Button onClick={adicionarEstudo} variant="outline">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar Primeiro Estudo
+                </Button>
               </CardContent>
             )}
           </Card>
