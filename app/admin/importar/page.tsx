@@ -430,31 +430,30 @@ export default function ImportarPage() {
       semanaId = semana.id
     }
 
+    // Mapeamento de nomes de seção para IDs
+    const mapearSecao = (secaoNome: string): string => {
+      const secaoLower = secaoNome.toLowerCase()
+      if (secaoLower.includes("tesouros")) return "tesouros"
+      if (secaoLower.includes("ministério") || secaoLower.includes("ministerio")) return "ministerio"
+      if (secaoLower.includes("vida")) return "vida"
+      return secaoNome // fallback
+    }
+
     // Criar as partes
-    console.log("[v0] semanaId para inserir partes:", semanaId)
-    console.log("[v0] Quantidade de partes a inserir:", dados.partes.length)
-    console.log("[v0] Partes:", JSON.stringify(dados.partes, null, 2))
-    
     if (dados.partes.length > 0) {
       const partesParaInserir = dados.partes.map(parte => ({
         semana_id: semanaId,
-        secao: parte.secao,
+        secao: mapearSecao(parte.secao),
         titulo: parte.titulo,
         tempo: parte.tempo,
         ordem: parte.ordem
       }))
 
-      console.log("[v0] Partes para inserir:", JSON.stringify(partesParaInserir, null, 2))
-
       const { error: erroPartes } = await supabase
         .from("vida_ministerio_partes")
         .insert(partesParaInserir)
-
-      console.log("[v0] Erro ao inserir partes:", erroPartes)
       
       if (erroPartes) throw erroPartes
-    } else {
-      console.log("[v0] AVISO: Nenhuma parte para inserir!")
     }
 
     toast.dismiss("salvando")

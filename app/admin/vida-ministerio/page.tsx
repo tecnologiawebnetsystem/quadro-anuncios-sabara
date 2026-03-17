@@ -145,17 +145,12 @@ export default function AdminVidaMinisterioPage() {
         if (semanasData && semanasData.length > 0) {
           setSemanaAtiva(semanasData[0].id)
           
-          console.log("[v0] Semanas carregadas:", semanasData.map(s => ({ id: s.id, data_inicio: s.data_inicio })))
-          
           // Carregar partes de todas as semanas
-          const { data: partesData, error: partesError } = await supabase
+          const { data: partesData } = await supabase
             .from("vida_ministerio_partes")
             .select("*")
             .in("semana_id", semanasData.map(s => s.id))
             .order("ordem")
-          
-          console.log("[v0] Partes carregadas:", partesData?.length || 0, "erro:", partesError)
-          console.log("[v0] IDs das partes:", partesData?.map(p => ({ id: p.id, semana_id: p.semana_id, titulo: p.titulo })))
           
           setPartes(partesData || [])
         } else {
