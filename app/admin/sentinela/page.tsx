@@ -127,36 +127,57 @@ export default function AdminSentinelaPage() {
   }, [carregarDados])
 
   const adicionarEstudo = async () => {
-    console.log("[v0] adicionarEstudo chamado, mesData:", mesData)
-    if (!mesData) {
-      console.log("[v0] mesData é null, criando mês...")
-      // Criar mês se não existir
-      const { data: novoMes, error: erroMes } = await supabase
-        .from("sentinela_meses")
-        .insert({ mes: mesAtual, ano: anoAtual })
-        .select()
-        .single()
+    try {
+      let mesId = mesData?.id
       
-      console.log("[v0] Novo mês criado:", novoMes, "erro:", erroMes)
-      
-      if (erroMes || !novoMes) {
-        console.error("[v0] Erro ao criar mês:", erroMes)
-        return
+      // Se não tem mês, criar ou buscar
+      if (!mesId) {
+        // Primeiro tenta buscar se já existe
+        const { data: mesExistente } = await supabase
+          .from("sentinela_meses")
+          .select("id")
+          .eq("mes", mesAtual)
+          .eq("ano", anoAtual)
+          .single()
+        
+        if (mesExistente) {
+          mesId = mesExistente.id
+          setMesData({ id: mesId, mes: mesAtual, ano: anoAtual })
+        } else {
+          // Criar novo mês
+          const { data: novoMes, error: erroMes } = await supabase
+            .from("sentinela_meses")
+            .insert({ mes: mesAtual, ano: anoAtual })
+            .select()
+            .single()
+          
+          if (erroMes || !novoMes) {
+            toast.error("Erro ao criar mês")
+            return
+          }
+          
+          mesId = novoMes.id
+          setMesData(novoMes)
+        }
       }
-      
-      setMesData(novoMes)
-      // Continuar com o novo mês
-      const mesParaUsar = novoMes
-      
-      const dataEstudo = new Date(anoAtual, mesAtual - 1, 1)
-      while (dataEstudo.getDay() !== 0) {
-        dataEstudo.setDate(dataEstudo.getDate() + 1)
+
+      // Calcular próxima data de estudo (próximo domingo)
+      let dataEstudo: Date
+      if (estudos.length > 0) {
+        const ultimoEstudo = estudos[estudos.length - 1]
+        dataEstudo = new Date(ultimoEstudo.data_estudo + "T12:00:00")
+        dataEstudo.setDate(dataEstudo.getDate() + 7)
+      } else {
+        dataEstudo = new Date(anoAtual, mesAtual - 1, 1)
+        while (dataEstudo.getDay() !== 0) {
+          dataEstudo.setDate(dataEstudo.getDate() + 1)
+        }
       }
 
       const { data: novoEstudo, error } = await supabase
         .from("sentinela_estudos")
         .insert({
-          mes_id: mesParaUsar.id,
+          mes_id: mesId,
           titulo: "Novo Estudo",
           data_estudo: dataEstudo.toISOString().split("T")[0],
           texto_tema: ""
@@ -164,43 +185,31 @@ export default function AdminSentinelaPage() {
         .select()
         .single()
 
-      console.log("[v0] Novo estudo criado:", novoEstudo, "erro:", error)
+      if (error) {
+        toast.error("Erro ao criar estudo")
+        return
+      }
       
-      if (!error && novoEstudo) {
-        setEstudos([novoEstudo])
+      if (novoEstudo) {
+        setEstudos(prev => [...prev, novoEstudo])
         setEstudoAtivo(novoEstudo.id)
+        toast.success("Estudo criado!")
       }
-      return
+    } catch (err) {
+      toast.error("Erro ao adicionar estudo")
     }
+  }
 
-    const ultimoEstudo = estudos[estudos.length - 1]
-    let dataEstudo: Date
-    
-    if (ultimoEstudo) {
-      dataEstudo = new Date(ultimoEstudo.data_estudo)
-      dataEstudo.setDate(dataEstudo.getDate() + 7)
-    } else {
-      dataEstudo = new Date(anoAtual, mesAtual - 1, 1)
-      // Encontrar o primeiro domingo
-      while (dataEstudo.getDay() !== 0) {
-        dataEstudo.setDate(dataEstudo.getDate() + 1)
-      }
-    }
-
-    const { data: novoEstudo, error } = await supabase
+  const salvarEstudo = async (estudoId: string, campo: string, valor: string) => {
+    const { error } = await supabase
       .from("sentinela_estudos")
-      .insert({
-        mes_id: mesData.id,
-        titulo: "Novo Estudo",
-        data_estudo: dataEstudo.toISOString().split("T")[0],
-        texto_tema: ""
-      })
-      .select()
-      .single()
+      .update({ [campo]: valor })
+      .eq("id", estudoId)
 
-    if (!error && novoEstudo) {
-      setEstudos([...estudos, novoEstudo])
-      setEstudoAtivo(novoEstudo.id)
+    if (!error) {
+      setEstudos(prev => prev.map(e => 
+        e.id === estudoId ? { ...e, [campo]: valor } : e
+      ))
     }
   }
 
