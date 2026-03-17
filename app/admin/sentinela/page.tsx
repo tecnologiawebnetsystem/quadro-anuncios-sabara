@@ -128,6 +128,9 @@ export default function AdminSentinelaPage() {
   }, [carregarDados])
 
   const adicionarEstudo = async () => {
+    console.log("[v0] adicionarEstudo CHAMADO!")
+    console.log("[v0] mesData:", mesData)
+    console.log("[v0] mesAtual:", mesAtual, "anoAtual:", anoAtual)
     try {
       let mesId = mesData?.id
       
@@ -360,7 +363,14 @@ export default function AdminSentinelaPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg text-white">Estudos</CardTitle>
-                <Button size="sm" onClick={adicionarEstudo}>
+                <Button 
+                  size="sm" 
+                  type="button"
+                  onClick={() => {
+                    console.log("[v0] Botão clicado!")
+                    adicionarEstudo()
+                  }}
+                >
                   <Plus className="w-4 h-4 mr-1" /> Novo
                 </Button>
               </div>
