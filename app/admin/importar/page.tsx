@@ -340,11 +340,9 @@ export default function ImportarPage() {
       }
 
     } catch (error: unknown) {
-      console.error("[v0] Erro ao salvar:", error)
       toast.dismiss("salvando")
       const errorObj = error as { code?: string; message?: string; details?: string }
       const errorMessage = errorObj?.message || errorObj?.details || "Erro desconhecido ao salvar"
-      console.error("[v0] Mensagem de erro:", errorMessage)
       toast.error("Erro ao salvar", { duration: 5000, description: errorMessage })
     } finally {
       setSalvando(false)
@@ -402,10 +400,12 @@ export default function ImportarPage() {
       semanaId = registroExistente.id
 
       // Deletar partes antigas
-      await supabase
+      const { error: erroDelete } = await supabase
         .from("vida_ministerio_partes")
         .delete()
         .eq("semana_id", semanaId)
+      
+      if (erroDelete) throw erroDelete
 
     } else {
       // Criar nova semana
@@ -510,10 +510,12 @@ export default function ImportarPage() {
       estudoId = registroExistente.id
 
       // Deletar parágrafos antigos
-      await supabase
+      const { error: erroDeleteParagrafos } = await supabase
         .from("sentinela_paragrafos")
         .delete()
         .eq("estudo_id", estudoId)
+      
+      if (erroDeleteParagrafos) throw erroDeleteParagrafos
 
     } else {
       // Contar estudos existentes para definir o número
