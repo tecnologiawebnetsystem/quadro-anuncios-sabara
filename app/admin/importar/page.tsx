@@ -81,20 +81,17 @@ export default function ImportarSentinelaPage() {
 
     setProcessandoPDF(true)
     setErro(null)
-    setEstudosPDF([])
     setProgressoPDF(0)
     setEtapaPDF("Carregando arquivo...")
 
     try {
-      // Etapa 1: Upload do arquivo
-      setProgressoPDF(10)
-      setEtapaPDF("Enviando PDF para o servidor...")
+      setProgressoPDF(30)
+      setEtapaPDF("Enviando PDF...")
       
       const formData = new FormData()
       formData.append("file", file)
 
-      // Etapa 2: Extraindo texto
-      setProgressoPDF(25)
+      setProgressoPDF(60)
       setEtapaPDF("Extraindo texto do PDF...")
 
       const response = await fetch("/api/importar-pdf-sentinela", {
@@ -102,28 +99,21 @@ export default function ImportarSentinelaPage() {
         body: formData
       })
 
-      // Etapa 3: Processamento IA
-      setProgressoPDF(50)
-      setEtapaPDF("IA analisando conteudo...")
-
       const resultado = await response.json()
 
-      // Etapa 4: Finalizando
-      setProgressoPDF(90)
-      setEtapaPDF("Finalizando processamento...")
-
-      if (!response.ok || resultado.erro) {
-        throw new Error(resultado.erro || resultado.error || "Erro ao processar PDF")
+      if (!response.ok || resultado.error) {
+        throw new Error(resultado.error || "Erro ao processar PDF")
       }
 
-      if (resultado.estudos && resultado.estudos.length > 0) {
+      if (resultado.sucesso && resultado.texto) {
         setProgressoPDF(100)
-        setEtapaPDF("Concluido!")
-        setEstudosPDF(resultado.estudos)
-        setEstudoAtualPDF(0)
-        toast.success(`${resultado.totalEstudos} estudos encontrados com ${resultado.totalParagrafos} paragrafos no total!`)
+        setEtapaPDF("Texto extraido!")
+        
+        // Preencher o texto na área de texto e mudar para aba "Colar Texto"
+        setTexto(resultado.texto)
+        toast.success(`PDF processado! ${resultado.totalPaginas} pagina(s), ${resultado.totalCaracteres} caracteres extraidos. Use "Processar com IA" para importar.`)
       } else {
-        throw new Error("Nenhum estudo encontrado no PDF")
+        throw new Error("Nao foi possivel extrair texto do PDF")
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Erro ao processar PDF"
@@ -558,7 +548,7 @@ export default function ImportarSentinelaPage() {
           </TabsTrigger>
           <TabsTrigger value="pdf" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
-            Importar PDF (Mes Inteiro)
+            Extrair de PDF
           </TabsTrigger>
         </TabsList>
 
@@ -738,185 +728,100 @@ export default function ImportarSentinelaPage() {
           </div>
         </TabsContent>
 
-        {/* Aba: Importar PDF */}
+        {/* Aba: Extrair Texto de PDF */}
         <TabsContent value="pdf">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Coluna Esquerda - Upload PDF */}
-            <Card className="border-zinc-800 bg-zinc-900/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Upload className="h-5 w-5 text-emerald-500" />
-                  Upload do PDF
-                </CardTitle>
-                <CardDescription>
-                  Importe um PDF com todos os estudos do mes de uma vez
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="border-2 border-dashed border-zinc-700 rounded-lg p-8 text-center hover:border-zinc-600 transition-colors">
-                  <Input
-                    type="file"
-                    accept=".pdf"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) processarPDF(file)
-                    }}
-                    className="hidden"
-                    id="pdf-upload"
-                    disabled={processandoPDF}
-                  />
-<label htmlFor="pdf-upload" className={processandoPDF ? "" : "cursor-pointer"}>
-                    {processandoPDF ? (
-                      <div className="space-y-4">
-                        <Loader2 className="h-12 w-12 mx-auto text-emerald-500 animate-spin" />
-                        <div className="space-y-2">
-                          <p className="text-zinc-300 font-medium">{etapaPDF}</p>
-                          <Progress value={progressoPDF} className="h-2 w-48 mx-auto" />
-                          <p className="text-xs text-zinc-500">{progressoPDF}% concluido</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <FileText className="h-12 w-12 mx-auto text-zinc-600" />
-                        <div>
-                          <p className="text-zinc-300 font-medium">Clique para selecionar um PDF</p>
-                          <p className="text-sm text-zinc-500 mt-1">
-                            O PDF deve conter os estudos da Sentinela do mes
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </label>
-                </div>
-
-                {erro && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
-                    <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm">{erro}</p>
-                  </div>
-                )}
-
-                {estudosPDF.length > 0 && (
-                  <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-emerald-400 font-medium">
-                        {estudosPDF.length} estudos encontrados
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={limparDados}
-                        className="text-xs"
-                      >
-                        Limpar
-                      </Button>
-                    </div>
-                    <p className="text-xs text-zinc-400">
-                      Total de {estudosPDF.reduce((acc, e) => acc + (e.paragrafos?.length || 0), 0)} paragrafos
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Coluna Direita - Preview dos Estudos */}
-            <Card className="border-zinc-800 bg-zinc-900/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <BookOpen className="h-5 w-5 text-blue-500" />
-                  Preview dos Estudos
-                </CardTitle>
-                <CardDescription>
-                  Navegue pelos estudos antes de salvar
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {estudosPDF.length > 0 ? (
-                  <div className="space-y-4">
-                    {/* Navegação entre estudos */}
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-800/50">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEstudoAtualPDF(Math.max(0, estudoAtualPDF - 1))}
-                        disabled={estudoAtualPDF === 0}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <span className="text-sm text-zinc-300">
-                        Estudo {estudoAtualPDF + 1} de {estudosPDF.length}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEstudoAtualPDF(Math.min(estudosPDF.length - 1, estudoAtualPDF + 1))}
-                        disabled={estudoAtualPDF === estudosPDF.length - 1}
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    {/* Info do Estudo Atual */}
-                    <div className="p-3 rounded-lg bg-zinc-800/50 space-y-2">
-                      <h3 className="font-semibold text-white">{estudosPDF[estudoAtualPDF]?.titulo}</h3>
-                      {estudosPDF[estudoAtualPDF]?.textoTema && (
-                        <p className="text-sm text-amber-400 italic">
-                          &ldquo;{estudosPDF[estudoAtualPDF]?.textoTema}&rdquo;
-                        </p>
-                      )}
-                      <div className="flex flex-wrap gap-2 text-xs">
-                        <Badge variant="outline">
-                          {estudosPDF[estudoAtualPDF]?.dataInicio} - {estudosPDF[estudoAtualPDF]?.dataFim}
-                        </Badge>
-                        <Badge variant="outline">
-                          {estudosPDF[estudoAtualPDF]?.paragrafos?.length || 0} paragrafos
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* Lista de Parágrafos */}
-                    <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2 scrollbar-thin">
-                      <p className="text-sm font-medium text-muted-foreground sticky top-0 bg-zinc-900/90 py-1">
-                        Paragrafos:
-                      </p>
-                      {estudosPDF[estudoAtualPDF]?.paragrafos?.map((p, idx) => (
-                        <div key={idx} className="p-2 rounded bg-zinc-800/30 text-sm">
-                          <span className="font-medium text-blue-400">Par. {p.numero}:</span>
-                          <p className="text-zinc-400 text-xs mt-1 line-clamp-2">{p.pergunta}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Progresso e Botão Salvar Todos */}
-                    {salvandoTodosPDF && (
+          <Card className="border-zinc-800 bg-zinc-900/50 max-w-2xl mx-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Upload className="h-5 w-5 text-emerald-500" />
+                Extrair Texto de PDF
+              </CardTitle>
+              <CardDescription>
+                Extraia o texto de um PDF da Sentinela. O texto sera preenchido na aba &quot;Colar Texto&quot; para processamento.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="border-2 border-dashed border-zinc-700 rounded-lg p-8 text-center hover:border-zinc-600 transition-colors">
+                <Input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) processarPDF(file)
+                  }}
+                  className="hidden"
+                  id="pdf-upload"
+                  disabled={processandoPDF}
+                />
+                <label htmlFor="pdf-upload" className={processandoPDF ? "" : "cursor-pointer"}>
+                  {processandoPDF ? (
+                    <div className="space-y-4">
+                      <Loader2 className="h-12 w-12 mx-auto text-emerald-500 animate-spin" />
                       <div className="space-y-2">
-                        <Progress value={progressoSalvar} className="h-2" />
-                        <p className="text-xs text-center text-zinc-400">
-                          Salvando... {progressoSalvar}%
+                        <p className="text-zinc-300 font-medium">{etapaPDF}</p>
+                        <Progress value={progressoPDF} className="h-2 w-48 mx-auto" />
+                        <p className="text-xs text-zinc-500">{progressoPDF}% concluido</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <FileText className="h-12 w-12 mx-auto text-zinc-600" />
+                      <div>
+                        <p className="text-zinc-300 font-medium">Clique para selecionar um PDF</p>
+                        <p className="text-sm text-zinc-500 mt-1">
+                          O texto sera extraido e preenchido automaticamente
                         </p>
                       </div>
-                    )}
+                    </div>
+                  )}
+                </label>
+              </div>
 
-                    <Button
-                      onClick={salvarTodosEstudosPDF}
-                      disabled={salvandoTodosPDF}
-                      className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
-                    >
-                      {salvandoTodosPDF ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Salvando...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 className="mr-2 h-4 w-4" />
-                          Salvar Todos os {estudosPDF.length} Estudos
-                        </>
-                      )}
-                    </Button>
+              {erro && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm">{erro}</p>
+                </div>
+              )}
+
+              {texto && (
+                <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                    <p className="text-emerald-400 font-medium">Texto extraido com sucesso!</p>
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-[400px] text-center">
+                  <p className="text-sm text-zinc-400 mb-3">
+                    O texto foi preenchido na aba &quot;Colar Texto&quot;. Clique no botao abaixo para processar.
+                  </p>
+                  <Button
+                    onClick={() => {
+                      // Mudar para aba de texto usando DOM
+                      const textoTab = document.querySelector('[value="texto"]') as HTMLButtonElement
+                      if (textoTab) textoTab.click()
+                    }}
+                    className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+                  >
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    Ir para &quot;Colar Texto&quot; e Processar com IA
+                  </Button>
+                </div>
+              )}
+
+              <div className="text-xs text-zinc-500 space-y-1">
+                <p>Como funciona:</p>
+                <ol className="list-decimal list-inside space-y-1 text-zinc-600">
+                  <li>Selecione um arquivo PDF da Sentinela</li>
+                  <li>O texto sera extraido automaticamente</li>
+                  <li>Vá para a aba &quot;Colar Texto&quot; e clique em &quot;Processar com IA&quot;</li>
+                  <li>Revise os dados e salve o estudo</li>
+                </ol>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Modal de Confirmação para Atualizar */}
                     <FileText className="h-16 w-16 text-zinc-700 mb-4" />
                     <p className="text-zinc-500">
                       Selecione um PDF com os estudos da Sentinela
