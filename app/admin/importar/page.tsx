@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { Loader2, Sparkles, CheckCircle2, AlertCircle, BookOpen, Wand2, User, BookMarked } from "lucide-react"
+import { Loader2, Sparkles, CheckCircle2, AlertCircle, BookOpen, Wand2, BookMarked } from "lucide-react"
 import { toast } from "sonner"
 import {
   AlertDialog,
@@ -41,11 +41,6 @@ type DadosSentinela = {
   paragrafos: Paragrafo[]
 }
 
-type Publicador = {
-  id: string
-  nome: string
-}
-
 type RegistroExistente = {
   id: string
   dataInicio: string
@@ -60,30 +55,12 @@ export default function ImportarSentinelaPage() {
   const [mostrarModalAtualizar, setMostrarModalAtualizar] = useState(false)
   const [registroExistente, setRegistroExistente] = useState<RegistroExistente | null>(null)
   
-  // Dirigente e Leitor
-  const [publicadores, setPublicadores] = useState<Publicador[]>([])
-  const [dirigenteId, setDirigenteId] = useState<string>("")
-  const [leitorId, setLeitorId] = useState<string>("")
-  
   // Estado para geração de respostas
   const [gerandoRespostas, setGerandoRespostas] = useState(false)
   const [progressoRespostas, setProgressoRespostas] = useState(0)
 
   const router = useRouter()
   const supabase = createClient()
-
-  // Carregar publicadores
-  useEffect(() => {
-    async function carregarPublicadores() {
-      const { data } = await supabase
-        .from("publicadores")
-        .select("id, nome")
-        .order("nome")
-      
-      if (data) setPublicadores(data)
-    }
-    carregarPublicadores()
-  }, [supabase])
 
   async function processarTexto() {
     if (!texto.trim()) {
@@ -314,8 +291,6 @@ export default function ImportarSentinelaPage() {
       // Limpar estado e redirecionar
       setDados(null)
       setTexto("")
-      setDirigenteId("")
-      setLeitorId("")
       setMostrarModalAtualizar(false)
       setRegistroExistente(null)
       
@@ -335,8 +310,6 @@ export default function ImportarSentinelaPage() {
     setTexto("")
     setDados(null)
     setErro(null)
-    setDirigenteId("")
-    setLeitorId("")
     setRegistroExistente(null)
   }
 
@@ -371,47 +344,6 @@ export default function ImportarSentinelaPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Seleção de Dirigente e Leitor */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-1 text-sm">
-                  <User className="h-4 w-4" />
-                  Dirigente
-                </Label>
-                <Select value={dirigenteId} onValueChange={setDirigenteId}>
-                  <SelectTrigger className="bg-zinc-900 border-zinc-700">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {publicadores.map(pub => (
-                      <SelectItem key={pub.id} value={pub.id}>
-                        {pub.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="flex items-center gap-1 text-sm">
-                  <BookOpen className="h-4 w-4" />
-                  Leitor
-                </Label>
-                <Select value={leitorId} onValueChange={setLeitorId}>
-                  <SelectTrigger className="bg-zinc-900 border-zinc-700">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {publicadores.map(pub => (
-                      <SelectItem key={pub.id} value={pub.id}>
-                        {pub.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
             <Textarea
               value={texto}
               onChange={(e) => setTexto(e.target.value)}
