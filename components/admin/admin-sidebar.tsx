@@ -3,7 +3,7 @@
 // Menu aprimorado - InfoFlow v3 com grupos organizados
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useId } from "react"
 import {
   LayoutDashboard,
   Users,
@@ -118,11 +118,6 @@ const configItems: MenuItem[] = [
     href: "/admin/wiki",
   },
   {
-    title: "Importar Sentinela",
-    icon: Wand2,
-    href: "/admin/importar",
-  },
-  {
     title: "Configuracoes",
     icon: Settings,
     href: "/admin/configuracoes",
@@ -131,6 +126,7 @@ const configItems: MenuItem[] = [
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const baseId = useId()
   const [openGroups, setOpenGroups] = useState<string[]>(["Publicadores", "Reunioes"])
   const [stats, setStats] = useState({
     totalPublicadores: 0,
@@ -249,14 +245,14 @@ export function AdminSidebar() {
             Gerenciamento
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {menuGroups.map((group) => (
+            <SidebarMenu suppressHydrationWarning>
+              {menuGroups.map((group, index) => (
                 <Collapsible
                   key={group.title}
                   open={openGroups.includes(group.title)}
                   onOpenChange={() => toggleGroup(group.title)}
                 >
-                  <SidebarMenuItem>
+                  <SidebarMenuItem suppressHydrationWarning>
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton 
                         className={cn(
