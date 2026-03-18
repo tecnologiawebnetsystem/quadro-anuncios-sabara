@@ -23,8 +23,8 @@ Analise o texto a seguir e extraia as informações da reunião. O texto pode se
 
 2. **Estudo de A Sentinela (fim de semana)**:
    - Tem título do artigo, texto tema (versículo)
-   - Parágrafos com perguntas
-   - Cânticos inicial e final
+   - Parágrafos numerados com texto completo e perguntas (geralmente entre 15-22 parágrafos)
+   - Cânticos inicial (ou "do meio") e final
 
 REGRAS IMPORTANTES:
 - Se encontrar datas como "3-9 de março", converta para formato YYYY-MM-DD usando o ano ${currentYear}
@@ -33,7 +33,12 @@ REGRAS IMPORTANTES:
 - Extraia TODAS as partes encontradas no texto
 - Para os cânticos, extraia tanto o número quanto o nome se disponíveis
 - Para Vida e Ministério, identifique a seção de cada parte (TESOUROS, MINISTÉRIO ou VIDA CRISTÃ)
-- Para Sentinela, extraia todos os parágrafos com suas perguntas
+- IMPORTANTE: Para Sentinela, extraia ABSOLUTAMENTE TODOS os parágrafos (geralmente 15-22 parágrafos)
+- Cada parágrafo da Sentinela tem: número(s), texto completo do parágrafo (textoBase), e a pergunta correspondente
+- Parágrafos podem ter números combinados como "4, 5" ou "10-12" - mantenha exatamente como está no texto
+- O texto do parágrafo (textoBase) deve conter o conteúdo COMPLETO do parágrafo, não apenas um resumo
+- As perguntas geralmente aparecem no final do artigo, numeradas correspondendo aos parágrafos
+- NÃO pule nenhum parágrafo - extraia todos do primeiro ao último
 
 TEXTO PARA ANALISAR:
 ${texto}
@@ -72,9 +77,13 @@ Para Sentinela:
   "canticoFinalNome": "Nome do Cântico",
   "objetivo": "Objetivo do estudo",
   "paragrafos": [
-    {"numero": "1", "textoBase": "Texto bíblico", "pergunta": "Pergunta?", "resposta": "Resposta", "ordem": 1}
+    {"numero": "1", "textoBase": "Texto COMPLETO do parágrafo 1 como está na revista...", "pergunta": "Pergunta correspondente ao parágrafo 1?", "resposta": null, "ordem": 1},
+    {"numero": "2", "textoBase": "Texto COMPLETO do parágrafo 2...", "pergunta": "Pergunta correspondente ao parágrafo 2?", "resposta": null, "ordem": 2},
+    {"numero": "3, 4", "textoBase": "Texto COMPLETO dos parágrafos 3 e 4...", "pergunta": "Pergunta para os parágrafos 3 e 4?", "resposta": null, "ordem": 3}
   ]
-}`
+}
+
+LEMBRE-SE: Extraia TODOS os parágrafos do artigo, do primeiro ao último. A maioria dos artigos tem entre 15 e 22 parágrafos. Se você encontrar 20 parágrafos no texto, retorne os 20 parágrafos no JSON.`
     })
 
     // Parse o JSON da resposta

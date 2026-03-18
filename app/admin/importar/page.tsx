@@ -208,11 +208,34 @@ export default function ImportarSentinelaPage() {
         }
       }
 
-      // Pegar nomes do dirigente e leitor
-      const dirigente = publicadores.find(p => p.id === dirigenteId)
-      const leitor = publicadores.find(p => p.id === leitorId)
-
       let estudoId: string
+
+      // Determinar mês e ano a partir da data de início
+      const dataInicio = dados.dataInicio ? new Date(dados.dataInicio + "T12:00:00") : new Date()
+      const mes = dataInicio.getMonth() + 1
+      const ano = dataInicio.getFullYear()
+
+      // Buscar ou criar o mês
+      let mesId: string
+      const { data: mesExistente } = await supabase
+        .from("sentinela_meses")
+        .select("id")
+        .eq("mes", mes)
+        .eq("ano", ano)
+        .single()
+
+      if (mesExistente) {
+        mesId = mesExistente.id
+      } else {
+        const { data: novoMes, error: erroMes } = await supabase
+          .from("sentinela_meses")
+          .insert({ mes, ano })
+          .select("id")
+          .single()
+        
+        if (erroMes || !novoMes) throw new Error("Erro ao criar mês")
+        mesId = novoMes.id
+      }
 
       if (forcarAtualizacao && registroExistente) {
         // Atualizar estudo existente
@@ -222,13 +245,9 @@ export default function ImportarSentinelaPage() {
             data_fim: dados.dataFim,
             titulo: dados.titulo,
             texto_tema: dados.textoTema,
-            cantico_inicial: dados.canticoInicial,
-            cantico_final: dados.canticoFinal,
-            objetivo: dados.objetivo,
-            dirigente_id: dirigenteId || null,
-            dirigente_nome: dirigente?.nome || null,
-            leitor_id: leitorId || null,
-            leitor_nome: leitor?.nome || null
+            cantico_inicial: dados.canticoInicial || 1,
+            cantico_final: dados.canticoFinal || 1,
+            objetivo: dados.objetivo
           })
           .eq("id", registroExistente.id)
 
@@ -244,27 +263,25 @@ export default function ImportarSentinelaPage() {
         if (erroDelete) throw erroDelete
 
       } else {
-        // Contar estudos existentes para definir o número
+        // Contar estudos existentes no mês para definir o número
         const { count } = await supabase
           .from("sentinela_estudos")
           .select("*", { count: "exact", head: true })
+          .eq("mes_id", mesId)
 
         // Criar novo estudo
         const { data: novoEstudo, error: erroEstudo } = await supabase
           .from("sentinela_estudos")
           .insert({
-            numero: (count || 0) + 1,
+            mes_id: mesId,
+            numero_estudo: (count || 0) + 1,
             data_inicio: dados.dataInicio,
             data_fim: dados.dataFim,
             titulo: dados.titulo,
             texto_tema: dados.textoTema,
-            cantico_inicial: dados.canticoInicial,
-            cantico_final: dados.canticoFinal,
-            objetivo: dados.objetivo,
-            dirigente_id: dirigenteId || null,
-            dirigente_nome: dirigente?.nome || null,
-            leitor_id: leitorId || null,
-            leitor_nome: leitor?.nome || null
+            cantico_inicial: dados.canticoInicial || 1,
+            cantico_final: dados.canticoFinal || 1,
+            objetivo: dados.objetivo
           })
           .select("id")
           .single()
