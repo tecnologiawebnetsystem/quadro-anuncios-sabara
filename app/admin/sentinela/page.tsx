@@ -2,31 +2,19 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { 
-  BookOpen, 
-  Plus, 
-  ChevronLeft, 
-  ChevronRight, 
-  FileText, 
-  Trash2,
-  MoreVertical,
-  Wand2,
-  Sparkles,
-  Loader2
-} from "lucide-react"
-import { format, parseISO } from "date-fns"
-import { ptBR } from "date-fns/locale"
+import { BookOpen, ChevronLeft, ChevronRight, Plus, MoreVertical, Trash2, FileText, Wand2, Sparkles, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
@@ -53,9 +41,9 @@ interface Paragrafo {
   id: string
   estudo_id: string
   numero: string
-  texto?: string
+  texto_base?: string
   pergunta: string
-  resposta_ia?: string
+  resposta?: string
   ordem: number
 }
 
@@ -69,34 +57,31 @@ export default function SentinelaPage() {
   const [anoAtual, setAnoAtual] = useState(new Date().getFullYear())
   const [mesData, setMesData] = useState<{ id: string; mes: number; ano: number } | null>(null)
   const [estudos, setEstudos] = useState<Estudo[]>([])
+  const [estudoAtivo, setEstudoAtivo] = useState<string | null>(null)
   const [paragrafos, setParagrafos] = useState<Paragrafo[]>([])
   const [publicadores, setPublicadores] = useState<Publicador[]>([])
-  const [estudoAtivo, setEstudoAtivo] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [gerandoIA, setGerandoIA] = useState<string | null>(null)
+  const [gerandoResposta, setGerandoResposta] = useState<string | null>(null)
   
   const supabase = createClient()
 
   const carregarDados = useCallback(async () => {
-    setLoading(true)
-    
-    // Buscar mês
-    const { data: mesData } = await supabase
+    // Buscar ou criar mês
+    const { data: mesExistente } = await supabase
       .from("sentinela_meses")
       .select("*")
       .eq("mes", mesAtual)
       .eq("ano", anoAtual)
       .single()
-    
-    setMesData(mesData)
-    
-    if (mesData) {
-      // Buscar estudos do mês
+
+    if (mesExistente) {
+      setMesData(mesExistente)
+      
+      // Carregar estudos do mês
       const { data: estudosData } = await supabase
         .from("sentinela_estudos")
         .select("*")
-        .eq("mes_id", mesData.id)
-        .order("numero_estudo")
+        .eq("mes_id", mesExistente.id)
+        .order("data_inicio")
       
       setEstudos(estudosData || [])
       
@@ -105,7 +90,7 @@ export default function SentinelaPage() {
           setEstudoAtivo(estudosData[0].id)
         }
         
-        // Buscar parágrafos de todos os estudos
+        // Carregar parágrafos de todos os estudos
         const { data: paragrafosData } = await supabase
           .from("sentinela_paragrafos")
           .select("*")
@@ -118,12 +103,13 @@ export default function SentinelaPage() {
         setParagrafos([])
       }
     } else {
+      setMesData(null)
       setEstudos([])
       setEstudoAtivo(null)
       setParagrafos([])
     }
-    
-    // Buscar publicadores
+
+    // Carregar publicadores
     const { data: pubData } = await supabase
       .from("publicadores")
       .select("id, nome")
@@ -131,8 +117,6 @@ export default function SentinelaPage() {
       .order("nome")
     
     setPublicadores(pubData || [])
-    
-    setLoading(false)
   }, [mesAtual, anoAtual, supabase, estudoAtivo])
 
   useEffect(() => {
@@ -217,18 +201,16 @@ export default function SentinelaPage() {
         .select()
         .single()
 
-      if (error) return
-      
-      if (novoEstudo) {
+      if (!error && novoEstudo) {
         setEstudos(prev => [...prev, novoEstudo])
         setEstudoAtivo(novoEstudo.id)
       }
-    } catch {
+    } catch (err) {
       // erro silencioso
     }
   }
 
-  const atualizarEstudo = async (estudoId: string, campo: string, valor: unknown) => {
+  const atualizarEstudo = async (estudoId: string, campo: string, valor: string | number | null) => {
     const { error } = await supabase
       .from("sentinela_estudos")
       .update({ [campo]: valor })
@@ -241,11 +223,17 @@ export default function SentinelaPage() {
     }
   }
 
-  const removerEstudo = async (estudoId: string) => {
-    if (!confirm("Tem certeza que deseja remover este estudo?")) return
+  const excluirEstudo = async (estudoId: string) => {
+    // Primeiro excluir parágrafos
+    await supabase
+      .from("sentinela_paragrafos")
+      .delete()
+      .eq("estudo_id", estudoId)
     
-    await supabase.from("sentinela_paragrafos").delete().eq("estudo_id", estudoId)
-    const { error } = await supabase.from("sentinela_estudos").delete().eq("id", estudoId)
+    const { error } = await supabase
+      .from("sentinela_estudos")
+      .delete()
+      .eq("id", estudoId)
 
     if (!error) {
       setEstudos(prev => prev.filter(e => e.id !== estudoId))
@@ -266,14 +254,13 @@ export default function SentinelaPage() {
         estudo_id: estudoId,
         numero: String(proximoNumero),
         pergunta: "",
-        texto: "",
         ordem: proximoNumero
       })
       .select()
       .single()
 
     if (!error && novoParagrafo) {
-      setParagrafos([...paragrafos, novoParagrafo])
+      setParagrafos(prev => [...prev, novoParagrafo])
     }
   }
 
@@ -290,7 +277,7 @@ export default function SentinelaPage() {
     }
   }
 
-  const removerParagrafo = async (paragrafoId: string) => {
+  const excluirParagrafo = async (paragrafoId: string) => {
     const { error } = await supabase
       .from("sentinela_paragrafos")
       .delete()
@@ -302,42 +289,46 @@ export default function SentinelaPage() {
   }
 
   const gerarRespostaIA = async (paragrafo: Paragrafo) => {
-    if (!paragrafo.texto || !paragrafo.pergunta) {
-      alert("Preencha o texto e a pergunta do parágrafo antes de gerar a resposta.")
+    if (!paragrafo.texto_base || !paragrafo.pergunta) {
       return
     }
 
-    setGerandoIA(paragrafo.id)
+    setGerandoResposta(paragrafo.id)
 
     try {
-      const response = await fetch("/api/sentinela/gerar-resposta", {
+      const response = await fetch("/api/ai/responder-paragrafo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          texto: paragrafo.texto,
+          texto: paragrafo.texto_base,
           pergunta: paragrafo.pergunta
         })
       })
 
-      if (!response.ok) throw new Error("Erro ao gerar resposta")
-
-      const data = await response.json()
-      
-      if (data.resposta) {
-        await atualizarParagrafo(paragrafo.id, "resposta_ia", data.resposta)
+      if (response.ok) {
+        const data = await response.json()
+        await atualizarParagrafo(paragrafo.id, "resposta", data.resposta)
       }
-    } catch {
-      alert("Erro ao gerar resposta com IA. Tente novamente.")
+    } catch (err) {
+      // erro silencioso
     } finally {
-      setGerandoIA(null)
+      setGerandoResposta(null)
     }
   }
 
   const formatarData = (dataInicio: string, dataFim: string) => {
     try {
-      const inicio = parseISO(dataInicio)
-      const fim = parseISO(dataFim)
-      return `${format(inicio, "d 'de' MMM", { locale: ptBR })} - ${format(fim, "d 'de' MMM", { locale: ptBR })}`
+      const inicio = new Date(dataInicio + "T12:00:00")
+      const fim = new Date(dataFim + "T12:00:00")
+      const diaInicio = inicio.getDate()
+      const diaFim = fim.getDate()
+      const mesInicio = inicio.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")
+      const mesFim = fim.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")
+      
+      if (mesInicio === mesFim) {
+        return `${diaInicio} - ${diaFim} de ${mesInicio}`
+      }
+      return `${diaInicio} de ${mesInicio} - ${diaFim} de ${mesFim}`
     } catch {
       return "Data inválida"
     }
@@ -352,20 +343,19 @@ export default function SentinelaPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Estudo de A Sentinela</h1>
-          <p className="text-muted-foreground">Gerencie os estudos da Sentinela por mês</p>
+          <p className="text-zinc-400">Gerencie os estudos da Sentinela por mês</p>
         </div>
-        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button>
+            <Button className="bg-red-600 hover:bg-red-700">
               <Plus className="w-4 h-4 mr-2" />
-              Novo Estudo
+              Adicionar
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={adicionarEstudo}>
-              <Plus className="w-4 h-4 mr-2" />
-              Criar Manual
+              <FileText className="w-4 h-4 mr-2" />
+              Novo Estudo Manual
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/admin/importar">
@@ -377,16 +367,16 @@ export default function SentinelaPage() {
         </DropdownMenu>
       </div>
 
-      {/* Navegação de Mês */}
+      {/* Seletor de Mês */}
       <Card className="bg-zinc-900 border-zinc-800">
-        <CardContent className="py-4">
-          <div className="flex items-center justify-between">
+        <CardContent className="py-6">
+          <div className="flex items-center justify-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navegarMes(-1)}>
               <ChevronLeft className="w-5 h-5" />
             </Button>
-            <div className="text-center">
-              <h2 className="text-xl font-semibold">{meses[mesAtual - 1]} {anoAtual}</h2>
-              <p className="text-sm text-zinc-500">{estudos.length} estudo(s) cadastrado(s)</p>
+            <div className="text-center min-w-[200px]">
+              <h2 className="text-xl font-bold">{meses[mesAtual - 1]} {anoAtual}</h2>
+              <p className="text-sm text-zinc-400">{estudos.length} estudo(s) cadastrado(s)</p>
             </div>
             <Button variant="ghost" size="icon" onClick={() => navegarMes(1)}>
               <ChevronRight className="w-5 h-5" />
@@ -395,288 +385,279 @@ export default function SentinelaPage() {
         </CardContent>
       </Card>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-zinc-500" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Lista de Estudos */}
-          <Card className="bg-zinc-900 border-zinc-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Estudos</CardTitle>
-                <Button size="sm" onClick={adicionarEstudo}>
-                  <Plus className="w-4 h-4 mr-1" /> Novo
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {estudos.length === 0 ? (
-                <p className="text-zinc-500 text-sm py-4">Nenhum estudo cadastrado</p>
-              ) : (
-                estudos.map((estudo) => (
-                  <div
-                    key={estudo.id}
-                    className={cn(
-                      "p-3 rounded-lg cursor-pointer transition-colors border",
-                      estudoAtivo === estudo.id 
-                        ? "bg-red-600/20 border-red-600" 
-                        : "bg-zinc-800/50 border-transparent hover:bg-zinc-800"
-                    )}
-                    onClick={() => setEstudoAtivo(estudo.id)}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-medium text-white">{estudo.titulo}</h3>
-                        <p className="text-sm text-zinc-400">
-                          {formatarData(estudo.data_inicio, estudo.data_fim)}
-                        </p>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem 
-                            className="text-red-400"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              removerEstudo(estudo.id)
-                            }}
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Remover
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+      {/* Conteúdo Principal */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Lista de Estudos */}
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Estudos</CardTitle>
+              <Button size="sm" onClick={adicionarEstudo}>
+                <Plus className="w-4 h-4 mr-1" /> Novo
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {estudos.length === 0 ? (
+              <p className="text-zinc-500 text-sm">Nenhum estudo cadastrado</p>
+            ) : (
+              estudos.map((estudo) => (
+                <div
+                  key={estudo.id}
+                  className={cn(
+                    "p-3 rounded-lg cursor-pointer transition-colors border",
+                    estudoAtivo === estudo.id 
+                      ? "bg-red-600/20 border-red-600" 
+                      : "bg-zinc-800 border-zinc-700 hover:bg-zinc-700"
+                  )}
+                  onClick={() => setEstudoAtivo(estudo.id)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{estudo.titulo || "Novo Estudo"}</p>
+                      <p className="text-xs text-zinc-400">
+                        {formatarData(estudo.data_inicio, estudo.data_fim)}
+                      </p>
                     </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem 
+                          className="text-red-500"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            excluirEstudo(estudo.id)
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
 
-          {/* Editor de Estudo */}
-          <Card className="lg:col-span-2 bg-zinc-900 border-zinc-800">
+        {/* Editor de Estudo */}
+        <Card className="bg-zinc-900 border-zinc-800 lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5" />
+              {estudoAtualData ? "Editar Estudo" : "Selecione um Estudo"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             {estudoAtualData ? (
-              <>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    Editar Estudo
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Título e Data */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-zinc-400">Título do Estudo</Label>
-                      <Input
-                        value={estudoAtualData.titulo}
-                        onChange={(e) => atualizarEstudo(estudoAtualData.id, "titulo", e.target.value)}
-                        placeholder="Título do estudo"
-                        className="bg-zinc-800 border-zinc-700"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-zinc-400">Data do Estudo</Label>
-                      <Input
-                        type="date"
-                        value={estudoAtualData.data_inicio || ""}
-                        onChange={(e) => atualizarEstudo(estudoAtualData.id, "data_inicio", e.target.value)}
-                        className="bg-zinc-800 border-zinc-700"
-                      />
-                    </div>
+              <div className="space-y-6">
+                {/* Informações do Estudo */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-zinc-400">Título do Estudo</Label>
+                    <Input
+                      value={estudoAtualData.titulo || ""}
+                      onChange={(e) => atualizarEstudo(estudoAtualData.id, "titulo", e.target.value)}
+                      placeholder="Ex: Sirva a Jeová com alegria"
+                      className="bg-zinc-800 border-zinc-700"
+                    />
                   </div>
-
-                  {/* Texto Tema */}
                   <div className="space-y-2">
                     <Label className="text-zinc-400">Texto Tema</Label>
                     <Input
                       value={estudoAtualData.texto_tema || ""}
                       onChange={(e) => atualizarEstudo(estudoAtualData.id, "texto_tema", e.target.value)}
-                      placeholder="Ex: 'Confia em Jeová e faze o bem.' — Sal. 37:3"
+                      placeholder="Ex: 'Sirvam a Jeová com alegria.' — Sal. 100:2"
                       className="bg-zinc-800 border-zinc-700"
                     />
                   </div>
+                </div>
 
-                  {/* Cânticos */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-zinc-400">Cântico do Meio</Label>
-                      <Input
-                        type="number"
-                        value={estudoAtualData.cantico_inicial || ""}
-                        onChange={(e) => atualizarEstudo(estudoAtualData.id, "cantico_inicial", e.target.value ? parseInt(e.target.value) : null)}
-                        placeholder="Nº"
-                        className="bg-zinc-800 border-zinc-700"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-zinc-400">Cântico Final</Label>
-                      <Input
-                        type="number"
-                        value={estudoAtualData.cantico_final || ""}
-                        onChange={(e) => atualizarEstudo(estudoAtualData.id, "cantico_final", e.target.value ? parseInt(e.target.value) : null)}
-                        placeholder="Nº"
-                        className="bg-zinc-800 border-zinc-700"
-                      />
-                    </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-zinc-400">Data Início</Label>
+                    <Input
+                      type="date"
+                      value={estudoAtualData.data_inicio || ""}
+                      onChange={(e) => atualizarEstudo(estudoAtualData.id, "data_inicio", e.target.value)}
+                      className="bg-zinc-800 border-zinc-700"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-zinc-400">Data Fim</Label>
+                    <Input
+                      type="date"
+                      value={estudoAtualData.data_fim || ""}
+                      onChange={(e) => atualizarEstudo(estudoAtualData.id, "data_fim", e.target.value)}
+                      className="bg-zinc-800 border-zinc-700"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-zinc-400">Cântico do Meio</Label>
+                    <Input
+                      type="number"
+                      value={estudoAtualData.cantico_inicial || ""}
+                      onChange={(e) => atualizarEstudo(estudoAtualData.id, "cantico_inicial", e.target.value ? parseInt(e.target.value) : null)}
+                      placeholder="Nº"
+                      className="bg-zinc-800 border-zinc-700"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-zinc-400">Cântico Final</Label>
+                    <Input
+                      type="number"
+                      value={estudoAtualData.cantico_final || ""}
+                      onChange={(e) => atualizarEstudo(estudoAtualData.id, "cantico_final", e.target.value ? parseInt(e.target.value) : null)}
+                      placeholder="Nº"
+                      className="bg-zinc-800 border-zinc-700"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-zinc-400">Dirigente</Label>
+                    <Select
+                      value={estudoAtualData.dirigente_id || ""}
+                      onValueChange={(value) => atualizarEstudo(estudoAtualData.id, "dirigente_id", value || null)}
+                    >
+                      <SelectTrigger className="bg-zinc-800 border-zinc-700">
+                        <SelectValue placeholder="Selecione o dirigente" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {publicadores.map((pub) => (
+                          <SelectItem key={pub.id} value={pub.id}>{pub.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-zinc-400">Leitor</Label>
+                    <Select
+                      value={estudoAtualData.leitor_id || ""}
+                      onValueChange={(value) => atualizarEstudo(estudoAtualData.id, "leitor_id", value || null)}
+                    >
+                      <SelectTrigger className="bg-zinc-800 border-zinc-700">
+                        <SelectValue placeholder="Selecione o leitor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {publicadores.map((pub) => (
+                          <SelectItem key={pub.id} value={pub.id}>{pub.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Parágrafos */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <FileText className="w-4 h-4" />
+                      Parágrafos ({paragrafosAtuais.length})
+                    </h3>
+                    <Button size="sm" variant="outline" onClick={() => adicionarParagrafo(estudoAtualData.id)}>
+                      <Plus className="w-4 h-4 mr-1" /> Parágrafo
+                    </Button>
                   </div>
 
-                  {/* Dirigente e Leitor */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-zinc-400">Dirigente</Label>
-                      <select
-                        value={estudoAtualData.dirigente_id || ""}
-                        onChange={(e) => atualizarEstudo(estudoAtualData.id, "dirigente_id", e.target.value || null)}
-                        className="w-full h-9 rounded-md bg-zinc-800 border border-zinc-700 text-white text-sm px-3"
-                      >
-                        <option value="">Selecione...</option>
-                        {publicadores.map(p => (
-                          <option key={p.id} value={p.id}>{p.nome}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-zinc-400">Leitor</Label>
-                      <select
-                        value={estudoAtualData.leitor_id || ""}
-                        onChange={(e) => atualizarEstudo(estudoAtualData.id, "leitor_id", e.target.value || null)}
-                        className="w-full h-9 rounded-md bg-zinc-800 border border-zinc-700 text-white text-sm px-3"
-                      >
-                        <option value="">Selecione...</option>
-                        {publicadores.map(p => (
-                          <option key={p.id} value={p.id}>{p.nome}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Parágrafos */}
-                  <div className="space-y-3 pt-4 border-t border-zinc-800">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-white flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
-                        Parágrafos ({paragrafosAtuais.length})
-                      </h3>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => adicionarParagrafo(estudoAtualData.id)}
-                      >
-                        <Plus className="w-3 h-3 mr-1" /> Parágrafo
-                      </Button>
-                    </div>
-
-                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                      {paragrafosAtuais.length === 0 ? (
-                        <p className="text-zinc-500 text-sm py-4">Nenhum parágrafo cadastrado</p>
-                      ) : (
-                        paragrafosAtuais.map((paragrafo) => (
-                          <div 
-                            key={paragrafo.id} 
-                            className="bg-zinc-800/50 rounded-lg p-4 space-y-3"
-                          >
-                            {/* Header do Parágrafo */}
+                  {paragrafosAtuais.length === 0 ? (
+                    <p className="text-zinc-500 text-sm">Nenhum parágrafo cadastrado</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {paragrafosAtuais.map((paragrafo) => (
+                        <Card key={paragrafo.id} className="bg-zinc-800 border-zinc-700">
+                          <CardContent className="pt-4 space-y-3">
                             <div className="flex items-center justify-between">
-                              <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                Parágrafo {paragrafo.numero}
-                              </span>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => removerParagrafo(paragrafo.id)}
+                              <div className="flex items-center gap-2">
+                                <Label className="text-zinc-400">Parágrafo</Label>
+                                <Input
+                                  value={paragrafo.numero}
+                                  onChange={(e) => atualizarParagrafo(paragrafo.id, "numero", e.target.value)}
+                                  placeholder="1"
+                                  className="bg-zinc-900 border-zinc-600 w-20"
+                                />
+                              </div>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
+                                onClick={() => excluirParagrafo(paragrafo.id)}
                               >
-                                <Trash2 className="w-4 h-4 text-red-400" />
+                                <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                             
-                            {/* Texto do Parágrafo */}
-                            <div className="space-y-1">
-                              <Label className="text-xs text-zinc-500">Texto do Parágrafo</Label>
+                            <div className="space-y-2">
+                              <Label className="text-zinc-400">Texto do Parágrafo</Label>
                               <Textarea
-                                value={paragrafo.texto || ""}
-                                onChange={(e) => atualizarParagrafo(paragrafo.id, "texto", e.target.value)}
+                                value={paragrafo.texto_base || ""}
+                                onChange={(e) => atualizarParagrafo(paragrafo.id, "texto_base", e.target.value)}
                                 placeholder="Cole aqui o texto do parágrafo..."
-                                className="bg-zinc-900 border-zinc-700 text-sm min-h-[80px]"
+                                className="bg-zinc-900 border-zinc-600 min-h-[80px]"
                               />
                             </div>
-
-                            {/* Pergunta */}
-                            <div className="space-y-1">
-                              <Label className="text-xs text-zinc-500">Pergunta</Label>
+                            
+                            <div className="space-y-2">
+                              <Label className="text-zinc-400">Pergunta</Label>
                               <Input
                                 value={paragrafo.pergunta || ""}
                                 onChange={(e) => atualizarParagrafo(paragrafo.id, "pergunta", e.target.value)}
-                                placeholder="Digite a pergunta do parágrafo..."
-                                className="bg-zinc-900 border-zinc-700 text-sm"
+                                placeholder="Qual é a pergunta deste parágrafo?"
+                                className="bg-zinc-900 border-zinc-600"
                               />
                             </div>
 
-                            {/* Botão Gerar Resposta IA */}
-                            <div className="flex items-center gap-2">
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                onClick={() => gerarRespostaIA(paragrafo)}
-                                disabled={gerandoIA === paragrafo.id || !paragrafo.texto || !paragrafo.pergunta}
-                                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
-                              >
-                                {gerandoIA === paragrafo.id ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Gerando...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Sparkles className="w-4 h-4 mr-2" />
-                                    IA Responder
-                                  </>
-                                )}
-                              </Button>
-                              {(!paragrafo.texto || !paragrafo.pergunta) && (
-                                <span className="text-xs text-zinc-500">
-                                  Preencha texto e pergunta
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Resposta IA */}
-                            {paragrafo.resposta_ia && (
-                              <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-lg p-3 border border-purple-500/30">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Sparkles className="w-4 h-4 text-purple-400" />
-                                  <span className="text-xs font-medium text-purple-400">Resposta IA</span>
-                                </div>
-                                <p className="text-sm text-zinc-200">{paragrafo.resposta_ia}</p>
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <Label className="text-zinc-400">Resposta</Label>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-purple-500 text-purple-400 hover:bg-purple-500/10"
+                                  onClick={() => gerarRespostaIA(paragrafo)}
+                                  disabled={gerandoResposta === paragrafo.id || !paragrafo.texto_base || !paragrafo.pergunta}
+                                >
+                                  {gerandoResposta === paragrafo.id ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                      Gerando...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Sparkles className="w-4 h-4 mr-1" />
+                                      IA Responder
+                                    </>
+                                  )}
+                                </Button>
                               </div>
-                            )}
-                          </div>
-                        ))
-                      )}
+                              <Textarea
+                                value={paragrafo.resposta || ""}
+                                onChange={(e) => atualizarParagrafo(paragrafo.id, "resposta", e.target.value)}
+                                placeholder="A resposta aparecerá aqui após clicar em 'IA Responder' ou digite manualmente..."
+                                className="bg-zinc-900 border-zinc-600 min-h-[60px]"
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
                     </div>
-                  </div>
-                </CardContent>
-              </>
+                  )}
+                </div>
+              </div>
             ) : (
-              <CardContent className="py-12 text-center text-zinc-500">
-                <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p className="mb-4">Selecione ou crie um estudo para editar</p>
-                <Button onClick={adicionarEstudo} variant="outline">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Criar Primeiro Estudo
-                </Button>
-              </CardContent>
+              <p className="text-zinc-500 text-center py-8">
+                Selecione ou crie um estudo para editar
+              </p>
             )}
-          </Card>
-        </div>
-      )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
