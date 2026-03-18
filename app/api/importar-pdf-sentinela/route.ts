@@ -1,9 +1,30 @@
 import { generateText } from "ai"
+import { gateway } from "@ai-sdk/gateway"
 // @ts-expect-error pdf-parse não tem tipos
 import pdf from "pdf-parse"
 
 // Configurar timeout maior para processamento de PDFs grandes
-export const maxDuration = 120 // 120 segundos
+export const maxDuration = 120
+
+// Criar provider com timeout aumentado
+const model = gateway("openai/gpt-4o-mini", {
+  fetch: async (url, options) => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 90000)
+    
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+      return response
+    } catch (error) {
+      clearTimeout(timeoutId)
+      throw error
+    }
+  }
+})
 
 export async function POST(req: Request) {
   try {
@@ -11,13 +32,13 @@ export async function POST(req: Request) {
     const file = formData.get("file") as File | null
 
     if (!file) {
-      return Response.json({ error: "Arquivo PDF não fornecido" }, { status: 400 })
+      return Response.json({ error: "Arquivo PDF nao fornecido" }, { status: 400 })
     }
 
-    // Verificar tamanho do arquivo (máx 5MB para PDFs de texto)
+    // Verificar tamanho do arquivo (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       return Response.json({ 
-        error: "O arquivo PDF é muito grande. Máximo permitido: 5MB" 
+        error: "O arquivo PDF e muito grande. Maximo permitido: 5MB" 
       }, { status: 400 })
     }
 
@@ -31,7 +52,7 @@ export async function POST(req: Request) {
       pdfData = await pdf(buffer)
     } catch {
       return Response.json({ 
-        error: "Erro ao ler o arquivo PDF. Verifique se é um PDF válido." 
+        error: "Erro ao ler o arquivo PDF. Verifique se e um PDF valido." 
       }, { status: 400 })
     }
 
@@ -39,48 +60,28 @@ export async function POST(req: Request) {
 
     if (!texto || texto.trim().length < 100) {
       return Response.json({ 
-        error: "O PDF parece estar vazio ou não contém texto legível." 
+        error: "O PDF parece estar vazio ou nao contem texto legivel." 
       }, { status: 400 })
     }
 
-    // Limitar o texto para evitar timeout (primeiros 40000 caracteres)
-    const textoLimitado = texto.slice(0, 40000)
+    // Limitar o texto para evitar timeout (primeiros 15000 caracteres)
+    const textoLimitado = texto.slice(0, 15000)
 
     const currentYear = new Date().getFullYear()
 
-    // Usar IA para extrair os estudos - prompt otimizado e mais curto
+    // Usar IA para extrair os estudos - prompt otimizado
     const result = await generateText({
-      model: "openai/gpt-4o-mini",
-      prompt: `Extraia os estudos da Sentinela do texto abaixo. Ano: ${currentYear}.
+      model,
+      prompt: `Extraia os estudos da Sentinela do texto. Ano: ${currentYear}.
 
-FORMATO DE SAÍDA (JSON puro, sem markdown):
-{
-  "estudos": [
-    {
-      "dataInicio": "YYYY-MM-DD",
-      "dataFim": "YYYY-MM-DD",
-      "titulo": "Titulo",
-      "textoTema": "Versiculo tema",
-      "canticoInicial": 1,
-      "canticoFinal": 2,
-      "objetivo": "Objetivo",
-      "paragrafos": [
-        {"numero": "1", "textoBase": "Texto do paragrafo", "pergunta": "Pergunta?", "resposta": null, "ordem": 1}
-      ]
-    }
-  ]
-}
+JSON (sem markdown):
+{"estudos":[{"dataInicio":"YYYY-MM-DD","dataFim":"YYYY-MM-DD","titulo":"","textoTema":"","canticoInicial":1,"canticoFinal":2,"objetivo":"","paragrafos":[{"numero":"1","textoBase":"","pergunta":"","resposta":null,"ordem":1}]}]}
 
-REGRAS:
-- Extraia TODOS os estudos e TODOS os paragrafos de cada estudo
-- Converta datas como "3-9 de marco" para YYYY-MM-DD
-- Paragrafos combinados: mantenha como "4, 5" ou "10-12"
-- textoBase: texto completo do paragrafo
-- pergunta: pergunta correspondente ao paragrafo
+Regras: Extraia todos estudos e paragrafos. Datas como "3-9 marco" vira YYYY-MM-DD.
 
 TEXTO:
 ${textoLimitado}`,
-      maxTokens: 12000
+      maxTokens: 6000
     })
 
     // Parse o JSON da resposta
@@ -99,17 +100,15 @@ ${textoLimitado}`,
       jsonText = jsonText.trim()
       
       dados = JSON.parse(jsonText)
-    } catch (parseError) {
-      console.error("Erro ao fazer parse do JSON:", parseError)
-      console.error("Texto recebido:", result.text)
+    } catch {
       return Response.json({ 
-        erro: "Erro ao interpretar a resposta da IA. O PDF pode ser muito grande ou estar em formato não suportado." 
+        erro: "Erro ao interpretar a resposta. Tente um PDF menor ou use a opcao Colar Texto." 
       }, { status: 500 })
     }
 
     if (!dados.estudos || !Array.isArray(dados.estudos)) {
       return Response.json({ 
-        erro: "Não foi possível identificar estudos no PDF." 
+        erro: "Nao foi possivel identificar estudos no PDF." 
       }, { status: 500 })
     }
 
@@ -121,8 +120,17 @@ ${textoLimitado}`,
 
   } catch (error) {
     console.error("Erro ao processar PDF:", error)
+    
+    // Verificar se é erro de timeout
+    const errorMessage = error instanceof Error ? error.message : ""
+    if (errorMessage.includes("timeout") || errorMessage.includes("Timeout")) {
+      return Response.json({ 
+        erro: "O processamento demorou muito. Tente um PDF menor ou use a opcao Colar Texto para importar um estudo por vez." 
+      }, { status: 408 })
+    }
+    
     return Response.json({ 
-      erro: "Erro ao processar o PDF. Verifique se o arquivo está correto e tente novamente." 
+      erro: "Erro ao processar o PDF. Tente novamente ou use a opcao Colar Texto." 
     }, { status: 500 })
   }
 }
