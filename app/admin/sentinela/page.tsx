@@ -33,8 +33,6 @@ interface Estudo {
   data_fim: string
   cantico_inicial?: number
   cantico_final?: number
-  dirigente_id?: string
-  leitor_id?: string
 }
 
 interface Paragrafo {
@@ -47,11 +45,6 @@ interface Paragrafo {
   ordem: number
 }
 
-interface Publicador {
-  id: string
-  nome: string
-}
-
 export default function SentinelaPage() {
   const [mesAtual, setMesAtual] = useState(new Date().getMonth() + 1)
   const [anoAtual, setAnoAtual] = useState(new Date().getFullYear())
@@ -59,7 +52,6 @@ export default function SentinelaPage() {
   const [estudos, setEstudos] = useState<Estudo[]>([])
   const [estudoAtivo, setEstudoAtivo] = useState<string | null>(null)
   const [paragrafos, setParagrafos] = useState<Paragrafo[]>([])
-  const [publicadores, setPublicadores] = useState<Publicador[]>([])
   const [gerandoResposta, setGerandoResposta] = useState<string | null>(null)
   
   const supabase = createClient()
@@ -108,15 +100,6 @@ export default function SentinelaPage() {
       setEstudoAtivo(null)
       setParagrafos([])
     }
-
-    // Carregar publicadores
-    const { data: pubData } = await supabase
-      .from("publicadores")
-      .select("id, nome")
-      .eq("ativo", true)
-      .order("nome")
-    
-    setPublicadores(pubData || [])
   }, [mesAtual, anoAtual, supabase, estudoAtivo])
 
   useEffect(() => {
@@ -516,41 +499,6 @@ export default function SentinelaPage() {
                       placeholder="Nº"
                       className="bg-zinc-800 border-zinc-700"
                     />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-zinc-400">Dirigente</Label>
-                    <Select
-                      value={estudoAtualData.dirigente_id || ""}
-                      onValueChange={(value) => atualizarEstudo(estudoAtualData.id, "dirigente_id", value || null)}
-                    >
-                      <SelectTrigger className="bg-zinc-800 border-zinc-700">
-                        <SelectValue placeholder="Selecione o dirigente" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {publicadores.map((pub) => (
-                          <SelectItem key={pub.id} value={pub.id}>{pub.nome}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-zinc-400">Leitor</Label>
-                    <Select
-                      value={estudoAtualData.leitor_id || ""}
-                      onValueChange={(value) => atualizarEstudo(estudoAtualData.id, "leitor_id", value || null)}
-                    >
-                      <SelectTrigger className="bg-zinc-800 border-zinc-700">
-                        <SelectValue placeholder="Selecione o leitor" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {publicadores.map((pub) => (
-                          <SelectItem key={pub.id} value={pub.id}>{pub.nome}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   </div>
                 </div>
 

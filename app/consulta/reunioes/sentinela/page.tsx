@@ -31,19 +31,29 @@ const meses = [
 
 interface Estudo {
   id: string
+  numero_estudo: number
   titulo: string
-  data_estudo: string
+  data_inicio: string
+  data_fim: string
   texto_tema: string | null
+  objetivo: string | null
   cantico_inicial: number | null
+  cantico_inicial_nome: string | null
   cantico_final: number | null
+  cantico_final_nome: string | null
+  imagem_capa: string | null
 }
 
 interface Paragrafo {
   id: string
   estudo_id: string
-  numero: number
-  conteudo: string
-  perguntas: string | null
+  numero: string
+  texto_base: string | null
+  pergunta: string | null
+  resposta: string | null
+  imagem: string | null
+  imagem_legenda: string | null
+  ordem: number
 }
 
 export default function ConsultaSentinelaPage() {
@@ -74,7 +84,7 @@ export default function ConsultaSentinelaPage() {
           .from("sentinela_estudos")
           .select("*")
           .eq("mes_id", mes.id)
-          .order("data_estudo")
+          .order("numero_estudo")
         
         setEstudos(estudosData || [])
         
@@ -84,7 +94,7 @@ export default function ConsultaSentinelaPage() {
             .from("sentinela_paragrafos")
             .select("*")
             .in("estudo_id", estudosData.map(e => e.id))
-            .order("numero")
+            .order("ordem")
           
           setParagrafos(paragrafosData || [])
         } else {
@@ -131,9 +141,17 @@ export default function ConsultaSentinelaPage() {
   const formatarData = (data: string) => {
     return new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { 
       day: "2-digit", 
-      month: "long",
-      year: "numeric"
+      month: "long"
     })
+  }
+
+  const formatarPeriodo = (inicio: string, fim: string) => {
+    const dataInicio = new Date(inicio + "T12:00:00")
+    const dataFim = new Date(fim + "T12:00:00")
+    const diaInicio = dataInicio.getDate()
+    const diaFim = dataFim.getDate()
+    const mes = dataInicio.toLocaleDateString("pt-BR", { month: "long" })
+    return `${diaInicio}-${diaFim} de ${mes}`
   }
 
   return (
@@ -182,7 +200,7 @@ export default function ConsultaSentinelaPage() {
                 onClick={() => setEstudoAtivo(index)}
                 className="whitespace-nowrap"
               >
-                Estudo {index + 1}
+                Estudo {estudo.numero_estudo}
               </Button>
             ))}
           </div>
@@ -196,27 +214,32 @@ export default function ConsultaSentinelaPage() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm text-zinc-400">
                       <Calendar className="w-4 h-4" />
-                      <span>Semana de {formatarData(estudoAtual.data_estudo)}</span>
+                      <span>Semana de {formatarPeriodo(estudoAtual.data_inicio, estudoAtual.data_fim)}</span>
                     </div>
                     <h2 className="text-2xl font-bold text-white">
                       {estudoAtual.titulo}
                     </h2>
                     {estudoAtual.texto_tema && (
                       <p className="text-zinc-300 italic border-l-2 border-red-500 pl-4">
-                        {estudoAtual.texto_tema}
+                        &ldquo;{estudoAtual.texto_tema}&rdquo;
                       </p>
                     )}
-                    <div className="flex gap-4 pt-2">
+                    {estudoAtual.objetivo && (
+                      <p className="text-zinc-400 text-sm">
+                        <span className="font-semibold">Objetivo:</span> {estudoAtual.objetivo}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-4 pt-2">
                       {estudoAtual.cantico_inicial && (
                         <div className="flex items-center gap-1 text-sm text-zinc-400">
                           <Music className="w-4 h-4" />
-                          <span>Cântico Inicial: {estudoAtual.cantico_inicial}</span>
+                          <span>Cântico {estudoAtual.cantico_inicial}{estudoAtual.cantico_inicial_nome && ` - ${estudoAtual.cantico_inicial_nome}`}</span>
                         </div>
                       )}
                       {estudoAtual.cantico_final && (
                         <div className="flex items-center gap-1 text-sm text-zinc-400">
                           <Music className="w-4 h-4" />
-                          <span>Cântico Final: {estudoAtual.cantico_final}</span>
+                          <span>Cântico {estudoAtual.cantico_final}{estudoAtual.cantico_final_nome && ` - ${estudoAtual.cantico_final_nome}`}</span>
                         </div>
                       )}
                     </div>
@@ -243,14 +266,33 @@ export default function ConsultaSentinelaPage() {
                           <span className="bg-red-600/20 text-red-400 px-2 py-1 rounded text-sm font-bold h-fit">
                             {paragrafo.numero}
                           </span>
-                          <div className="flex-1 space-y-2">
-                            <p className="text-zinc-300 leading-relaxed">
-                              {paragrafo.conteudo}
-                            </p>
-                            {paragrafo.perguntas && (
-                              <p className="text-sm text-zinc-500 italic border-l-2 border-zinc-700 pl-3">
-                                {paragrafo.perguntas}
+                          <div className="flex-1 space-y-3">
+                            {paragrafo.pergunta && (
+                              <p className="text-zinc-200 font-medium">
+                                {paragrafo.pergunta}
                               </p>
+                            )}
+                            {paragrafo.texto_base && (
+                              <p className="text-zinc-400 leading-relaxed">
+                                {paragrafo.texto_base}
+                              </p>
+                            )}
+                            {paragrafo.resposta && (
+                              <p className="text-zinc-300 leading-relaxed bg-zinc-900/50 p-3 rounded border-l-2 border-red-500">
+                                {paragrafo.resposta}
+                              </p>
+                            )}
+                            {paragrafo.imagem && (
+                              <div className="mt-2">
+                                <img 
+                                  src={paragrafo.imagem} 
+                                  alt={paragrafo.imagem_legenda || "Imagem do parágrafo"} 
+                                  className="rounded-lg max-w-full h-auto"
+                                />
+                                {paragrafo.imagem_legenda && (
+                                  <p className="text-xs text-zinc-500 mt-1">{paragrafo.imagem_legenda}</p>
+                                )}
+                              </div>
                             )}
                           </div>
                         </div>

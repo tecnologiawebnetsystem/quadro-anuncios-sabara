@@ -9,7 +9,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { Loader2, Sparkles, CheckCircle2, AlertCircle, BookOpen, Wand2, User, BookMarked } from "lucide-react"
+import { Loader2, Sparkles, CheckCircle2, AlertCircle, BookOpen, Wand2, BookMarked, Upload, FileText } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Progress } from "@/components/ui/progress"
 import { toast } from "sonner"
 import {
   AlertDialog,
@@ -28,6 +31,7 @@ type Paragrafo = {
   pergunta: string
   resposta: string | null
   ordem: number
+  recapitulacao?: boolean
 }
 
 type DadosSentinela = {
@@ -39,11 +43,6 @@ type DadosSentinela = {
   canticoFinal: number | null
   objetivo: string | null
   paragrafos: Paragrafo[]
-}
-
-type Publicador = {
-  id: string
-  nome: string
 }
 
 type RegistroExistente = {
@@ -60,10 +59,10 @@ export default function ImportarSentinelaPage() {
   const [mostrarModalAtualizar, setMostrarModalAtualizar] = useState(false)
   const [registroExistente, setRegistroExistente] = useState<RegistroExistente | null>(null)
   
-  // Dirigente e Leitor
-  const [publicadores, setPublicadores] = useState<Publicador[]>([])
-  const [dirigenteId, setDirigenteId] = useState<string>("")
-  const [leitorId, setLeitorId] = useState<string>("")
+  // Estados para importação de PDF
+  const [processandoPDF, setProcessandoPDF] = useState(false)
+  const [etapaPDF, setEtapaPDF] = useState("")
+  const [progressoPDF, setProgressoPDF] = useState(0)
   
   // Estado para geração de respostas
   const [gerandoRespostas, setGerandoRespostas] = useState(false)
@@ -72,18 +71,55 @@ export default function ImportarSentinelaPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  // Carregar publicadores
-  useEffect(() => {
-    async function carregarPublicadores() {
-      const { data } = await supabase
-        .from("publicadores")
-        .select("id, nome")
-        .order("nome")
+  async function processarPDF(file: File) {
+    if (!file) return
+
+    setProcessandoPDF(true)
+    setErro(null)
+    setProgressoPDF(0)
+    setEtapaPDF("Carregando arquivo...")
+
+    try {
+      setProgressoPDF(30)
+      setEtapaPDF("Enviando PDF...")
       
-      if (data) setPublicadores(data)
+      const formData = new FormData()
+      formData.append("file", file)
+
+      setProgressoPDF(60)
+      setEtapaPDF("Extraindo texto do PDF...")
+
+      const response = await fetch("/api/importar-pdf-sentinela", {
+        method: "POST",
+        body: formData
+      })
+
+      const resultado = await response.json()
+
+      if (!response.ok || resultado.error) {
+        throw new Error(resultado.error || "Erro ao processar PDF")
+      }
+
+      if (resultado.sucesso && resultado.texto) {
+        setProgressoPDF(100)
+        setEtapaPDF("Texto extraido!")
+        
+        // Preencher o texto na área de texto e mudar para aba "Colar Texto"
+        setTexto(resultado.texto)
+        toast.success(`PDF processado! ${resultado.totalPaginas} pagina(s), ${resultado.totalCaracteres} caracteres extraidos. Use "Processar com IA" para importar.`)
+      } else {
+        throw new Error("Nao foi possivel extrair texto do PDF")
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Erro ao processar PDF"
+      setErro(errorMessage)
+      toast.error(errorMessage)
+    } finally {
+      setProcessandoPDF(false)
+      setProgressoPDF(0)
+      setEtapaPDF("")
     }
-    carregarPublicadores()
-  }, [supabase])
+  }
 
   async function processarTexto() {
     if (!texto.trim()) {
@@ -208,11 +244,34 @@ export default function ImportarSentinelaPage() {
         }
       }
 
-      // Pegar nomes do dirigente e leitor
-      const dirigente = publicadores.find(p => p.id === dirigenteId)
-      const leitor = publicadores.find(p => p.id === leitorId)
-
       let estudoId: string
+
+      // Determinar mês e ano a partir da data de início
+      const dataInicio = dados.dataInicio ? new Date(dados.dataInicio + "T12:00:00") : new Date()
+      const mes = dataInicio.getMonth() + 1
+      const ano = dataInicio.getFullYear()
+
+      // Buscar ou criar o mês
+      let mesId: string
+      const { data: mesExistente } = await supabase
+        .from("sentinela_meses")
+        .select("id")
+        .eq("mes", mes)
+        .eq("ano", ano)
+        .single()
+
+      if (mesExistente) {
+        mesId = mesExistente.id
+      } else {
+        const { data: novoMes, error: erroMes } = await supabase
+          .from("sentinela_meses")
+          .insert({ mes, ano })
+          .select("id")
+          .single()
+        
+        if (erroMes || !novoMes) throw new Error("Erro ao criar mês")
+        mesId = novoMes.id
+      }
 
       if (forcarAtualizacao && registroExistente) {
         // Atualizar estudo existente
@@ -222,13 +281,9 @@ export default function ImportarSentinelaPage() {
             data_fim: dados.dataFim,
             titulo: dados.titulo,
             texto_tema: dados.textoTema,
-            cantico_inicial: dados.canticoInicial,
-            cantico_final: dados.canticoFinal,
-            objetivo: dados.objetivo,
-            dirigente_id: dirigenteId || null,
-            dirigente_nome: dirigente?.nome || null,
-            leitor_id: leitorId || null,
-            leitor_nome: leitor?.nome || null
+            cantico_inicial: dados.canticoInicial || 1,
+            cantico_final: dados.canticoFinal || 1,
+            objetivo: dados.objetivo
           })
           .eq("id", registroExistente.id)
 
@@ -244,27 +299,25 @@ export default function ImportarSentinelaPage() {
         if (erroDelete) throw erroDelete
 
       } else {
-        // Contar estudos existentes para definir o número
+        // Contar estudos existentes no mês para definir o número
         const { count } = await supabase
           .from("sentinela_estudos")
           .select("*", { count: "exact", head: true })
+          .eq("mes_id", mesId)
 
         // Criar novo estudo
         const { data: novoEstudo, error: erroEstudo } = await supabase
           .from("sentinela_estudos")
           .insert({
-            numero: (count || 0) + 1,
+            mes_id: mesId,
+            numero_estudo: (count || 0) + 1,
             data_inicio: dados.dataInicio,
             data_fim: dados.dataFim,
             titulo: dados.titulo,
             texto_tema: dados.textoTema,
-            cantico_inicial: dados.canticoInicial,
-            cantico_final: dados.canticoFinal,
-            objetivo: dados.objetivo,
-            dirigente_id: dirigenteId || null,
-            dirigente_nome: dirigente?.nome || null,
-            leitor_id: leitorId || null,
-            leitor_nome: leitor?.nome || null
+            cantico_inicial: dados.canticoInicial || 1,
+            cantico_final: dados.canticoFinal || 1,
+            objetivo: dados.objetivo
           })
           .select("id")
           .single()
@@ -297,8 +350,6 @@ export default function ImportarSentinelaPage() {
       // Limpar estado e redirecionar
       setDados(null)
       setTexto("")
-      setDirigenteId("")
-      setLeitorId("")
       setMostrarModalAtualizar(false)
       setRegistroExistente(null)
       
@@ -318,9 +369,9 @@ export default function ImportarSentinelaPage() {
     setTexto("")
     setDados(null)
     setErro(null)
-    setDirigenteId("")
-    setLeitorId("")
     setRegistroExistente(null)
+    setProgressoPDF(0)
+    setEtapaPDF("")
   }
 
   const respostasGeradas = dados?.paragrafos?.filter(p => p.resposta)?.length || 0
@@ -341,219 +392,293 @@ export default function ImportarSentinelaPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Coluna Esquerda - Input */}
-        <Card className="border-zinc-800 bg-zinc-900/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Sparkles className="h-5 w-5 text-violet-500" />
-              Texto do Estudo
-            </CardTitle>
-            <CardDescription>
-              Copie o texto completo do estudo da Sentinela do JW Library ou jw.org
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Seleção de Dirigente e Leitor */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-1 text-sm">
-                  <User className="h-4 w-4" />
-                  Dirigente
-                </Label>
-                <Select value={dirigenteId} onValueChange={setDirigenteId}>
-                  <SelectTrigger className="bg-zinc-900 border-zinc-700">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {publicadores.map(pub => (
-                      <SelectItem key={pub.id} value={pub.id}>
-                        {pub.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="flex items-center gap-1 text-sm">
-                  <BookOpen className="h-4 w-4" />
-                  Leitor
-                </Label>
-                <Select value={leitorId} onValueChange={setLeitorId}>
-                  <SelectTrigger className="bg-zinc-900 border-zinc-700">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {publicadores.map(pub => (
-                      <SelectItem key={pub.id} value={pub.id}>
-                        {pub.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+      <Tabs defaultValue="texto" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsTrigger value="texto" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            Colar Texto
+          </TabsTrigger>
+          <TabsTrigger value="pdf" className="flex items-center gap-2">
+            <Upload className="h-4 w-4" />
+            Extrair de PDF
+          </TabsTrigger>
+        </TabsList>
 
-            <Textarea
-              value={texto}
-              onChange={(e) => setTexto(e.target.value)}
-              placeholder="Cole aqui o texto completo do estudo da Sentinela..."
-              className="min-h-[300px] bg-zinc-900 border-zinc-700 resize-none font-mono text-sm"
-            />
-            
-            <div className="flex gap-2">
-              <Button
-                onClick={processarTexto}
-                disabled={processando || !texto.trim()}
-                className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
-              >
-                {processando ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processando...
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="mr-2 h-4 w-4" />
-                    Processar com IA
-                  </>
-                )}
-              </Button>
-              
-              {(dados || texto) && (
-                <Button variant="outline" onClick={limparDados}>
-                  Limpar
-                </Button>
-              )}
-            </div>
-
-            {erro && (
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
-                <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <p className="text-sm">{erro}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Coluna Direita - Preview */}
-        <Card className="border-zinc-800 bg-zinc-900/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <BookOpen className="h-5 w-5 text-blue-500" />
-              Preview do Estudo
-            </CardTitle>
-            <CardDescription>
-              Visualize os dados extraidos antes de salvar
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {dados ? (
-              <div className="space-y-4">
-                {/* Info do Estudo */}
-                <div className="p-3 rounded-lg bg-zinc-800/50 space-y-2">
-                  <h3 className="font-semibold text-white">{dados.titulo}</h3>
-                  {dados.textoTema && (
-                    <p className="text-sm text-amber-400 italic">"{dados.textoTema}"</p>
-                  )}
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <Badge variant="outline">
-                      {dados.dataInicio} - {dados.dataFim}
-                    </Badge>
-                    {dados.canticoInicial && (
-                      <Badge variant="outline">Cantico {dados.canticoInicial}</Badge>
-                    )}
-                    {dados.canticoFinal && (
-                      <Badge variant="outline">Cantico {dados.canticoFinal}</Badge>
-                    )}
-                  </div>
-                </div>
-
-                {/* Botão Gerar Respostas */}
-                <div className="flex items-center justify-between p-3 rounded-lg bg-violet-600/10 border border-violet-600/20">
-                  <div>
-                    <p className="text-sm font-medium text-violet-400">Respostas com IA</p>
-                    <p className="text-xs text-zinc-400">
-                      {respostasGeradas}/{totalParagrafos} respostas geradas
-                    </p>
-                  </div>
+        {/* Aba: Colar Texto */}
+        <TabsContent value="texto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Coluna Esquerda - Input */}
+            <Card className="border-zinc-800 bg-zinc-900/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Sparkles className="h-5 w-5 text-violet-500" />
+                  Texto do Estudo
+                </CardTitle>
+                <CardDescription>
+                  Copie o texto completo do estudo da Sentinela do JW Library ou jw.org
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Textarea
+                  value={texto}
+                  onChange={(e) => setTexto(e.target.value)}
+                  placeholder="Cole aqui o texto completo do estudo da Sentinela..."
+                  className="min-h-[300px] bg-zinc-900 border-zinc-700 resize-none font-mono text-sm"
+                />
+                
+                <div className="flex gap-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={gerarTodasRespostas}
-                    disabled={gerandoRespostas || totalParagrafos === 0}
-                    className="border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
+                    onClick={processarTexto}
+                    disabled={processando || !texto.trim()}
+                    className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
                   >
-                    {gerandoRespostas ? (
+                    {processando ? (
                       <>
-                        <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                        {progressoRespostas}%
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processando...
                       </>
                     ) : (
                       <>
-                        <Wand2 className="mr-1 h-4 w-4" />
-                        Gerar Todas
+                        <Wand2 className="mr-2 h-4 w-4" />
+                        Processar com IA
                       </>
                     )}
                   </Button>
+                  
+                  {(dados || texto) && (
+                    <Button variant="outline" onClick={limparDados}>
+                      Limpar
+                    </Button>
+                  )}
                 </div>
 
-                {/* Parágrafos */}
-                <div className="space-y-2 max-h-[350px] overflow-y-auto pr-2">
-                  <p className="text-sm font-medium text-muted-foreground sticky top-0 bg-zinc-900/90 py-1">
-                    Paragrafos ({totalParagrafos}):
-                  </p>
-                  {dados.paragrafos.map((p, idx) => (
-                    <div key={idx} className="p-3 rounded bg-zinc-800/30 text-sm space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1">
-                          <span className="font-medium text-blue-400">Par. {p.numero}:</span>
-                          <p className="text-zinc-300 mt-1">{p.pergunta}</p>
-                        </div>
-                        {p.resposta && (
-                          <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                {erro && (
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                    <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm">{erro}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Coluna Direita - Preview */}
+            <Card className="border-zinc-800 bg-zinc-900/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <BookOpen className="h-5 w-5 text-blue-500" />
+                  Preview do Estudo
+                </CardTitle>
+                <CardDescription>
+                  Visualize os dados extraidos antes de salvar
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {dados ? (
+                  <div className="space-y-4">
+                    {/* Info do Estudo */}
+                    <div className="p-3 rounded-lg bg-zinc-800/50 space-y-2">
+                      <h3 className="font-semibold text-white">{dados.titulo}</h3>
+                      {dados.textoTema && (
+                        <p className="text-sm text-amber-400 italic">&quot;{dados.textoTema}&quot;</p>
+                      )}
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        <Badge variant="outline">
+                          {dados.dataInicio} - {dados.dataFim}
+                        </Badge>
+                        {dados.canticoInicial && (
+                          <Badge variant="outline">Cantico {dados.canticoInicial}</Badge>
+                        )}
+                        {dados.canticoFinal && (
+                          <Badge variant="outline">Cantico {dados.canticoFinal}</Badge>
                         )}
                       </div>
-                      {p.resposta && (
-                        <div className="p-2 rounded bg-green-500/10 border border-green-500/20">
-                          <p className="text-xs text-green-200">{p.resposta}</p>
-                        </div>
-                      )}
                     </div>
-                  ))}
-                </div>
 
-                {/* Botão Salvar */}
-                <Button
-                  onClick={() => salvarDados(false)}
-                  disabled={salvando}
-                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                >
-                  {salvando ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Salvando...
-                    </>
+                    {/* Botão Gerar Respostas */}
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-violet-600/10 border border-violet-600/20">
+                      <div>
+                        <p className="text-sm font-medium text-violet-400">Respostas com IA</p>
+                        <p className="text-xs text-zinc-400">
+                          {respostasGeradas}/{totalParagrafos} respostas geradas
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={gerarTodasRespostas}
+                        disabled={gerandoRespostas || totalParagrafos === 0}
+                        className="border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
+                      >
+                        {gerandoRespostas ? (
+                          <>
+                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                            {progressoRespostas}%
+                          </>
+                        ) : (
+                          <>
+                            <Wand2 className="mr-1 h-4 w-4" />
+                            Gerar Todas
+                          </>
+                        )}
+                      </Button>
+                    </div>
+
+                    {/* Parágrafos */}
+                    <div className="space-y-2 max-h-[350px] overflow-y-auto pr-2 scrollbar-thin">
+                      <p className="text-sm font-medium text-muted-foreground sticky top-0 bg-zinc-900/90 py-1">
+                        Paragrafos ({totalParagrafos}):
+                      </p>
+                      {dados.paragrafos.map((p, idx) => (
+                        <div key={idx} className={`p-3 rounded text-sm space-y-2 ${p.recapitulacao ? 'bg-amber-900/20 border border-amber-700/30' : 'bg-zinc-800/30'}`}>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <span className={`font-medium ${p.recapitulacao ? 'text-amber-400' : 'text-blue-400'}`}>
+                                {p.recapitulacao ? 'Recapitulacao' : 'Par.'} {p.numero}:
+                              </span>
+                              <p className="text-zinc-200 mt-1 font-medium">{p.pergunta}</p>
+                            </div>
+                            {p.resposta && (
+                              <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            )}
+                          </div>
+                          {p.textoBase && (
+                            <div className="p-2 rounded bg-zinc-900/50 border-l-2 border-zinc-600">
+                              <p className="text-xs text-zinc-400 line-clamp-3">{p.textoBase}</p>
+                            </div>
+                          )}
+                          {p.resposta && (
+                            <div className="p-2 rounded bg-green-500/10 border border-green-500/20">
+                              <p className="text-xs text-green-200">{p.resposta}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Botão Salvar */}
+                    <Button
+                      onClick={() => salvarDados(false)}
+                      disabled={salvando}
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                    >
+                      {salvando ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Salvando...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="mr-2 h-4 w-4" />
+                          Salvar Estudo
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-[400px] text-center">
+                    <BookMarked className="h-16 w-16 text-zinc-700 mb-4" />
+                    <p className="text-zinc-500">
+                      Cole o texto do estudo da Sentinela e clique em &quot;Processar com IA&quot;
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Aba: Extrair Texto de PDF */}
+        <TabsContent value="pdf">
+          <Card className="border-zinc-800 bg-zinc-900/50 max-w-2xl mx-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Upload className="h-5 w-5 text-emerald-500" />
+                Extrair Texto de PDF
+              </CardTitle>
+              <CardDescription>
+                Extraia o texto de um PDF da Sentinela. O texto sera preenchido na aba &quot;Colar Texto&quot; para processamento.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="border-2 border-dashed border-zinc-700 rounded-lg p-8 text-center hover:border-zinc-600 transition-colors">
+                <Input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) processarPDF(file)
+                  }}
+                  className="hidden"
+                  id="pdf-upload"
+                  disabled={processandoPDF}
+                />
+                <label htmlFor="pdf-upload" className={processandoPDF ? "" : "cursor-pointer"}>
+                  {processandoPDF ? (
+                    <div className="space-y-4">
+                      <Loader2 className="h-12 w-12 mx-auto text-emerald-500 animate-spin" />
+                      <div className="space-y-2">
+                        <p className="text-zinc-300 font-medium">{etapaPDF}</p>
+                        <Progress value={progressoPDF} className="h-2 w-48 mx-auto" />
+                        <p className="text-xs text-zinc-500">{progressoPDF}% concluido</p>
+                      </div>
+                    </div>
                   ) : (
-                    <>
-                      <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Salvar Estudo
-                    </>
+                    <div className="space-y-4">
+                      <FileText className="h-12 w-12 mx-auto text-zinc-600" />
+                      <div>
+                        <p className="text-zinc-300 font-medium">Clique para selecionar um PDF</p>
+                        <p className="text-sm text-zinc-500 mt-1">
+                          O texto sera extraido e preenchido automaticamente
+                        </p>
+                      </div>
+                    </div>
                   )}
-                </Button>
+                </label>
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[400px] text-center">
-                <BookMarked className="h-16 w-16 text-zinc-700 mb-4" />
-                <p className="text-zinc-500">
-                  Cole o texto do estudo da Sentinela e clique em "Processar com IA"
-                </p>
+
+              {erro && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm">{erro}</p>
+                </div>
+              )}
+
+              {texto && (
+                <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                    <p className="text-emerald-400 font-medium">Texto extraido com sucesso!</p>
+                  </div>
+                  <p className="text-sm text-zinc-400 mb-3">
+                    O texto foi preenchido na aba &quot;Colar Texto&quot;. Clique no botao abaixo para processar.
+                  </p>
+                  <Button
+                    onClick={() => {
+                      // Mudar para aba de texto usando DOM
+                      const textoTab = document.querySelector('[value="texto"]') as HTMLButtonElement
+                      if (textoTab) textoTab.click()
+                    }}
+                    className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+                  >
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    Ir para &quot;Colar Texto&quot; e Processar com IA
+                  </Button>
+                </div>
+              )}
+
+              <div className="text-xs text-zinc-500 space-y-1">
+                <p>Como funciona:</p>
+                <ol className="list-decimal list-inside space-y-1 text-zinc-600">
+                  <li>Selecione um arquivo PDF da Sentinela</li>
+                  <li>O texto sera extraido automaticamente</li>
+                  <li>Vá para a aba &quot;Colar Texto&quot; e clique em &quot;Processar com IA&quot;</li>
+                  <li>Revise os dados e salve o estudo</li>
+                </ol>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Modal de Confirmação para Atualizar */}
       <AlertDialog open={mostrarModalAtualizar} onOpenChange={setMostrarModalAtualizar}>
