@@ -110,15 +110,17 @@ const funcionalidadesAdmin = [
       },
       {
         titulo: "Sentinela",
-        descricao: "Programacao do estudo da Sentinela.",
+        descricao: "Programacao completa do estudo da Sentinela de domingo.",
         link: "/admin/sentinela",
         funcionalidades: [
-          "Importacao automatica do JW.org",
-          "Paragrafos com perguntas",
-          "Designacao de leitor e presidente"
+          "Criacao manual ou importacao com IA",
+          "Paragrafos com texto base, pergunta e resposta",
+          "Botao IA Responder por paragrafo",
+          "Cantico do Meio e Cantico Final",
+          "Designacao de Dirigente e Leitor"
         ],
         ia: true,
-        iaDescricao: "Geracao de Respostas - IA gera respostas sugeridas para cada paragrafo baseado no jw.org."
+        iaDescricao: "Geracao de Respostas - IA gera respostas para cada paragrafo baseado no texto e pergunta. Pode gerar individualmente ou todas de uma vez na importacao."
       },
       {
         titulo: "Reunioes Publicas",
@@ -190,17 +192,19 @@ const funcionalidadesAdmin = [
     cor: "bg-violet-600",
     itens: [
       {
-        titulo: "Importar Reuniao",
-        descricao: "Importacao inteligente de dados do JW.org.",
+        titulo: "Importar Sentinela",
+        descricao: "Importacao inteligente do estudo da Sentinela.",
         link: "/admin/importar",
         funcionalidades: [
-          "Cole o texto da programacao",
-          "IA extrai automaticamente todos os dados",
-          "Suporta Vida e Ministerio e Sentinela",
-          "Detecta semanas ja cadastradas"
+          "Cole o texto do estudo do JW Library ou jw.org",
+          "IA extrai titulo, semana, paragrafos e perguntas",
+          "Botao Gerar Todas para criar respostas com IA",
+          "Selecao de Dirigente e Leitor antes de salvar",
+          "Detecta estudos ja cadastrados (atualiza ou cria novo)",
+          "Progresso visual durante geracao das respostas"
         ],
         ia: true,
-        iaDescricao: "Processamento com IA - Extrai automaticamente datas, titulos, tempos e paragrafos do texto colado."
+        iaDescricao: "Processamento completo com IA - Extrai dados do texto e gera respostas inteligentes para todos os paragrafos automaticamente."
       }
     ]
   },
@@ -264,12 +268,13 @@ const funcionalidadesConsulta = [
       },
       {
         titulo: "Sentinela",
-        descricao: "Consulta do estudo da Sentinela.",
+        descricao: "Consulta do estudo da Sentinela de domingo.",
         link: "/consulta/reunioes/sentinela",
         funcionalidades: [
-          "Tema do estudo",
-          "Paragrafos com perguntas",
-          "Leitor e presidente designados"
+          "Titulo e texto tema do estudo",
+          "Paragrafos com perguntas e respostas IA",
+          "Cantico do Meio e Cantico Final",
+          "Dirigente e Leitor designados"
         ]
       },
       {
