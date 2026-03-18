@@ -101,6 +101,17 @@ Mantenha a resposta em 3-4 frases, adequada para ser usada como comentário dura
 
   } catch (error) {
     console.error("Erro ao gerar resposta IA:", error)
+    
+    // Verificar se é erro de rate limit
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorType = (error as { type?: string })?.type
+    
+    if (errorType === "rate_limit_exceeded" || errorMessage.includes("rate_limit") || errorMessage.includes("429")) {
+      return NextResponse.json({ 
+        erro: "Limite de uso da IA atingido. Aguarde alguns minutos e tente novamente." 
+      }, { status: 429 })
+    }
+    
     return NextResponse.json({ 
       erro: "Erro ao gerar resposta. Tente novamente." 
     }, { status: 500 })

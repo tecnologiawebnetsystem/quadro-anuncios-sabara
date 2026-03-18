@@ -31,6 +31,7 @@ type Paragrafo = {
   pergunta: string
   resposta: string | null
   ordem: number
+  recapitulacao?: boolean
 }
 
 type DadosSentinela = {
@@ -528,16 +529,23 @@ export default function ImportarSentinelaPage() {
                         Paragrafos ({totalParagrafos}):
                       </p>
                       {dados.paragrafos.map((p, idx) => (
-                        <div key={idx} className="p-3 rounded bg-zinc-800/30 text-sm space-y-2">
+                        <div key={idx} className={`p-3 rounded text-sm space-y-2 ${p.recapitulacao ? 'bg-amber-900/20 border border-amber-700/30' : 'bg-zinc-800/30'}`}>
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1">
-                              <span className="font-medium text-blue-400">Par. {p.numero}:</span>
-                              <p className="text-zinc-300 mt-1">{p.pergunta}</p>
+                              <span className={`font-medium ${p.recapitulacao ? 'text-amber-400' : 'text-blue-400'}`}>
+                                {p.recapitulacao ? 'Recapitulacao' : 'Par.'} {p.numero}:
+                              </span>
+                              <p className="text-zinc-200 mt-1 font-medium">{p.pergunta}</p>
                             </div>
                             {p.resposta && (
                               <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
                             )}
                           </div>
+                          {p.textoBase && (
+                            <div className="p-2 rounded bg-zinc-900/50 border-l-2 border-zinc-600">
+                              <p className="text-xs text-zinc-400 line-clamp-3">{p.textoBase}</p>
+                            </div>
+                          )}
                           {p.resposta && (
                             <div className="p-2 rounded bg-green-500/10 border border-green-500/20">
                               <p className="text-xs text-green-200">{p.resposta}</p>
