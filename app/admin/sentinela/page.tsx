@@ -1,5 +1,7 @@
 "use client"
-// Sentinela Management Page - InfoFlow v2.1
+// Sentinela Management Page - InfoFlow v2.2 - Rebuilt
+// Last update: Cache fix for toast removal
+
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -467,14 +469,14 @@ export default function AdminSentinelaPage() {
                     <Input
                       value={estudoAtualData.texto_tema || ""}
                       onChange={(e) => atualizarEstudo(estudoAtualData.id, "texto_tema", e.target.value)}
-                      placeholder="Ex: 'Confia em Jeová e faze o bem.' — Sal. 37:3"
+                      placeholder="Ex: 'Confia em Jeová e faze o bem.' ��� Sal. 37:3"
                       className="bg-zinc-800 border-zinc-700"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-zinc-400">Cântico Inicial</Label>
+                      <Label className="text-zinc-400">Cântico do Meio</Label>
                       <Input
                         type="number"
                         value={estudoAtualData.cantico_inicial || ""}
