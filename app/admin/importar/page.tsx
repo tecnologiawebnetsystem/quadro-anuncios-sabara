@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { Loader2, Sparkles, CheckCircle2, AlertCircle, BookOpen, Wand2, BookMarked, Upload, FileText, ChevronLeft, ChevronRight } from "lucide-react"
+import { Loader2, Sparkles, CheckCircle2, AlertCircle, BookOpen, Wand2, BookMarked, Upload, FileText } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
@@ -44,8 +44,6 @@ type DadosSentinela = {
   paragrafos: Paragrafo[]
 }
 
-type EstudoPDF = DadosSentinela
-
 type RegistroExistente = {
   id: string
   dataInicio: string
@@ -61,11 +59,7 @@ export default function ImportarSentinelaPage() {
   const [registroExistente, setRegistroExistente] = useState<RegistroExistente | null>(null)
   
   // Estados para importação de PDF
-  const [estudosPDF, setEstudosPDF] = useState<EstudoPDF[]>([])
-  const [estudoAtualPDF, setEstudoAtualPDF] = useState(0)
   const [processandoPDF, setProcessandoPDF] = useState(false)
-  const [salvandoTodosPDF, setSalvandoTodosPDF] = useState(false)
-  const [progressoSalvar, setProgressoSalvar] = useState(0)
   const [etapaPDF, setEtapaPDF] = useState("")
   const [progressoPDF, setProgressoPDF] = useState(0)
   
@@ -124,147 +118,6 @@ export default function ImportarSentinelaPage() {
       setProgressoPDF(0)
       setEtapaPDF("")
     }
-  }
-
-  async function salvarTodosEstudosPDF() {
-    if (estudosPDF.length === 0) return
-
-    setSalvandoTodosPDF(true)
-    setProgressoSalvar(0)
-    toast.loading("Salvando todos os estudos...", { id: "salvando-todos" })
-
-    let salvos = 0
-    let erros = 0
-
-    for (let i = 0; i < estudosPDF.length; i++) {
-      const estudo = estudosPDF[i]
-      
-      try {
-        // Determinar mês e ano a partir da data de início
-        const dataInicio = estudo.dataInicio ? new Date(estudo.dataInicio + "T12:00:00") : new Date()
-        const mes = dataInicio.getMonth() + 1
-        const ano = dataInicio.getFullYear()
-
-        // Buscar ou criar o mês
-        let mesId: string
-        const { data: mesExistente } = await supabase
-          .from("sentinela_meses")
-          .select("id")
-          .eq("mes", mes)
-          .eq("ano", ano)
-          .single()
-
-        if (mesExistente) {
-          mesId = mesExistente.id
-        } else {
-          const { data: novoMes, error: erroMes } = await supabase
-            .from("sentinela_meses")
-            .insert({ mes, ano })
-            .select("id")
-            .single()
-          
-          if (erroMes || !novoMes) throw new Error("Erro ao criar mês")
-          mesId = novoMes.id
-        }
-
-        // Verificar se já existe estudo com essa data
-        const { data: estudoExistente } = await supabase
-          .from("sentinela_estudos")
-          .select("id")
-          .eq("data_inicio", estudo.dataInicio)
-          .maybeSingle()
-
-        let estudoId: string
-
-        if (estudoExistente) {
-          // Atualizar estudo existente
-          const { error: erroEstudo } = await supabase
-            .from("sentinela_estudos")
-            .update({
-              data_fim: estudo.dataFim,
-              titulo: estudo.titulo,
-              texto_tema: estudo.textoTema,
-              cantico_inicial: estudo.canticoInicial || 1,
-              cantico_final: estudo.canticoFinal || 1,
-              objetivo: estudo.objetivo
-            })
-            .eq("id", estudoExistente.id)
-
-          if (erroEstudo) throw erroEstudo
-          estudoId = estudoExistente.id
-
-          // Deletar parágrafos antigos
-          await supabase
-            .from("sentinela_paragrafos")
-            .delete()
-            .eq("estudo_id", estudoId)
-        } else {
-          // Contar estudos existentes no mês para definir o número
-          const { count } = await supabase
-            .from("sentinela_estudos")
-            .select("*", { count: "exact", head: true })
-            .eq("mes_id", mesId)
-
-          // Criar novo estudo
-          const { data: novoEstudo, error: erroEstudo } = await supabase
-            .from("sentinela_estudos")
-            .insert({
-              mes_id: mesId,
-              numero_estudo: (count || 0) + 1,
-              data_inicio: estudo.dataInicio,
-              data_fim: estudo.dataFim,
-              titulo: estudo.titulo,
-              texto_tema: estudo.textoTema,
-              cantico_inicial: estudo.canticoInicial || 1,
-              cantico_final: estudo.canticoFinal || 1,
-              objetivo: estudo.objetivo
-            })
-            .select("id")
-            .single()
-
-          if (erroEstudo) throw erroEstudo
-          estudoId = novoEstudo.id
-        }
-
-        // Inserir parágrafos
-        if (estudo.paragrafos && estudo.paragrafos.length > 0) {
-          const paragrafosParaInserir = estudo.paragrafos.map(p => ({
-            estudo_id: estudoId,
-            numero: p.numero,
-            texto_base: p.textoBase,
-            pergunta: p.pergunta,
-            resposta: p.resposta,
-            ordem: p.ordem
-          }))
-
-          const { error: erroParagrafos } = await supabase
-            .from("sentinela_paragrafos")
-            .insert(paragrafosParaInserir)
-
-          if (erroParagrafos) throw erroParagrafos
-        }
-
-        salvos++
-      } catch (error) {
-        console.error(`Erro ao salvar estudo ${i + 1}:`, error)
-        erros++
-      }
-
-      setProgressoSalvar(Math.round(((i + 1) / estudosPDF.length) * 100))
-    }
-
-    toast.dismiss("salvando-todos")
-    
-    if (erros === 0) {
-      toast.success(`${salvos} estudos salvos com sucesso!`)
-      setEstudosPDF([])
-      router.push("/admin/sentinela")
-    } else {
-      toast.warning(`${salvos} estudos salvos, ${erros} com erro`)
-    }
-
-    setSalvandoTodosPDF(false)
-    setProgressoSalvar(0)
   }
 
   async function processarTexto() {
@@ -516,8 +369,6 @@ export default function ImportarSentinelaPage() {
     setDados(null)
     setErro(null)
     setRegistroExistente(null)
-    setEstudosPDF([])
-    setEstudoAtualPDF(0)
     setProgressoPDF(0)
     setEtapaPDF("")
   }
