@@ -1,75 +1,61 @@
 "use client"
-// Sentinela Management Page - InfoFlow v2.2 - Rebuilt
-// Last update: Cache fix for toast removal
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
 import { 
+  BookOpen, 
   Plus, 
-  Trash2, 
   ChevronLeft, 
-  ChevronRight,
-  BookOpen,
-  FileText,
+  ChevronRight, 
+  FileText, 
+  Trash2,
+  MoreVertical,
   Wand2,
-  ChevronDown,
-  Save
+  Sparkles,
+  Loader2
 } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { format, parseISO } from "date-fns"
+import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
 
 const meses = [
-  { valor: 1, nome: "Janeiro" },
-  { valor: 2, nome: "Fevereiro" },
-  { valor: 3, nome: "Março" },
-  { valor: 4, nome: "Abril" },
-  { valor: 5, nome: "Maio" },
-  { valor: 6, nome: "Junho" },
-  { valor: 7, nome: "Julho" },
-  { valor: 8, nome: "Agosto" },
-  { valor: 9, nome: "Setembro" },
-  { valor: 10, nome: "Outubro" },
-  { valor: 11, nome: "Novembro" },
-  { valor: 12, nome: "Dezembro" },
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ]
-
-interface Mes {
-  id: string
-  mes: number
-  ano: number
-}
 
 interface Estudo {
   id: string
   mes_id: string
   numero_estudo: number
   titulo: string
+  texto_tema?: string
   data_inicio: string
   data_fim: string
-  texto_tema: string | null
-  cantico_inicial: number | null
-  cantico_final: number | null
-  dirigente_id: string | null
-  leitor_id: string | null
+  cantico_inicial?: number
+  cantico_final?: number
+  dirigente_id?: string
+  leitor_id?: string
 }
 
 interface Paragrafo {
   id: string
   estudo_id: string
   numero: string
+  texto?: string
   pergunta: string
-  resposta_ia: string | null
+  resposta_ia?: string
   ordem: number
 }
 
@@ -78,99 +64,127 @@ interface Publicador {
   nome: string
 }
 
-export default function AdminSentinelaPage() {
-  const router = useRouter()
+export default function SentinelaPage() {
   const [mesAtual, setMesAtual] = useState(new Date().getMonth() + 1)
   const [anoAtual, setAnoAtual] = useState(new Date().getFullYear())
-  const [mesData, setMesData] = useState<Mes | null>(null)
+  const [mesData, setMesData] = useState<{ id: string; mes: number; ano: number } | null>(null)
   const [estudos, setEstudos] = useState<Estudo[]>([])
   const [paragrafos, setParagrafos] = useState<Paragrafo[]>([])
   const [publicadores, setPublicadores] = useState<Publicador[]>([])
-  const [loading, setLoading] = useState(true)
   const [estudoAtivo, setEstudoAtivo] = useState<string | null>(null)
-
+  const [loading, setLoading] = useState(true)
+  const [gerandoIA, setGerandoIA] = useState<string | null>(null)
+  
   const supabase = createClient()
 
   const carregarDados = useCallback(async () => {
     setLoading(true)
-    try {
-      // Carregar publicadores
-      const { data: pubsData } = await supabase
-        .from("publicadores")
-        .select("id, nome")
-        .order("nome")
-      setPublicadores(pubsData || [])
-
-      // Buscar mês existente
-      const { data: mes } = await supabase
-        .from("sentinela_meses")
+    
+    // Buscar mês
+    const { data: mesData } = await supabase
+      .from("sentinela_meses")
+      .select("*")
+      .eq("mes", mesAtual)
+      .eq("ano", anoAtual)
+      .single()
+    
+    setMesData(mesData)
+    
+    if (mesData) {
+      // Buscar estudos do mês
+      const { data: estudosData } = await supabase
+        .from("sentinela_estudos")
         .select("*")
-        .eq("mes", mesAtual)
-        .eq("ano", anoAtual)
-        .single()
-
-      setMesData(mes || null)
-
-      if (mes) {
-        // Carregar estudos do mês
-        const { data: estudosData } = await supabase
-          .from("sentinela_estudos")
-          .select("*")
-          .eq("mes_id", mes.id)
-          .order("data_inicio")
-        
-        setEstudos(estudosData || [])
-        
-        if (estudosData && estudosData.length > 0) {
+        .eq("mes_id", mesData.id)
+        .order("numero_estudo")
+      
+      setEstudos(estudosData || [])
+      
+      if (estudosData && estudosData.length > 0) {
+        if (!estudoAtivo || !estudosData.find(e => e.id === estudoAtivo)) {
           setEstudoAtivo(estudosData[0].id)
-          
-          // Carregar parágrafos de todos os estudos
-          const { data: paragrafosData } = await supabase
-            .from("sentinela_paragrafos")
-            .select("*")
-            .in("estudo_id", estudosData.map(e => e.id))
-            .order("ordem")
-          
-          setParagrafos(paragrafosData || [])
-        } else {
-          setEstudoAtivo(null)
-          setParagrafos([])
         }
+        
+        // Buscar parágrafos de todos os estudos
+        const { data: paragrafosData } = await supabase
+          .from("sentinela_paragrafos")
+          .select("*")
+          .in("estudo_id", estudosData.map(e => e.id))
+          .order("ordem")
+        
+        setParagrafos(paragrafosData || [])
       } else {
-        setEstudos([])
         setEstudoAtivo(null)
         setParagrafos([])
       }
-    } catch (error) {
-      console.error("Erro ao carregar dados:", error)
-    } finally {
-      setLoading(false)
+    } else {
+      setEstudos([])
+      setEstudoAtivo(null)
+      setParagrafos([])
     }
-  }, [mesAtual, anoAtual, supabase])
+    
+    // Buscar publicadores
+    const { data: pubData } = await supabase
+      .from("publicadores")
+      .select("id, nome")
+      .eq("ativo", true)
+      .order("nome")
+    
+    setPublicadores(pubData || [])
+    
+    setLoading(false)
+  }, [mesAtual, anoAtual, supabase, estudoAtivo])
 
   useEffect(() => {
     carregarDados()
   }, [carregarDados])
 
+  const navegarMes = (direcao: number) => {
+    let novoMes = mesAtual + direcao
+    let novoAno = anoAtual
+    
+    if (novoMes > 12) {
+      novoMes = 1
+      novoAno++
+    } else if (novoMes < 1) {
+      novoMes = 12
+      novoAno--
+    }
+    
+    setMesAtual(novoMes)
+    setAnoAtual(novoAno)
+    setEstudoAtivo(null)
+  }
+
   const adicionarEstudo = async () => {
     try {
       let mesId = mesData?.id
       
-      // Se não tem mês, criar
       if (!mesId) {
-        const { data: novoMes, error: erroMes } = await supabase
+        const { data: mesExistente } = await supabase
           .from("sentinela_meses")
-          .insert({ mes: mesAtual, ano: anoAtual })
-          .select()
+          .select("id")
+          .eq("mes", mesAtual)
+          .eq("ano", anoAtual)
           .single()
         
-        if (erroMes || !novoMes) return
-        
-        mesId = novoMes.id
-        setMesData(novoMes)
+        if (mesExistente) {
+          mesId = mesExistente.id
+          setMesData({ id: mesId, mes: mesAtual, ano: anoAtual })
+        } else {
+          const { data: novoMes, error: erroMes } = await supabase
+            .from("sentinela_meses")
+            .insert({ mes: mesAtual, ano: anoAtual })
+            .select()
+            .single()
+          
+          if (erroMes || !novoMes) return
+          
+          mesId = novoMes.id
+          setMesData(novoMes)
+        }
       }
 
-      // Calcular próxima data de estudo (próximo domingo)
       let dataInicio: Date
       let numeroEstudo = 1
       
@@ -186,7 +200,6 @@ export default function AdminSentinelaPage() {
         }
       }
       
-      // Data fim é 6 dias depois (sábado)
       const dataFim = new Date(dataInicio)
       dataFim.setDate(dataFim.getDate() + 6)
 
@@ -204,47 +217,42 @@ export default function AdminSentinelaPage() {
         .select()
         .single()
 
-      if (error || !novoEstudo) return
+      if (error) return
       
-      setEstudos(prev => [...prev, novoEstudo])
-      setEstudoAtivo(novoEstudo.id)
-    } catch (err) {
-      console.error("Erro ao adicionar estudo:", err)
-    }
-  }
-
-  const removerEstudo = async (estudoId: string) => {
-    // Primeiro remove os parágrafos
-    await supabase
-      .from("sentinela_paragrafos")
-      .delete()
-      .eq("estudo_id", estudoId)
-
-    const { error } = await supabase
-      .from("sentinela_estudos")
-      .delete()
-      .eq("id", estudoId)
-
-    if (!error) {
-      const novosEstudos = estudos.filter(e => e.id !== estudoId)
-      setEstudos(novosEstudos)
-      setParagrafos(paragrafos.filter(p => p.estudo_id !== estudoId))
-      if (estudoAtivo === estudoId) {
-        setEstudoAtivo(novosEstudos[0]?.id || null)
+      if (novoEstudo) {
+        setEstudos(prev => [...prev, novoEstudo])
+        setEstudoAtivo(novoEstudo.id)
       }
+    } catch {
+      // erro silencioso
     }
   }
 
-  const atualizarEstudo = async (estudoId: string, campo: string, valor: string | number | null) => {
+  const atualizarEstudo = async (estudoId: string, campo: string, valor: unknown) => {
     const { error } = await supabase
       .from("sentinela_estudos")
       .update({ [campo]: valor })
       .eq("id", estudoId)
 
     if (!error) {
-      setEstudos(estudos.map(e => 
+      setEstudos(prev => prev.map(e => 
         e.id === estudoId ? { ...e, [campo]: valor } : e
       ))
+    }
+  }
+
+  const removerEstudo = async (estudoId: string) => {
+    if (!confirm("Tem certeza que deseja remover este estudo?")) return
+    
+    await supabase.from("sentinela_paragrafos").delete().eq("estudo_id", estudoId)
+    const { error } = await supabase.from("sentinela_estudos").delete().eq("id", estudoId)
+
+    if (!error) {
+      setEstudos(prev => prev.filter(e => e.id !== estudoId))
+      setParagrafos(prev => prev.filter(p => p.estudo_id !== estudoId))
+      if (estudoAtivo === estudoId) {
+        setEstudoAtivo(estudos.find(e => e.id !== estudoId)?.id || null)
+      }
     }
   }
 
@@ -258,6 +266,7 @@ export default function AdminSentinelaPage() {
         estudo_id: estudoId,
         numero: String(proximoNumero),
         pergunta: "",
+        texto: "",
         ordem: proximoNumero
       })
       .select()
@@ -268,14 +277,14 @@ export default function AdminSentinelaPage() {
     }
   }
 
-  const atualizarParagrafo = async (paragrafoId: string, campo: string, valor: string | null) => {
+  const atualizarParagrafo = async (paragrafoId: string, campo: string, valor: string) => {
     const { error } = await supabase
       .from("sentinela_paragrafos")
       .update({ [campo]: valor })
       .eq("id", paragrafoId)
 
     if (!error) {
-      setParagrafos(paragrafos.map(p => 
+      setParagrafos(prev => prev.map(p => 
         p.id === paragrafoId ? { ...p, [campo]: valor } : p
       ))
     }
@@ -288,81 +297,98 @@ export default function AdminSentinelaPage() {
       .eq("id", paragrafoId)
 
     if (!error) {
-      setParagrafos(paragrafos.filter(p => p.id !== paragrafoId))
+      setParagrafos(prev => prev.filter(p => p.id !== paragrafoId))
     }
   }
 
-  const mesAnterior = () => {
-    if (mesAtual === 1) {
-      setMesAtual(12)
-      setAnoAtual(anoAtual - 1)
-    } else {
-      setMesAtual(mesAtual - 1)
+  const gerarRespostaIA = async (paragrafo: Paragrafo) => {
+    if (!paragrafo.texto || !paragrafo.pergunta) {
+      alert("Preencha o texto e a pergunta do parágrafo antes de gerar a resposta.")
+      return
+    }
+
+    setGerandoIA(paragrafo.id)
+
+    try {
+      const response = await fetch("/api/sentinela/gerar-resposta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          texto: paragrafo.texto,
+          pergunta: paragrafo.pergunta
+        })
+      })
+
+      if (!response.ok) throw new Error("Erro ao gerar resposta")
+
+      const data = await response.json()
+      
+      if (data.resposta) {
+        await atualizarParagrafo(paragrafo.id, "resposta_ia", data.resposta)
+      }
+    } catch {
+      alert("Erro ao gerar resposta com IA. Tente novamente.")
+    } finally {
+      setGerandoIA(null)
     }
   }
 
-  const mesProximo = () => {
-    if (mesAtual === 12) {
-      setMesAtual(1)
-      setAnoAtual(anoAtual + 1)
-    } else {
-      setMesAtual(mesAtual + 1)
+  const formatarData = (dataInicio: string, dataFim: string) => {
+    try {
+      const inicio = parseISO(dataInicio)
+      const fim = parseISO(dataFim)
+      return `${format(inicio, "d 'de' MMM", { locale: ptBR })} - ${format(fim, "d 'de' MMM", { locale: ptBR })}`
+    } catch {
+      return "Data inválida"
     }
   }
 
   const estudoAtualData = estudos.find(e => e.id === estudoAtivo)
-  const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtivo)
-
-  const formatarData = (dataInicio: string, dataFim: string) => {
-    const inicio = new Date(dataInicio + "T12:00:00")
-    const fim = new Date(dataFim + "T12:00:00")
-    return `${inicio.getDate()} de ${inicio.toLocaleDateString("pt-BR", { month: "short" })} - ${fim.getDate()} de ${fim.toLocaleDateString("pt-BR", { month: "short" })}.`
-  }
+  const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtivo).sort((a, b) => a.ordem - b.ordem)
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Estudo de A Sentinela</h1>
-          <p className="text-zinc-400">Gerencie os estudos da Sentinela por mês</p>
+          <h1 className="text-2xl font-bold">Estudo de A Sentinela</h1>
+          <p className="text-muted-foreground">Gerencie os estudos da Sentinela por mês</p>
         </div>
         
-        {/* Menu de ações no canto superior direito */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="bg-red-600 hover:bg-red-700">
+            <Button>
               <Plus className="w-4 h-4 mr-2" />
-              Adicionar
-              <ChevronDown className="w-4 h-4 ml-2" />
+              Novo Estudo
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={adicionarEstudo}>
               <Plus className="w-4 h-4 mr-2" />
-              Novo Estudo Manual
+              Criar Manual
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push("/admin/importar")}>
-              <Wand2 className="w-4 h-4 mr-2" />
-              Importar com IA
+            <DropdownMenuItem asChild>
+              <Link href="/admin/importar">
+                <Wand2 className="w-4 h-4 mr-2" />
+                Importar com IA
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
       {/* Navegação de Mês */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
-        <CardContent className="p-4">
+      <Card className="bg-zinc-900 border-zinc-800">
+        <CardContent className="py-4">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={mesAnterior}>
+            <Button variant="ghost" size="icon" onClick={() => navegarMes(-1)}>
               <ChevronLeft className="w-5 h-5" />
             </Button>
             <div className="text-center">
-              <h2 className="text-xl font-bold text-white">
-                {meses.find(m => m.valor === mesAtual)?.nome} {anoAtual}
-              </h2>
+              <h2 className="text-xl font-semibold">{meses[mesAtual - 1]} {anoAtual}</h2>
               <p className="text-sm text-zinc-500">{estudos.length} estudo(s) cadastrado(s)</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={mesProximo}>
+            <Button variant="ghost" size="icon" onClick={() => navegarMes(1)}>
               <ChevronRight className="w-5 h-5" />
             </Button>
           </div>
@@ -370,111 +396,115 @@ export default function AdminSentinelaPage() {
       </Card>
 
       {loading ? (
-        <div className="text-center text-zinc-500 py-12">Carregando...</div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-zinc-500" />
+        </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Lista de Estudos */}
-          <Card className="bg-zinc-900/50 border-zinc-800 lg:col-span-1">
+          <Card className="bg-zinc-900 border-zinc-800">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-white">Estudos</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Estudos</CardTitle>
+                <Button size="sm" onClick={adicionarEstudo}>
+                  <Plus className="w-4 h-4 mr-1" /> Novo
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-2">
               {estudos.length === 0 ? (
-                <p className="text-zinc-500 text-sm text-center py-4">
-                  Nenhum estudo cadastrado
-                </p>
+                <p className="text-zinc-500 text-sm py-4">Nenhum estudo cadastrado</p>
               ) : (
                 estudos.map((estudo) => (
                   <div
                     key={estudo.id}
                     className={cn(
-                      "p-3 rounded-lg cursor-pointer transition-all flex items-center justify-between group",
-                      estudoAtivo === estudo.id
-                        ? "bg-red-600/20 border border-red-500/50"
-                        : "bg-zinc-800/50 hover:bg-zinc-800"
+                      "p-3 rounded-lg cursor-pointer transition-colors border",
+                      estudoAtivo === estudo.id 
+                        ? "bg-red-600/20 border-red-600" 
+                        : "bg-zinc-800/50 border-transparent hover:bg-zinc-800"
                     )}
                     onClick={() => setEstudoAtivo(estudo.id)}
                   >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">
-                        {estudo.titulo || `Estudo ${estudo.numero_estudo}`}
-                      </p>
-                      <p className="text-xs text-zinc-400">
-                        {formatarData(estudo.data_inicio, estudo.data_fim)}
-                      </p>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-medium text-white">{estudo.titulo}</h3>
+                        <p className="text-sm text-zinc-400">
+                          {formatarData(estudo.data_inicio, estudo.data_fim)}
+                        </p>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem 
+                            className="text-red-400"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              removerEstudo(estudo.id)
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Remover
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="opacity-0 group-hover:opacity-100 h-7 w-7 flex-shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        removerEstudo(estudo.id)
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4 text-red-400" />
-                    </Button>
                   </div>
                 ))
               )}
             </CardContent>
           </Card>
 
-          {/* Detalhes do Estudo */}
-          <Card className="bg-zinc-900/50 border-zinc-800 lg:col-span-3">
+          {/* Editor de Estudo */}
+          <Card className="lg:col-span-2 bg-zinc-900 border-zinc-800">
             {estudoAtualData ? (
               <>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg text-white flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-red-500" />
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="w-5 h-5" />
                     Editar Estudo
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Informações do Estudo */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="space-y-4">
+                  {/* Título e Data */}
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-zinc-400">Título do Estudo</Label>
                       <Input
-                        value={estudoAtualData.titulo || ""}
+                        value={estudoAtualData.titulo}
                         onChange={(e) => atualizarEstudo(estudoAtualData.id, "titulo", e.target.value)}
-                        placeholder="Título do artigo"
+                        placeholder="Título do estudo"
                         className="bg-zinc-800 border-zinc-700"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-2">
-                        <Label className="text-zinc-400">Data Início</Label>
-                        <Input
-                          type="date"
-                          value={estudoAtualData.data_inicio || ""}
-                          onChange={(e) => atualizarEstudo(estudoAtualData.id, "data_inicio", e.target.value)}
-                          className="bg-zinc-800 border-zinc-700"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-zinc-400">Data Fim</Label>
-                        <Input
-                          type="date"
-                          value={estudoAtualData.data_fim || ""}
-                          onChange={(e) => atualizarEstudo(estudoAtualData.id, "data_fim", e.target.value)}
-                          className="bg-zinc-800 border-zinc-700"
-                        />
-                      </div>
+                    <div className="space-y-2">
+                      <Label className="text-zinc-400">Data do Estudo</Label>
+                      <Input
+                        type="date"
+                        value={estudoAtualData.data_inicio || ""}
+                        onChange={(e) => atualizarEstudo(estudoAtualData.id, "data_inicio", e.target.value)}
+                        className="bg-zinc-800 border-zinc-700"
+                      />
                     </div>
                   </div>
 
+                  {/* Texto Tema */}
                   <div className="space-y-2">
                     <Label className="text-zinc-400">Texto Tema</Label>
                     <Input
                       value={estudoAtualData.texto_tema || ""}
                       onChange={(e) => atualizarEstudo(estudoAtualData.id, "texto_tema", e.target.value)}
-                      placeholder="Ex: 'Confia em Jeová e faze o bem.' ��� Sal. 37:3"
+                      placeholder="Ex: 'Confia em Jeová e faze o bem.' — Sal. 37:3"
                       className="bg-zinc-800 border-zinc-700"
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {/* Cânticos */}
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-zinc-400">Cântico do Meio</Label>
                       <Input
@@ -495,6 +525,10 @@ export default function AdminSentinelaPage() {
                         className="bg-zinc-800 border-zinc-700"
                       />
                     </div>
+                  </div>
+
+                  {/* Dirigente e Leitor */}
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-zinc-400">Dirigente</Label>
                       <select
@@ -524,7 +558,7 @@ export default function AdminSentinelaPage() {
                   </div>
 
                   {/* Parágrafos */}
-                  <div className="space-y-3">
+                  <div className="space-y-3 pt-4 border-t border-zinc-800">
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold text-white flex items-center gap-2">
                         <FileText className="w-4 h-4" />
@@ -539,33 +573,20 @@ export default function AdminSentinelaPage() {
                       </Button>
                     </div>
 
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
                       {paragrafosAtuais.length === 0 ? (
                         <p className="text-zinc-500 text-sm py-4">Nenhum parágrafo cadastrado</p>
                       ) : (
                         paragrafosAtuais.map((paragrafo) => (
                           <div 
                             key={paragrafo.id} 
-                            className="bg-zinc-800/50 rounded-lg p-3 space-y-2"
+                            className="bg-zinc-800/50 rounded-lg p-4 space-y-3"
                           >
-                            <div className="flex items-start gap-3">
-                              <span className="bg-red-600/20 text-red-400 px-2 py-1 rounded text-sm font-medium min-w-8 text-center">
-                                {paragrafo.numero}
+                            {/* Header do Parágrafo */}
+                            <div className="flex items-center justify-between">
+                              <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                Parágrafo {paragrafo.numero}
                               </span>
-                              <div className="flex-1 space-y-2">
-                                <Input
-                                  value={paragrafo.pergunta || ""}
-                                  onChange={(e) => atualizarParagrafo(paragrafo.id, "pergunta", e.target.value)}
-                                  placeholder="Pergunta do parágrafo"
-                                  className="bg-zinc-900 border-zinc-700 text-sm"
-                                />
-                                {paragrafo.resposta_ia && (
-                                  <div className="bg-zinc-900 rounded p-2 text-sm text-zinc-300">
-                                    <span className="text-xs text-green-400 block mb-1">Resposta IA:</span>
-                                    {paragrafo.resposta_ia}
-                                  </div>
-                                )}
-                              </div>
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -575,6 +596,67 @@ export default function AdminSentinelaPage() {
                                 <Trash2 className="w-4 h-4 text-red-400" />
                               </Button>
                             </div>
+                            
+                            {/* Texto do Parágrafo */}
+                            <div className="space-y-1">
+                              <Label className="text-xs text-zinc-500">Texto do Parágrafo</Label>
+                              <Textarea
+                                value={paragrafo.texto || ""}
+                                onChange={(e) => atualizarParagrafo(paragrafo.id, "texto", e.target.value)}
+                                placeholder="Cole aqui o texto do parágrafo..."
+                                className="bg-zinc-900 border-zinc-700 text-sm min-h-[80px]"
+                              />
+                            </div>
+
+                            {/* Pergunta */}
+                            <div className="space-y-1">
+                              <Label className="text-xs text-zinc-500">Pergunta</Label>
+                              <Input
+                                value={paragrafo.pergunta || ""}
+                                onChange={(e) => atualizarParagrafo(paragrafo.id, "pergunta", e.target.value)}
+                                placeholder="Digite a pergunta do parágrafo..."
+                                className="bg-zinc-900 border-zinc-700 text-sm"
+                              />
+                            </div>
+
+                            {/* Botão Gerar Resposta IA */}
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => gerarRespostaIA(paragrafo)}
+                                disabled={gerandoIA === paragrafo.id || !paragrafo.texto || !paragrafo.pergunta}
+                                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+                              >
+                                {gerandoIA === paragrafo.id ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Gerando...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Sparkles className="w-4 h-4 mr-2" />
+                                    IA Responder
+                                  </>
+                                )}
+                              </Button>
+                              {(!paragrafo.texto || !paragrafo.pergunta) && (
+                                <span className="text-xs text-zinc-500">
+                                  Preencha texto e pergunta
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Resposta IA */}
+                            {paragrafo.resposta_ia && (
+                              <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-lg p-3 border border-purple-500/30">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Sparkles className="w-4 h-4 text-purple-400" />
+                                  <span className="text-xs font-medium text-purple-400">Resposta IA</span>
+                                </div>
+                                <p className="text-sm text-zinc-200">{paragrafo.resposta_ia}</p>
+                              </div>
+                            )}
                           </div>
                         ))
                       )}
