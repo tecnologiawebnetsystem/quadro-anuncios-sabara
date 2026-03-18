@@ -66,6 +66,8 @@ export default function ImportarSentinelaPage() {
   const [processandoPDF, setProcessandoPDF] = useState(false)
   const [salvandoTodosPDF, setSalvandoTodosPDF] = useState(false)
   const [progressoSalvar, setProgressoSalvar] = useState(0)
+  const [etapaPDF, setEtapaPDF] = useState("")
+  const [progressoPDF, setProgressoPDF] = useState(0)
   
   // Estado para geração de respostas
   const [gerandoRespostas, setGerandoRespostas] = useState(false)
@@ -80,38 +82,57 @@ export default function ImportarSentinelaPage() {
     setProcessandoPDF(true)
     setErro(null)
     setEstudosPDF([])
-    toast.loading("Processando PDF...", { id: "processando-pdf" })
+    setProgressoPDF(0)
+    setEtapaPDF("Carregando arquivo...")
 
     try {
+      // Etapa 1: Upload do arquivo
+      setProgressoPDF(10)
+      setEtapaPDF("Enviando PDF para o servidor...")
+      
       const formData = new FormData()
       formData.append("file", file)
+
+      // Etapa 2: Extraindo texto
+      setProgressoPDF(25)
+      setEtapaPDF("Extraindo texto do PDF...")
 
       const response = await fetch("/api/importar-pdf-sentinela", {
         method: "POST",
         body: formData
       })
 
+      // Etapa 3: Processamento IA
+      setProgressoPDF(50)
+      setEtapaPDF("IA analisando conteudo...")
+
       const resultado = await response.json()
+
+      // Etapa 4: Finalizando
+      setProgressoPDF(90)
+      setEtapaPDF("Finalizando processamento...")
 
       if (!response.ok || resultado.erro) {
         throw new Error(resultado.erro || resultado.error || "Erro ao processar PDF")
       }
 
       if (resultado.estudos && resultado.estudos.length > 0) {
+        setProgressoPDF(100)
+        setEtapaPDF("Concluido!")
         setEstudosPDF(resultado.estudos)
         setEstudoAtualPDF(0)
-        toast.dismiss("processando-pdf")
         toast.success(`${resultado.totalEstudos} estudos encontrados com ${resultado.totalParagrafos} paragrafos no total!`)
       } else {
         throw new Error("Nenhum estudo encontrado no PDF")
       }
     } catch (err) {
-      toast.dismiss("processando-pdf")
       const errorMessage = err instanceof Error ? err.message : "Erro ao processar PDF"
       setErro(errorMessage)
       toast.error(errorMessage)
     } finally {
       setProcessandoPDF(false)
+      setProgressoPDF(0)
+      setEtapaPDF("")
     }
   }
 
@@ -507,6 +528,8 @@ export default function ImportarSentinelaPage() {
     setRegistroExistente(null)
     setEstudosPDF([])
     setEstudoAtualPDF(0)
+    setProgressoPDF(0)
+    setEtapaPDF("")
   }
 
   const respostasGeradas = dados?.paragrafos?.filter(p => p.resposta)?.length || 0
@@ -742,12 +765,15 @@ export default function ImportarSentinelaPage() {
                     id="pdf-upload"
                     disabled={processandoPDF}
                   />
-                  <label htmlFor="pdf-upload" className="cursor-pointer">
+<label htmlFor="pdf-upload" className={processandoPDF ? "" : "cursor-pointer"}>
                     {processandoPDF ? (
                       <div className="space-y-4">
                         <Loader2 className="h-12 w-12 mx-auto text-emerald-500 animate-spin" />
-                        <p className="text-zinc-400">Processando PDF com IA...</p>
-                        <p className="text-xs text-zinc-500">Isso pode levar alguns segundos</p>
+                        <div className="space-y-2">
+                          <p className="text-zinc-300 font-medium">{etapaPDF}</p>
+                          <Progress value={progressoPDF} className="h-2 w-48 mx-auto" />
+                          <p className="text-xs text-zinc-500">{progressoPDF}% concluido</p>
+                        </div>
                       </div>
                     ) : (
                       <div className="space-y-4">

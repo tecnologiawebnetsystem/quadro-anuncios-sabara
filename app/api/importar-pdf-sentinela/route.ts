@@ -2,6 +2,9 @@ import { generateText } from "ai"
 // @ts-expect-error pdf-parse não tem tipos
 import pdf from "pdf-parse"
 
+// Configurar timeout maior para processamento de PDFs grandes
+export const maxDuration = 120 // 120 segundos
+
 export async function POST(req: Request) {
   try {
     const formData = await req.formData()
@@ -9,6 +12,13 @@ export async function POST(req: Request) {
 
     if (!file) {
       return Response.json({ error: "Arquivo PDF não fornecido" }, { status: 400 })
+    }
+
+    // Verificar tamanho do arquivo (máx 5MB para PDFs de texto)
+    if (file.size > 5 * 1024 * 1024) {
+      return Response.json({ 
+        error: "O arquivo PDF é muito grande. Máximo permitido: 5MB" 
+      }, { status: 400 })
     }
 
     // Converter File para Buffer
@@ -33,68 +43,44 @@ export async function POST(req: Request) {
       }, { status: 400 })
     }
 
+    // Limitar o texto para evitar timeout (primeiros 40000 caracteres)
+    const textoLimitado = texto.slice(0, 40000)
+
     const currentYear = new Date().getFullYear()
 
-    // Usar IA para extrair TODOS os estudos do mês
+    // Usar IA para extrair os estudos - prompt otimizado e mais curto
     const result = await generateText({
       model: "openai/gpt-4o-mini",
-      prompt: `Você é um assistente especializado em extrair informações dos estudos de A Sentinela das Testemunhas de Jeová.
+      prompt: `Extraia os estudos da Sentinela do texto abaixo. Ano: ${currentYear}.
 
-O texto a seguir é de um PDF que contém TODOS os estudos de A Sentinela de um mês inteiro (geralmente 4-5 estudos).
-
-Sua tarefa é identificar e extrair CADA estudo separadamente, com TODOS os seus parágrafos.
-
-ESTRUTURA DE CADA ESTUDO:
-- Data da semana (ex: "3-9 de março")
-- Título do artigo
-- Texto tema (versículo)
-- Cântico inicial (ou "do meio") e cântico final
-- Objetivo do estudo
-- Parágrafos numerados (geralmente 15-22 por estudo)
-- Perguntas correspondentes a cada parágrafo
-
-REGRAS IMPORTANTES:
-1. Identifique CADA estudo separadamente - geralmente há 4-5 estudos por mês
-2. Converta datas como "3-9 de março" para formato YYYY-MM-DD usando o ano ${currentYear}
-3. Para CADA estudo, extraia TODOS os parágrafos (do primeiro ao último)
-4. O campo "textoBase" deve conter o texto COMPLETO do parágrafo
-5. Parágrafos podem ter números combinados como "4, 5" ou "10-12"
-6. As perguntas geralmente aparecem no final de cada artigo
-7. NÃO pule nenhum estudo nem nenhum parágrafo
-
-TEXTO DO PDF:
-${texto}
-
-Retorne APENAS um JSON válido (sem markdown, sem \`\`\`) no seguinte formato:
-
+FORMATO DE SAÍDA (JSON puro, sem markdown):
 {
   "estudos": [
     {
       "dataInicio": "YYYY-MM-DD",
       "dataFim": "YYYY-MM-DD",
-      "titulo": "Título do Artigo 1",
-      "textoTema": "Versículo tema",
-      "canticoInicial": 123,
-      "canticoInicialNome": "Nome do Cântico",
-      "canticoFinal": 456,
-      "canticoFinalNome": "Nome do Cântico",
-      "objetivo": "Objetivo do estudo",
+      "titulo": "Titulo",
+      "textoTema": "Versiculo tema",
+      "canticoInicial": 1,
+      "canticoFinal": 2,
+      "objetivo": "Objetivo",
       "paragrafos": [
-        {"numero": "1", "textoBase": "Texto completo do parágrafo 1...", "pergunta": "Pergunta 1?", "resposta": null, "ordem": 1},
-        {"numero": "2", "textoBase": "Texto completo do parágrafo 2...", "pergunta": "Pergunta 2?", "resposta": null, "ordem": 2}
+        {"numero": "1", "textoBase": "Texto do paragrafo", "pergunta": "Pergunta?", "resposta": null, "ordem": 1}
       ]
-    },
-    {
-      "dataInicio": "YYYY-MM-DD",
-      "dataFim": "YYYY-MM-DD",
-      "titulo": "Título do Artigo 2",
-      ...
     }
   ]
 }
 
-Extraia TODOS os estudos encontrados no PDF, cada um com TODOS os seus parágrafos.`,
-      maxTokens: 16000
+REGRAS:
+- Extraia TODOS os estudos e TODOS os paragrafos de cada estudo
+- Converta datas como "3-9 de marco" para YYYY-MM-DD
+- Paragrafos combinados: mantenha como "4, 5" ou "10-12"
+- textoBase: texto completo do paragrafo
+- pergunta: pergunta correspondente ao paragrafo
+
+TEXTO:
+${textoLimitado}`,
+      maxTokens: 12000
     })
 
     // Parse o JSON da resposta
