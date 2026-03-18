@@ -609,122 +609,122 @@ export default function ImportarSentinelaPage() {
               </CardContent>
             </Card>
 
-        {/* Coluna Direita - Preview */}
-        <Card className="border-zinc-800 bg-zinc-900/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <BookOpen className="h-5 w-5 text-blue-500" />
-              Preview do Estudo
-            </CardTitle>
-            <CardDescription>
-              Visualize os dados extraidos antes de salvar
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {dados ? (
-              <div className="space-y-4">
-                {/* Info do Estudo */}
-                <div className="p-3 rounded-lg bg-zinc-800/50 space-y-2">
-                  <h3 className="font-semibold text-white">{dados.titulo}</h3>
-                  {dados.textoTema && (
-                    <p className="text-sm text-amber-400 italic">"{dados.textoTema}"</p>
-                  )}
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <Badge variant="outline">
-                      {dados.dataInicio} - {dados.dataFim}
-                    </Badge>
-                    {dados.canticoInicial && (
-                      <Badge variant="outline">Cantico {dados.canticoInicial}</Badge>
-                    )}
-                    {dados.canticoFinal && (
-                      <Badge variant="outline">Cantico {dados.canticoFinal}</Badge>
-                    )}
-                  </div>
-                </div>
-
-                {/* Botão Gerar Respostas */}
-                <div className="flex items-center justify-between p-3 rounded-lg bg-violet-600/10 border border-violet-600/20">
-                  <div>
-                    <p className="text-sm font-medium text-violet-400">Respostas com IA</p>
-                    <p className="text-xs text-zinc-400">
-                      {respostasGeradas}/{totalParagrafos} respostas geradas
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={gerarTodasRespostas}
-                    disabled={gerandoRespostas || totalParagrafos === 0}
-                    className="border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
-                  >
-                    {gerandoRespostas ? (
-                      <>
-                        <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                        {progressoRespostas}%
-                      </>
-                    ) : (
-                      <>
-                        <Wand2 className="mr-1 h-4 w-4" />
-                        Gerar Todas
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                {/* Parágrafos */}
-                <div className="space-y-2 max-h-[350px] overflow-y-auto pr-2">
-                  <p className="text-sm font-medium text-muted-foreground sticky top-0 bg-zinc-900/90 py-1">
-                    Paragrafos ({totalParagrafos}):
-                  </p>
-                  {dados.paragrafos.map((p, idx) => (
-                    <div key={idx} className="p-3 rounded bg-zinc-800/30 text-sm space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1">
-                          <span className="font-medium text-blue-400">Par. {p.numero}:</span>
-                          <p className="text-zinc-300 mt-1">{p.pergunta}</p>
-                        </div>
-                        {p.resposta && (
-                          <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+            {/* Coluna Direita - Preview */}
+            <Card className="border-zinc-800 bg-zinc-900/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <BookOpen className="h-5 w-5 text-blue-500" />
+                  Preview do Estudo
+                </CardTitle>
+                <CardDescription>
+                  Visualize os dados extraidos antes de salvar
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {dados ? (
+                  <div className="space-y-4">
+                    {/* Info do Estudo */}
+                    <div className="p-3 rounded-lg bg-zinc-800/50 space-y-2">
+                      <h3 className="font-semibold text-white">{dados.titulo}</h3>
+                      {dados.textoTema && (
+                        <p className="text-sm text-amber-400 italic">&quot;{dados.textoTema}&quot;</p>
+                      )}
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        <Badge variant="outline">
+                          {dados.dataInicio} - {dados.dataFim}
+                        </Badge>
+                        {dados.canticoInicial && (
+                          <Badge variant="outline">Cantico {dados.canticoInicial}</Badge>
+                        )}
+                        {dados.canticoFinal && (
+                          <Badge variant="outline">Cantico {dados.canticoFinal}</Badge>
                         )}
                       </div>
-                      {p.resposta && (
-                        <div className="p-2 rounded bg-green-500/10 border border-green-500/20">
-                          <p className="text-xs text-green-200">{p.resposta}</p>
-                        </div>
-                      )}
                     </div>
-                  ))}
-                </div>
 
-                {/* Botão Salvar */}
-                <Button
-                  onClick={() => salvarDados(false)}
-                  disabled={salvando}
-                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                >
-                  {salvando ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Salvando...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Salvar Estudo
-                    </>
-                  )}
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[400px] text-center">
-                <BookMarked className="h-16 w-16 text-zinc-700 mb-4" />
-                <p className="text-zinc-500">
-                  Cole o texto do estudo da Sentinela e clique em "Processar com IA"
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                    {/* Botão Gerar Respostas */}
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-violet-600/10 border border-violet-600/20">
+                      <div>
+                        <p className="text-sm font-medium text-violet-400">Respostas com IA</p>
+                        <p className="text-xs text-zinc-400">
+                          {respostasGeradas}/{totalParagrafos} respostas geradas
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={gerarTodasRespostas}
+                        disabled={gerandoRespostas || totalParagrafos === 0}
+                        className="border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
+                      >
+                        {gerandoRespostas ? (
+                          <>
+                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                            {progressoRespostas}%
+                          </>
+                        ) : (
+                          <>
+                            <Wand2 className="mr-1 h-4 w-4" />
+                            Gerar Todas
+                          </>
+                        )}
+                      </Button>
+                    </div>
+
+                    {/* Parágrafos */}
+                    <div className="space-y-2 max-h-[350px] overflow-y-auto pr-2 scrollbar-thin">
+                      <p className="text-sm font-medium text-muted-foreground sticky top-0 bg-zinc-900/90 py-1">
+                        Paragrafos ({totalParagrafos}):
+                      </p>
+                      {dados.paragrafos.map((p, idx) => (
+                        <div key={idx} className="p-3 rounded bg-zinc-800/30 text-sm space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <span className="font-medium text-blue-400">Par. {p.numero}:</span>
+                              <p className="text-zinc-300 mt-1">{p.pergunta}</p>
+                            </div>
+                            {p.resposta && (
+                              <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            )}
+                          </div>
+                          {p.resposta && (
+                            <div className="p-2 rounded bg-green-500/10 border border-green-500/20">
+                              <p className="text-xs text-green-200">{p.resposta}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Botão Salvar */}
+                    <Button
+                      onClick={() => salvarDados(false)}
+                      disabled={salvando}
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                    >
+                      {salvando ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Salvando...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="mr-2 h-4 w-4" />
+                          Salvar Estudo
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-[400px] text-center">
+                    <BookMarked className="h-16 w-16 text-zinc-700 mb-4" />
+                    <p className="text-zinc-500">
+                      Cole o texto do estudo da Sentinela e clique em &quot;Processar com IA&quot;
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
@@ -818,22 +818,6 @@ export default function ImportarSentinelaPage() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Modal de Confirmação para Atualizar */}
-                    <FileText className="h-16 w-16 text-zinc-700 mb-4" />
-                    <p className="text-zinc-500">
-                      Selecione um PDF com os estudos da Sentinela
-                    </p>
-                    <p className="text-xs text-zinc-600 mt-2">
-                      A IA ira extrair todos os estudos automaticamente
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
         </TabsContent>
       </Tabs>
 
