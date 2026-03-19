@@ -54,7 +54,7 @@ export function AdminHeader() {
         </Button>
 
         {/* Notificacoes */}
-        {mounted && (
+        {mounted ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
@@ -72,9 +72,13 @@ export function AdminHeader() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        ) : (
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="h-5 w-5" />
+          </Button>
         )}
 
-        {mounted && (
+        {mounted ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="gap-2">
@@ -89,6 +93,10 @@ export function AdminHeader() {
               <DropdownMenuItem className="text-destructive" onClick={handleLogout}>Sair</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        ) : (
+          <Button variant="ghost" className="gap-2">
+            <span className="hidden md:inline text-sm">Administrador</span>
+          </Button>
         )}
       </div>
     </header>
