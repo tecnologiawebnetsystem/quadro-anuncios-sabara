@@ -1,5 +1,5 @@
-const CACHE_NAME = 'infoflow-v3';
-const STATIC_CACHE = 'infoflow-static-v3';
+const CACHE_NAME = 'infoflow-v4';
+const STATIC_CACHE = 'infoflow-static-v4';
 
 // Recursos estaticos para cache
 const staticAssets = [

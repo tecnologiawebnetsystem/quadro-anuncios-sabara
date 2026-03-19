@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { ShieldCheck, Lock, ChevronRight, Delete, Info } from "lucide-react"
@@ -13,6 +13,11 @@ export default function Home() {
   const [mostrarSenha, setMostrarSenha] = useState(false)
   const [senha, setSenha] = useState("")
   const [erro, setErro] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleDigito = (digito: string) => {
     if (senha.length < 6) {
@@ -42,6 +47,18 @@ export default function Home() {
 
   const handleConsulta = () => {
     router.push("/consulta")
+  }
+
+  // Evita problemas de hidratação - renderiza skeleton no servidor
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 flex flex-col items-center justify-center p-4">
+        <div className="relative w-full max-w-md">
+          <div className="absolute -inset-[1px] bg-gradient-to-br from-red-600/40 via-red-800/20 to-red-600/40 rounded-3xl" />
+          <div className="relative bg-gradient-to-b from-zinc-900/95 via-zinc-900 to-zinc-950 rounded-3xl p-8 backdrop-blur-sm border border-zinc-800/50 shadow-2xl shadow-red-950/20 min-h-[500px]" />
+        </div>
+      </div>
+    )
   }
 
   return (
