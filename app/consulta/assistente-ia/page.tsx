@@ -213,7 +213,7 @@ export default function AssistenteIAPage() {
             Assistente IA
           </h1>
           <p className="text-sm text-muted-foreground">
-            Ferramentas de IA para ajudar na preparacao de reunioes e ministerio
+            Ferramentas de IA para ajudar na preparação de reuniões e ministério
           </p>
         </div>
 
@@ -222,11 +222,11 @@ export default function AssistenteIAPage() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="comentarios" className="gap-1 text-xs md:text-sm">
               <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Comentarios</span>
+              <span className="hidden sm:inline">Comentários</span>
             </TabsTrigger>
             <TabsTrigger value="ministerio" className="gap-1 text-xs md:text-sm">
               <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Ministerio</span>
+              <span className="hidden sm:inline">Ministério</span>
             </TabsTrigger>
             <TabsTrigger value="partes" className="gap-1 text-xs md:text-sm">
               <BookOpen className="h-4 w-4" />
@@ -240,10 +240,10 @@ export default function AssistenteIAPage() {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <MessageSquare className="h-5 w-5 text-blue-500" />
-                  Assistente de Comentarios
+                  Assistente de Comentários
                 </CardTitle>
                 <CardDescription>
-                  Gere sugestoes de comentarios para o Estudo de A Sentinela ou Vida e Ministerio
+                  Gere sugestões de comentários para o Estudo de A Sentinela ou Vida e Ministério
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -372,10 +372,10 @@ export default function AssistenteIAPage() {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Users className="h-5 w-5 text-green-500" />
-                  Preparacao para o Ministerio
+                  Preparação para o Ministério
                 </CardTitle>
                 <CardDescription>
-                  Roteiros de apresentacoes, revisitas e estudos biblicos
+                  Roteiros de apresentações, revisitas e estudos bíblicos
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

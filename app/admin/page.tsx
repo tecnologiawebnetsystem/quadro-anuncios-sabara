@@ -336,7 +336,7 @@ export default function AdminDashboard() {
           )}
         </div>
         <p className="text-muted-foreground">
-          Visao geral da congregacao - {format(hoje, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+          Visão geral da congregação - {format(hoje, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
         </p>
       </div>
 
@@ -376,7 +376,7 @@ export default function AdminDashboard() {
         <Link href="/admin/equipe-tecnica">
           <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
             <Wrench className="h-4 w-4 mr-2 text-green-500" />
-            Equipe Tecnica
+            Equipe Técnica
           </Button>
         </Link>
         <Link href="/admin/limpeza-salao">
@@ -388,7 +388,7 @@ export default function AdminDashboard() {
         <Link href="/admin/servico-campo">
           <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
             <MapPin className="h-4 w-4 mr-2 text-purple-500" />
-            Servico de Campo
+            Serviço de Campo
           </Button>
         </Link>
         <Link href="/admin/publicadores/new">
@@ -408,7 +408,7 @@ export default function AdminDashboard() {
                 <div>
                   <p className="text-sm font-medium text-zinc-400">Total de Publicadores</p>
                   <p className="mt-2 text-4xl font-bold text-white">{totalAtivos}</p>
-                  <p className="mt-1 text-xs text-zinc-500">Ativos na congregacao</p>
+                  <p className="mt-1 text-xs text-zinc-500">Ativos na congregação</p>
                 </div>
                 <div className="rounded-xl bg-blue-600 p-3">
                   <Users className="h-6 w-6 text-white" />
@@ -427,9 +427,9 @@ export default function AdminDashboard() {
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zinc-400">Anciaos</p>
+                  <p className="text-sm font-medium text-zinc-400">Anciãos</p>
                   <p className="mt-2 text-4xl font-bold text-white">{totalAnciaos}</p>
-                  <p className="mt-1 text-xs text-zinc-500">Corpo de anciaos</p>
+                  <p className="mt-1 text-xs text-zinc-500">Corpo de anciãos</p>
                 </div>
                 <div className="rounded-xl bg-red-600 p-3">
                   <UserCheck className="h-6 w-6 text-white" />
@@ -510,7 +510,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{mediaPresencial}</p>
-                <p className="text-xs text-zinc-500">Media Presencial</p>
+                <p className="text-xs text-zinc-500">Média Presencial</p>
               </div>
             </div>
           </CardContent>
@@ -556,13 +556,13 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Grafico de Assistencia */}
+      {/* Gráfico de Assistência */}
       <Card className="border-zinc-800 bg-zinc-900/50">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <BarChart3 className="h-5 w-5 text-blue-500" />
-              Assistencia das Reunioes
+              Assistência das Reuniões
             </CardTitle>
             <Link href="/admin/reunioes-publicas" className="text-xs text-blue-400 hover:underline">
               Ver detalhes
@@ -637,7 +637,7 @@ export default function AdminDashboard() {
 
       {/* Terceira secao - Cards de informacoes da semana */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Equipe Tecnica da Semana */}
+        {/* Equipe Técnica da Semana */}
         <Card className="border-zinc-800 bg-zinc-900/50">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -787,13 +787,13 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          {/* Servico de Campo */}
+          {/* Serviço de Campo */}
           <Card className="border-zinc-800 bg-zinc-900/50">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                   <MapPin className="h-5 w-5 text-purple-500" />
-                  Servico de Campo - Semana
+                  Serviço de Campo - Semana
                 </CardTitle>
                 <Link href="/admin/servico-campo" className="text-xs text-purple-400 hover:underline">
                   Ver tudo

@@ -2,27 +2,41 @@
   "name": "InfoFlow",
   "short_name": "InfoFlow",
   "description": "Sistema de gerenciamento de informações da congregação",
-  "start_url": "/",
+  "start_url": "/consulta",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#1a1a1a",
-  "theme_color": "#dc2626",
+  "background_color": "#0a0a0a",
+  "theme_color": "#991b1b",
   "orientation": "portrait-primary",
+  "id": "/",
   "icons": [
     {
       "src": "/icons/icon-192x192.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512x512.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
-      "purpose": "maskable any"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
     }
   ],
   "categories": ["productivity", "utilities"],
   "lang": "pt-BR",
-  "dir": "ltr"
+  "dir": "ltr",
+  "prefer_related_applications": false
 }

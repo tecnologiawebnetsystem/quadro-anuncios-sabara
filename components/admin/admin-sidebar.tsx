@@ -22,7 +22,6 @@ import {
   Shield,
   Flag,
   Wand2,
-  FileText,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -76,19 +75,19 @@ const menuGroups: MenuGroup[] = [
     icon: Users,
     items: [
       { title: "Todos", icon: Users, href: "/admin/publicadores" },
-      { title: "Anciaos", icon: UserCheck, href: "/admin/publicadores/anciaos" },
+      { title: "Anciãos", icon: UserCheck, href: "/admin/publicadores/anciaos" },
       { title: "Servos", icon: Shield, href: "/admin/publicadores/servos-ministeriais" },
       { title: "Pioneiros", icon: Flag, href: "/admin/publicadores/pioneiros-regulares" },
     ]
   },
   {
-    title: "Reunioes",
+    title: "Reuniões",
     icon: Calendar,
     items: [
-      { title: "Vida e Ministerio", icon: Gem, href: "/admin/vida-ministerio" },
+      { title: "Vida e Ministério", icon: Gem, href: "/admin/vida-ministerio" },
       { title: "Sentinela", icon: BookMarked, href: "/admin/sentinela" },
       { title: "Discursos", icon: Mic, href: "/admin/reunioes-publicas" },
-      { title: "Equipe Tecnica", icon: Wrench, href: "/admin/equipe-tecnica" },
+      { title: "Equipe Técnica", icon: Wrench, href: "/admin/equipe-tecnica" },
     ]
   },
 ]
@@ -100,12 +99,12 @@ const singleItems: MenuItem[] = [
     href: "/admin/grupo-estudos",
   },
   {
-    title: "Limpeza do Salao",
+    title: "Limpeza do Salão",
     icon: Sparkles,
     href: "/admin/limpeza-salao",
   },
   {
-    title: "Servico de Campo",
+    title: "Serviço de Campo",
     icon: MapPin,
     href: "/admin/servico-campo",
   },
@@ -113,12 +112,7 @@ const singleItems: MenuItem[] = [
 
 const configItems: MenuItem[] = [
   {
-    title: "Wiki / Documentacao",
-    icon: FileText,
-    href: "/admin/wiki",
-  },
-  {
-    title: "Configuracoes",
+    title: "Configurações",
     icon: Settings,
     href: "/admin/configuracoes",
   },
@@ -212,7 +206,7 @@ export function AdminSidebar() {
             <span className="text-sm font-semibold text-sidebar-foreground">
               Info<span className="text-primary">Flow</span>
             </span>
-            <span className="text-[10px] text-muted-foreground">Administracao</span>
+            <span className="text-[10px] text-muted-foreground">Administração</span>
           </div>
         </Link>
       </SidebarHeader>
@@ -310,7 +304,7 @@ export function AdminSidebar() {
         {/* Single Items */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Organizacao
+            Organização
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
