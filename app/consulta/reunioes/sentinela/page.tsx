@@ -150,8 +150,14 @@ export default function ConsultaSentinelaPage() {
     const dataFim = new Date(fim + "T12:00:00")
     const diaInicio = dataInicio.getDate()
     const diaFim = dataFim.getDate()
-    const mes = dataInicio.toLocaleDateString("pt-BR", { month: "long" })
-    return `${diaInicio}-${diaFim} de ${mes}`
+    const mesInicio = dataInicio.toLocaleDateString("pt-BR", { month: "long" })
+    const mesFim = dataFim.toLocaleDateString("pt-BR", { month: "long" })
+    
+    // Se o estudo cruza dois meses diferentes
+    if (mesInicio !== mesFim) {
+      return `${diaInicio} de ${mesInicio} - ${diaFim} de ${mesFim}`
+    }
+    return `${diaInicio}-${diaFim} de ${mesInicio}`
   }
 
   return (
