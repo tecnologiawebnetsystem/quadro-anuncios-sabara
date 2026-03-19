@@ -75,8 +75,8 @@ const quickLinks = [
     iconBg: "bg-gradient-to-r from-violet-600 to-purple-600",
   },
   {
-    title: "Vida e Ministerio",
-    description: "Programacao semanal",
+    title: "Vida e Ministério",
+    description: "Programação semanal",
     href: "/consulta/reunioes/vida-ministerio",
     icon: Gem,
     color: "from-blue-600/20 to-blue-800/5",
@@ -91,7 +91,7 @@ const quickLinks = [
     iconBg: "bg-purple-600",
   },
   {
-    title: "Equipe Tecnica",
+    title: "Equipe Técnica",
     description: "Indicadores e som",
     href: "/consulta/equipe-tecnica",
     icon: Wrench,
@@ -99,7 +99,7 @@ const quickLinks = [
     iconBg: "bg-orange-600",
   },
   {
-    title: "Limpeza do Salao",
+    title: "Limpeza do Salão",
     description: "Escala semanal",
     href: "/consulta/limpeza-salao",
     icon: Sparkles,
@@ -107,7 +107,7 @@ const quickLinks = [
     iconBg: "bg-cyan-600",
   },
   {
-    title: "Servico de Campo",
+    title: "Serviço de Campo",
     description: "Dirigentes de campo",
     href: "/consulta/servico-campo",
     icon: MapPin,
@@ -115,8 +115,8 @@ const quickLinks = [
     iconBg: "bg-green-600",
   },
   {
-    title: "Reunioes Publicas",
-    description: "Discursos e assistencia",
+    title: "Reuniões Públicas",
+    description: "Discursos e assistência",
     href: "/consulta/reunioes-publicas",
     icon: Mic,
     color: "from-amber-600/20 to-amber-800/5",
@@ -326,7 +326,7 @@ export default function ConsultaPage() {
       {/* Header */}
       <div className="text-center sm:text-left">
         <h1 className="text-3xl font-bold text-white mb-2">
-          Quadro de Anuncios
+          Quadro de Anúncios
         </h1>
         <p className="text-zinc-400">
           {format(hoje, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
@@ -341,7 +341,7 @@ export default function ConsultaPage() {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-zinc-400">
                 <Calendar className="h-4 w-4 text-blue-500" />
-                Proxima Reuniao
+                Próxima Reunião
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -390,7 +390,7 @@ export default function ConsultaPage() {
           </Card>
         )}
 
-        {/* Servico de Campo Hoje */}
+        {/* Serviço de Campo Hoje */}
         {campoHoje && (
           <Card className="border-zinc-800 bg-gradient-to-br from-green-600/10 to-green-900/5 hover:border-green-600/30 transition-colors">
             <CardHeader className="pb-2">
@@ -403,7 +403,7 @@ export default function ConsultaPage() {
               <p className="text-lg font-semibold text-white">{campoHoje.dirigente_nome}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span className="rounded bg-green-600/20 px-2 py-0.5 text-xs text-green-400">
-                  {campoHoje.periodo === "manha" ? "Manha" : "Tarde"}
+                  {campoHoje.periodo === "manha" ? "Manhã" : "Tarde"}
                 </span>
                 <span className="flex items-center gap-1 text-sm text-zinc-400">
                   <Clock className="h-3 w-3" />
@@ -420,7 +420,7 @@ export default function ConsultaPage() {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-zinc-400">
                 <Mic className="h-4 w-4 text-amber-500" />
-                Proximo Discurso Publico
+                Próximo Discurso Público
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -448,7 +448,7 @@ export default function ConsultaPage() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base font-semibold">
                 <CalendarDays className="h-4 w-4 text-blue-500" />
-                Calendario
+                Calendário
               </CardTitle>
               <div className="flex items-center gap-1">
                 <Button
@@ -511,7 +511,7 @@ export default function ConsultaPage() {
             {/* Legenda */}
             <div className="mt-4 pt-3 border-t border-zinc-800 flex flex-wrap gap-3 text-[10px]">
               <span className="flex items-center gap-1 text-zinc-400">
-                <span className="w-2 h-2 rounded-full bg-purple-500" /> Reuniao
+                <span className="w-2 h-2 rounded-full bg-purple-500" /> Reunião
               </span>
               <span className="flex items-center gap-1 text-zinc-400">
                 <span className="w-2 h-2 rounded-full bg-amber-500" /> Discurso
@@ -528,7 +528,7 @@ export default function ConsultaPage() {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base font-semibold">
               <Megaphone className="h-4 w-4 text-amber-500" />
-              Anuncios da Semana
+              Anúncios da Semana
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -536,9 +536,9 @@ export default function ConsultaPage() {
               <div className="flex items-start gap-3 rounded-lg bg-cyan-600/10 p-3">
                 <Sparkles className="h-5 w-5 text-cyan-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-white">Limpeza do Salao</p>
+                  <p className="text-sm font-medium text-white">Limpeza do Salão</p>
                   <p className="text-xs text-zinc-400">
-                    Grupo responsavel: <span className="text-cyan-400">{limpezaSemana.grupo_nome}</span>
+                    Grupo responsável: <span className="text-cyan-400">{limpezaSemana.grupo_nome}</span>
                   </p>
                 </div>
               </div>
@@ -561,7 +561,7 @@ export default function ConsultaPage() {
               <div className="flex items-start gap-3 rounded-lg bg-green-600/10 p-3">
                 <MapPin className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-white">Servico de Campo Hoje</p>
+                  <p className="text-sm font-medium text-white">Serviço de Campo Hoje</p>
                   <p className="text-xs text-zinc-400">
                     Dirigente: <span className="text-green-400">{campoHoje.dirigente_nome}</span> - {campoHoje.horario}
                   </p>

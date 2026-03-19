@@ -74,9 +74,9 @@ export function CentralNotificacoes() {
     try {
       // Simulação de envio
       await new Promise(resolve => setTimeout(resolve, 1000))
-      toast.success("Notificacao preparada para envio!")
+      toast.success("Notificação preparada para envio!")
     } catch (error) {
-      toast.error("Erro ao enviar notificacao")
+      toast.error("Erro ao enviar notificação")
     } finally {
       setEnviando(false)
     }
@@ -91,9 +91,9 @@ export function CentralNotificacoes() {
             <Bell className="h-5 w-5 text-violet-500" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-foreground">Central de Notificacoes</h2>
+            <h2 className="text-xl font-bold text-foreground">Central de Notificações</h2>
             <p className="text-sm text-muted-foreground">
-              Gere resumos e lembretes automaticos com IA
+              Gere resumos e lembretes automáticos com IA
             </p>
           </div>
         </div>

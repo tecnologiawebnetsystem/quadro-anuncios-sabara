@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Bell, Search, FileText } from "lucide-react"
@@ -14,15 +15,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+
 
 export function AdminHeader() {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
   const handleLogout = () => {
     router.push("/")
@@ -45,55 +46,50 @@ export function AdminHeader() {
 
       <div className="flex items-center gap-2">
         {/* Icone Wiki / Documentacao */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" asChild>
-                <Link href="/admin/wiki">
-                  <FileText className="h-5 w-5" />
-                  <span className="sr-only">Wiki / Documentação</span>
-                </Link>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Wiki / Documentação</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/admin/wiki">
+            <FileText className="h-5 w-5" />
+            <span className="sr-only">Wiki / Documentação</span>
+          </Link>
+        </Button>
 
         {/* Notificacoes */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="sr-only">Notificações</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel>Notificações</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="flex flex-col items-start gap-1 py-3">
-              <span className="text-sm text-muted-foreground">
-                Nenhuma notificação no momento
-              </span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {mounted && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                <span className="sr-only">Notificações</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80">
+              <DropdownMenuLabel>Notificações</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3">
+                <span className="text-sm text-muted-foreground">
+                  Nenhuma notificação no momento
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-2">
-              <span className="hidden md:inline text-sm">Administrador</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => router.push("/admin/configuracoes")}>
-              Configurações
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive" onClick={handleLogout}>Sair</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {mounted && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="gap-2">
+                <span className="hidden md:inline text-sm">Administrador</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => router.push("/admin/configuracoes")}>
+                Configurações
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-destructive" onClick={handleLogout}>Sair</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </header>
   )

@@ -166,11 +166,11 @@ export default function ConfiguracoesPage() {
         <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
           <TabsTrigger value="congregacao" className="gap-2">
             <Building2 className="h-4 w-4 hidden sm:inline" />
-            Congregacao
+            Congregação
           </TabsTrigger>
           <TabsTrigger value="reunioes" className="gap-2">
             <Calendar className="h-4 w-4 hidden sm:inline" />
-            Reunioes
+            Reuniões
           </TabsTrigger>
           <TabsTrigger value="campo" className="gap-2">
             <MapPin className="h-4 w-4 hidden sm:inline" />
@@ -182,7 +182,7 @@ export default function ConfiguracoesPage() {
           </TabsTrigger>
           <TabsTrigger value="notificacoes" className="gap-2">
             <Bell className="h-4 w-4 hidden sm:inline" />
-            Notificacoes IA
+            Notificações IA
           </TabsTrigger>
         </TabsList>
 

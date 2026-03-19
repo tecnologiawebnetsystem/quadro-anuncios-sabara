@@ -91,45 +91,45 @@ const funcionalidadesAdmin = [
     ]
   },
   {
-    categoria: "Reunioes",
+    categoria: "Reuniões",
     icon: Calendar,
     cor: "bg-purple-600",
     itens: [
       {
-        titulo: "Vida e Ministerio",
-        descricao: "Programacao completa da reuniao de meio de semana.",
+        titulo: "Vida e Ministério",
+        descricao: "Programação completa da reunião de meio de semana.",
         link: "/admin/vida-ministerio",
         funcionalidades: [
-          "Importacao automatica do JW.org",
-          "Designacao de participantes",
-          "Visualizacao por semana",
-          "Historico de designacoes"
+          "Importação automática do JW.org",
+          "Designação de participantes",
+          "Visualização por semana",
+          "Histórico de designações"
         ],
         ia: true,
-        iaDescricao: "Sugestao de Designacoes - IA analisa historico e sugere os melhores candidatos para cada parte."
+        iaDescricao: "Sugestão de Designações - IA analisa histórico e sugere os melhores candidatos para cada parte."
       },
       {
         titulo: "Sentinela",
-        descricao: "Programacao completa do estudo da Sentinela de domingo.",
+        descricao: "Programação completa do estudo da Sentinela de domingo.",
         link: "/admin/sentinela",
         funcionalidades: [
-          "Criacao manual ou importacao com IA",
-          "Paragrafos com texto base, pergunta e resposta",
-          "Botao IA Responder por paragrafo",
-          "Cantico do Meio e Cantico Final",
-          "Designacao de Dirigente e Leitor"
+          "Criação manual ou importação com IA",
+          "Parágrafos com texto base, pergunta e resposta",
+          "Botão IA Responder por parágrafo",
+          "Cântico do Meio e Cântico Final",
+          "Designação de Dirigente e Leitor"
         ],
         ia: true,
-        iaDescricao: "Geracao de Respostas - IA gera respostas para cada paragrafo baseado no texto e pergunta. Pode gerar individualmente ou todas de uma vez na importacao."
+        iaDescricao: "Geração de Respostas - IA gera respostas para cada parágrafo baseado no texto e pergunta. Pode gerar individualmente ou todas de uma vez na importação."
       },
       {
-        titulo: "Reunioes Publicas",
-        descricao: "Programacao dos discursos publicos.",
+        titulo: "Reuniões Públicas",
+        descricao: "Programação dos discursos públicos.",
         link: "/admin/reunioes-publicas",
         funcionalidades: [
           "Cadastro de discursos",
-          "Designacao de oradores",
-          "Calendario mensal"
+          "Designação de oradores",
+          "Calendário mensal"
         ]
       }
     ]
@@ -140,48 +140,48 @@ const funcionalidadesAdmin = [
     cor: "bg-amber-600",
     itens: [
       {
-        titulo: "Equipe Tecnica",
+        titulo: "Equipe Técnica",
         descricao: "Escala de som, microfone e indicadores.",
         link: "/admin/equipe-tecnica",
         funcionalidades: [
-          "Designacao por dia da semana",
+          "Designação por dia da semana",
           "Indicadores 1 e 2",
           "Microfonistas (volantes)",
           "Operador de som"
         ],
         ia: true,
-        iaDescricao: "Geracao Automatica de Escala - IA distribui equipe equilibradamente considerando historico."
+        iaDescricao: "Geração Automática de Escala - IA distribui equipe equilibradamente considerando histórico."
       },
       {
-        titulo: "Limpeza do Salao",
+        titulo: "Limpeza do Salão",
         descricao: "Escala de grupos de limpeza.",
         link: "/admin/limpeza-salao",
         funcionalidades: [
-          "Designacao por semana",
-          "Rotacao automatica de grupos",
-          "Calendario mensal"
+          "Designação por semana",
+          "Rotação automática de grupos",
+          "Calendário mensal"
         ],
         ia: true,
-        iaDescricao: "Geracao Automatica de Escala - IA distribui grupos equilibradamente ao longo do mes."
+        iaDescricao: "Geração Automática de Escala - IA distribui grupos equilibradamente ao longo do mês."
       },
       {
         titulo: "Grupos de Campo",
-        descricao: "Gestao de grupos de servico de campo.",
+        descricao: "Gestão de grupos de serviço de campo.",
         link: "/admin/servico-campo",
         funcionalidades: [
           "Cadastro de grupos",
-          "Designacao de dirigentes",
+          "Designação de dirigentes",
           "Pontos de encontro"
         ]
       },
       {
         titulo: "Grupos de Estudo",
-        descricao: "Gestao de grupos de estudo biblico.",
+        descricao: "Gestão de grupos de estudo bíblico.",
         link: "/admin/grupo-estudos",
         funcionalidades: [
           "Cadastro de grupos",
-          "Designacao de dirigentes",
-          "Locais e horarios"
+          "Designação de dirigentes",
+          "Locais e horários"
         ]
       }
     ]
@@ -247,23 +247,23 @@ const funcionalidadesConsulta = [
           "Preparador de Partes - Ajuda para designacoes"
         ],
         ia: true,
-        iaDescricao: "Todas as funcionalidades usam IA baseada exclusivamente em conteudo do jw.org."
+        iaDescricao: "Todas as funcionalidades usam IA baseada exclusivamente em conteúdo do jw.org."
       }
     ]
   },
   {
-    categoria: "Reunioes",
+    categoria: "Reuniões",
     icon: Calendar,
     cor: "bg-blue-600",
     itens: [
       {
-        titulo: "Vida e Ministerio",
-        descricao: "Consulta da programacao semanal.",
+        titulo: "Vida e Ministério",
+        descricao: "Consulta da programação semanal.",
         link: "/consulta/reunioes/vida-ministerio",
         funcionalidades: [
-          "Visualizacao das partes",
-          "Designacoes da semana",
-          "Canticos e oracoes"
+          "Visualização das partes",
+          "Designações da semana",
+          "Cânticos e orações"
         ]
       },
       {
@@ -271,15 +271,15 @@ const funcionalidadesConsulta = [
         descricao: "Consulta do estudo da Sentinela de domingo.",
         link: "/consulta/reunioes/sentinela",
         funcionalidades: [
-          "Titulo e texto tema do estudo",
-          "Paragrafos com perguntas e respostas IA",
-          "Cantico do Meio e Cantico Final",
+          "Título e texto tema do estudo",
+          "Parágrafos com perguntas e respostas IA",
+          "Cântico do Meio e Cântico Final",
           "Dirigente e Leitor designados"
         ]
       },
       {
-        titulo: "Reunioes Publicas",
-        descricao: "Consulta dos discursos publicos.",
+        titulo: "Reuniões Públicas",
+        descricao: "Consulta dos discursos públicos.",
         link: "/consulta/reunioes-publicas",
         funcionalidades: [
           "Tema do discurso",
@@ -298,13 +298,13 @@ const funcionalidadesConsulta = [
         titulo: "Todos os Publicadores",
         descricao: "Lista completa de publicadores.",
         link: "/consulta/publicadores",
-        funcionalidades: ["Lista com filtros", "Informacoes de contato"]
+        funcionalidades: ["Lista com filtros", "Informações de contato"]
       },
       {
-        titulo: "Anciaos",
-        descricao: "Lista de anciaos.",
+        titulo: "Anciãos",
+        descricao: "Lista de anciãos.",
         link: "/consulta/anciaos",
-        funcionalidades: ["Contato dos anciaos"]
+        funcionalidades: ["Contato dos anciãos"]
       },
       {
         titulo: "Servos Ministeriais",
@@ -326,20 +326,20 @@ const funcionalidadesConsulta = [
     cor: "bg-amber-600",
     itens: [
       {
-        titulo: "Equipe Tecnica",
+        titulo: "Equipe Técnica",
         descricao: "Consulta da escala de som e indicadores.",
         link: "/consulta/equipe-tecnica",
-        funcionalidades: ["Escala do mes", "Designacoes por dia"]
+        funcionalidades: ["Escala do mês", "Designações por dia"]
       },
       {
-        titulo: "Limpeza do Salao",
+        titulo: "Limpeza do Salão",
         descricao: "Consulta da escala de limpeza.",
         link: "/consulta/limpeza-salao",
         funcionalidades: ["Grupos designados por semana"]
       },
       {
         titulo: "Grupos de Campo",
-        descricao: "Consulta dos grupos de servico de campo.",
+        descricao: "Consulta dos grupos de serviço de campo.",
         link: "/consulta/servico-campo",
         funcionalidades: ["Grupos e pontos de encontro"]
       },
