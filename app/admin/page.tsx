@@ -25,12 +25,7 @@ import {
   Bell,
   ClipboardList,
   Video,
-  Zap,
-  Brain,
-  RefreshCw,
-  Lightbulb,
-  CheckCircle2,
-  Info
+  Zap
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -85,21 +80,6 @@ interface Alerta {
   link?: string
 }
 
-interface InsightsIA {
-  resumo: string
-  insights: string[]
-  alertas: string[]
-  sugestoes: string[]
-  saude: "otima" | "boa" | "atencao" | "critica"
-  estatisticas?: {
-    totalPublicadores: number
-    mediaAssistencia: number
-    equipeIncompleta: number
-    limpezaPendente: number
-    partesSemDesignacao: number
-  }
-}
-
 // Componente de Skeleton Loading
 function SkeletonCard() {
   return (
@@ -146,8 +126,6 @@ export default function AdminDashboard() {
   const [campoSemana, setCampoSemana] = useState<CampoSemana[]>([])
   const [totalGrupos, setTotalGrupos] = useState(0)
   const [alertas, setAlertas] = useState<Alerta[]>([])
-  const [insightsIA, setInsightsIA] = useState<InsightsIA | null>(null)
-  const [carregandoInsights, setCarregandoInsights] = useState(false)
   
   const hoje = new Date()
   const inicioSemana = startOfWeek(hoje, { weekStartsOn: 1 })
@@ -262,22 +240,6 @@ export default function AdminDashboard() {
     }
     carregarDados()
   }, [])
-
-  // Carregar insights de IA
-  async function carregarInsightsIA() {
-    setCarregandoInsights(true)
-    try {
-      const response = await fetch("/api/ia/insights")
-      if (response.ok) {
-        const data = await response.json()
-        setInsightsIA(data)
-      }
-    } catch (error) {
-      console.error("Erro ao carregar insights:", error)
-    } finally {
-      setCarregandoInsights(false)
-    }
-  }
 
   const totalAtivos = publicadores.filter((p) => p.ativo).length
   const totalAnciaos = publicadores.filter((p) => p.anciao && p.ativo).length
@@ -402,107 +364,6 @@ export default function AdminDashboard() {
           ))}
         </div>
       )}
-
-      {/* Card de Insights com IA */}
-      <Card className="border-zinc-800 bg-gradient-to-br from-violet-600/10 via-zinc-900/50 to-purple-600/10 overflow-hidden">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-              <Brain className="h-5 w-5 text-violet-500" />
-              Insights com IA
-            </CardTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={carregarInsightsIA}
-              disabled={carregandoInsights}
-              className="border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
-            >
-              {carregandoInsights ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-1" />
-                  Gerar Analise
-                </>
-              )}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {insightsIA ? (
-            <div className="space-y-4">
-              {/* Saúde da Congregação */}
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-zinc-800/50">
-                <div className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-full",
-                  insightsIA.saude === "otima" && "bg-green-600/20",
-                  insightsIA.saude === "boa" && "bg-blue-600/20",
-                  insightsIA.saude === "atencao" && "bg-amber-600/20",
-                  insightsIA.saude === "critica" && "bg-red-600/20"
-                )}>
-                  {insightsIA.saude === "otima" && <CheckCircle2 className="h-5 w-5 text-green-500" />}
-                  {insightsIA.saude === "boa" && <CheckCircle2 className="h-5 w-5 text-blue-500" />}
-                  {insightsIA.saude === "atencao" && <AlertCircle className="h-5 w-5 text-amber-500" />}
-                  {insightsIA.saude === "critica" && <AlertCircle className="h-5 w-5 text-red-500" />}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-white">{insightsIA.resumo}</p>
-                  <p className={cn(
-                    "text-xs capitalize",
-                    insightsIA.saude === "otima" && "text-green-400",
-                    insightsIA.saude === "boa" && "text-blue-400",
-                    insightsIA.saude === "atencao" && "text-amber-400",
-                    insightsIA.saude === "critica" && "text-red-400"
-                  )}>
-                    Saude: {insightsIA.saude}
-                  </p>
-                </div>
-              </div>
-
-              {/* Grid de Insights e Sugestões */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Insights */}
-                {insightsIA.insights.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-violet-400 flex items-center gap-1">
-                      <Lightbulb className="h-4 w-4" />
-                      Insights
-                    </p>
-                    {insightsIA.insights.map((insight, i) => (
-                      <div key={i} className="p-2 rounded bg-violet-600/10 border border-violet-600/20 text-sm text-zinc-300">
-                        {insight}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Sugestões */}
-                {insightsIA.sugestoes.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-cyan-400 flex items-center gap-1">
-                      <Info className="h-4 w-4" />
-                      Sugestoes
-                    </p>
-                    {insightsIA.sugestoes.map((sugestao, i) => (
-                      <div key={i} className="p-2 rounded bg-cyan-600/10 border border-cyan-600/20 text-sm text-zinc-300">
-                        {sugestao}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <Brain className="h-12 w-12 mx-auto text-violet-500/50 mb-3" />
-              <p className="text-sm text-zinc-500">
-                Clique em "Gerar Analise" para obter insights personalizados sobre a congregacao
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Acoes Rapidas */}
       <div className="flex flex-wrap gap-3">
