@@ -65,79 +65,37 @@ interface EventoCalendario {
   titulo: string
 }
 
-const quickLinks = [
+// Menu de navegação rápida - organizado por categoria
+const menuSections = [
   {
-    title: "Assistente IA",
-    description: "Ajuda com comentarios e partes",
-    href: "/consulta/assistente-ia",
-    icon: Brain,
-    color: "from-violet-600/20 to-purple-800/5",
-    iconBg: "bg-gradient-to-r from-violet-600 to-purple-600",
+    title: "Reuniões",
+    items: [
+      { title: "Vida e Ministério", description: "Programação semanal", href: "/consulta/reunioes/vida-ministerio", icon: Gem, color: "bg-blue-600" },
+      { title: "Estudo Sentinela", description: "Dirigentes e leitores", href: "/consulta/reunioes/sentinela", icon: BookMarked, color: "bg-purple-600" },
+      { title: "Reuniões Públicas", description: "Discursos e assistência", href: "/consulta/reunioes-publicas", icon: Mic, color: "bg-amber-600" },
+    ]
   },
   {
-    title: "Vida e Ministério",
-    description: "Programação semanal",
-    href: "/consulta/reunioes/vida-ministerio",
-    icon: Gem,
-    color: "from-blue-600/20 to-blue-800/5",
-    iconBg: "bg-blue-600",
+    title: "Escalas",
+    items: [
+      { title: "Equipe Técnica", description: "Indicadores e som", href: "/consulta/equipe-tecnica", icon: Wrench, color: "bg-orange-600" },
+      { title: "Limpeza do Salão", description: "Escala semanal", href: "/consulta/limpeza-salao", icon: Sparkles, color: "bg-cyan-600" },
+      { title: "Serviço de Campo", description: "Dirigentes de campo", href: "/consulta/servico-campo", icon: MapPin, color: "bg-green-600" },
+    ]
   },
   {
-    title: "Estudo Sentinela",
-    description: "Dirigentes e leitores",
-    href: "/consulta/reunioes/sentinela",
-    icon: BookMarked,
-    color: "from-purple-600/20 to-purple-800/5",
-    iconBg: "bg-purple-600",
+    title: "Pessoas",
+    items: [
+      { title: "Grupos de Estudo", description: "Membros de cada grupo", href: "/consulta/grupos", icon: Users, color: "bg-emerald-600" },
+      { title: "Publicadores", description: "Lista completa", href: "/consulta/publicadores", icon: BookOpen, color: "bg-pink-600" },
+    ]
   },
   {
-    title: "Equipe Técnica",
-    description: "Indicadores e som",
-    href: "/consulta/equipe-tecnica",
-    icon: Wrench,
-    color: "from-orange-600/20 to-orange-800/5",
-    iconBg: "bg-orange-600",
-  },
-  {
-    title: "Limpeza do Salão",
-    description: "Escala semanal",
-    href: "/consulta/limpeza-salao",
-    icon: Sparkles,
-    color: "from-cyan-600/20 to-cyan-800/5",
-    iconBg: "bg-cyan-600",
-  },
-  {
-    title: "Serviço de Campo",
-    description: "Dirigentes de campo",
-    href: "/consulta/servico-campo",
-    icon: MapPin,
-    color: "from-green-600/20 to-green-800/5",
-    iconBg: "bg-green-600",
-  },
-  {
-    title: "Reuniões Públicas",
-    description: "Discursos e assistência",
-    href: "/consulta/reunioes-publicas",
-    icon: Mic,
-    color: "from-amber-600/20 to-amber-800/5",
-    iconBg: "bg-amber-600",
-  },
-  {
-    title: "Grupos de Estudo",
-    description: "Membros de cada grupo",
-    href: "/consulta/grupos",
-    icon: Users,
-    color: "from-emerald-600/20 to-emerald-800/5",
-    iconBg: "bg-emerald-600",
-  },
-  {
-    title: "Publicadores",
-    description: "Lista completa",
-    href: "/consulta/publicadores",
-    icon: BookOpen,
-    color: "from-pink-600/20 to-pink-800/5",
-    iconBg: "bg-pink-600",
-  },
+    title: "Ferramentas",
+    items: [
+      { title: "Assistente IA", description: "Ajuda com comentários", href: "/consulta/assistente-ia", icon: Brain, color: "bg-violet-600" },
+    ]
+  }
 ]
 
 // Skeleton components
@@ -595,57 +553,38 @@ export default function ConsultaPage() {
         </Card>
       </div>
 
-      {/* Quick Links */}
-      <div>
-        <h2 className="text-lg font-semibold text-white mb-4">Acesso Rapido</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {quickLinks.map((link) => (
-            <Link key={link.href} href={link.href}>
-              <Card className={cn(
-                "group h-full border-zinc-800 bg-gradient-to-br transition-all duration-200",
-                link.color,
-                "hover:border-zinc-700 hover:scale-[1.02]"
-              )}>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className={cn("rounded-lg p-2", link.iconBg)}>
-                      <link.icon className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-white truncate group-hover:text-blue-300 transition-colors">
-                        {link.title}
-                      </h3>
-                      <p className="text-xs text-zinc-500 truncate">
-                        {link.description}
-                      </p>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-zinc-600 flex-shrink-0 group-hover:text-zinc-400 group-hover:translate-x-1 transition-all" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* Info Card */}
-      <Card className="bg-zinc-900/30 border-zinc-800">
-        <CardContent className="p-5">
-          <div className="flex items-start gap-4">
-            <div className="rounded-lg bg-blue-600/10 p-2.5">
-              <Info className="h-5 w-5 text-blue-400" />
-            </div>
-            <div>
-              <h3 className="font-medium text-white mb-1">
-                Modo Consulta
-              </h3>
-              <p className="text-sm text-zinc-400 leading-relaxed">
-                Visualize as informacoes da congregacao. As atualizacoes sao feitas automaticamente ou clicando no botao "Atualizar" no canto superior direito.
-              </p>
+      {/* Menu de Navegação - Organizado por Categorias */}
+      <div className="space-y-6">
+        {menuSections.map((section) => (
+          <div key={section.title}>
+            <h2 className="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-3">{section.title}</h2>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {section.items.map((item) => (
+                <Link key={item.href} href={item.href}>
+                  <Card className="group h-full border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/50 hover:border-zinc-700 transition-all duration-200">
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className={cn("rounded-lg p-2 flex-shrink-0", item.color)}>
+                          <item.icon className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-medium text-white truncate group-hover:text-blue-300 transition-colors">
+                            {item.title}
+                          </h3>
+                          <p className="text-xs text-zinc-500 truncate">
+                            {item.description}
+                          </p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-zinc-600 flex-shrink-0 group-hover:text-zinc-400 group-hover:translate-x-1 transition-all" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
     </div>
   )
 }
