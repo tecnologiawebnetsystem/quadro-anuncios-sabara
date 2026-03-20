@@ -1,85 +1,30 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { 
   Home, 
-  BookOpen, 
-  Users, 
   Calendar,
-  ChevronLeft,
-  Menu,
-  X,
   LogOut,
-  Wrench,
-  Sparkles,
-  Shield,
-  UserCheck,
-  Flag,
-  Gem,
-  BookMarked,
   RefreshCw,
-  MapPin,
-  Mic
+  ChevronLeft,
+  Users,
+  Wrench,
+  MapPin
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SyncProvider, useSync } from "@/lib/contexts/sync-context"
 
-const menuItems = [
-  {
-    title: "Início",
-    href: "/consulta",
-    icon: Home,
-  },
-  {
-    title: "Reuniões",
-    href: "/consulta/reunioes",
-    icon: Calendar,
-    subItems: [
-      { title: "Vida e Ministério", href: "/consulta/reunioes/vida-ministerio" },
-      { title: "Estudo Sentinela", href: "/consulta/reunioes/sentinela" },
-    ]
-  },
-  {
-    title: "Equipe Técnica",
-    href: "/consulta/equipe-tecnica",
-    icon: Wrench,
-  },
-  {
-    title: "Limpeza do Salão",
-    href: "/consulta/limpeza-salao",
-    icon: Sparkles,
-  },
-  {
-    title: "Serviço de Campo",
-    href: "/consulta/servico-campo",
-    icon: MapPin,
-  },
-  {
-    title: "Reuniões Públicas",
-    href: "/consulta/reunioes-publicas",
-    icon: Mic,
-  },
-  {
-    title: "Grupos de Estudo",
-    href: "/consulta/grupos",
-    icon: Users,
-  },
-  {
-    title: "Publicadores",
-    href: "/consulta/publicadores",
-    icon: BookOpen,
-    subItems: [
-      { title: "Todos", href: "/consulta/publicadores" },
-      { title: "Anciãos", href: "/consulta/anciaos" },
-      { title: "Servos Ministeriais", href: "/consulta/servos-ministeriais" },
-      { title: "Pioneiros", href: "/consulta/pioneiros" },
-    ]
-  },
+// Itens do bottom navigation (mobile) - apenas os mais importantes
+const bottomNavItems = [
+  { title: "Início", href: "/consulta", icon: Home },
+  { title: "Reuniões", href: "/consulta/reunioes/vida-ministerio", icon: Calendar },
+  { title: "Equipe", href: "/consulta/equipe-tecnica", icon: Wrench },
+  { title: "Campo", href: "/consulta/servico-campo", icon: MapPin },
+  { title: "Grupos", href: "/consulta/grupos", icon: Users },
 ]
 
-function SyncButton() {
+function SyncButton({ compact = false }: { compact?: boolean }) {
   const { isSyncing, lastSync, triggerSync } = useSync()
   
   const formatLastSync = () => {
@@ -87,8 +32,26 @@ function SyncButton() {
     const now = new Date()
     const diff = Math.floor((now.getTime() - lastSync.getTime()) / 1000)
     if (diff < 60) return "agora"
-    if (diff < 3600) return `${Math.floor(diff / 60)}min atrás`
+    if (diff < 3600) return `${Math.floor(diff / 60)}min`
     return lastSync.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+  }
+
+  if (compact) {
+    return (
+      <button
+        onClick={triggerSync}
+        disabled={isSyncing}
+        className={cn(
+          "p-2 rounded-lg transition-all",
+          isSyncing 
+            ? "bg-blue-600/20 text-blue-400" 
+            : "text-zinc-400 hover:text-blue-400 hover:bg-zinc-800/50"
+        )}
+        title="Atualizar dados"
+      >
+        <RefreshCw className={cn("w-5 h-5", isSyncing && "animate-spin")} />
+      </button>
+    )
   }
 
   return (
@@ -108,7 +71,7 @@ function SyncButton() {
         {isSyncing ? "Atualizando..." : "Atualizar"}
       </span>
       {lastSync && !isSyncing && (
-        <span className="hidden md:inline text-xs text-zinc-600">
+        <span className="text-xs text-zinc-600">
           ({formatLastSync()})
         </span>
       )}
@@ -118,16 +81,7 @@ function SyncButton() {
 
 function ConsultaLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [expandedItems, setExpandedItems] = useState<string[]>(["Reuniões"])
-
-  const toggleExpanded = (title: string) => {
-    setExpandedItems(prev => 
-      prev.includes(title) 
-        ? prev.filter(t => t !== title)
-        : [...prev, title]
-    )
-  }
+  const isHomePage = pathname === "/consulta"
 
   const isActive = (href: string) => {
     if (href === "/consulta") return pathname === href
@@ -136,181 +90,76 @@ function ConsultaLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950">
-      {/* Header Mobile */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800">
-        <div className="flex items-center justify-between px-4 py-3">
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-zinc-400 hover:text-white transition-colors"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-          <h1 className="text-lg font-semibold text-white">Quadro de <span className="text-red-500">Anúncios</span></h1>
+      {/* Header - Fixo no topo */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800">
+        <div className="flex items-center justify-between px-4 py-3 max-w-5xl mx-auto">
+          {/* Logo / Voltar */}
           <div className="flex items-center gap-2">
-            <SyncButton />
-            <Link href="/" className="flex items-center gap-1 text-zinc-400 hover:text-red-400 transition-colors">
+            {!isHomePage && (
+              <Link 
+                href="/consulta" 
+                className="p-2 -ml-2 text-zinc-400 hover:text-white transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Link>
+            )}
+            <Link href="/consulta" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-red-600/50 flex items-center justify-center">
+                <span className="text-xs font-bold text-white">I<span className="text-red-500">F</span></span>
+              </div>
+              <div className="hidden sm:block">
+                <h1 className="text-sm font-semibold text-white leading-tight">
+                  Quadro de <span className="text-red-500">Anúncios</span>
+                </h1>
+                <p className="text-[10px] text-zinc-500 leading-tight">Congregação Sabará</p>
+              </div>
+            </Link>
+          </div>
+          
+          {/* Ações */}
+          <div className="flex items-center gap-1">
+            <SyncButton compact />
+            <Link 
+              href="/" 
+              className="p-2 text-zinc-500 hover:text-red-400 transition-colors"
+              title="Sair"
+            >
               <LogOut className="w-5 h-5" />
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-zinc-950/95 pt-16">
-          <nav className="p-4 space-y-2">
-            {menuItems.map((item) => (
-              <div key={item.title}>
-                {item.subItems ? (
-                  <>
-                    <button
-                      onClick={() => toggleExpanded(item.title)}
-                      className={cn(
-                        "flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all",
-                        isActive(item.href)
-                          ? "bg-blue-600/20 text-blue-400"
-                          : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <item.icon className="w-5 h-5" />
-                        <span className="font-medium">{item.title}</span>
-                      </div>
-                      <ChevronLeft className={cn(
-                        "w-4 h-4 transition-transform",
-                        expandedItems.includes(item.title) ? "-rotate-90" : "rotate-0"
-                      )} />
-                    </button>
-                    {expandedItems.includes(item.title) && (
-                      <div className="ml-8 mt-1 space-y-1">
-                        {item.subItems.map((sub) => (
-                          <Link
-                            key={sub.href}
-                            href={sub.href}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className={cn(
-                              "block px-4 py-2 rounded-lg text-sm transition-all",
-                              pathname.startsWith(sub.href)
-                                ? "bg-blue-600/20 text-blue-400"
-                                : "text-zinc-500 hover:bg-zinc-800/50 hover:text-white"
-                            )}
-                          >
-                            {sub.title}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <Link
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
-                      isActive(item.href)
-                        ? "bg-blue-600/20 text-blue-400"
-                        : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
-                    )}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span className="font-medium">{item.title}</span>
-                  </Link>
-                )}
-              </div>
-            ))}
-          </nav>
+      {/* Main Content - Com padding para header e bottom nav */}
+      <main className="pt-16 pb-20 md:pb-8">
+        <div className="p-4 md:p-6 lg:p-8 max-w-5xl mx-auto">
+          {children}
         </div>
-      )}
+      </main>
 
-      <div className="flex">
-        {/* Sidebar Desktop */}
-        <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-zinc-900/50 border-r border-zinc-800 p-4">
-          <div className="mb-8">
-            <h1 className="text-xl font-bold text-white">Quadro de <span className="text-red-500">Anúncios</span></h1>
-            <p className="text-sm text-zinc-500">Informações da Congregação</p>
-          </div>
-
-          <nav className="flex-1 space-y-2">
-            {menuItems.map((item) => (
-              <div key={item.title}>
-                {item.subItems ? (
-                  <>
-                    <button
-                      onClick={() => toggleExpanded(item.title)}
-                      className={cn(
-                        "flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all",
-                        isActive(item.href)
-                          ? "bg-blue-600/20 text-blue-400"
-                          : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <item.icon className="w-5 h-5" />
-                        <span className="font-medium">{item.title}</span>
-                      </div>
-                      <ChevronLeft className={cn(
-                        "w-4 h-4 transition-transform",
-                        expandedItems.includes(item.title) ? "-rotate-90" : "rotate-0"
-                      )} />
-                    </button>
-                    {expandedItems.includes(item.title) && (
-                      <div className="ml-8 mt-1 space-y-1">
-                        {item.subItems.map((sub) => (
-                          <Link
-                            key={sub.href}
-                            href={sub.href}
-                            className={cn(
-                              "block px-4 py-2 rounded-lg text-sm transition-all",
-                              pathname.startsWith(sub.href)
-                                ? "bg-blue-600/20 text-blue-400"
-                                : "text-zinc-500 hover:bg-zinc-800/50 hover:text-white"
-                            )}
-                          >
-                            {sub.title}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
-                      isActive(item.href)
-                        ? "bg-blue-600/20 text-blue-400"
-                        : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
-                    )}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span className="font-medium">{item.title}</span>
-                  </Link>
+      {/* Bottom Navigation - Apenas mobile */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-sm border-t border-zinc-800">
+        <div className="flex items-center justify-around py-2 px-2">
+          {bottomNavItems.map((item) => {
+            const active = isActive(item.href)
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all min-w-[60px]",
+                  active 
+                    ? "text-blue-400 bg-blue-600/10" 
+                    : "text-zinc-500 hover:text-zinc-300"
                 )}
-              </div>
-            ))}
-          </nav>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 min-h-screen pt-16 lg:pt-0">
-          {/* Header Desktop com botão Atualizar e Sair */}
-          <div className="hidden lg:flex items-center justify-end gap-2 px-6 py-3 border-b border-zinc-800/50">
-            <SyncButton />
-            <div className="w-px h-4 bg-zinc-800" />
-            <Link 
-              href="/" 
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-zinc-500 hover:text-red-400 hover:bg-zinc-800/50 transition-all"
-              title="Sair"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Sair</span>
-            </Link>
-          </div>
-          <div className="p-4 lg:p-8">
-            {children}
-          </div>
-        </main>
-      </div>
+              >
+                <item.icon className={cn("w-5 h-5", active && "text-blue-400")} />
+                <span className="text-[10px] font-medium">{item.title}</span>
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
     </div>
   )
 }
