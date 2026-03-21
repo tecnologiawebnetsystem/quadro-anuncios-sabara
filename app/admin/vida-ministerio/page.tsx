@@ -915,20 +915,6 @@ export default function AdminVidaMinisterioPage() {
         </Button>
       </div>
 
-      {/* Sala */}
-      <Select
-        value={parte.sala}
-        onValueChange={(value) => atualizarParte(parte.id, "sala", value)}
-      >
-        <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="principal">Principal</SelectItem>
-          <SelectItem value="auxiliar">Auxiliar</SelectItem>
-        </SelectContent>
-      </Select>
-
       {/* Sugestões IA + Participante */}
       <div className="space-y-2">
         <div className="flex items-center gap-2">
@@ -962,52 +948,28 @@ export default function AdminVidaMinisterioPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <Select
-            value={parte.participante_id || "none"}
-            onValueChange={(value) => {
-              const pub = publicadores.find((p) => p.id === value)
-              atualizarParteLote(parte.id, {
-                participante_id: value === "none" ? null : value,
-                participante_nome: value === "none" ? null : (pub?.nome || null),
-              })
-            }}
-          >
-            <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
-              <SelectValue placeholder="Participante" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">Selecione o participante</SelectItem>
-              {publicadores.map((pub) => (
-                <SelectItem key={pub.id} value={pub.id}>
-                  {pub.nome}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={parte.ajudante_id || "none"}
-            onValueChange={(value) => {
-              const pub = publicadores.find((p) => p.id === value)
-              atualizarParteLote(parte.id, {
-                ajudante_id: value === "none" ? null : value,
-                ajudante_nome: value === "none" ? null : (pub?.nome || null),
-              })
-            }}
-          >
-            <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
-              <SelectValue placeholder="Ajudante (opcional)" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">Sem ajudante</SelectItem>
-              {publicadores.map((pub) => (
-                <SelectItem key={pub.id} value={pub.id}>
-                  {pub.nome}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <Select
+          value={parte.participante_id || "none"}
+          onValueChange={(value) => {
+            const pub = publicadores.find((p) => p.id === value)
+            atualizarParteLote(parte.id, {
+              participante_id: value === "none" ? null : value,
+              participante_nome: value === "none" ? null : (pub?.nome || null),
+            })
+          }}
+        >
+          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+            <SelectValue placeholder="Selecione o participante" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">Selecione o participante</SelectItem>
+            {publicadores.map((pub) => (
+              <SelectItem key={pub.id} value={pub.id}>
+                {pub.nome}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   )
