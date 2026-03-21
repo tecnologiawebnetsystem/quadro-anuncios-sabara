@@ -112,6 +112,8 @@ export default function AdminVidaMinisterioPage() {
   const [sugestoes, setSugestoes] = useState<Record<string, { id: string; nome: string; motivo: string }[]>>({})
   const [buscandoSugestao, setBuscandoSugestao] = useState<string | null>(null)
   const [gerandoPerguntas, setGerandoPerguntas] = useState<string | null>(null)
+  // "parteId-1" ou "parteId-2" para controlar qual pergunta está sendo gerada individualmente
+  const [gerandoPerguntaIndividual, setGerandoPerguntaIndividual] = useState<string | null>(null)
   const [gerandoDescricao, setGerandoDescricao] = useState<string | null>(null)
 
   const supabase = createClient()
@@ -265,7 +267,17 @@ export default function AdminVidaMinisterioPage() {
       .update({ [campo]: valor })
       .eq("id", parteId)
     if (!error) {
-      setPartes(partes.map((p) => (p.id === parteId ? { ...p, [campo]: valor } : p)))
+      setPartes((prev) => prev.map((p) => (p.id === parteId ? { ...p, [campo]: valor } : p)))
+    }
+  }
+
+  const atualizarParteLote = async (parteId: string, campos: Partial<Parte>) => {
+    const { error } = await supabase
+      .from("vida_ministerio_partes")
+      .update(campos)
+      .eq("id", parteId)
+    if (!error) {
+      setPartes((prev) => prev.map((p) => (p.id === parteId ? { ...p, ...campos } : p)))
     }
   }
 
@@ -325,8 +337,7 @@ export default function AdminVidaMinisterioPage() {
   }
 
   const aplicarSugestao = async (parteId: string, publicadorId: string, publicadorNome: string) => {
-    await atualizarParte(parteId, "participante_id", publicadorId)
-    await atualizarParte(parteId, "participante_nome", publicadorNome)
+    await atualizarParteLote(parteId, { participante_id: publicadorId, participante_nome: publicadorNome })
     toast.success(`${publicadorNome} designado!`)
     setSugestoes((prev) => {
       const novo = { ...prev }
@@ -368,6 +379,47 @@ export default function AdminVidaMinisterioPage() {
       toast.error("Erro ao gerar perguntas")
     } finally {
       setGerandoPerguntas(null)
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  // IA – Gerar pergunta individual das Joias
+  // ──────────────────────────────────────────────
+  const gerarPerguntaIndividual = async (parteId: string, numero: 1 | 2) => {
+    const chave = `${parteId}-${numero}`
+    setGerandoPerguntaIndividual(chave)
+    const semana = semanas.find((s) => s.id === semanaAtiva)
+    const discurso = partes.find(
+      (p) => p.semana_id === semanaAtiva && p.secao === "tesouros" && p.ordem === TESOUROS_ORDEM.DISCURSO
+    )
+    try {
+      const response = await fetch("/api/ia/joias-espirituais", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: discurso?.titulo || "",
+          leituraSemanal: semana?.leitura_semanal || "",
+          apenas: numero,
+        }),
+      })
+      if (response.ok) {
+        const data = await response.json()
+        const campo = numero === 1 ? "pergunta1" : "pergunta2"
+        const valor = numero === 1 ? data.pergunta1 : data.pergunta2
+        if (valor) {
+          await atualizarParte(parteId, campo, valor)
+          toast.success(`Pergunta ${numero} gerada!`)
+        } else {
+          toast.error("Não foi possível gerar a pergunta")
+        }
+      } else {
+        toast.error("Erro ao gerar pergunta")
+      }
+    } catch (error) {
+      console.error("Erro ao gerar pergunta individual:", error)
+      toast.error("Erro ao gerar pergunta")
+    } finally {
+      setGerandoPerguntaIndividual(null)
     }
   }
 
@@ -506,37 +558,32 @@ export default function AdminVidaMinisterioPage() {
 
         {/* ── PARTE 2: Joias Espirituais ── */}
         {parte.ordem === TESOUROS_ORDEM.JOIAS && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-zinc-400 text-xs">Perguntas de estudo</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
-                onClick={() => gerarPerguntasJoias(parte.id)}
-                disabled={gerandoPerguntas === parte.id}
-              >
-                {gerandoPerguntas === parte.id ? (
-                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                ) : (
-                  <Sparkles className="h-3 w-3 mr-1" />
-                )}
-                Gerar por IA
-              </Button>
-            </div>
-
+          <div className="space-y-4">
             {/* Pergunta 1 */}
-            <div className="space-y-1">
-              <Label className="text-zinc-500 text-xs">Pergunta 1 (com referência bíblica)</Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-zinc-500 text-xs">Pergunta 1 (com referência bíblica)</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
+                  onClick={() => gerarPerguntaIndividual(parte.id, 1)}
+                  disabled={gerandoPerguntaIndividual === `${parte.id}-1`}
+                >
+                  {gerandoPerguntaIndividual === `${parte.id}-1` ? (
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3 mr-1" />
+                  )}
+                  Gerar por IA
+                </Button>
+              </div>
               <Input
                 value={parte.pergunta1 || ""}
                 onChange={(e) => atualizarParte(parte.id, "pergunta1", e.target.value)}
                 placeholder="Ex: Isa. 46:10 — Será que Jeová sabia 'desde o princípio'? (w11 1/1 14 §§ 2-3)"
                 className="bg-zinc-900 border-zinc-700 text-sm"
               />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-zinc-500 text-xs">Resposta 1</Label>
               <Textarea
                 value={parte.resposta1 || ""}
                 onChange={(e) => atualizarParte(parte.id, "resposta1", e.target.value)}
@@ -546,17 +593,30 @@ export default function AdminVidaMinisterioPage() {
             </div>
 
             {/* Pergunta 2 */}
-            <div className="space-y-1">
-              <Label className="text-zinc-500 text-xs">Pergunta 2</Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-zinc-500 text-xs">Pergunta 2</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
+                  onClick={() => gerarPerguntaIndividual(parte.id, 2)}
+                  disabled={gerandoPerguntaIndividual === `${parte.id}-2`}
+                >
+                  {gerandoPerguntaIndividual === `${parte.id}-2` ? (
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3 mr-1" />
+                  )}
+                  Gerar por IA
+                </Button>
+              </div>
               <Input
                 value={parte.pergunta2 || ""}
                 onChange={(e) => atualizarParte(parte.id, "pergunta2", e.target.value)}
                 placeholder="Que joias espirituais você encontrou na leitura da Bíblia desta semana?"
                 className="bg-zinc-900 border-zinc-700 text-sm"
               />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-zinc-500 text-xs">Resposta 2</Label>
               <Textarea
                 value={parte.resposta2 || ""}
                 onChange={(e) => atualizarParte(parte.id, "resposta2", e.target.value)}
@@ -631,8 +691,10 @@ export default function AdminVidaMinisterioPage() {
             value={parte.participante_id || "none"}
             onValueChange={(value) => {
               const pub = publicadores.find((p) => p.id === value)
-              atualizarParte(parte.id, "participante_id", value === "none" ? null : value)
-              atualizarParte(parte.id, "participante_nome", pub?.nome || null)
+              atualizarParteLote(parte.id, {
+                participante_id: value === "none" ? null : value,
+                participante_nome: value === "none" ? null : (pub?.nome || null),
+              })
             }}
           >
             <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
@@ -730,8 +792,10 @@ export default function AdminVidaMinisterioPage() {
               value={parte.participante_id || "none"}
               onValueChange={(value) => {
                 const pub = publicadores.find((p) => p.id === value)
-                atualizarParte(parte.id, "participante_id", value === "none" ? null : value)
-                atualizarParte(parte.id, "participante_nome", pub?.nome || null)
+                atualizarParteLote(parte.id, {
+                  participante_id: value === "none" ? null : value,
+                  participante_nome: value === "none" ? null : (pub?.nome || null),
+                })
               }}
             >
               <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
@@ -754,8 +818,10 @@ export default function AdminVidaMinisterioPage() {
               value={parte.ajudante_id || "none"}
               onValueChange={(value) => {
                 const pub = publicadores.find((p) => p.id === value)
-                atualizarParte(parte.id, "ajudante_id", value === "none" ? null : value)
-                atualizarParte(parte.id, "ajudante_nome", pub?.nome || null)
+                atualizarParteLote(parte.id, {
+                  ajudante_id: value === "none" ? null : value,
+                  ajudante_nome: value === "none" ? null : (pub?.nome || null),
+                })
               }}
             >
               <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
@@ -901,8 +967,10 @@ export default function AdminVidaMinisterioPage() {
             value={parte.participante_id || "none"}
             onValueChange={(value) => {
               const pub = publicadores.find((p) => p.id === value)
-              atualizarParte(parte.id, "participante_id", value === "none" ? null : value)
-              atualizarParte(parte.id, "participante_nome", pub?.nome || null)
+              atualizarParteLote(parte.id, {
+                participante_id: value === "none" ? null : value,
+                participante_nome: value === "none" ? null : (pub?.nome || null),
+              })
             }}
           >
             <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
@@ -921,8 +989,10 @@ export default function AdminVidaMinisterioPage() {
             value={parte.ajudante_id || "none"}
             onValueChange={(value) => {
               const pub = publicadores.find((p) => p.id === value)
-              atualizarParte(parte.id, "ajudante_id", value === "none" ? null : value)
-              atualizarParte(parte.id, "ajudante_nome", pub?.nome || null)
+              atualizarParteLote(parte.id, {
+                ajudante_id: value === "none" ? null : value,
+                ajudante_nome: value === "none" ? null : (pub?.nome || null),
+              })
             }}
           >
             <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
