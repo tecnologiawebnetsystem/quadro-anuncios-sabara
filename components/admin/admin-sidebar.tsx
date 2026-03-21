@@ -86,7 +86,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { title: "Vida e Ministério", icon: Gem, href: "/admin/vida-ministerio" },
       { title: "Sentinela", icon: BookMarked, href: "/admin/sentinela" },
-      { title: "Discursos", icon: Mic, href: "/admin/reunioes-publicas" },
+      { title: "Reuniões Públicas", icon: Mic, href: "/admin/reunioes-publicas" },
       { title: "Equipe Técnica", icon: Wrench, href: "/admin/equipe-tecnica" },
     ]
   },
