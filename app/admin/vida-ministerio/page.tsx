@@ -401,25 +401,24 @@ export default function AdminVidaMinisterioPage() {
       <div key={parte.id} className="bg-zinc-800/50 rounded-lg p-4 space-y-4">
         {/* Cabeçalho */}
         <div className="flex items-start gap-3">
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
-            {/* Título (apenas Parte 1 e Parte 3 podem editar; Parte 2 título é fixo) */}
-            <div className="md:col-span-2">
-              <Label className="text-zinc-500 text-xs mb-1 block">{ordemLabel}</Label>
+          <div className="flex-1 space-y-1">
+            <Label className="text-zinc-500 text-xs block">{ordemLabel}</Label>
+            <div className="flex items-center gap-2">
               <Input
                 value={parte.titulo || ""}
                 onChange={(e) => atualizarParte(parte.id, "titulo", e.target.value)}
                 placeholder="Título da parte"
-                className="bg-zinc-900 border-zinc-700 text-sm"
+                className="bg-zinc-900 border-zinc-700 text-sm flex-1"
               />
-            </div>
-            <div>
-              <Label className="text-zinc-500 text-xs mb-1 block">Tempo</Label>
-              <Input
-                value={parte.tempo || ""}
-                onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
-                placeholder="Ex: 10"
-                className="bg-zinc-900 border-zinc-700 text-sm"
-              />
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Input
+                  value={parte.tempo || ""}
+                  onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
+                  placeholder="min"
+                  className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
+                />
+                <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
+              </div>
             </div>
           </div>
           <Button
