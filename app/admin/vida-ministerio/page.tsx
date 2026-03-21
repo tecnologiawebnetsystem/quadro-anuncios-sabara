@@ -717,7 +717,7 @@ export default function AdminVidaMinisterioPage() {
   // ──────────────────────────────────────────────
   // Renderização de parte: Faça Seu Melhor no Ministério
   // ──────────────────────────────────────────────
-  const renderParteMinisterio = (parte: Parte) => {
+  const renderParteMinisterio = (parte: Parte, numeroParte?: number) => {
     const temAjudante = !!parte.ajudante_id
     const tipoLabel = temAjudante ? "Duas pessoas conversando" : "Discurso"
 
@@ -726,6 +726,9 @@ export default function AdminVidaMinisterioPage() {
         {/* Título + Tempo */}
         <div className="flex items-start gap-3">
           <div className="flex-1 space-y-1">
+            {numeroParte && (
+              <span className="text-zinc-500 text-xs">Parte {numeroParte}</span>
+            )}
             <div className="flex items-center gap-2">
               <Input
                 value={parte.titulo || ""}
@@ -883,10 +886,13 @@ export default function AdminVidaMinisterioPage() {
   // ──────────────────────────────────────────────
   // Renderização de parte genérica (Nossa Vida Cristã)
   // ──────────────────────────────────────────────
-  const renderParteGenerica = (parte: Parte, secaoId: string) => (
+  const renderParteGenerica = (parte: Parte, secaoId: string, numeroParte?: number) => (
     <div key={parte.id} className="bg-zinc-800/50 rounded-lg p-3 space-y-3">
       <div className="flex items-start gap-3">
         <div className="flex-1 space-y-1">
+          {numeroParte && (
+            <span className="text-zinc-500 text-xs">Parte {numeroParte}</span>
+          )}
           <div className="flex items-center gap-2">
             <Input
               value={parte.titulo || ""}
@@ -1097,42 +1103,55 @@ export default function AdminVidaMinisterioPage() {
                   </div>
 
                   {/* Seções */}
-                  {secoes.map((secao) => {
-                    const partesSecao = partesAtuais.filter((p) => p.secao === secao.id)
-                    const Icon = secao.icon
+                  {(() => {
+                    // Calcula offset global de numeração por seção
+                    // Tesouros: sempre 3 partes (1,2,3); Ministério começa em 4; Vida começa após Ministério
+                    const numTesouros = partesAtuais.filter(p => p.secao === "tesouros").length
+                    const numMinisterio = partesAtuais.filter(p => p.secao === "ministerio").length
+                    const offsetMinisterio = numTesouros + 1           // sempre começa após tesouros (geralmente 4)
+                    const offsetVida = numTesouros + numMinisterio + 1 // começa após ministério
 
-                    return (
-                      <div key={secao.id} className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <h3 className={cn("font-semibold flex items-center gap-2", secao.cor)}>
-                            <Icon className="w-4 h-4" />
-                            {secao.nome}
-                          </h3>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => adicionarParte(semanaAtualData.id, secao.id)}
-                          >
-                            <Plus className="w-3 h-3 mr-1" /> Parte
-                          </Button>
-                        </div>
+                    return secoes.map((secao) => {
+                      const partesSecao = partesAtuais.filter((p) => p.secao === secao.id)
+                      const Icon = secao.icon
+                      const offset =
+                        secao.id === "ministerio" ? offsetMinisterio
+                        : secao.id === "vida" ? offsetVida
+                        : 1 // tesouros começa em 1, mas usa label próprio
 
-                        <div className="space-y-3">
-                          {partesSecao.length === 0 ? (
-                            <p className="text-zinc-500 text-sm py-2">Nenhuma parte cadastrada</p>
-                          ) : (
-                            partesSecao.map((parte) =>
-                              secao.id === "tesouros"
-                                ? renderParteTesouro(parte)
-                                : secao.id === "ministerio"
-                                ? renderParteMinisterio(parte)
-                                : renderParteGenerica(parte, secao.id)
-                            )
-                          )}
+                      return (
+                        <div key={secao.id} className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <h3 className={cn("font-semibold flex items-center gap-2", secao.cor)}>
+                              <Icon className="w-4 h-4" />
+                              {secao.nome}
+                            </h3>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => adicionarParte(semanaAtualData.id, secao.id)}
+                            >
+                              <Plus className="w-3 h-3 mr-1" /> Parte
+                            </Button>
+                          </div>
+
+                          <div className="space-y-3">
+                            {partesSecao.length === 0 ? (
+                              <p className="text-zinc-500 text-sm py-2">Nenhuma parte cadastrada</p>
+                            ) : (
+                              partesSecao.map((parte, idx) =>
+                                secao.id === "tesouros"
+                                  ? renderParteTesouro(parte)
+                                  : secao.id === "ministerio"
+                                  ? renderParteMinisterio(parte, offset + idx)
+                                  : renderParteGenerica(parte, secao.id, offset + idx)
+                              )
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })
+                  })()}
                 </CardContent>
               </>
             ) : (
