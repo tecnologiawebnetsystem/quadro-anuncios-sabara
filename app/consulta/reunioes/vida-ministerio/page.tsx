@@ -3,16 +3,16 @@
 import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  BookOpen, 
-  Music, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  Music,
   Gem,
   MessageSquare,
   Heart,
   User,
-  Users
+  Users,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useSync } from "@/lib/contexts/sync-context"
@@ -39,6 +39,8 @@ const secoes = [
   { id: "vida", nome: "Nossa Vida Cristã", cor: "bg-red-500", textCor: "text-red-500", icon: Heart },
 ]
 
+const TESOUROS_ORDEM = { DISCURSO: 1, JOIAS: 2, LEITURA: 3 }
+
 interface Semana {
   id: string
   data_inicio: string
@@ -59,6 +61,16 @@ interface Parte {
   ajudante_nome: string | null
   sala: string
   ordem: number
+  // Tesouros extras
+  textos: string[] | null
+  pergunta1: string | null
+  resposta1: string | null
+  pergunta2: string | null
+  resposta2: string | null
+  texto_biblia: string | null
+  licao: string | null
+  // Ministério extras
+  descricao: string | null
 }
 
 export default function ConsultaVidaMinisterioPage() {
@@ -75,7 +87,6 @@ export default function ConsultaVidaMinisterioPage() {
   const carregarDados = useCallback(async () => {
     setLoading(true)
     try {
-      // Buscar mês
       const { data: mes } = await supabase
         .from("vida_ministerio_meses")
         .select("id")
@@ -84,24 +95,27 @@ export default function ConsultaVidaMinisterioPage() {
         .single()
 
       if (mes) {
-        // Carregar semanas do mês
         const { data: semanasData } = await supabase
           .from("vida_ministerio_semanas")
           .select("*")
           .eq("mes_id", mes.id)
           .order("data_inicio")
-        
+
         setSemanas(semanasData || [])
-        
+
         if (semanasData && semanasData.length > 0) {
-          // Carregar partes de todas as semanas
           const { data: partesData } = await supabase
             .from("vida_ministerio_partes")
             .select("*")
-            .in("semana_id", semanasData.map(s => s.id))
+            .in("semana_id", semanasData.map((s) => s.id))
             .order("ordem")
-          
-          setPartes(partesData || [])
+
+          setPartes(
+            (partesData || []).map((p) => ({
+              ...p,
+              textos: Array.isArray(p.textos) ? p.textos : [],
+            }))
+          )
         } else {
           setPartes([])
         }
@@ -121,31 +135,22 @@ export default function ConsultaVidaMinisterioPage() {
   }, [carregarDados])
 
   const mesAnterior = () => {
-    if (mesAtual === 1) {
-      setMesAtual(12)
-      setAnoAtual(anoAtual - 1)
-    } else {
-      setMesAtual(mesAtual - 1)
-    }
+    if (mesAtual === 1) { setMesAtual(12); setAnoAtual(anoAtual - 1) }
+    else setMesAtual(mesAtual - 1)
     setSemanaAtiva(0)
   }
 
   const mesProximo = () => {
-    if (mesAtual === 12) {
-      setMesAtual(1)
-      setAnoAtual(anoAtual + 1)
-    } else {
-      setMesAtual(mesAtual + 1)
-    }
+    if (mesAtual === 12) { setMesAtual(1); setAnoAtual(anoAtual + 1) }
+    else setMesAtual(mesAtual + 1)
     setSemanaAtiva(0)
   }
 
   const semanaAtual = semanas[semanaAtiva]
-  const partesAtuais = partes.filter(p => p.semana_id === semanaAtual?.id)
+  const partesAtuais = partes.filter((p) => p.semana_id === semanaAtual?.id)
 
-  const formatarData = (data: string) => {
-    return new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
-  }
+  const formatarData = (data: string) =>
+    new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
 
   const formatarDataCompleta = (dataInicio: string, dataFim: string) => {
     const inicio = new Date(dataInicio + "T12:00:00")
@@ -169,7 +174,7 @@ export default function ConsultaVidaMinisterioPage() {
             </Button>
             <div className="text-center">
               <h2 className="text-xl font-bold text-white">
-                {meses.find(m => m.valor === mesAtual)?.nome} {anoAtual}
+                {meses.find((m) => m.valor === mesAtual)?.nome} {anoAtual}
               </h2>
             </div>
             <Button variant="ghost" size="icon" onClick={mesProximo}>
@@ -204,7 +209,6 @@ export default function ConsultaVidaMinisterioPage() {
             ))}
           </div>
 
-          {/* Conteúdo da Semana */}
           {semanaAtual && (
             <div className="space-y-4">
               {/* Header da Semana */}
@@ -222,87 +226,176 @@ export default function ConsultaVidaMinisterioPage() {
                         </p>
                       )}
                     </div>
-                    <div className="flex gap-4">
-                      {semanaAtual.cantico_inicial && (
-                        <div className="flex items-center gap-1 text-sm text-zinc-400">
-                          <Music className="w-4 h-4" />
-                          <span>Cântico {semanaAtual.cantico_inicial}</span>
-                        </div>
-                      )}
-                    </div>
+                    {semanaAtual.cantico_inicial && (
+                      <div className="flex items-center gap-1 text-sm text-zinc-400">
+                        <Music className="w-4 h-4" />
+                        <span>Cântico {semanaAtual.cantico_inicial}</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
 
               {/* Seções */}
-              {secoes.map((secao) => {
-                const partesSecao = partesAtuais.filter(p => p.secao === secao.id)
-                if (partesSecao.length === 0) return null
+              {(() => {
+                const numTesouros = partesAtuais.filter((p) => p.secao === "tesouros").length
+                const numMinisterio = partesAtuais.filter((p) => p.secao === "ministerio").length
+                const offsetMinisterio = numTesouros + 1
+                const offsetVida = numTesouros + numMinisterio + 1
 
-                const Icon = secao.icon
+                return secoes.map((secao) => {
+                  const partesSecao = partesAtuais.filter((p) => p.secao === secao.id)
+                  if (partesSecao.length === 0) return null
 
-                return (
-                  <Card key={secao.id} className="bg-zinc-900/50 border-zinc-800 overflow-hidden">
-                    <div className={cn("h-1", secao.cor)} />
-                    <CardHeader className="pb-2">
-                      <CardTitle className={cn("text-base flex items-center gap-2", secao.textCor)}>
-                        <Icon className="w-4 h-4" />
-                        {secao.nome}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {partesSecao.map((parte) => (
-                        <div 
-                          key={parte.id} 
-                          className="bg-zinc-800/50 rounded-lg p-3"
-                        >
-                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="font-medium text-white">{parte.titulo}</h4>
-                                {parte.tempo && (
-                                  <span className="text-xs bg-zinc-700 px-2 py-0.5 rounded text-zinc-300">
-                                    {parte.tempo}
-                                  </span>
-                                )}
-                                {parte.sala === "auxiliar" && (
-                                  <span className="text-xs bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded">
-                                    Sala Auxiliar
-                                  </span>
-                                )}
+                  const Icon = secao.icon
+                  const offset =
+                    secao.id === "ministerio" ? offsetMinisterio
+                    : secao.id === "vida" ? offsetVida
+                    : 1
+
+                  return (
+                    <Card key={secao.id} className="bg-zinc-900/50 border-zinc-800 overflow-hidden">
+                      <div className={cn("h-1", secao.cor)} />
+                      <CardHeader className="pb-2">
+                        <CardTitle className={cn("text-base flex items-center gap-2", secao.textCor)}>
+                          <Icon className="w-4 h-4" />
+                          {secao.nome}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {partesSecao.map((parte, idx) => {
+                          // Número da parte para ministério e vida
+                          const numeroParte =
+                            secao.id === "tesouros" ? null : offset + idx
+
+                          // Rótulo para tesouros
+                          const labelTesouro =
+                            parte.ordem === TESOUROS_ORDEM.DISCURSO ? "Parte 1 – Discurso" :
+                            parte.ordem === TESOUROS_ORDEM.JOIAS ? "Parte 2 – Joias Espirituais" :
+                            "Parte 3 – Leitura da Bíblia"
+
+                          const temAjudante = !!parte.ajudante_nome
+
+                          return (
+                            <div key={parte.id} className="bg-zinc-800/50 rounded-lg p-4 space-y-3">
+                              {/* Cabeçalho da parte */}
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div className="space-y-0.5">
+                                  {secao.id === "tesouros" && (
+                                    <p className="text-xs text-zinc-500">{labelTesouro}</p>
+                                  )}
+                                  {numeroParte && (
+                                    <p className="text-xs text-zinc-500">Parte {numeroParte}</p>
+                                  )}
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h4 className="font-medium text-white">{parte.titulo}</h4>
+                                    {parte.tempo && (
+                                      <span className="text-xs bg-zinc-700 px-2 py-0.5 rounded text-zinc-300">
+                                        {parte.tempo} min
+                                      </span>
+                                    )}
+                                    {/* Badge tipo ministério */}
+                                    {secao.id === "ministerio" && (
+                                      <span className={cn(
+                                        "text-xs px-2 py-0.5 rounded",
+                                        temAjudante
+                                          ? "bg-yellow-600/20 text-yellow-400"
+                                          : "bg-zinc-700 text-zinc-300"
+                                      )}>
+                                        {temAjudante ? "Duas pessoas" : "Discurso"}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Participante(s) */}
+                                <div className="flex items-center gap-3 text-sm">
+                                  {parte.participante_nome && (
+                                    <div className="flex items-center gap-1 text-zinc-300">
+                                      <User className="w-3 h-3" />
+                                      <span>{parte.participante_nome}</span>
+                                    </div>
+                                  )}
+                                  {parte.ajudante_nome && (
+                                    <div className="flex items-center gap-1 text-zinc-400">
+                                      <Users className="w-3 h-3" />
+                                      <span>{parte.ajudante_nome}</span>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex items-center gap-4 text-sm">
-                              {parte.participante_nome && (
-                                <div className="flex items-center gap-1 text-zinc-300">
-                                  <User className="w-3 h-3" />
-                                  <span>{parte.participante_nome}</span>
-                                </div>
-                              )}
-                              {parte.ajudante_nome && (
-                                <div className="flex items-center gap-1 text-zinc-400">
-                                  <Users className="w-3 h-3" />
-                                  <span>{parte.ajudante_nome}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </CardContent>
 
-                    {/* Cântico do meio após a seção tesouros */}
-                    {secao.id === "tesouros" && semanaAtual.cantico_meio && (
-                      <CardContent className="pt-0">
-                        <div className="flex items-center gap-2 text-sm text-zinc-400 justify-center py-2 border-t border-zinc-800">
-                          <Music className="w-4 h-4" />
-                          <span>Cântico {semanaAtual.cantico_meio}</span>
-                        </div>
+                              {/* Tesouros – Parte 1: pontos do discurso */}
+                              {secao.id === "tesouros" && parte.ordem === TESOUROS_ORDEM.DISCURSO && (parte.textos || []).length > 0 && (
+                                <ul className="space-y-1 pl-1">
+                                  {(parte.textos || []).map((texto, i) => (
+                                    <li key={i} className="text-sm text-zinc-300 flex gap-2">
+                                      <span className="text-zinc-600 shrink-0">•</span>
+                                      <span>{texto}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+
+                              {/* Tesouros – Parte 2: perguntas e respostas */}
+                              {secao.id === "tesouros" && parte.ordem === TESOUROS_ORDEM.JOIAS && (
+                                <div className="space-y-3">
+                                  {parte.pergunta1 && (
+                                    <div className="space-y-1">
+                                      <p className="text-sm text-amber-400 font-medium">{parte.pergunta1}</p>
+                                      {parte.resposta1 && (
+                                        <p className="text-sm text-zinc-300 pl-3 border-l border-zinc-700">{parte.resposta1}</p>
+                                      )}
+                                    </div>
+                                  )}
+                                  {parte.pergunta2 && (
+                                    <div className="space-y-1">
+                                      <p className="text-sm text-amber-400 font-medium">{parte.pergunta2}</p>
+                                      {parte.resposta2 && (
+                                        <p className="text-sm text-zinc-300 pl-3 border-l border-zinc-700">{parte.resposta2}</p>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Tesouros – Parte 3: texto bíblico e lição */}
+                              {secao.id === "tesouros" && parte.ordem === TESOUROS_ORDEM.LEITURA && (
+                                <div className="flex flex-wrap gap-3 text-sm text-zinc-300">
+                                  {parte.texto_biblia && (
+                                    <span className="flex items-center gap-1">
+                                      <BookOpen className="w-3.5 h-3.5 text-zinc-500" />
+                                      {parte.texto_biblia}
+                                    </span>
+                                  )}
+                                  {parte.licao && (
+                                    <span className="text-zinc-500">({parte.licao})</span>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Ministério: descrição */}
+                              {secao.id === "ministerio" && parte.descricao && (
+                                <p className="text-sm text-zinc-300 leading-relaxed">{parte.descricao}</p>
+                              )}
+                            </div>
+                          )
+                        })}
                       </CardContent>
-                    )}
-                  </Card>
-                )
-              })}
+
+                      {/* Cântico do meio após tesouros */}
+                      {secao.id === "tesouros" && semanaAtual.cantico_meio && (
+                        <CardContent className="pt-0">
+                          <div className="flex items-center gap-2 text-sm text-zinc-400 justify-center py-2 border-t border-zinc-800">
+                            <Music className="w-4 h-4" />
+                            <span>Cântico {semanaAtual.cantico_meio}</span>
+                          </div>
+                        </CardContent>
+                      )}
+                    </Card>
+                  )
+                })
+              })()}
 
               {/* Cântico Final */}
               {semanaAtual.cantico_final && (

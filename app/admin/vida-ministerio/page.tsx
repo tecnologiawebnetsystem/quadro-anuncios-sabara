@@ -5,23 +5,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { 
-  Plus, 
-  Trash2, 
-  Save, 
-  ChevronLeft, 
+import {
+  Plus,
+  Trash2,
+  ChevronLeft,
   ChevronRight,
   BookOpen,
   Music,
-  Users,
   Gem,
   MessageSquare,
   Heart,
-  Wand2,
   Loader2,
-  Sparkles
+  Sparkles,
+  X,
 } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
@@ -47,6 +45,10 @@ const secoes = [
   { id: "ministerio", nome: "Faça Seu Melhor no Ministério", cor: "text-yellow-500", icon: MessageSquare },
   { id: "vida", nome: "Nossa Vida Cristã", cor: "text-red-500", icon: Heart },
 ]
+
+// Índice (ordem) das partes fixas dentro da seção "tesouros"
+// ordem 1 = Discurso principal, ordem 2 = Joias espirituais, ordem 3 = Leitura da Bíblia
+const TESOUROS_ORDEM = { DISCURSO: 1, JOIAS: 2, LEITURA: 3 }
 
 interface Mes {
   id: string
@@ -81,6 +83,16 @@ interface Parte {
   ajudante_nome: string | null
   sala: string
   ordem: number
+  // Campos extras Tesouros
+  textos: string[]
+  pergunta1: string | null
+  resposta1: string | null
+  pergunta2: string | null
+  resposta2: string | null
+  texto_biblia: string | null
+  licao: string | null
+  // Campo ministério
+  descricao: string | null
 }
 
 interface Publicador {
@@ -96,24 +108,25 @@ export default function AdminVidaMinisterioPage() {
   const [partes, setPartes] = useState<Parte[]>([])
   const [publicadores, setPublicadores] = useState<Publicador[]>([])
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [semanaAtiva, setSemanaAtiva] = useState<string | null>(null)
   const [sugestoes, setSugestoes] = useState<Record<string, { id: string; nome: string; motivo: string }[]>>({})
   const [buscandoSugestao, setBuscandoSugestao] = useState<string | null>(null)
+  const [gerandoPerguntas, setGerandoPerguntas] = useState<string | null>(null)
+  // "parteId-1" ou "parteId-2" para controlar qual pergunta está sendo gerada individualmente
+  const [gerandoPerguntaIndividual, setGerandoPerguntaIndividual] = useState<string | null>(null)
+  const [gerandoDescricao, setGerandoDescricao] = useState<string | null>(null)
 
   const supabase = createClient()
 
   const carregarDados = useCallback(async () => {
     setLoading(true)
     try {
-      // Carregar publicadores
       const { data: pubs } = await supabase
         .from("publicadores")
         .select("id, nome")
         .order("nome")
       setPublicadores(pubs || [])
 
-      // Carregar ou criar mês
       let { data: mes } = await supabase
         .from("vida_ministerio_meses")
         .select("*")
@@ -133,26 +146,29 @@ export default function AdminVidaMinisterioPage() {
       setMesData(mes)
 
       if (mes) {
-        // Carregar semanas do mês
         const { data: semanasData } = await supabase
           .from("vida_ministerio_semanas")
           .select("*")
           .eq("mes_id", mes.id)
           .order("data_inicio")
-        
+
         setSemanas(semanasData || [])
-        
+
         if (semanasData && semanasData.length > 0) {
           setSemanaAtiva(semanasData[0].id)
-          
-          // Carregar partes de todas as semanas
+
           const { data: partesData } = await supabase
             .from("vida_ministerio_partes")
             .select("*")
-            .in("semana_id", semanasData.map(s => s.id))
+            .in("semana_id", semanasData.map((s) => s.id))
             .order("ordem")
-          
-          setPartes(partesData || [])
+
+          setPartes(
+            (partesData || []).map((p) => ({
+              ...p,
+              textos: Array.isArray(p.textos) ? p.textos : [],
+            }))
+          )
         } else {
           setPartes([])
         }
@@ -168,18 +184,19 @@ export default function AdminVidaMinisterioPage() {
     carregarDados()
   }, [carregarDados])
 
+  // ──────────────────────────────────────────────
+  // Semanas
+  // ──────────────────────────────────────────────
   const adicionarSemana = async () => {
     if (!mesData) return
-
     const ultimaSemana = semanas[semanas.length - 1]
     let dataInicio: Date
-    
+
     if (ultimaSemana) {
       dataInicio = new Date(ultimaSemana.data_fim)
       dataInicio.setDate(dataInicio.getDate() + 1)
     } else {
       dataInicio = new Date(anoAtual, mesAtual - 1, 1)
-      // Encontrar a primeira segunda-feira
       while (dataInicio.getDay() !== 1) {
         dataInicio.setDate(dataInicio.getDate() + 1)
       }
@@ -194,7 +211,7 @@ export default function AdminVidaMinisterioPage() {
         mes_id: mesData.id,
         data_inicio: dataInicio.toISOString().split("T")[0],
         data_fim: dataFim.toISOString().split("T")[0],
-        leitura_semanal: ""
+        leitura_semanal: "",
       })
       .select()
       .single()
@@ -206,14 +223,10 @@ export default function AdminVidaMinisterioPage() {
   }
 
   const removerSemana = async (semanaId: string) => {
-    const { error } = await supabase
-      .from("vida_ministerio_semanas")
-      .delete()
-      .eq("id", semanaId)
-
+    const { error } = await supabase.from("vida_ministerio_semanas").delete().eq("id", semanaId)
     if (!error) {
-      setSemanas(semanas.filter(s => s.id !== semanaId))
-      setPartes(partes.filter(p => p.semana_id !== semanaId))
+      setSemanas(semanas.filter((s) => s.id !== semanaId))
+      setPartes(partes.filter((p) => p.semana_id !== semanaId))
       if (semanaAtiva === semanaId) {
         setSemanaAtiva(semanas[0]?.id || null)
       }
@@ -225,127 +238,751 @@ export default function AdminVidaMinisterioPage() {
       .from("vida_ministerio_semanas")
       .update({ [campo]: valor })
       .eq("id", semanaId)
-
     if (!error) {
-      setSemanas(semanas.map(s => 
-        s.id === semanaId ? { ...s, [campo]: valor } : s
-      ))
+      setSemanas(semanas.map((s) => (s.id === semanaId ? { ...s, [campo]: valor } : s)))
     }
   }
 
+  // ──────────────────────────────────────────────
+  // Partes genéricas
+  // ──────────────────────────────────────────────
   const adicionarParte = async (semanaId: string, secao: string) => {
-    const partesSecao = partes.filter(p => p.semana_id === semanaId && p.secao === secao)
+    const partesSecao = partes.filter((p) => p.semana_id === semanaId && p.secao === secao)
     const ordem = partesSecao.length + 1
 
     const { data: novaParte, error } = await supabase
       .from("vida_ministerio_partes")
-      .insert({
-        semana_id: semanaId,
-        secao,
-        titulo: "",
-        ordem,
-        sala: "principal"
-      })
+      .insert({ semana_id: semanaId, secao, titulo: "", ordem, sala: "principal", textos: [] })
       .select()
       .single()
 
     if (!error && novaParte) {
-      setPartes([...partes, novaParte])
+      setPartes([...partes, { ...novaParte, textos: [] }])
     }
   }
 
-  const atualizarParte = async (parteId: string, campo: string, valor: string | null) => {
+  const atualizarParte = async (parteId: string, campo: string, valor: unknown) => {
     const { error } = await supabase
       .from("vida_ministerio_partes")
       .update({ [campo]: valor })
       .eq("id", parteId)
-
     if (!error) {
-      setPartes(partes.map(p => 
-        p.id === parteId ? { ...p, [campo]: valor } : p
-      ))
+      setPartes((prev) => prev.map((p) => (p.id === parteId ? { ...p, [campo]: valor } : p)))
+    }
+  }
+
+  const atualizarParteLote = async (parteId: string, campos: Partial<Parte>) => {
+    const { error } = await supabase
+      .from("vida_ministerio_partes")
+      .update(campos)
+      .eq("id", parteId)
+    if (!error) {
+      setPartes((prev) => prev.map((p) => (p.id === parteId ? { ...p, ...campos } : p)))
     }
   }
 
   const removerParte = async (parteId: string) => {
-    const { error } = await supabase
-      .from("vida_ministerio_partes")
-      .delete()
-      .eq("id", parteId)
-
+    const { error } = await supabase.from("vida_ministerio_partes").delete().eq("id", parteId)
     if (!error) {
-      setPartes(partes.filter(p => p.id !== parteId))
+      setPartes(partes.filter((p) => p.id !== parteId))
     }
   }
 
-  // Buscar sugestões de IA para uma parte
+  // ──────────────────────────────────────────────
+  // Textos da Parte 1 (Discurso)
+  // ──────────────────────────────────────────────
+  const adicionarTexto = (parteId: string) => {
+    const parte = partes.find((p) => p.id === parteId)
+    if (!parte) return
+    const novosTextos = [...(parte.textos || []), ""]
+    atualizarParte(parteId, "textos", novosTextos)
+  }
+
+  const atualizarTexto = (parteId: string, index: number, valor: string) => {
+    const parte = partes.find((p) => p.id === parteId)
+    if (!parte) return
+    const novosTextos = [...(parte.textos || [])]
+    novosTextos[index] = valor
+    atualizarParte(parteId, "textos", novosTextos)
+  }
+
+  const removerTexto = (parteId: string, index: number) => {
+    const parte = partes.find((p) => p.id === parteId)
+    if (!parte) return
+    const novosTextos = (parte.textos || []).filter((_, i) => i !== index)
+    atualizarParte(parteId, "textos", novosTextos)
+  }
+
+  // ──────────────────────────────────────────────
+  // IA – Sugestões de participante
+  // ──────────────────────────────────────────────
   const buscarSugestoesIA = async (parteId: string, titulo: string, secao: string) => {
     setBuscandoSugestao(parteId)
-    
     try {
       const response = await fetch("/api/ia/sugerir-designacoes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tipo: secao,
-          parte: titulo,
-          quantidade: 3
-        })
+        body: JSON.stringify({ tipo: secao, parte: titulo, quantidade: 3 }),
       })
-      
       if (response.ok) {
         const data = await response.json()
-        setSugestoes(prev => ({
-          ...prev,
-          [parteId]: data.sugestoes || []
-        }))
+        setSugestoes((prev) => ({ ...prev, [parteId]: data.sugestoes || [] }))
       }
     } catch (error) {
       console.error("Erro ao buscar sugestoes:", error)
-      toast.error("Erro ao buscar sugestoes")
+      toast.error("Erro ao buscar sugestões")
     } finally {
       setBuscandoSugestao(null)
     }
   }
 
-  // Aplicar sugestão
   const aplicarSugestao = async (parteId: string, publicadorId: string, publicadorNome: string) => {
-    await atualizarParte(parteId, "participante_id", publicadorId)
-    await atualizarParte(parteId, "participante_nome", publicadorNome)
+    await atualizarParteLote(parteId, { participante_id: publicadorId, participante_nome: publicadorNome })
     toast.success(`${publicadorNome} designado!`)
-    // Limpar sugestões
-    setSugestoes(prev => {
+    setSugestoes((prev) => {
       const novo = { ...prev }
       delete novo[parteId]
       return novo
     })
   }
 
+  // ──────────────────────────────────────────────
+  // IA – Gerar perguntas Joias Espirituais
+  // ──────────────────────────────────────────────
+  const gerarPerguntasJoias = async (parteId: string) => {
+    setGerandoPerguntas(parteId)
+    const semana = semanas.find((s) => s.id === semanaAtiva)
+    const discurso = partes.find(
+      (p) => p.semana_id === semanaAtiva && p.secao === "tesouros" && p.ordem === TESOUROS_ORDEM.DISCURSO
+    )
+
+    try {
+      const response = await fetch("/api/ia/joias-espirituais", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: discurso?.titulo || "",
+          leituraSemanal: semana?.leitura_semanal || "",
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.pergunta1) await atualizarParte(parteId, "pergunta1", data.pergunta1)
+        if (data.pergunta2) await atualizarParte(parteId, "pergunta2", data.pergunta2)
+        toast.success("Perguntas geradas com sucesso!")
+      } else {
+        toast.error("Erro ao gerar perguntas")
+      }
+    } catch (error) {
+      console.error("Erro ao gerar perguntas Joias:", error)
+      toast.error("Erro ao gerar perguntas")
+    } finally {
+      setGerandoPerguntas(null)
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  // IA – Gerar pergunta individual das Joias
+  // ──────────────────────────────────────────────
+  const gerarPerguntaIndividual = async (parteId: string, numero: 1 | 2) => {
+    const chave = `${parteId}-${numero}`
+    setGerandoPerguntaIndividual(chave)
+    const semana = semanas.find((s) => s.id === semanaAtiva)
+    const discurso = partes.find(
+      (p) => p.semana_id === semanaAtiva && p.secao === "tesouros" && p.ordem === TESOUROS_ORDEM.DISCURSO
+    )
+    try {
+      const response = await fetch("/api/ia/joias-espirituais", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: discurso?.titulo || "",
+          leituraSemanal: semana?.leitura_semanal || "",
+          apenas: numero,
+        }),
+      })
+      if (response.ok) {
+        const data = await response.json()
+        const campo = numero === 1 ? "pergunta1" : "pergunta2"
+        const valor = numero === 1 ? data.pergunta1 : data.pergunta2
+        if (valor) {
+          await atualizarParte(parteId, campo, valor)
+          toast.success(`Pergunta ${numero} gerada!`)
+        } else {
+          toast.error("Não foi possível gerar a pergunta")
+        }
+      } else {
+        toast.error("Erro ao gerar pergunta")
+      }
+    } catch (error) {
+      console.error("Erro ao gerar pergunta individual:", error)
+      toast.error("Erro ao gerar pergunta")
+    } finally {
+      setGerandoPerguntaIndividual(null)
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  // IA – Gerar descrição do Ministério
+  // ──────────────────────────────────────────────
+  const gerarDescricaoMinisterio = async (parte: Parte) => {
+    if (!parte.titulo) {
+      toast.error("Preencha o título da parte antes de gerar a descrição")
+      return
+    }
+    setGerandoDescricao(parte.id)
+    const temAjudante = !!parte.ajudante_id
+    const tipo = temAjudante ? "duas pessoas conversando" : "discurso"
+    try {
+      const response = await fetch("/api/ia/descricao-ministerio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ titulo: parte.titulo, tipo }),
+      })
+      if (response.ok) {
+        const data = await response.json()
+        if (data.descricao) await atualizarParte(parte.id, "descricao", data.descricao)
+        toast.success("Descrição gerada com sucesso!")
+      } else {
+        toast.error("Erro ao gerar descrição")
+      }
+    } catch (error) {
+      console.error("Erro ao gerar descrição ministerio:", error)
+      toast.error("Erro ao gerar descrição")
+    } finally {
+      setGerandoDescricao(null)
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  // Navegação de mês
+  // ──────────────────────────────────────────────
   const mesAnterior = () => {
-    if (mesAtual === 1) {
-      setMesAtual(12)
-      setAnoAtual(anoAtual - 1)
-    } else {
-      setMesAtual(mesAtual - 1)
-    }
+    if (mesAtual === 1) { setMesAtual(12); setAnoAtual(anoAtual - 1) }
+    else setMesAtual(mesAtual - 1)
   }
-
   const mesProximo = () => {
-    if (mesAtual === 12) {
-      setMesAtual(1)
-      setAnoAtual(anoAtual + 1)
-    } else {
-      setMesAtual(mesAtual + 1)
-    }
+    if (mesAtual === 12) { setMesAtual(1); setAnoAtual(anoAtual + 1) }
+    else setMesAtual(mesAtual + 1)
   }
 
-  const semanaAtualData = semanas.find(s => s.id === semanaAtiva)
-  const partesAtuais = partes.filter(p => p.semana_id === semanaAtiva)
+  const semanaAtualData = semanas.find((s) => s.id === semanaAtiva)
+  const partesAtuais = partes.filter((p) => p.semana_id === semanaAtiva)
 
-  const formatarData = (data: string) => {
-    return new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
+  const formatarData = (data: string) =>
+    new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
+
+  // ──────────────────────────────────────────────
+  // Renderização de parte: Tesouros
+  // ──────────────────────────────────────────────
+  const renderParteTesouro = (parte: Parte) => {
+    const ordemLabel =
+      parte.ordem === TESOUROS_ORDEM.DISCURSO
+        ? "Parte 1 – Discurso"
+        : parte.ordem === TESOUROS_ORDEM.JOIAS
+        ? "Parte 2 – Joias Espirituais"
+        : "Parte 3 – Leitura da Bíblia"
+
+    return (
+      <div key={parte.id} className="bg-zinc-800/50 rounded-lg p-4 space-y-4">
+        {/* Cabeçalho */}
+        <div className="flex items-start gap-3">
+          <div className="flex-1 space-y-1">
+            <Label className="text-zinc-500 text-xs block">{ordemLabel}</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                value={parte.titulo || ""}
+                onChange={(e) => atualizarParte(parte.id, "titulo", e.target.value)}
+                placeholder="Título da parte"
+                className="bg-zinc-900 border-zinc-700 text-sm flex-1"
+              />
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Input
+                  value={parte.tempo || ""}
+                  onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
+                  placeholder="min"
+                  className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
+                />
+                <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 mt-5"
+            onClick={() => removerParte(parte.id)}
+          >
+            <Trash2 className="w-4 h-4 text-red-400" />
+          </Button>
+        </div>
+
+        {/* ── PARTE 1: Textos de pontos ── */}
+        {parte.ordem === TESOUROS_ORDEM.DISCURSO && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-zinc-400 text-xs">Pontos do discurso</Label>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-7"
+                onClick={() => adicionarTexto(parte.id)}
+              >
+                <Plus className="w-3 h-3 mr-1" /> Adicionar ponto
+              </Button>
+            </div>
+            {(parte.textos || []).length === 0 && (
+              <p className="text-zinc-600 text-xs py-1">Nenhum ponto adicionado</p>
+            )}
+            {(parte.textos || []).map((texto, idx) => (
+              <div key={idx} className="flex items-start gap-2">
+                <Textarea
+                  value={texto}
+                  onChange={(e) => atualizarTexto(parte.id, idx, e.target.value)}
+                  placeholder={`Ponto ${idx + 1} (ex: Não existe ninguém igual a Jeová. (Isa. 46:9; w20.06 5 § 14))`}
+                  className="bg-zinc-900 border-zinc-700 text-sm min-h-[60px] resize-none"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0 mt-1"
+                  onClick={() => removerTexto(parte.id, idx)}
+                >
+                  <X className="w-4 h-4 text-zinc-500 hover:text-red-400" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── PARTE 2: Joias Espirituais ── */}
+        {parte.ordem === TESOUROS_ORDEM.JOIAS && (
+          <div className="space-y-4">
+            {/* Pergunta 1 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-zinc-500 text-xs">Pergunta 1 (com referência bíblica)</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
+                  onClick={() => gerarPerguntaIndividual(parte.id, 1)}
+                  disabled={gerandoPerguntaIndividual === `${parte.id}-1`}
+                >
+                  {gerandoPerguntaIndividual === `${parte.id}-1` ? (
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3 mr-1" />
+                  )}
+                  Gerar por IA
+                </Button>
+              </div>
+              <Input
+                value={parte.pergunta1 || ""}
+                onChange={(e) => atualizarParte(parte.id, "pergunta1", e.target.value)}
+                placeholder="Ex: Isa. 46:10 — Será que Jeová sabia 'desde o princípio'? (w11 1/1 14 §§ 2-3)"
+                className="bg-zinc-900 border-zinc-700 text-sm"
+              />
+              <Textarea
+                value={parte.resposta1 || ""}
+                onChange={(e) => atualizarParte(parte.id, "resposta1", e.target.value)}
+                placeholder="Resposta ou observações para a pergunta 1"
+                className="bg-zinc-900 border-zinc-700 text-sm min-h-[60px] resize-none"
+              />
+            </div>
+
+            {/* Pergunta 2 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-zinc-500 text-xs">Pergunta 2</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
+                  onClick={() => gerarPerguntaIndividual(parte.id, 2)}
+                  disabled={gerandoPerguntaIndividual === `${parte.id}-2`}
+                >
+                  {gerandoPerguntaIndividual === `${parte.id}-2` ? (
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3 mr-1" />
+                  )}
+                  Gerar por IA
+                </Button>
+              </div>
+              <Input
+                value={parte.pergunta2 || ""}
+                onChange={(e) => atualizarParte(parte.id, "pergunta2", e.target.value)}
+                placeholder="Que joias espirituais você encontrou na leitura da Bíblia desta semana?"
+                className="bg-zinc-900 border-zinc-700 text-sm"
+              />
+              <Textarea
+                value={parte.resposta2 || ""}
+                onChange={(e) => atualizarParte(parte.id, "resposta2", e.target.value)}
+                placeholder="Resposta ou observações para a pergunta 2"
+                className="bg-zinc-900 border-zinc-700 text-sm min-h-[60px] resize-none"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ── PARTE 3: Leitura da Bíblia ── */}
+        {parte.ordem === TESOUROS_ORDEM.LEITURA && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-zinc-500 text-xs">Texto da Bíblia a ser lido</Label>
+                <Input
+                  value={parte.texto_biblia || ""}
+                  onChange={(e) => atualizarParte(parte.id, "texto_biblia", e.target.value)}
+                  placeholder="Ex: Isa. 45:1-11"
+                  className="bg-zinc-900 border-zinc-700 text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-zinc-500 text-xs">Lição (publicação)</Label>
+                <Input
+                  value={parte.licao || ""}
+                  onChange={(e) => atualizarParte(parte.id, "licao", e.target.value)}
+                  placeholder="Ex: th lição 5"
+                  className="bg-zinc-900 border-zinc-700 text-sm"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Participante (sem sala, sem ajudante) */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => buscarSugestoesIA(parte.id, parte.titulo, "tesouros")}
+              disabled={buscandoSugestao === parte.id}
+              className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
+            >
+              {buscandoSugestao === parte.id ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <Sparkles className="h-3 w-3 mr-1" />
+              )}
+              Sugerir com IA
+            </Button>
+
+            {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
+              <div className="flex items-center gap-1 flex-wrap">
+                {sugestoes[parte.id].map((sug, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
+                    className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
+                    title={sug.motivo}
+                  >
+                    {sug.nome}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Select
+            value={parte.participante_id || "none"}
+            onValueChange={(value) => {
+              const pub = publicadores.find((p) => p.id === value)
+              atualizarParteLote(parte.id, {
+                participante_id: value === "none" ? null : value,
+                participante_nome: value === "none" ? null : (pub?.nome || null),
+              })
+            }}
+          >
+            <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+              <SelectValue placeholder="Selecione o participante" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Selecione o participante</SelectItem>
+              {publicadores.map((pub) => (
+                <SelectItem key={pub.id} value={pub.id}>
+                  {pub.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    )
   }
 
+  // ──────────────────────────────────────────────
+  // Renderização de parte: Faça Seu Melhor no Ministério
+  // ──────────────────────────────────────────────
+  const renderParteMinisterio = (parte: Parte, numeroParte?: number) => {
+    const temAjudante = !!parte.ajudante_id
+    const tipoLabel = temAjudante ? "Duas pessoas conversando" : "Discurso"
+
+    return (
+      <div key={parte.id} className="bg-zinc-800/50 rounded-lg p-4 space-y-4">
+        {/* Título + Tempo */}
+        <div className="flex items-start gap-3">
+          <div className="flex-1 space-y-1">
+            {numeroParte && (
+              <span className="text-zinc-500 text-xs">Parte {numeroParte}</span>
+            )}
+            <div className="flex items-center gap-2">
+              <Input
+                value={parte.titulo || ""}
+                onChange={(e) => atualizarParte(parte.id, "titulo", e.target.value)}
+                placeholder="Título da parte (ex: Iniciando conversas)"
+                className="bg-zinc-900 border-zinc-700 text-sm flex-1"
+              />
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Input
+                  value={parte.tempo || ""}
+                  onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
+                  placeholder="min"
+                  className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
+                />
+                <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => removerParte(parte.id)}
+          >
+            <Trash2 className="w-4 h-4 text-red-400" />
+          </Button>
+        </div>
+
+        {/* Participante + Ajudante */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {/* Participante */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => buscarSugestoesIA(parte.id, parte.titulo, "ministerio")}
+                disabled={buscandoSugestao === parte.id}
+                className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400 h-7"
+              >
+                {buscandoSugestao === parte.id ? (
+                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3 w-3 mr-1" />
+                )}
+                Sugerir com IA
+              </Button>
+              {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
+                <div className="flex items-center gap-1 flex-wrap">
+                  {sugestoes[parte.id].map((sug, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
+                      className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
+                      title={sug.motivo}
+                    >
+                      {sug.nome}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Select
+              value={parte.participante_id || "none"}
+              onValueChange={(value) => {
+                const pub = publicadores.find((p) => p.id === value)
+                atualizarParteLote(parte.id, {
+                  participante_id: value === "none" ? null : value,
+                  participante_nome: value === "none" ? null : (pub?.nome || null),
+                })
+              }}
+            >
+              <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+                <SelectValue placeholder="Selecione o participante" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Selecione o participante</SelectItem>
+                {publicadores.map((pub) => (
+                  <SelectItem key={pub.id} value={pub.id}>
+                    {pub.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Ajudante */}
+          <div className="space-y-1">
+            <Select
+              value={parte.ajudante_id || "none"}
+              onValueChange={(value) => {
+                const pub = publicadores.find((p) => p.id === value)
+                atualizarParteLote(parte.id, {
+                  ajudante_id: value === "none" ? null : value,
+                  ajudante_nome: value === "none" ? null : (pub?.nome || null),
+                })
+              }}
+            >
+              <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+                <SelectValue placeholder="Ajudante (opcional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem ajudante</SelectItem>
+                {publicadores.map((pub) => (
+                  <SelectItem key={pub.id} value={pub.id}>
+                    {pub.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {/* Badge do tipo determinado pelo ajudante */}
+            <p className="text-xs text-zinc-500 pl-1">
+              Tipo:{" "}
+              <span className={cn("font-medium", temAjudante ? "text-yellow-400" : "text-zinc-300")}>
+                {tipoLabel}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* Descrição */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <Label className="text-zinc-400 text-xs">Descrição / Instrução da parte</Label>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
+              onClick={() => gerarDescricaoMinisterio(parte)}
+              disabled={gerandoDescricao === parte.id}
+            >
+              {gerandoDescricao === parte.id ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <Sparkles className="h-3 w-3 mr-1" />
+              )}
+              Gerar por IA
+            </Button>
+          </div>
+          <Textarea
+            value={parte.descricao || ""}
+            onChange={(e) => atualizarParte(parte.id, "descricao", e.target.value)}
+            placeholder={
+              temAjudante
+                ? "Ex: DE CASA EM CASA. Ofereça um estudo bíblico para uma pessoa que aceitou o convite. (lmd lição 9 ponto 5)"
+                : "Ex: TESTEMUNHO PÚBLICO. Explique para uma pessoa como é a Celebração. (lmd lição 5 ponto 3)"
+            }
+            className="bg-zinc-900 border-zinc-700 text-sm min-h-[70px] resize-none"
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // ──────────────────────────────────────────────
+  // Renderização de parte genérica (Nossa Vida Cristã)
+  // ──────────────────────────────────────────────
+  const renderParteGenerica = (parte: Parte, secaoId: string, numeroParte?: number) => (
+    <div key={parte.id} className="bg-zinc-800/50 rounded-lg p-3 space-y-3">
+      <div className="flex items-start gap-3">
+        <div className="flex-1 space-y-1">
+          {numeroParte && (
+            <span className="text-zinc-500 text-xs">Parte {numeroParte}</span>
+          )}
+          <div className="flex items-center gap-2">
+            <Input
+              value={parte.titulo || ""}
+              onChange={(e) => atualizarParte(parte.id, "titulo", e.target.value)}
+              placeholder="Título da parte"
+              className="bg-zinc-900 border-zinc-700 text-sm flex-1"
+            />
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Input
+                value={parte.tempo || ""}
+                onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
+                placeholder="min"
+                className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
+              />
+              <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
+            </div>
+          </div>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => removerParte(parte.id)}
+        >
+          <Trash2 className="w-4 h-4 text-red-400" />
+        </Button>
+      </div>
+
+      {/* Sugestões IA + Participante */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => buscarSugestoesIA(parte.id, parte.titulo, secaoId)}
+            disabled={buscandoSugestao === parte.id}
+            className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
+          >
+            {buscandoSugestao === parte.id ? (
+              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            ) : (
+              <Sparkles className="h-3 w-3 mr-1" />
+            )}
+            Sugerir com IA
+          </Button>
+          {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
+            <div className="flex items-center gap-1 flex-wrap">
+              {sugestoes[parte.id].map((sug, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
+                  className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
+                  title={sug.motivo}
+                >
+                  {sug.nome}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <Select
+          value={parte.participante_id || "none"}
+          onValueChange={(value) => {
+            const pub = publicadores.find((p) => p.id === value)
+            atualizarParteLote(parte.id, {
+              participante_id: value === "none" ? null : value,
+              participante_nome: value === "none" ? null : (pub?.nome || null),
+            })
+          }}
+        >
+          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+            <SelectValue placeholder="Selecione o participante" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">Selecione o participante</SelectItem>
+            {publicadores.map((pub) => (
+              <SelectItem key={pub.id} value={pub.id}>
+                {pub.nome}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  )
+
+  // ──────────────────────────────────────────────
+  // JSX principal
+  // ──────────────────────────────────────────────
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -364,7 +1001,7 @@ export default function AdminVidaMinisterioPage() {
             </Button>
             <div className="text-center">
               <h2 className="text-xl font-bold text-white">
-                {meses.find(m => m.valor === mesAtual)?.nome} {anoAtual}
+                {meses.find((m) => m.valor === mesAtual)?.nome} {anoAtual}
               </h2>
               <p className="text-sm text-zinc-500">{semanas.length} semana(s) cadastrada(s)</p>
             </div>
@@ -391,9 +1028,7 @@ export default function AdminVidaMinisterioPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               {semanas.length === 0 ? (
-                <p className="text-zinc-500 text-sm text-center py-4">
-                  Nenhuma semana cadastrada
-                </p>
+                <p className="text-zinc-500 text-sm text-center py-4">Nenhuma semana cadastrada</p>
               ) : (
                 semanas.map((semana, index) => (
                   <div
@@ -407,9 +1042,7 @@ export default function AdminVidaMinisterioPage() {
                     onClick={() => setSemanaAtiva(semana.id)}
                   >
                     <div>
-                      <p className="text-sm font-medium text-white">
-                        Semana {index + 1}
-                      </p>
+                      <p className="text-sm font-medium text-white">Semana {index + 1}</p>
                       <p className="text-xs text-zinc-400">
                         {formatarData(semana.data_inicio)} - {formatarData(semana.data_fim)}
                       </p>
@@ -438,199 +1071,87 @@ export default function AdminVidaMinisterioPage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg text-white flex items-center gap-2">
                     <BookOpen className="w-5 h-5" />
-                    {formatarData(semanaAtualData.data_inicio)} - {formatarData(semanaAtualData.data_fim)}
+                    {formatarData(semanaAtualData.data_inicio)} -{" "}
+                    {formatarData(semanaAtualData.data_fim)}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Cânticos da Semana */}
+                  {/* Cânticos */}
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="space-y-2">
-                      <Label className="text-zinc-400 text-xs">Cantico Inicial</Label>
-                      <Input
-                        type="number"
-                        value={semanaAtualData.cantico_inicial || ""}
-                        onChange={(e) => atualizarSemana(semanaAtualData.id, "cantico_inicial", e.target.value ? parseInt(e.target.value) : null)}
-                        placeholder="Numero"
-                        className="bg-zinc-800 border-zinc-700"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-zinc-400 text-xs">Cantico Meio</Label>
-                      <Input
-                        type="number"
-                        value={semanaAtualData.cantico_meio || ""}
-                        onChange={(e) => atualizarSemana(semanaAtualData.id, "cantico_meio", e.target.value ? parseInt(e.target.value) : null)}
-                        placeholder="Numero"
-                        className="bg-zinc-800 border-zinc-700"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-zinc-400 text-xs">Cantico Final</Label>
-                      <Input
-                        type="number"
-                        value={semanaAtualData.cantico_final || ""}
-                        onChange={(e) => atualizarSemana(semanaAtualData.id, "cantico_final", e.target.value ? parseInt(e.target.value) : null)}
-                        placeholder="Numero"
-                        className="bg-zinc-800 border-zinc-700"
-                      />
-                    </div>
+                    {[
+                      { campo: "cantico_inicial", label: "Cântico Inicial" },
+                      { campo: "cantico_meio", label: "Cântico Meio" },
+                      { campo: "cantico_final", label: "Cântico Final" },
+                    ].map(({ campo, label }) => (
+                      <div key={campo} className="space-y-2">
+                        <Label className="text-zinc-400 text-xs">{label}</Label>
+                        <Input
+                          type="number"
+                          value={(semanaAtualData as Record<string, unknown>)[campo] as number || ""}
+                          onChange={(e) =>
+                            atualizarSemana(
+                              semanaAtualData.id,
+                              campo,
+                              e.target.value ? parseInt(e.target.value) : null
+                            )
+                          }
+                          placeholder="Número"
+                          className="bg-zinc-800 border-zinc-700"
+                        />
+                      </div>
+                    ))}
                   </div>
 
                   {/* Seções */}
-                  {secoes.map((secao) => {
-                    const partesSecao = partesAtuais.filter(p => p.secao === secao.id)
-                    const Icon = secao.icon
+                  {(() => {
+                    // Calcula offset global de numeração por seção
+                    // Tesouros: sempre 3 partes (1,2,3); Ministério começa em 4; Vida começa após Ministério
+                    const numTesouros = partesAtuais.filter(p => p.secao === "tesouros").length
+                    const numMinisterio = partesAtuais.filter(p => p.secao === "ministerio").length
+                    const offsetMinisterio = numTesouros + 1           // sempre começa após tesouros (geralmente 4)
+                    const offsetVida = numTesouros + numMinisterio + 1 // começa após ministério
 
-                    return (
-                      <div key={secao.id} className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <h3 className={cn("font-semibold flex items-center gap-2", secao.cor)}>
-                            <Icon className="w-4 h-4" />
-                            {secao.nome}
-                          </h3>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => adicionarParte(semanaAtualData.id, secao.id)}
-                          >
-                            <Plus className="w-3 h-3 mr-1" /> Parte
-                          </Button>
+                    return secoes.map((secao) => {
+                      const partesSecao = partesAtuais.filter((p) => p.secao === secao.id)
+                      const Icon = secao.icon
+                      const offset =
+                        secao.id === "ministerio" ? offsetMinisterio
+                        : secao.id === "vida" ? offsetVida
+                        : 1 // tesouros começa em 1, mas usa label próprio
+
+                      return (
+                        <div key={secao.id} className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <h3 className={cn("font-semibold flex items-center gap-2", secao.cor)}>
+                              <Icon className="w-4 h-4" />
+                              {secao.nome}
+                            </h3>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => adicionarParte(semanaAtualData.id, secao.id)}
+                            >
+                              <Plus className="w-3 h-3 mr-1" /> Parte
+                            </Button>
+                          </div>
+
+                          <div className="space-y-3">
+                            {partesSecao.length === 0 ? (
+                              <p className="text-zinc-500 text-sm py-2">Nenhuma parte cadastrada</p>
+                            ) : (
+                              partesSecao.map((parte, idx) =>
+                                secao.id === "tesouros"
+                                  ? renderParteTesouro(parte)
+                                  : secao.id === "ministerio"
+                                  ? renderParteMinisterio(parte, offset + idx)
+                                  : renderParteGenerica(parte, secao.id, offset + idx)
+                              )
+                            )}
+                          </div>
                         </div>
-
-                        <div className="space-y-2">
-                          {partesSecao.length === 0 ? (
-                            <p className="text-zinc-500 text-sm py-2">Nenhuma parte cadastrada</p>
-                          ) : (
-                            partesSecao.map((parte) => (
-                              <div 
-                                key={parte.id} 
-                                className="bg-zinc-800/50 rounded-lg p-3 space-y-3"
-                              >
-                                <div className="flex items-start gap-3">
-                                  <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-2">
-                                    <div className="md:col-span-2">
-                                      <Input
-                                        value={parte.titulo || ""}
-                                        onChange={(e) => atualizarParte(parte.id, "titulo", e.target.value)}
-                                        placeholder="Título da parte"
-                                        className="bg-zinc-900 border-zinc-700 text-sm"
-                                      />
-                                    </div>
-                                    <div>
-                                      <Input
-                                        value={parte.tempo || ""}
-                                        onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
-                                        placeholder="Tempo (ex: 10 min)"
-                                        className="bg-zinc-900 border-zinc-700 text-sm"
-                                      />
-                                    </div>
-                                    <div>
-                                      <Select
-                                        value={parte.sala}
-                                        onValueChange={(value) => atualizarParte(parte.id, "sala", value)}
-                                      >
-                                        <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="principal">Principal</SelectItem>
-                                          <SelectItem value="auxiliar">Auxiliar</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8"
-                                    onClick={() => removerParte(parte.id)}
-                                  >
-                                    <Trash2 className="w-4 h-4 text-red-400" />
-                                  </Button>
-                                </div>
-                                {/* Botão para Sugestões de IA */}
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => buscarSugestoesIA(parte.id, parte.titulo, secao.id)}
-                                    disabled={buscandoSugestao === parte.id}
-                                    className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
-                                  >
-                                    {buscandoSugestao === parte.id ? (
-                                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                    ) : (
-                                      <Sparkles className="h-3 w-3 mr-1" />
-                                    )}
-                                    Sugerir com IA
-                                  </Button>
-                                  
-                                  {/* Mostrar sugestões */}
-                                  {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
-                                    <div className="flex items-center gap-1 flex-wrap">
-                                      {sugestoes[parte.id].map((sug, idx) => (
-                                        <button
-                                          key={idx}
-                                          onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
-                                          className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
-                                          title={sug.motivo}
-                                        >
-                                          {sug.nome}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                  <Select
-                                    value={parte.participante_id || "none"}
-                                    onValueChange={(value) => {
-                                      const pub = publicadores.find(p => p.id === value)
-                                      atualizarParte(parte.id, "participante_id", value === "none" ? null : value)
-                                      atualizarParte(parte.id, "participante_nome", pub?.nome || null)
-                                    }}
-                                  >
-                                    <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
-                                      <SelectValue placeholder="Participante" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="none">Selecione o participante</SelectItem>
-                                      {publicadores.map((pub) => (
-                                        <SelectItem key={pub.id} value={pub.id}>
-                                          {pub.nome}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <Select
-                                    value={parte.ajudante_id || "none"}
-                                    onValueChange={(value) => {
-                                      const pub = publicadores.find(p => p.id === value)
-                                      atualizarParte(parte.id, "ajudante_id", value === "none" ? null : value)
-                                      atualizarParte(parte.id, "ajudante_nome", pub?.nome || null)
-                                    }}
-                                  >
-                                    <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
-                                      <SelectValue placeholder="Ajudante (opcional)" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="none">Sem ajudante</SelectItem>
-                                      {publicadores.map((pub) => (
-                                        <SelectItem key={pub.id} value={pub.id}>
-                                          {pub.nome}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })
+                  })()}
                 </CardContent>
               </>
             ) : (
