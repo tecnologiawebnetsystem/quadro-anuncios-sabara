@@ -18,7 +18,7 @@ import { SyncProvider, useSync } from "@/lib/contexts/sync-context"
 // Itens do bottom navigation (mobile) - apenas os mais importantes
 const bottomNavItems = [
   { title: "Início", href: "/consulta", icon: Home },
-  { title: "Reuniões", href: "/consulta/reunioes/vida-ministerio", icon: Calendar },
+  { title: "Semana", href: "/consulta/semana", icon: Calendar },
   { title: "Equipe", href: "/consulta/equipe-tecnica", icon: Wrench },
   { title: "Campo", href: "/consulta/servico-campo", icon: MapPin },
   { title: "Grupos", href: "/consulta/grupos", icon: Users },

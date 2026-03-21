@@ -68,6 +68,12 @@ interface EventoCalendario {
 // Menu de navegação rápida - organizado por categoria
 const menuSections = [
   {
+    title: "Destaque",
+    items: [
+      { title: "Programação da Semana", description: "Todas as designações", href: "/consulta/semana", icon: Calendar, color: "bg-red-600" },
+    ]
+  },
+  {
     title: "Reuniões",
     items: [
       { title: "Vida e Ministério", description: "Programação semanal", href: "/consulta/reunioes/vida-ministerio", icon: Gem, color: "bg-blue-600" },
