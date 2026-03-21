@@ -91,6 +91,8 @@ interface Parte {
   resposta2: string | null
   texto_biblia: string | null
   licao: string | null
+  // Campo ministério
+  descricao: string | null
 }
 
 interface Publicador {
@@ -110,6 +112,7 @@ export default function AdminVidaMinisterioPage() {
   const [sugestoes, setSugestoes] = useState<Record<string, { id: string; nome: string; motivo: string }[]>>({})
   const [buscandoSugestao, setBuscandoSugestao] = useState<string | null>(null)
   const [gerandoPerguntas, setGerandoPerguntas] = useState<string | null>(null)
+  const [gerandoDescricao, setGerandoDescricao] = useState<string | null>(null)
 
   const supabase = createClient()
 
@@ -369,6 +372,38 @@ export default function AdminVidaMinisterioPage() {
   }
 
   // ──────────────────────────────────────────────
+  // IA – Gerar descrição do Ministério
+  // ──────────────────────────────────────────────
+  const gerarDescricaoMinisterio = async (parte: Parte) => {
+    if (!parte.titulo) {
+      toast.error("Preencha o título da parte antes de gerar a descrição")
+      return
+    }
+    setGerandoDescricao(parte.id)
+    const temAjudante = !!parte.ajudante_id
+    const tipo = temAjudante ? "duas pessoas conversando" : "discurso"
+    try {
+      const response = await fetch("/api/ia/descricao-ministerio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ titulo: parte.titulo, tipo }),
+      })
+      if (response.ok) {
+        const data = await response.json()
+        if (data.descricao) await atualizarParte(parte.id, "descricao", data.descricao)
+        toast.success("Descrição gerada com sucesso!")
+      } else {
+        toast.error("Erro ao gerar descrição")
+      }
+    } catch (error) {
+      console.error("Erro ao gerar descrição ministerio:", error)
+      toast.error("Erro ao gerar descrição")
+    } finally {
+      setGerandoDescricao(null)
+    }
+  }
+
+  // ──────────────────────────────────────────────
   // Navegação de mês
   // ──────────────────────────────────────────────
   const mesAnterior = () => {
@@ -618,41 +653,190 @@ export default function AdminVidaMinisterioPage() {
   }
 
   // ──────────────────────────────────────────────
-  // Renderização de parte genérica (Ministério / Vida)
+  // Renderização de parte: Faça Seu Melhor no Ministério
+  // ──────────────────────────────────────────────
+  const renderParteMinisterio = (parte: Parte) => {
+    const temAjudante = !!parte.ajudante_id
+    const tipoLabel = temAjudante ? "Duas pessoas conversando" : "Discurso"
+
+    return (
+      <div key={parte.id} className="bg-zinc-800/50 rounded-lg p-4 space-y-4">
+        {/* Título + Tempo */}
+        <div className="flex items-start gap-3">
+          <div className="flex-1 space-y-1">
+            <div className="flex items-center gap-2">
+              <Input
+                value={parte.titulo || ""}
+                onChange={(e) => atualizarParte(parte.id, "titulo", e.target.value)}
+                placeholder="Título da parte (ex: Iniciando conversas)"
+                className="bg-zinc-900 border-zinc-700 text-sm flex-1"
+              />
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Input
+                  value={parte.tempo || ""}
+                  onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
+                  placeholder="min"
+                  className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
+                />
+                <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => removerParte(parte.id)}
+          >
+            <Trash2 className="w-4 h-4 text-red-400" />
+          </Button>
+        </div>
+
+        {/* Participante + Ajudante */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {/* Participante */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => buscarSugestoesIA(parte.id, parte.titulo, "ministerio")}
+                disabled={buscandoSugestao === parte.id}
+                className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400 h-7"
+              >
+                {buscandoSugestao === parte.id ? (
+                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3 w-3 mr-1" />
+                )}
+                Sugerir com IA
+              </Button>
+              {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
+                <div className="flex items-center gap-1 flex-wrap">
+                  {sugestoes[parte.id].map((sug, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
+                      className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
+                      title={sug.motivo}
+                    >
+                      {sug.nome}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Select
+              value={parte.participante_id || "none"}
+              onValueChange={(value) => {
+                const pub = publicadores.find((p) => p.id === value)
+                atualizarParte(parte.id, "participante_id", value === "none" ? null : value)
+                atualizarParte(parte.id, "participante_nome", pub?.nome || null)
+              }}
+            >
+              <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+                <SelectValue placeholder="Selecione o participante" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Selecione o participante</SelectItem>
+                {publicadores.map((pub) => (
+                  <SelectItem key={pub.id} value={pub.id}>
+                    {pub.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Ajudante */}
+          <div className="space-y-1">
+            <Select
+              value={parte.ajudante_id || "none"}
+              onValueChange={(value) => {
+                const pub = publicadores.find((p) => p.id === value)
+                atualizarParte(parte.id, "ajudante_id", value === "none" ? null : value)
+                atualizarParte(parte.id, "ajudante_nome", pub?.nome || null)
+              }}
+            >
+              <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+                <SelectValue placeholder="Ajudante (opcional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem ajudante</SelectItem>
+                {publicadores.map((pub) => (
+                  <SelectItem key={pub.id} value={pub.id}>
+                    {pub.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {/* Badge do tipo determinado pelo ajudante */}
+            <p className="text-xs text-zinc-500 pl-1">
+              Tipo:{" "}
+              <span className={cn("font-medium", temAjudante ? "text-yellow-400" : "text-zinc-300")}>
+                {tipoLabel}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* Descrição */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <Label className="text-zinc-400 text-xs">Descrição / Instrução da parte</Label>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
+              onClick={() => gerarDescricaoMinisterio(parte)}
+              disabled={gerandoDescricao === parte.id}
+            >
+              {gerandoDescricao === parte.id ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <Sparkles className="h-3 w-3 mr-1" />
+              )}
+              Gerar por IA
+            </Button>
+          </div>
+          <Textarea
+            value={parte.descricao || ""}
+            onChange={(e) => atualizarParte(parte.id, "descricao", e.target.value)}
+            placeholder={
+              temAjudante
+                ? "Ex: DE CASA EM CASA. Ofereça um estudo bíblico para uma pessoa que aceitou o convite. (lmd lição 9 ponto 5)"
+                : "Ex: TESTEMUNHO PÚBLICO. Explique para uma pessoa como é a Celebração. (lmd lição 5 ponto 3)"
+            }
+            className="bg-zinc-900 border-zinc-700 text-sm min-h-[70px] resize-none"
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // ──────────────────────────────────────────────
+  // Renderização de parte genérica (Nossa Vida Cristã)
   // ──────────────────────────────────────────────
   const renderParteGenerica = (parte: Parte, secaoId: string) => (
     <div key={parte.id} className="bg-zinc-800/50 rounded-lg p-3 space-y-3">
       <div className="flex items-start gap-3">
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-2">
-          <div className="md:col-span-2">
+        <div className="flex-1 space-y-1">
+          <div className="flex items-center gap-2">
             <Input
               value={parte.titulo || ""}
               onChange={(e) => atualizarParte(parte.id, "titulo", e.target.value)}
               placeholder="Título da parte"
-              className="bg-zinc-900 border-zinc-700 text-sm"
+              className="bg-zinc-900 border-zinc-700 text-sm flex-1"
             />
-          </div>
-          <div>
-            <Input
-              value={parte.tempo || ""}
-              onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
-              placeholder="Tempo (ex: 10 min)"
-              className="bg-zinc-900 border-zinc-700 text-sm"
-            />
-          </div>
-          <div>
-            <Select
-              value={parte.sala}
-              onValueChange={(value) => atualizarParte(parte.id, "sala", value)}
-            >
-              <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="principal">Principal</SelectItem>
-                <SelectItem value="auxiliar">Auxiliar</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Input
+                value={parte.tempo || ""}
+                onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
+                placeholder="min"
+                className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
+              />
+              <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
+            </div>
           </div>
         </div>
         <Button
@@ -665,80 +849,95 @@ export default function AdminVidaMinisterioPage() {
         </Button>
       </div>
 
-      {/* Sugestões IA */}
-      <div className="flex items-center gap-2 mb-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => buscarSugestoesIA(parte.id, parte.titulo, secaoId)}
-          disabled={buscandoSugestao === parte.id}
-          className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
-        >
-          {buscandoSugestao === parte.id ? (
-            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-          ) : (
-            <Sparkles className="h-3 w-3 mr-1" />
+      {/* Sala */}
+      <Select
+        value={parte.sala}
+        onValueChange={(value) => atualizarParte(parte.id, "sala", value)}
+      >
+        <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="principal">Principal</SelectItem>
+          <SelectItem value="auxiliar">Auxiliar</SelectItem>
+        </SelectContent>
+      </Select>
+
+      {/* Sugestões IA + Participante */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => buscarSugestoesIA(parte.id, parte.titulo, secaoId)}
+            disabled={buscandoSugestao === parte.id}
+            className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
+          >
+            {buscandoSugestao === parte.id ? (
+              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            ) : (
+              <Sparkles className="h-3 w-3 mr-1" />
+            )}
+            Sugerir com IA
+          </Button>
+          {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
+            <div className="flex items-center gap-1 flex-wrap">
+              {sugestoes[parte.id].map((sug, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
+                  className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
+                  title={sug.motivo}
+                >
+                  {sug.nome}
+                </button>
+              ))}
+            </div>
           )}
-          Sugerir com IA
-        </Button>
+        </div>
 
-        {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
-          <div className="flex items-center gap-1 flex-wrap">
-            {sugestoes[parte.id].map((sug, idx) => (
-              <button
-                key={idx}
-                onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
-                className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
-                title={sug.motivo}
-              >
-                {sug.nome}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <Select
-          value={parte.participante_id || "none"}
-          onValueChange={(value) => {
-            const pub = publicadores.find((p) => p.id === value)
-            atualizarParte(parte.id, "participante_id", value === "none" ? null : value)
-            atualizarParte(parte.id, "participante_nome", pub?.nome || null)
-          }}
-        >
-          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
-            <SelectValue placeholder="Participante" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">Selecione o participante</SelectItem>
-            {publicadores.map((pub) => (
-              <SelectItem key={pub.id} value={pub.id}>
-                {pub.nome}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          value={parte.ajudante_id || "none"}
-          onValueChange={(value) => {
-            const pub = publicadores.find((p) => p.id === value)
-            atualizarParte(parte.id, "ajudante_id", value === "none" ? null : value)
-            atualizarParte(parte.id, "ajudante_nome", pub?.nome || null)
-          }}
-        >
-          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
-            <SelectValue placeholder="Ajudante (opcional)" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">Sem ajudante</SelectItem>
-            {publicadores.map((pub) => (
-              <SelectItem key={pub.id} value={pub.id}>
-                {pub.nome}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <Select
+            value={parte.participante_id || "none"}
+            onValueChange={(value) => {
+              const pub = publicadores.find((p) => p.id === value)
+              atualizarParte(parte.id, "participante_id", value === "none" ? null : value)
+              atualizarParte(parte.id, "participante_nome", pub?.nome || null)
+            }}
+          >
+            <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+              <SelectValue placeholder="Participante" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Selecione o participante</SelectItem>
+              {publicadores.map((pub) => (
+                <SelectItem key={pub.id} value={pub.id}>
+                  {pub.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={parte.ajudante_id || "none"}
+            onValueChange={(value) => {
+              const pub = publicadores.find((p) => p.id === value)
+              atualizarParte(parte.id, "ajudante_id", value === "none" ? null : value)
+              atualizarParte(parte.id, "ajudante_nome", pub?.nome || null)
+            }}
+          >
+            <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+              <SelectValue placeholder="Ajudante (opcional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Sem ajudante</SelectItem>
+              {publicadores.map((pub) => (
+                <SelectItem key={pub.id} value={pub.id}>
+                  {pub.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   )
@@ -893,6 +1092,8 @@ export default function AdminVidaMinisterioPage() {
                             partesSecao.map((parte) =>
                               secao.id === "tesouros"
                                 ? renderParteTesouro(parte)
+                                : secao.id === "ministerio"
+                                ? renderParteMinisterio(parte)
                                 : renderParteGenerica(parte, secao.id)
                             )
                           )}
