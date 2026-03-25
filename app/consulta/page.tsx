@@ -21,7 +21,8 @@ import {
   Megaphone,
   Info,
   CalendarDays,
-  Brain
+  Brain,
+  Mail
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths, getDay } from "date-fns"
@@ -415,6 +416,8 @@ export default function ConsultaPage() {
                 const evento = temEvento(dia)
                 const campo = isSameMonth(dia, mesSelecionado) ? getCampoDia(dia) : undefined
                 const periodoLabel = campo?.periodo === "manha" ? "Manhã" : campo?.periodo === "tarde" ? "Tarde" : campo?.periodo
+                const isSegunda = getDay(dia) === 1 && isSameMonth(dia, mesSelecionado)
+                const temTooltip = campo || isSegunda
                 return (
                   <div
                     key={i}
@@ -426,7 +429,7 @@ export default function ConsultaPage() {
                       evento && !isToday(dia) && "bg-zinc-800",
                       evento?.tipo === "reuniao" && !isToday(dia) && "ring-1 ring-purple-500/50",
                       evento?.tipo === "discurso" && !isToday(dia) && "ring-1 ring-amber-500/50",
-                      campo && "cursor-pointer"
+                      temTooltip && "cursor-pointer"
                     )}
                   >
                     {format(dia, "d")}
@@ -438,22 +441,35 @@ export default function ConsultaPage() {
                         evento.tipo === "campo" && "bg-green-500"
                       )} />
                     )}
-                    {/* Tooltip de campo */}
-                    {campo && (
+                    {/* Tooltip */}
+                    {temTooltip && (
                       <div className={cn(
-                        "absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[160px]",
+                        "absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[180px]",
                         "rounded-lg bg-zinc-800 border border-zinc-700 shadow-xl px-2.5 py-2",
                         "opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150",
-                        "text-left"
+                        "text-left space-y-2"
                       )}>
-                        <div className="flex items-center gap-1 mb-1">
-                          <MapPin className="h-3 w-3 text-green-400 flex-shrink-0" />
-                          <span className="text-[10px] font-semibold text-green-400 uppercase tracking-wide">Campo</span>
-                        </div>
-                        <p className="text-xs font-medium text-white leading-tight">{campo.dirigente_nome}</p>
-                        <p className="text-[10px] text-zinc-400 mt-0.5">
-                          {periodoLabel} {campo.horario}
-                        </p>
+                        {/* Campo */}
+                        {campo && (
+                          <div>
+                            <div className="flex items-center gap-1 mb-1">
+                              <MapPin className="h-3 w-3 text-green-400 flex-shrink-0" />
+                              <span className="text-[10px] font-semibold text-green-400 uppercase tracking-wide">Campo</span>
+                            </div>
+                            <p className="text-xs font-medium text-white leading-tight">{campo.dirigente_nome}</p>
+                            <p className="text-[10px] text-zinc-400 mt-0.5">{periodoLabel} {campo.horario}</p>
+                          </div>
+                        )}
+                        {/* Arranjo de Cartas — toda segunda */}
+                        {isSegunda && (
+                          <div className={cn(campo && "border-t border-zinc-700 pt-2")}>
+                            <div className="flex items-center gap-1 mb-1">
+                              <Mail className="h-3 w-3 text-yellow-400 flex-shrink-0" />
+                              <span className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wide">Arranjo de Cartas</span>
+                            </div>
+                            <p className="text-[10px] text-zinc-400">Toda segunda-feira</p>
+                          </div>
+                        )}
                         {/* Seta */}
                         <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-700" />
                       </div>
