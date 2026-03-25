@@ -293,61 +293,6 @@ export default function ConsultaPage() {
 
       {/* Cards de Destaque */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Proxima Reuniao */}
-        {equipeSemana.length > 0 && (
-          <Card className="border-zinc-800 bg-gradient-to-br from-blue-600/10 to-blue-900/5 hover:border-blue-600/30 transition-colors">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-zinc-400">
-                <Calendar className="h-4 w-4 text-blue-500" />
-                Próxima Reunião
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <p className="text-lg font-semibold text-white capitalize">
-                    {equipeSemana[0]?.dia_semana === "quinta" ? "Quinta-feira" : "Domingo"}
-                  </p>
-                  {isToday(new Date(equipeSemana[0]?.data)) && (
-                    <Badge className="bg-green-600/20 text-green-400 text-[10px]">Hoje</Badge>
-                  )}
-                </div>
-                <p className="text-sm text-zinc-400">
-                  {format(new Date(equipeSemana[0]?.data), "d 'de' MMMM", { locale: ptBR })}
-                </p>
-                <div className="pt-2 flex flex-wrap gap-2 text-xs">
-                  <span className="rounded-full bg-green-600/20 px-2 py-1 text-green-400">
-                    <Wrench className="inline h-3 w-3 mr-1" />
-                    {equipeSemana[0]?.indicador1_nome || "A definir"}
-                  </span>
-                  <span className="rounded-full bg-blue-600/20 px-2 py-1 text-blue-400">
-                    <Volume2 className="inline h-3 w-3 mr-1" />
-                    {equipeSemana[0]?.som_nome || "A definir"}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Limpeza da Semana */}
-        {limpezaSemana && (
-          <Card className="border-zinc-800 bg-gradient-to-br from-cyan-600/10 to-cyan-900/5 hover:border-cyan-600/30 transition-colors">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-zinc-400">
-                <Sparkles className="h-4 w-4 text-cyan-500" />
-                Limpeza da Semana
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-semibold text-white">{limpezaSemana.grupo_nome}</p>
-              <p className="text-sm text-zinc-400 mt-1">
-                {format(new Date(limpezaSemana.data_inicio), "dd/MM", { locale: ptBR })} a {format(new Date(limpezaSemana.data_fim), "dd/MM", { locale: ptBR })}
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Serviço de Campo Hoje */}
         {campoHoje && (
           <Card className="border-zinc-800 bg-gradient-to-br from-green-600/10 to-green-900/5 hover:border-green-600/30 transition-colors">
