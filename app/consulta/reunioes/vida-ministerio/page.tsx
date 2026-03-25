@@ -383,8 +383,8 @@ export default function ConsultaVidaMinisterioPage() {
                         })}
                       </CardContent>
 
-                      {/* Cântico do meio após tesouros */}
-                      {secao.id === "tesouros" && semanaAtual.cantico_meio && (
+                      {/* Cântico do meio antes de Nossa Vida Cristã */}
+                      {secao.id === "ministerio" && semanaAtual.cantico_meio && (
                         <CardContent className="pt-0">
                           <div className="flex items-center gap-2 text-sm text-zinc-400 justify-center py-2 border-t border-zinc-800">
                             <Music className="w-4 h-4" />
