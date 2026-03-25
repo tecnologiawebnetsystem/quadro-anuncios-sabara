@@ -24,7 +24,7 @@ import {
   Brain
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths } from "date-fns"
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths, getDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { useSync } from "@/lib/contexts/sync-context"
@@ -63,6 +63,24 @@ interface EventoCalendario {
   data: string
   tipo: "reuniao" | "discurso" | "campo" | "limpeza"
   titulo: string
+}
+
+interface CampoSemanaItem {
+  dia_semana: string
+  dirigente_nome: string
+  periodo: string
+  horario: string
+}
+
+// Mapeia o número do dia da semana (0=Dom, 1=Seg...) para o valor do banco
+const diaSemanaMap: Record<number, string> = {
+  0: "domingo",
+  1: "segunda",
+  2: "terca",
+  3: "quarta",
+  4: "quinta",
+  5: "sexta",
+  6: "sabado",
 }
 
 // Menu de navegação rápida - organizado por categoria
@@ -132,6 +150,7 @@ export default function ConsultaPage() {
   const [limpezaSemana, setLimpezaSemana] = useState<LimpezaSemana | null>(null)
   const [proximoDiscurso, setProximoDiscurso] = useState<DiscursoPublico | null>(null)
   const [campoHoje, setCampoHoje] = useState<CampoSemana | null>(null)
+  const [todosCampos, setTodosCampos] = useState<CampoSemanaItem[]>([])
   const [eventos, setEventos] = useState<EventoCalendario[]>([])
   const [mesSelecionado, setMesSelecionado] = useState(new Date())
   
@@ -225,6 +244,17 @@ export default function ConsultaPage() {
         if (campoData && campoData.length > 0) {
           setCampoHoje(campoData[0])
         }
+
+        // Buscar todos os campos ativos da semana para o tooltip do calendário
+        const ordemDiasValidos = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo"]
+        const { data: todosCamposData } = await supabase
+          .from("servico_campo_semana")
+          .select("dia_semana, dirigente_nome, periodo, horario")
+          .eq("ativo", true)
+          .in("dia_semana", ordemDiasValidos)
+        if (todosCamposData) {
+          setTodosCampos(todosCamposData)
+        }
         
         setEventos(eventosTemp)
         
@@ -240,6 +270,12 @@ export default function ConsultaPage() {
   const temEvento = (data: Date) => {
     const dataStr = format(data, "yyyy-MM-dd")
     return eventos.find(e => e.data === dataStr)
+  }
+
+  const getCampoDia = (data: Date): CampoSemanaItem | undefined => {
+    const diaSemanaNum = getDay(data) // 0=dom, 1=seg...
+    const diaNome = diaSemanaMap[diaSemanaNum]
+    return todosCampos.find(c => c.dia_semana === diaNome)
   }
 
   // Skeleton Loading
@@ -371,25 +407,27 @@ export default function ConsultaPage() {
             </p>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-7 gap-1 text-center text-xs">
+            <div className="grid grid-cols-7 gap-1 text-center text-xs overflow-visible">
               {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
                 <div key={i} className="py-1 text-zinc-500 font-medium">{dia}</div>
               ))}
               {diasCalendario.map((dia, i) => {
                 const evento = temEvento(dia)
+                const campo = isSameMonth(dia, mesSelecionado) ? getCampoDia(dia) : undefined
+                const periodoLabel = campo?.periodo === "manha" ? "Manhã" : campo?.periodo === "tarde" ? "Tarde" : campo?.periodo
                 return (
                   <div
                     key={i}
                     className={cn(
-                      "py-1.5 rounded-md text-sm relative transition-colors",
+                      "py-1.5 rounded-md text-sm relative transition-colors group",
                       !isSameMonth(dia, mesSelecionado) && "text-zinc-700",
                       isSameMonth(dia, mesSelecionado) && "text-zinc-300",
                       isToday(dia) && "bg-blue-600 text-white font-bold",
                       evento && !isToday(dia) && "bg-zinc-800",
                       evento?.tipo === "reuniao" && !isToday(dia) && "ring-1 ring-purple-500/50",
-                      evento?.tipo === "discurso" && !isToday(dia) && "ring-1 ring-amber-500/50"
+                      evento?.tipo === "discurso" && !isToday(dia) && "ring-1 ring-amber-500/50",
+                      campo && "cursor-pointer"
                     )}
-                    title={evento?.titulo}
                   >
                     {format(dia, "d")}
                     {evento && (
@@ -399,6 +437,26 @@ export default function ConsultaPage() {
                         evento.tipo === "discurso" && "bg-amber-500",
                         evento.tipo === "campo" && "bg-green-500"
                       )} />
+                    )}
+                    {/* Tooltip de campo */}
+                    {campo && (
+                      <div className={cn(
+                        "absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[160px]",
+                        "rounded-lg bg-zinc-800 border border-zinc-700 shadow-xl px-2.5 py-2",
+                        "opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150",
+                        "text-left"
+                      )}>
+                        <div className="flex items-center gap-1 mb-1">
+                          <MapPin className="h-3 w-3 text-green-400 flex-shrink-0" />
+                          <span className="text-[10px] font-semibold text-green-400 uppercase tracking-wide">Campo</span>
+                        </div>
+                        <p className="text-xs font-medium text-white leading-tight">{campo.dirigente_nome}</p>
+                        <p className="text-[10px] text-zinc-400 mt-0.5">
+                          {periodoLabel} {campo.horario}
+                        </p>
+                        {/* Seta */}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-700" />
+                      </div>
                     )}
                   </div>
                 )
