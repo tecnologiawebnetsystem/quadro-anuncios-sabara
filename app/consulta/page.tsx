@@ -17,7 +17,6 @@ import {
   MapPin,
   Mic,
   Volume2,
-  Clock,
   Megaphone,
   Info,
   CalendarDays,
