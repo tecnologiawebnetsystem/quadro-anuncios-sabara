@@ -16,15 +16,13 @@ import {
   Sparkles,
   MapPin,
   Mic,
-  Volume2,
-  Clock,
   Megaphone,
   Info,
   CalendarDays,
-  Brain
+  Mail
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths } from "date-fns"
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths, getDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { useSync } from "@/lib/contexts/sync-context"
@@ -65,6 +63,24 @@ interface EventoCalendario {
   titulo: string
 }
 
+interface CampoSemanaItem {
+  dia_semana: string
+  dirigente_nome: string
+  periodo: string
+  horario: string
+}
+
+// Mapeia o número do dia da semana (0=Dom, 1=Seg...) para o valor do banco
+const diaSemanaMap: Record<number, string> = {
+  0: "domingo",
+  1: "segunda",
+  2: "terca",
+  3: "quarta",
+  4: "quinta",
+  5: "sexta",
+  6: "sabado",
+}
+
 // Menu de navegação rápida - organizado por categoria
 const menuSections = [
   {
@@ -90,12 +106,6 @@ const menuSections = [
       { title: "Publicadores", description: "Lista completa", href: "/consulta/publicadores", icon: BookOpen, color: "bg-pink-600" },
     ]
   },
-  {
-    title: "Ferramentas",
-    items: [
-      { title: "Assistente IA", description: "Ajuda com comentários", href: "/consulta/assistente-ia", icon: Brain, color: "bg-violet-600" },
-    ]
-  }
 ]
 
 // Skeleton components
@@ -138,8 +148,10 @@ export default function ConsultaPage() {
   const [limpezaSemana, setLimpezaSemana] = useState<LimpezaSemana | null>(null)
   const [proximoDiscurso, setProximoDiscurso] = useState<DiscursoPublico | null>(null)
   const [campoHoje, setCampoHoje] = useState<CampoSemana | null>(null)
+  const [todosCampos, setTodosCampos] = useState<CampoSemanaItem[]>([])
   const [eventos, setEventos] = useState<EventoCalendario[]>([])
   const [mesSelecionado, setMesSelecionado] = useState(new Date())
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; campo?: CampoSemanaItem; isSegunda: boolean } | null>(null)
   
   const { syncTrigger } = useSync()
   
@@ -231,6 +243,17 @@ export default function ConsultaPage() {
         if (campoData && campoData.length > 0) {
           setCampoHoje(campoData[0])
         }
+
+        // Buscar todos os campos ativos da semana para o tooltip do calendário
+        const ordemDiasValidos = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo"]
+        const { data: todosCamposData } = await supabase
+          .from("servico_campo_semana")
+          .select("dia_semana, dirigente_nome, periodo, horario")
+          .eq("ativo", true)
+          .in("dia_semana", ordemDiasValidos)
+        if (todosCamposData) {
+          setTodosCampos(todosCamposData)
+        }
         
         setEventos(eventosTemp)
         
@@ -246,6 +269,12 @@ export default function ConsultaPage() {
   const temEvento = (data: Date) => {
     const dataStr = format(data, "yyyy-MM-dd")
     return eventos.find(e => e.data === dataStr)
+  }
+
+  const getCampoDia = (data: Date): CampoSemanaItem | undefined => {
+    const diaSemanaNum = getDay(data) // 0=dom, 1=seg...
+    const diaNome = diaSemanaMap[diaSemanaNum]
+    return todosCampos.find(c => c.dia_semana === diaNome)
   }
 
   // Skeleton Loading
@@ -279,7 +308,44 @@ export default function ConsultaPage() {
     )
   }
 
+  const periodoTooltip = tooltip?.campo?.periodo === "manha" ? "Manhã" : tooltip?.campo?.periodo === "tarde" ? "Tarde" : tooltip?.campo?.periodo
+
   return (
+    <>
+    {/* Tooltip fixo do calendário */}
+    {tooltip && (
+      <div
+        className="fixed z-[9999] pointer-events-none"
+        style={{ left: tooltip.x, top: tooltip.y - 8, transform: "translate(-50%, -100%)" }}
+      >
+        <div
+          className="rounded-lg border border-zinc-600 shadow-2xl px-3 py-2 text-left space-y-2 min-w-[150px]"
+          style={{ backgroundColor: "#18181b" }}
+        >
+          {tooltip.campo && (
+            <div>
+              <div className="flex items-center gap-1 mb-1">
+                <MapPin className="h-3 w-3 text-green-400 flex-shrink-0" />
+                <span className="text-[10px] font-semibold text-green-400 uppercase tracking-wide">Campo</span>
+              </div>
+              <p className="text-xs font-medium text-white leading-tight">{tooltip.campo.dirigente_nome}</p>
+              <p className="text-[10px] text-zinc-300 mt-0.5">{periodoTooltip} {tooltip.campo.horario}</p>
+            </div>
+          )}
+          {tooltip.isSegunda && (
+            <div className={cn(tooltip.campo ? "border-t border-zinc-600 pt-2" : "")}>
+              <div className="flex items-center gap-1 mb-1">
+                <Mail className="h-3 w-3 text-yellow-400 flex-shrink-0" />
+                <span className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wide">Arranjo de Cartas</span>
+              </div>
+              <p className="text-[10px] text-zinc-300">Toda segunda-feira</p>
+            </div>
+          )}
+          {/* Seta */}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0" style={{ borderLeft: "6px solid transparent", borderRight: "6px solid transparent", borderTop: "6px solid #3f3f46" }} />
+        </div>
+      </div>
+    )}
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Header */}
       <div className="text-center sm:text-left">
@@ -293,84 +359,7 @@ export default function ConsultaPage() {
 
       {/* Cards de Destaque */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Proxima Reuniao */}
-        {equipeSemana.length > 0 && (
-          <Card className="border-zinc-800 bg-gradient-to-br from-blue-600/10 to-blue-900/5 hover:border-blue-600/30 transition-colors">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-zinc-400">
-                <Calendar className="h-4 w-4 text-blue-500" />
-                Próxima Reunião
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <p className="text-lg font-semibold text-white capitalize">
-                    {equipeSemana[0]?.dia_semana === "quinta" ? "Quinta-feira" : "Domingo"}
-                  </p>
-                  {isToday(new Date(equipeSemana[0]?.data)) && (
-                    <Badge className="bg-green-600/20 text-green-400 text-[10px]">Hoje</Badge>
-                  )}
-                </div>
-                <p className="text-sm text-zinc-400">
-                  {format(new Date(equipeSemana[0]?.data), "d 'de' MMMM", { locale: ptBR })}
-                </p>
-                <div className="pt-2 flex flex-wrap gap-2 text-xs">
-                  <span className="rounded-full bg-green-600/20 px-2 py-1 text-green-400">
-                    <Wrench className="inline h-3 w-3 mr-1" />
-                    {equipeSemana[0]?.indicador1_nome || "A definir"}
-                  </span>
-                  <span className="rounded-full bg-blue-600/20 px-2 py-1 text-blue-400">
-                    <Volume2 className="inline h-3 w-3 mr-1" />
-                    {equipeSemana[0]?.som_nome || "A definir"}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
-        {/* Limpeza da Semana */}
-        {limpezaSemana && (
-          <Card className="border-zinc-800 bg-gradient-to-br from-cyan-600/10 to-cyan-900/5 hover:border-cyan-600/30 transition-colors">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-zinc-400">
-                <Sparkles className="h-4 w-4 text-cyan-500" />
-                Limpeza da Semana
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-semibold text-white">{limpezaSemana.grupo_nome}</p>
-              <p className="text-sm text-zinc-400 mt-1">
-                {format(new Date(limpezaSemana.data_inicio), "dd/MM", { locale: ptBR })} a {format(new Date(limpezaSemana.data_fim), "dd/MM", { locale: ptBR })}
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Serviço de Campo Hoje */}
-        {campoHoje && (
-          <Card className="border-zinc-800 bg-gradient-to-br from-green-600/10 to-green-900/5 hover:border-green-600/30 transition-colors">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-zinc-400">
-                <MapPin className="h-4 w-4 text-green-500" />
-                Campo Hoje
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-semibold text-white">{campoHoje.dirigente_nome}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="rounded bg-green-600/20 px-2 py-0.5 text-xs text-green-400">
-                  {campoHoje.periodo === "manha" ? "Manhã" : "Tarde"}
-                </span>
-                <span className="flex items-center gap-1 text-sm text-zinc-400">
-                  <Clock className="h-3 w-3" />
-                  {campoHoje.horario}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Proximo Discurso */}
         {proximoDiscurso && (
@@ -432,12 +421,15 @@ export default function ConsultaPage() {
             </p>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-7 gap-1 text-center text-xs">
+            <div className="grid grid-cols-7 gap-1 text-center text-xs overflow-visible">
               {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
                 <div key={i} className="py-1 text-zinc-500 font-medium">{dia}</div>
               ))}
               {diasCalendario.map((dia, i) => {
                 const evento = temEvento(dia)
+                const campo = isSameMonth(dia, mesSelecionado) ? getCampoDia(dia) : undefined
+                const isSegunda = getDay(dia) === 1 && isSameMonth(dia, mesSelecionado)
+                const temTooltip = campo || isSegunda
                 return (
                   <div
                     key={i}
@@ -448,9 +440,14 @@ export default function ConsultaPage() {
                       isToday(dia) && "bg-blue-600 text-white font-bold",
                       evento && !isToday(dia) && "bg-zinc-800",
                       evento?.tipo === "reuniao" && !isToday(dia) && "ring-1 ring-purple-500/50",
-                      evento?.tipo === "discurso" && !isToday(dia) && "ring-1 ring-amber-500/50"
+                      evento?.tipo === "discurso" && !isToday(dia) && "ring-1 ring-amber-500/50",
+                      temTooltip && "cursor-pointer"
                     )}
-                    title={evento?.titulo}
+                    onMouseEnter={temTooltip ? (e) => {
+                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                      setTooltip({ x: rect.left + rect.width / 2, y: rect.top, campo, isSegunda })
+                    } : undefined}
+                    onMouseLeave={temTooltip ? () => setTooltip(null) : undefined}
                   >
                     {format(dia, "d")}
                     {evento && (
@@ -515,30 +512,61 @@ export default function ConsultaPage() {
               </div>
             )}
             
+
+
+            {equipeSemana.length > 0 && (
+              <div className="rounded-lg bg-purple-600/10 p-3 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Wrench className="h-5 w-5 text-purple-400 flex-shrink-0" />
+                  <p className="text-sm font-medium text-white">Equipe Técnica da Semana</p>
+                </div>
+                {equipeSemana.map((reuniao, i) => {
+                  const diaLabel = reuniao.dia_semana === "quinta" ? "Quinta-Feira" : "Domingo"
+                  const dataLabel = format(new Date(reuniao.data), "dd/MM", { locale: ptBR })
+                  return (
+                    <div key={i} className="space-y-2">
+                      <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
+                        {diaLabel} – {dataLabel}
+                      </p>
+                      <div className="grid grid-cols-1 gap-1 pl-1">
+                        {/* Indicadores */}
+                        <div className="flex items-center gap-2 text-xs text-zinc-300">
+                          <span className="rounded bg-orange-600/20 px-1.5 py-0.5 text-orange-400 font-medium whitespace-nowrap">Indicadores</span>
+                          <span>
+                            {[reuniao.indicador1_nome, reuniao.indicador2_nome].filter(Boolean).join(" / ") || "A definir"}
+                          </span>
+                        </div>
+                        {/* Volantes */}
+                        <div className="flex items-center gap-2 text-xs text-zinc-300">
+                          <span className="rounded bg-blue-600/20 px-1.5 py-0.5 text-blue-400 font-medium whitespace-nowrap">Volantes</span>
+                          <span>
+                            {[reuniao.microvolante1_nome, reuniao.microvolante2_nome].filter(Boolean).join(" / ") || "A definir"}
+                          </span>
+                        </div>
+                        {/* Som */}
+                        <div className="flex items-center gap-2 text-xs text-zinc-300">
+                          <span className="rounded bg-green-600/20 px-1.5 py-0.5 text-green-400 font-medium whitespace-nowrap">Som</span>
+                          <span>{reuniao.som_nome || "A definir"}</span>
+                        </div>
+                      </div>
+                      {i < equipeSemana.length - 1 && <div className="border-t border-purple-600/20" />}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
             {campoHoje && (
               <div className="flex items-start gap-3 rounded-lg bg-green-600/10 p-3">
                 <MapPin className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-white">Serviço de Campo Hoje</p>
+                  <p className="text-sm font-medium text-white">Campo Hoje</p>
                   <p className="text-xs text-zinc-400">
-                    Dirigente: <span className="text-green-400">{campoHoje.dirigente_nome}</span> - {campoHoje.horario}
+                    Dirigente: <span className="text-green-400">{campoHoje.dirigente_nome}</span>
                   </p>
-                </div>
-              </div>
-            )}
-
-            {equipeSemana.length > 0 && (
-              <div className="flex items-start gap-3 rounded-lg bg-purple-600/10 p-3">
-                <Calendar className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-white">Reunioes da Semana</p>
-                  <div className="text-xs text-zinc-400 space-y-1">
-                    {equipeSemana.map((reuniao, i) => (
-                      <p key={i}>
-                        <span className="capitalize text-purple-400">{reuniao.dia_semana}</span> - {format(new Date(reuniao.data), "dd/MM", { locale: ptBR })}
-                      </p>
-                    ))}
-                  </div>
+                  <p className="text-xs text-zinc-400">
+                    {campoHoje.periodo === "manha" ? "Manhã" : "Tarde"} — {campoHoje.horario}
+                  </p>
                 </div>
               </div>
             )}
@@ -586,5 +614,6 @@ export default function ConsultaPage() {
         ))}
       </div>
     </div>
+    </>
   )
 }
