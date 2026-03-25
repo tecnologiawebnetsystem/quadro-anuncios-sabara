@@ -90,12 +90,6 @@ const menuSections = [
       { title: "Publicadores", description: "Lista completa", href: "/consulta/publicadores", icon: BookOpen, color: "bg-pink-600" },
     ]
   },
-  {
-    title: "Ferramentas",
-    items: [
-      { title: "Assistente IA", description: "Ajuda com comentários", href: "/consulta/assistente-ia", icon: Brain, color: "bg-violet-600" },
-    ]
-  }
 ]
 
 // Skeleton components
