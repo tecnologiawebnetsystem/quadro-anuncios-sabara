@@ -79,6 +79,8 @@ export default function ConsultaServicoCampoPage() {
         .from("servico_campo_semana")
         .select("*")
         .eq("ativo", true)
+        .not("dia_semana", "is", null)
+        .neq("dia_semana", "")
         .order("dia_semana")
       
       if (semanaData) setCampoSemana(semanaData)
