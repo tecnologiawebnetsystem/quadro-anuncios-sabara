@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -154,6 +154,7 @@ export default function ConsultaPage() {
   const [todosCampos, setTodosCampos] = useState<CampoSemanaItem[]>([])
   const [eventos, setEventos] = useState<EventoCalendario[]>([])
   const [mesSelecionado, setMesSelecionado] = useState(new Date())
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; campo?: CampoSemanaItem; isSegunda: boolean } | null>(null)
   
   const { syncTrigger } = useSync()
   
@@ -310,7 +311,40 @@ export default function ConsultaPage() {
     )
   }
 
+  const periodoTooltip = tooltip?.campo?.periodo === "manha" ? "Manhã" : tooltip?.campo?.periodo === "tarde" ? "Tarde" : tooltip?.campo?.periodo
+
   return (
+    <>
+    {/* Tooltip fixo do calendário */}
+    {tooltip && (
+      <div
+        className="fixed z-[9999] pointer-events-none"
+        style={{ left: tooltip.x, top: tooltip.y - 8, transform: "translate(-50%, -100%)" }}
+      >
+        <div className="rounded-lg bg-zinc-800 border border-zinc-700 shadow-xl px-3 py-2 text-left space-y-2 min-w-[140px]">
+          {tooltip.campo && (
+            <div>
+              <div className="flex items-center gap-1 mb-1">
+                <MapPin className="h-3 w-3 text-green-400 flex-shrink-0" />
+                <span className="text-[10px] font-semibold text-green-400 uppercase tracking-wide">Campo</span>
+              </div>
+              <p className="text-xs font-medium text-white leading-tight">{tooltip.campo.dirigente_nome}</p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">{periodoTooltip} {tooltip.campo.horario}</p>
+            </div>
+          )}
+          {tooltip.isSegunda && (
+            <div className={cn(tooltip.campo ? "border-t border-zinc-700 pt-2" : "")}>
+              <div className="flex items-center gap-1 mb-1">
+                <Mail className="h-3 w-3 text-yellow-400 flex-shrink-0" />
+                <span className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wide">Arranjo de Cartas</span>
+              </div>
+              <p className="text-[10px] text-zinc-400">Toda segunda-feira</p>
+            </div>
+          )}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-700" />
+        </div>
+      </div>
+    )}
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Header */}
       <div className="text-center sm:text-left">
@@ -324,29 +358,7 @@ export default function ConsultaPage() {
 
       {/* Cards de Destaque */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Serviço de Campo Hoje */}
-        {campoHoje && (
-          <Card className="border-zinc-800 bg-gradient-to-br from-green-600/10 to-green-900/5 hover:border-green-600/30 transition-colors">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-zinc-400">
-                <MapPin className="h-4 w-4 text-green-500" />
-                Campo Hoje
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg font-semibold text-white">{campoHoje.dirigente_nome}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="rounded bg-green-600/20 px-2 py-0.5 text-xs text-green-400">
-                  {campoHoje.periodo === "manha" ? "Manhã" : "Tarde"}
-                </span>
-                <span className="flex items-center gap-1 text-sm text-zinc-400">
-                  <Clock className="h-3 w-3" />
-                  {campoHoje.horario}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
 
         {/* Proximo Discurso */}
         {proximoDiscurso && (
@@ -415,14 +427,13 @@ export default function ConsultaPage() {
               {diasCalendario.map((dia, i) => {
                 const evento = temEvento(dia)
                 const campo = isSameMonth(dia, mesSelecionado) ? getCampoDia(dia) : undefined
-                const periodoLabel = campo?.periodo === "manha" ? "Manhã" : campo?.periodo === "tarde" ? "Tarde" : campo?.periodo
                 const isSegunda = getDay(dia) === 1 && isSameMonth(dia, mesSelecionado)
                 const temTooltip = campo || isSegunda
                 return (
                   <div
                     key={i}
                     className={cn(
-                      "py-1.5 rounded-md text-sm relative transition-colors group",
+                      "py-1.5 rounded-md text-sm relative transition-colors",
                       !isSameMonth(dia, mesSelecionado) && "text-zinc-700",
                       isSameMonth(dia, mesSelecionado) && "text-zinc-300",
                       isToday(dia) && "bg-blue-600 text-white font-bold",
@@ -431,6 +442,11 @@ export default function ConsultaPage() {
                       evento?.tipo === "discurso" && !isToday(dia) && "ring-1 ring-amber-500/50",
                       temTooltip && "cursor-pointer"
                     )}
+                    onMouseEnter={temTooltip ? (e) => {
+                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                      setTooltip({ x: rect.left + rect.width / 2, y: rect.top, campo, isSegunda })
+                    } : undefined}
+                    onMouseLeave={temTooltip ? () => setTooltip(null) : undefined}
                   >
                     {format(dia, "d")}
                     {evento && (
@@ -440,39 +456,6 @@ export default function ConsultaPage() {
                         evento.tipo === "discurso" && "bg-amber-500",
                         evento.tipo === "campo" && "bg-green-500"
                       )} />
-                    )}
-                    {/* Tooltip */}
-                    {temTooltip && (
-                      <div className={cn(
-                        "absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[180px]",
-                        "rounded-lg bg-zinc-800 border border-zinc-700 shadow-xl px-2.5 py-2",
-                        "opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150",
-                        "text-left space-y-2"
-                      )}>
-                        {/* Campo */}
-                        {campo && (
-                          <div>
-                            <div className="flex items-center gap-1 mb-1">
-                              <MapPin className="h-3 w-3 text-green-400 flex-shrink-0" />
-                              <span className="text-[10px] font-semibold text-green-400 uppercase tracking-wide">Campo</span>
-                            </div>
-                            <p className="text-xs font-medium text-white leading-tight">{campo.dirigente_nome}</p>
-                            <p className="text-[10px] text-zinc-400 mt-0.5">{periodoLabel} {campo.horario}</p>
-                          </div>
-                        )}
-                        {/* Arranjo de Cartas — toda segunda */}
-                        {isSegunda && (
-                          <div className={cn(campo && "border-t border-zinc-700 pt-2")}>
-                            <div className="flex items-center gap-1 mb-1">
-                              <Mail className="h-3 w-3 text-yellow-400 flex-shrink-0" />
-                              <span className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wide">Arranjo de Cartas</span>
-                            </div>
-                            <p className="text-[10px] text-zinc-400">Toda segunda-feira</p>
-                          </div>
-                        )}
-                        {/* Seta */}
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-700" />
-                      </div>
                     )}
                   </div>
                 )
@@ -528,17 +511,7 @@ export default function ConsultaPage() {
               </div>
             )}
             
-            {campoHoje && (
-              <div className="flex items-start gap-3 rounded-lg bg-green-600/10 p-3">
-                <MapPin className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-white">Serviço de Campo Hoje</p>
-                  <p className="text-xs text-zinc-400">
-                    Dirigente: <span className="text-green-400">{campoHoje.dirigente_nome}</span> - {campoHoje.horario}
-                  </p>
-                </div>
-              </div>
-            )}
+
 
             {equipeSemana.length > 0 && (
               <div className="rounded-lg bg-purple-600/10 p-3 space-y-3">
@@ -625,5 +598,6 @@ export default function ConsultaPage() {
         ))}
       </div>
     </div>
+    </>
   )
 }
