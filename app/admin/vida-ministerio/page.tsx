@@ -93,6 +93,11 @@ interface Parte {
   licao: string | null
   // Campo ministério
   descricao: string | null
+  // Campos estudo bíblico de congregação
+  leitor_id: string | null
+  leitor_nome: string | null
+  oracao_final_id: string | null
+  oracao_final_nome: string | null
 }
 
 interface Publicador {
@@ -976,6 +981,63 @@ export default function AdminVidaMinisterioPage() {
             ))}
           </SelectContent>
         </Select>
+
+        {/* Campos extras para Estudo Bíblico de Congregação */}
+        {parte.titulo?.toLowerCase().includes("estudo bíblico") && (
+          <div className="space-y-2 pt-1 border-t border-zinc-700/50">
+            <div className="space-y-1">
+              <Label className="text-xs text-zinc-400">Leitor do Estudo</Label>
+              <Select
+                value={parte.leitor_id || "none"}
+                onValueChange={(value) => {
+                  const pub = publicadores.find((p) => p.id === value)
+                  atualizarParteLote(parte.id, {
+                    leitor_id: value === "none" ? null : value,
+                    leitor_nome: value === "none" ? null : (pub?.nome || null),
+                  })
+                }}
+              >
+                <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+                  <SelectValue placeholder="Selecione o leitor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Selecione o leitor</SelectItem>
+                  {publicadores.map((pub) => (
+                    <SelectItem key={pub.id} value={pub.id}>
+                      {pub.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs text-zinc-400">Oração Final</Label>
+              <Select
+                value={parte.oracao_final_id || "none"}
+                onValueChange={(value) => {
+                  const pub = publicadores.find((p) => p.id === value)
+                  atualizarParteLote(parte.id, {
+                    oracao_final_id: value === "none" ? null : value,
+                    oracao_final_nome: value === "none" ? null : (pub?.nome || null),
+                  })
+                }}
+              >
+                <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+                  <SelectValue placeholder="Selecione quem fará a oração final" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Selecione quem fará a oração final</SelectItem>
+                  {publicadores.map((pub) => (
+                    <SelectItem key={pub.id} value={pub.id}>
+                      {pub.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

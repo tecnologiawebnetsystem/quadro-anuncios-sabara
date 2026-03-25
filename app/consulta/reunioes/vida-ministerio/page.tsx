@@ -71,6 +71,9 @@ interface Parte {
   licao: string | null
   // Ministério extras
   descricao: string | null
+  // Estudo Bíblico de Congregação
+  leitor_nome: string | null
+  oracao_final_nome: string | null
 }
 
 export default function ConsultaVidaMinisterioPage() {
@@ -377,6 +380,24 @@ export default function ConsultaVidaMinisterioPage() {
                               {/* Ministério: descrição */}
                               {secao.id === "ministerio" && parte.descricao && (
                                 <p className="text-sm text-zinc-300 leading-relaxed">{parte.descricao}</p>
+                              )}
+
+                              {/* Vida Cristã: leitor e oração final do Estudo Bíblico */}
+                              {secao.id === "vida" && parte.titulo?.toLowerCase().includes("estudo bíblico") && (
+                                <div className="space-y-1.5 pt-1 border-t border-zinc-700/50">
+                                  {parte.leitor_nome && (
+                                    <div className="flex items-center gap-2 text-sm">
+                                      <span className="rounded bg-blue-600/20 px-1.5 py-0.5 text-blue-400 text-xs font-medium whitespace-nowrap">Leitor</span>
+                                      <span className="text-zinc-300">{parte.leitor_nome}</span>
+                                    </div>
+                                  )}
+                                  {parte.oracao_final_nome && (
+                                    <div className="flex items-center gap-2 text-sm">
+                                      <span className="rounded bg-red-600/20 px-1.5 py-0.5 text-red-400 text-xs font-medium whitespace-nowrap">Oração Final</span>
+                                      <span className="text-zinc-300">{parte.oracao_final_nome}</span>
+                                    </div>
+                                  )}
+                                </div>
                               )}
                             </div>
                           )
