@@ -149,9 +149,9 @@ export default function ConsultaServicoCampoPage() {
 
   // Ordenar dias da semana
   const ordemDias = ["segunda", "terca", "quarta", "quinta", "sexta"]
-  const campoSemanaOrdenado = [...campoSemana].sort(
-    (a, b) => ordemDias.indexOf(a.dia_semana) - ordemDias.indexOf(b.dia_semana)
-  )
+  const campoSemanaOrdenado = [...campoSemana]
+    .filter((item) => ordemDias.includes(item.dia_semana))
+    .sort((a, b) => ordemDias.indexOf(a.dia_semana) - ordemDias.indexOf(b.dia_semana))
 
   return (
     <div className="max-w-4xl mx-auto">
