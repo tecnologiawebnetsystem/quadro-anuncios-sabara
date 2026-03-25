@@ -118,13 +118,13 @@ export default function Home() {
   const dataFormatada = format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })
 
   return (
-    <div className="min-h-screen bg-[#09090b] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#09090b] flex flex-col md:flex-row">
 
       {/* ── Painel Esquerdo: Identidade ── */}
-      <div className="flex flex-col justify-between lg:w-[45%] p-8 lg:p-14 border-b lg:border-b-0 lg:border-r border-zinc-800">
+      <div className="flex flex-col justify-between md:w-[45%] p-8 md:p-12 border-b md:border-b-0 md:border-r border-zinc-800 md:min-h-screen">
         {/* Logo */}
         <div>
-          <div className="inline-flex items-center gap-3 mb-10 lg:mb-16">
+          <div className="inline-flex items-center gap-3 mb-10 md:mb-14">
             <div className="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center">
               <span className="text-white font-black text-sm">IF</span>
             </div>
@@ -135,7 +135,7 @@ export default function Home() {
           </div>
 
           {/* Título principal */}
-          <h1 className="text-4xl lg:text-5xl font-black text-white leading-tight text-balance mb-3">
+          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight text-balance mb-3">
             Quadro de<br />
             <span className="text-red-500">Anúncios</span>
           </h1>
@@ -181,11 +181,11 @@ export default function Home() {
       </div>
 
       {/* ── Painel Direito: Acesso ── */}
-      <div className="flex flex-col items-center justify-center lg:w-[55%] p-8 lg:p-14">
+      <div className="flex flex-col items-center justify-center md:w-[55%] p-8 md:p-12 flex-1">
 
         {/* Hora */}
         <div className="mb-10 text-center">
-          <p className="text-5xl lg:text-6xl font-black text-white tabular-nums tracking-tight">{hora}</p>
+          <p className="text-5xl md:text-6xl font-black text-white tabular-nums tracking-tight">{hora}</p>
         </div>
 
         {!mostrarSenha ? (
