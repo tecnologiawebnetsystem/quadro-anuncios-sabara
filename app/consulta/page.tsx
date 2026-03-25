@@ -321,7 +321,10 @@ export default function ConsultaPage() {
         className="fixed z-[9999] pointer-events-none"
         style={{ left: tooltip.x, top: tooltip.y - 8, transform: "translate(-50%, -100%)" }}
       >
-        <div className="rounded-lg bg-zinc-800 border border-zinc-700 shadow-xl px-3 py-2 text-left space-y-2 min-w-[140px]">
+        <div
+          className="rounded-lg border border-zinc-600 shadow-2xl px-3 py-2 text-left space-y-2 min-w-[150px]"
+          style={{ backgroundColor: "#18181b" }}
+        >
           {tooltip.campo && (
             <div>
               <div className="flex items-center gap-1 mb-1">
@@ -329,19 +332,20 @@ export default function ConsultaPage() {
                 <span className="text-[10px] font-semibold text-green-400 uppercase tracking-wide">Campo</span>
               </div>
               <p className="text-xs font-medium text-white leading-tight">{tooltip.campo.dirigente_nome}</p>
-              <p className="text-[10px] text-zinc-400 mt-0.5">{periodoTooltip} {tooltip.campo.horario}</p>
+              <p className="text-[10px] text-zinc-300 mt-0.5">{periodoTooltip} {tooltip.campo.horario}</p>
             </div>
           )}
           {tooltip.isSegunda && (
-            <div className={cn(tooltip.campo ? "border-t border-zinc-700 pt-2" : "")}>
+            <div className={cn(tooltip.campo ? "border-t border-zinc-600 pt-2" : "")}>
               <div className="flex items-center gap-1 mb-1">
                 <Mail className="h-3 w-3 text-yellow-400 flex-shrink-0" />
                 <span className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wide">Arranjo de Cartas</span>
               </div>
-              <p className="text-[10px] text-zinc-400">Toda segunda-feira</p>
+              <p className="text-[10px] text-zinc-300">Toda segunda-feira</p>
             </div>
           )}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-700" />
+          {/* Seta */}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0" style={{ borderLeft: "6px solid transparent", borderRight: "6px solid transparent", borderTop: "6px solid #3f3f46" }} />
         </div>
       </div>
     )}
@@ -552,6 +556,21 @@ export default function ConsultaPage() {
                     </div>
                   )
                 })}
+              </div>
+            )}
+
+            {campoHoje && (
+              <div className="flex items-start gap-3 rounded-lg bg-green-600/10 p-3">
+                <MapPin className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-white">Campo Hoje</p>
+                  <p className="text-xs text-zinc-400">
+                    Dirigente: <span className="text-green-400">{campoHoje.dirigente_nome}</span>
+                  </p>
+                  <p className="text-xs text-zinc-400">
+                    {campoHoje.periodo === "manha" ? "Manhã" : "Tarde"} — {campoHoje.horario}
+                  </p>
+                </div>
               </div>
             )}
 
