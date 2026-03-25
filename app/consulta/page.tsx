@@ -467,18 +467,44 @@ export default function ConsultaPage() {
             )}
 
             {equipeSemana.length > 0 && (
-              <div className="flex items-start gap-3 rounded-lg bg-purple-600/10 p-3">
-                <Calendar className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-white">Reunioes da Semana</p>
-                  <div className="text-xs text-zinc-400 space-y-1">
-                    {equipeSemana.map((reuniao, i) => (
-                      <p key={i}>
-                        <span className="capitalize text-purple-400">{reuniao.dia_semana}</span> - {format(new Date(reuniao.data), "dd/MM", { locale: ptBR })}
-                      </p>
-                    ))}
-                  </div>
+              <div className="rounded-lg bg-purple-600/10 p-3 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Wrench className="h-5 w-5 text-purple-400 flex-shrink-0" />
+                  <p className="text-sm font-medium text-white">Equipe Técnica da Semana</p>
                 </div>
+                {equipeSemana.map((reuniao, i) => {
+                  const diaLabel = reuniao.dia_semana === "quinta" ? "Quinta-Feira" : "Domingo"
+                  const dataLabel = format(new Date(reuniao.data), "dd/MM", { locale: ptBR })
+                  return (
+                    <div key={i} className="space-y-2">
+                      <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
+                        {diaLabel} – {dataLabel}
+                      </p>
+                      <div className="grid grid-cols-1 gap-1 pl-1">
+                        {/* Indicadores */}
+                        <div className="flex items-center gap-2 text-xs text-zinc-300">
+                          <span className="rounded bg-orange-600/20 px-1.5 py-0.5 text-orange-400 font-medium whitespace-nowrap">Indicadores</span>
+                          <span>
+                            {[reuniao.indicador1_nome, reuniao.indicador2_nome].filter(Boolean).join(" / ") || "A definir"}
+                          </span>
+                        </div>
+                        {/* Volantes */}
+                        <div className="flex items-center gap-2 text-xs text-zinc-300">
+                          <span className="rounded bg-blue-600/20 px-1.5 py-0.5 text-blue-400 font-medium whitespace-nowrap">Volantes</span>
+                          <span>
+                            {[reuniao.microvolante1_nome, reuniao.microvolante2_nome].filter(Boolean).join(" / ") || "A definir"}
+                          </span>
+                        </div>
+                        {/* Som */}
+                        <div className="flex items-center gap-2 text-xs text-zinc-300">
+                          <span className="rounded bg-green-600/20 px-1.5 py-0.5 text-green-400 font-medium whitespace-nowrap">Som</span>
+                          <span>{reuniao.som_nome || "A definir"}</span>
+                        </div>
+                      </div>
+                      {i < equipeSemana.length - 1 && <div className="border-t border-purple-600/20" />}
+                    </div>
+                  )
+                })}
               </div>
             )}
 
