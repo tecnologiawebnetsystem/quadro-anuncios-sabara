@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -16,11 +16,9 @@ import {
   Sparkles,
   MapPin,
   Mic,
-  Volume2,
   Megaphone,
   Info,
   CalendarDays,
-  Brain,
   Mail
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
