@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { BookOpen, ChevronLeft, ChevronRight, Plus, MoreVertical, Trash2, FileText, Wand2, Sparkles, Loader2 } from "lucide-react"
+import { BookOpen, ChevronLeft, ChevronRight, Plus, MoreVertical, Trash2, FileText, Wand2, Sparkles, Loader2, ImagePlus, X, ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
@@ -43,6 +43,9 @@ interface Paragrafo {
   pergunta: string
   resposta?: string
   ordem: number
+  imagem_url?: string
+  imagem_descricao?: string
+  imagem_explicacao?: string
 }
 
 export default function SentinelaPage() {
@@ -53,6 +56,8 @@ export default function SentinelaPage() {
   const [estudoAtivo, setEstudoAtivo] = useState<string | null>(null)
   const [paragrafos, setParagrafos] = useState<Paragrafo[]>([])
   const [gerandoResposta, setGerandoResposta] = useState<string | null>(null)
+  const [gerandoExplicacao, setGerandoExplicacao] = useState<string | null>(null)
+  const [enviandoImagem, setEnviandoImagem] = useState<string | null>(null)
   
   const supabase = createClient()
 
@@ -299,6 +304,75 @@ export default function SentinelaPage() {
     }
   }
 
+  const uploadImagem = async (paragrafoId: string, file: File) => {
+    setEnviandoImagem(paragrafoId)
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/upload-imagem", {
+        method: "POST",
+        body: formData
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        await atualizarParagrafo(paragrafoId, "imagem_url", data.url)
+      }
+    } catch (err) {
+      // erro silencioso
+    } finally {
+      setEnviandoImagem(null)
+    }
+  }
+
+  const removerImagem = async (paragrafoId: string) => {
+    const { error } = await supabase
+      .from("sentinela_paragrafos")
+      .update({ 
+        imagem_url: null, 
+        imagem_descricao: null, 
+        imagem_explicacao: null 
+      })
+      .eq("id", paragrafoId)
+
+    if (!error) {
+      setParagrafos(prev => prev.map(p => 
+        p.id === paragrafoId ? { ...p, imagem_url: undefined, imagem_descricao: undefined, imagem_explicacao: undefined } : p
+      ))
+    }
+  }
+
+  const gerarExplicacaoImagem = async (paragrafo: Paragrafo) => {
+    if (!paragrafo.imagem_descricao) {
+      return
+    }
+
+    setGerandoExplicacao(paragrafo.id)
+
+    try {
+      const response = await fetch("/api/ai/explicar-imagem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          descricao: paragrafo.imagem_descricao,
+          textoBase: paragrafo.texto_base,
+          pergunta: paragrafo.pergunta
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        await atualizarParagrafo(paragrafo.id, "imagem_explicacao", data.explicacao)
+      }
+    } catch (err) {
+      // erro silencioso
+    } finally {
+      setGerandoExplicacao(null)
+    }
+  }
+
   const formatarData = (dataInicio: string, dataFim: string) => {
     try {
       const inicio = new Date(dataInicio + "T12:00:00")
@@ -463,7 +537,7 @@ export default function SentinelaPage() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-zinc-400">Data Início</Label>
+                    <Label className="text-zinc-400">Data In��cio</Label>
                     <Input
                       type="date"
                       value={estudoAtualData.data_inicio || ""}
@@ -591,9 +665,114 @@ export default function SentinelaPage() {
                                 className="bg-zinc-900 border-zinc-600 min-h-[60px]"
                               />
                             </div>
+
+                            {/* Seção de Imagem */}
+                            <div className="space-y-3 pt-3 border-t border-zinc-700">
+                              <div className="flex items-center justify-between">
+                                <Label className="text-zinc-400 flex items-center gap-2">
+                                  <ImageIcon className="w-4 h-4" />
+                                  Imagem do Parágrafo
+                                </Label>
+                                {!paragrafo.imagem_url && (
+                                  <label className="cursor-pointer">
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0]
+                                        if (file) uploadImagem(paragrafo.id, file)
+                                      }}
+                                      disabled={enviandoImagem === paragrafo.id}
+                                    />
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="border-blue-500 text-blue-400 hover:bg-blue-500/10"
+                                      asChild
+                                    >
+                                      <span>
+                                        {enviandoImagem === paragrafo.id ? (
+                                          <>
+                                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                            Enviando...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <ImagePlus className="w-4 h-4 mr-1" />
+                                            Adicionar Imagem
+                                          </>
+                                        )}
+                                      </span>
+                                    </Button>
+                                  </label>
+                                )}
+                              </div>
+
+                              {paragrafo.imagem_url && (
+                                <div className="space-y-3">
+                                  <div className="relative rounded-lg overflow-hidden bg-zinc-900 border border-zinc-600">
+                                    <img 
+                                      src={paragrafo.imagem_url} 
+                                      alt="Imagem do parágrafo"
+                                      className="max-h-48 w-auto mx-auto"
+                                    />
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="absolute top-2 right-2 bg-zinc-900/80 hover:bg-red-500/20 text-red-400 h-7 w-7"
+                                      onClick={() => removerImagem(paragrafo.id)}
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label className="text-zinc-400">Descrição da Imagem</Label>
+                                    <Textarea
+                                      value={paragrafo.imagem_descricao || ""}
+                                      onChange={(e) => atualizarParagrafo(paragrafo.id, "imagem_descricao", e.target.value)}
+                                      placeholder="Descreva o que a imagem mostra (ex: Uma família estudando a Bíblia juntos)"
+                                      className="bg-zinc-900 border-zinc-600 min-h-[60px]"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <Label className="text-zinc-400">Explicação da Imagem</Label>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="border-green-500 text-green-400 hover:bg-green-500/10"
+                                        onClick={() => gerarExplicacaoImagem(paragrafo)}
+                                        disabled={gerandoExplicacao === paragrafo.id || !paragrafo.imagem_descricao}
+                                      >
+                                        {gerandoExplicacao === paragrafo.id ? (
+                                          <>
+                                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                            Gerando...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Sparkles className="w-4 h-4 mr-1" />
+                                            IA Explicar
+                                          </>
+                                        )}
+                                      </Button>
+                                    </div>
+                                    <Textarea
+                                      value={paragrafo.imagem_explicacao || ""}
+                                      onChange={(e) => atualizarParagrafo(paragrafo.id, "imagem_explicacao", e.target.value)}
+                                      placeholder="A explicação da imagem aparecerá aqui após clicar em 'IA Explicar' ou digite manualmente..."
+                                      className="bg-zinc-900 border-zinc-600 min-h-[60px]"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </CardContent>
                         </Card>
-                      ))}
+                      )})}
                     </div>
                   )}
                 </div>
