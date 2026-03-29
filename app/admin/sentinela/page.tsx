@@ -592,9 +592,7 @@ export default function SentinelaPage() {
                     <p className="text-zinc-500 text-sm">Nenhum parágrafo cadastrado</p>
                   ) : (
                     <div className="space-y-4">
-                      {paragrafosAtuais.map((paragrafo) => {
-                        console.log("[v0] Renderizando parágrafo:", paragrafo.id, "imagem_url:", paragrafo.imagem_url)
-                        return (
+                      {paragrafosAtuais.map((paragrafo) => (
                         <Card key={paragrafo.id} className="bg-zinc-800 border-zinc-700">
                           <CardContent className="pt-4 space-y-3">
                             <div className="flex items-center justify-between">

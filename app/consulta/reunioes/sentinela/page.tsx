@@ -51,8 +51,9 @@ interface Paragrafo {
   texto_base: string | null
   pergunta: string | null
   resposta: string | null
-  imagem: string | null
-  imagem_legenda: string | null
+  imagem_url: string | null
+  imagem_descricao: string | null
+  imagem_explicacao: string | null
   ordem: number
 }
 
@@ -288,15 +289,22 @@ export default function ConsultaSentinelaPage() {
                                 {paragrafo.resposta}
                               </p>
                             )}
-                            {paragrafo.imagem && (
-                              <div className="mt-2">
+                            {paragrafo.imagem_url && (
+                              <div className="mt-3 space-y-2">
                                 <img 
-                                  src={paragrafo.imagem} 
-                                  alt={paragrafo.imagem_legenda || "Imagem do parágrafo"} 
-                                  className="rounded-lg max-w-full h-auto"
+                                  src={paragrafo.imagem_url} 
+                                  alt={paragrafo.imagem_descricao || "Imagem do parágrafo"} 
+                                  className="rounded-lg max-w-full h-auto max-h-64 object-contain"
                                 />
-                                {paragrafo.imagem_legenda && (
-                                  <p className="text-xs text-zinc-500 mt-1">{paragrafo.imagem_legenda}</p>
+                                {paragrafo.imagem_descricao && (
+                                  <p className="text-sm text-zinc-400 italic">
+                                    {paragrafo.imagem_descricao}
+                                  </p>
+                                )}
+                                {paragrafo.imagem_explicacao && (
+                                  <p className="text-zinc-300 leading-relaxed bg-zinc-900/50 p-3 rounded border-l-2 border-green-500">
+                                    {paragrafo.imagem_explicacao}
+                                  </p>
                                 )}
                               </div>
                             )}
