@@ -407,17 +407,18 @@ export default function SentinelaPage() {
 
   const formatarData = (dataInicio: string, dataFim: string) => {
     try {
+      const mesesCurtos = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
       const inicio = new Date(dataInicio + "T12:00:00")
       const fim = new Date(dataFim + "T12:00:00")
       const diaInicio = inicio.getDate()
       const diaFim = fim.getDate()
-      const mesInicio = inicio.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")
-      const mesFim = fim.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")
+      const mesInicio = mesesCurtos[inicio.getMonth()]
+      const mesFim = mesesCurtos[fim.getMonth()]
       
       if (mesInicio === mesFim) {
-        return `${diaInicio} - ${diaFim} de ${mesInicio}`
+        return `${diaInicio}-${diaFim} ${mesInicio}`
       }
-      return `${diaInicio} de ${mesInicio} - ${diaFim} de ${mesFim}`
+      return `${diaInicio}/${mesInicio}-${diaFim}/${mesFim}`
     } catch {
       return "Data inválida"
     }
@@ -503,7 +504,7 @@ export default function SentinelaPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-sm">Semana de {formatarData(estudo.data_inicio, estudo.data_fim)}</p>
+                      <p className="font-medium text-sm">{formatarData(estudo.data_inicio, estudo.data_fim)}</p>
                       <p className="text-xs text-zinc-400 mt-1 line-clamp-1">
                         {estudo.titulo || "Novo Estudo"}
                       </p>

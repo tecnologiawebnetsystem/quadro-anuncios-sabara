@@ -146,6 +146,21 @@ export default function ConsultaSentinelaPage() {
     })
   }
 
+  const formatarPeriodoCurto = (inicio: string, fim: string) => {
+    const mesesCurtos = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+    const dataInicio = new Date(inicio + "T12:00:00")
+    const dataFim = new Date(fim + "T12:00:00")
+    const diaInicio = dataInicio.getDate()
+    const diaFim = dataFim.getDate()
+    const mesInicio = mesesCurtos[dataInicio.getMonth()]
+    const mesFim = mesesCurtos[dataFim.getMonth()]
+    
+    if (mesInicio === mesFim) {
+      return `${diaInicio}-${diaFim} ${mesInicio}`
+    }
+    return `${diaInicio}/${mesInicio}-${diaFim}/${mesFim}`
+  }
+
   const formatarPeriodo = (inicio: string, fim: string) => {
     const dataInicio = new Date(inicio + "T12:00:00")
     const dataFim = new Date(fim + "T12:00:00")
@@ -198,16 +213,15 @@ export default function ConsultaSentinelaPage() {
       ) : (
         <>
           {/* Seletor de Semanas */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex flex-wrap gap-2">
             {estudos.map((estudo, index) => (
               <Button
                 key={estudo.id}
                 variant={estudoAtivo === index ? "default" : "outline"}
                 size="sm"
                 onClick={() => setEstudoAtivo(index)}
-                className="whitespace-nowrap"
               >
-                Semana de {formatarPeriodo(estudo.data_inicio, estudo.data_fim)}
+                {formatarPeriodoCurto(estudo.data_inicio, estudo.data_fim)}
               </Button>
             ))}
           </div>
