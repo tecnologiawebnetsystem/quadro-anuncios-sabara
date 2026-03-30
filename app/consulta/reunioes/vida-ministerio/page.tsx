@@ -162,12 +162,14 @@ export default function ConsultaVidaMinisterioPage() {
     (s) => hojeStr >= s.data_inicio && hojeStr <= s.data_fim
   )
 
+  console.log("[v0] hojeStr:", hojeStr, "indiceSemanaAtual:", indiceSemanaAtual, "semanaAtualData:", semanaAtualData)
+
   // Selecionar automaticamente a semana atual quando carregar os dados
   useEffect(() => {
     if (semanas.length > 0 && indiceSemanaAtual >= 0) {
       setSemanaAtiva(indiceSemanaAtual)
     }
-  }, [semanas, indiceSemanaAtual])
+  }, [semanas.length, indiceSemanaAtual])
 
   const formatarData = (data: string) =>
     new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
@@ -257,8 +259,9 @@ export default function ConsultaVidaMinisterioPage() {
 
           {semanaAtualData && (
             <div className="space-y-4">
+              {console.log("[v0] sem_reuniao:", semanaAtualData.sem_reuniao, "tipo:", typeof semanaAtualData.sem_reuniao)}
               {/* Aviso de Semana sem Reunião */}
-              {semanaAtualData.sem_reuniao ? (
+              {semanaAtualData.sem_reuniao === true ? (
                 <Card className="bg-amber-500/10 border-amber-500/50">
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center text-center gap-4">
