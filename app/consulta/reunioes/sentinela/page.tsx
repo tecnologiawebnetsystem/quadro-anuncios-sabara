@@ -140,8 +140,8 @@ export default function ConsultaSentinelaPage() {
     setEstudoAtivo(0)
   }
 
-  const estudoAtualDataData = estudos[estudoAtivo]
-  const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtualDataData?.id)
+  const estudoAtualData = estudos[estudoAtivo]
+  const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtualData?.id)
 
   // Identificar qual semana é a atual (baseado na data de hoje)
   const hoje = new Date()

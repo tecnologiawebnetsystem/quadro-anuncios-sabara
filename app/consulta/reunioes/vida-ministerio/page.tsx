@@ -152,8 +152,8 @@ export default function ConsultaVidaMinisterioPage() {
     setSemanaAtiva(0)
   }
 
-  const semanaAtualDataData = semanas[semanaAtiva]
-  const partesAtuais = partes.filter((p) => p.semana_id === semanaAtualDataData?.id)
+  const semanaAtualData = semanas[semanaAtiva]
+  const partesAtuais = partes.filter((p) => p.semana_id === semanaAtualData?.id)
 
   // Identificar qual semana é a atual (baseado na data de hoje)
   const hoje = new Date()
