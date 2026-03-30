@@ -868,7 +868,7 @@ export default function SentinelaPage() {
                             </div>
                           </CardContent>
                         </Card>
-                      )})}
+                      ))}
                     </div>
                   )}
                 </div>
