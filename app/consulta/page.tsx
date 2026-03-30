@@ -592,11 +592,6 @@ export default function ConsultaPage() {
                       !mesAtual && "text-zinc-700",
                       mesAtual && "text-zinc-300",
                       isToday(dia) && "bg-blue-600 text-white font-bold",
-                      evento && !isToday(dia) && "bg-zinc-800",
-                      evento?.tipo === "reuniao" && !isToday(dia) && "ring-1 ring-purple-500/50",
-                      evento?.tipo === "discurso" && !isToday(dia) && "ring-1 ring-amber-500/50",
-                      isQuinta && vidaMinisterio && !isToday(dia) && "ring-1 ring-blue-500/50",
-                      isDomingo && sentinela && !isToday(dia) && "ring-1 ring-red-500/50",
                       temTooltip && "cursor-pointer hover:bg-zinc-700/50 active:bg-zinc-600/50"
                     )}
                     onMouseEnter={temTooltip ? handleInteracao : undefined}
