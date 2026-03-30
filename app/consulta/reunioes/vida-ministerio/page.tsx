@@ -152,8 +152,22 @@ export default function ConsultaVidaMinisterioPage() {
     setSemanaAtiva(0)
   }
 
-  const semanaAtual = semanas[semanaAtiva]
-  const partesAtuais = partes.filter((p) => p.semana_id === semanaAtual?.id)
+  const semanaAtualDataData = semanas[semanaAtiva]
+  const partesAtuais = partes.filter((p) => p.semana_id === semanaAtualDataData?.id)
+
+  // Identificar qual semana é a atual (baseado na data de hoje)
+  const hoje = new Date()
+  const hojeStr = hoje.toISOString().split("T")[0]
+  const indiceSemanaAtual = semanas.findIndex(
+    (s) => hojeStr >= s.data_inicio && hojeStr <= s.data_fim
+  )
+
+  // Selecionar automaticamente a semana atual quando carregar os dados
+  useEffect(() => {
+    if (semanas.length > 0 && indiceSemanaAtual >= 0) {
+      setSemanaAtiva(indiceSemanaAtual)
+    }
+  }, [semanas, indiceSemanaAtual])
 
   const formatarData = (data: string) =>
     new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
@@ -201,24 +215,35 @@ export default function ConsultaVidaMinisterioPage() {
       ) : (
         <>
           {/* Seletor de Semanas */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {semanas.map((semana, index) => (
-              <Button
-                key={semana.id}
-                variant={semanaAtiva === index ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSemanaAtiva(index)}
-                className="whitespace-nowrap"
-              >
-                {formatarData(semana.data_inicio)} - {formatarData(semana.data_fim)}
-              </Button>
-            ))}
+          <div className="flex flex-wrap gap-2">
+            {semanas.map((semana, index) => {
+              const isAtual = index === indiceSemanaAtual
+              return (
+                <Button
+                  key={semana.id}
+                  variant={semanaAtiva === index ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSemanaAtiva(index)}
+                  className={cn(
+                    "whitespace-nowrap relative",
+                    isAtual && semanaAtiva !== index && "border-green-500 text-green-400"
+                  )}
+                >
+                  {formatarData(semana.data_inicio)} - {formatarData(semana.data_fim)}
+                  {isAtual && (
+                    <span className="ml-1.5 text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-medium">
+                      Atual
+                    </span>
+                  )}
+                </Button>
+              )
+            })}
           </div>
 
-          {semanaAtual && (
+          {semanaAtualData && (
             <div className="space-y-4">
               {/* Aviso de Semana sem Reunião */}
-              {semanaAtual.sem_reuniao ? (
+              {semanaAtualData.sem_reuniao ? (
                 <Card className="bg-amber-500/10 border-amber-500/50">
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center text-center gap-4">
@@ -230,11 +255,11 @@ export default function ConsultaVidaMinisterioPage() {
                           Não haverá reunião esta semana
                         </h3>
                         <p className="text-zinc-300">
-                          {formatarDataCompleta(semanaAtual.data_inicio, semanaAtual.data_fim)}
+                          {formatarDataCompleta(semanaAtualData.data_inicio, semanaAtualData.data_fim)}
                         </p>
-                        {semanaAtual.motivo_sem_reuniao && (
+                        {semanaAtualData.motivo_sem_reuniao && (
                           <p className="text-zinc-400 mt-3 text-sm">
-                            Motivo: {semanaAtual.motivo_sem_reuniao}
+                            Motivo: {semanaAtualData.motivo_sem_reuniao}
                           </p>
                         )}
                       </div>
@@ -249,19 +274,19 @@ export default function ConsultaVidaMinisterioPage() {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
                       <h3 className="text-lg font-bold text-white">
-                        {formatarDataCompleta(semanaAtual.data_inicio, semanaAtual.data_fim)}
+                        {formatarDataCompleta(semanaAtualData.data_inicio, semanaAtualData.data_fim)}
                       </h3>
-                      {semanaAtual.leitura_semanal && (
+                      {semanaAtualData.leitura_semanal && (
                         <p className="text-sm text-zinc-400 flex items-center gap-2 mt-1">
                           <BookOpen className="w-4 h-4" />
-                          Leitura: {semanaAtual.leitura_semanal}
+                          Leitura: {semanaAtualData.leitura_semanal}
                         </p>
                       )}
                     </div>
-                    {semanaAtual.cantico_inicial && (
+                    {semanaAtualData.cantico_inicial && (
                       <div className="flex items-center gap-1 text-sm text-zinc-400">
                         <Music className="w-4 h-4" />
-                        <span>Cântico {semanaAtual.cantico_inicial}</span>
+                        <span>Cântico {semanaAtualData.cantico_inicial}</span>
                       </div>
                     )}
                   </div>
@@ -434,11 +459,11 @@ export default function ConsultaVidaMinisterioPage() {
                       </CardContent>
 
                       {/* Cântico do meio antes de Nossa Vida Cristã */}
-                      {secao.id === "ministerio" && semanaAtual.cantico_meio && (
+                      {secao.id === "ministerio" && semanaAtualData.cantico_meio && (
                         <CardContent className="pt-0">
                           <div className="flex items-center gap-2 text-sm text-zinc-400 justify-center py-2 border-t border-zinc-800">
                             <Music className="w-4 h-4" />
-                            <span>Cântico {semanaAtual.cantico_meio}</span>
+                            <span>Cântico {semanaAtualData.cantico_meio}</span>
                           </div>
                         </CardContent>
                       )}
@@ -448,12 +473,12 @@ export default function ConsultaVidaMinisterioPage() {
               })()}
 
               {/* Cântico Final */}
-              {semanaAtual.cantico_final && (
+              {semanaAtualData.cantico_final && (
                 <Card className="bg-zinc-900/50 border-zinc-800">
                   <CardContent className="py-3">
                     <div className="flex items-center gap-2 text-sm text-zinc-400 justify-center">
                       <Music className="w-4 h-4" />
-                      <span>Cântico Final: {semanaAtual.cantico_final}</span>
+                      <span>Cântico Final: {semanaAtualData.cantico_final}</span>
                     </div>
                   </CardContent>
                 </Card>

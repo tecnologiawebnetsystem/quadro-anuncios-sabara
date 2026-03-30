@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useSync } from "@/lib/contexts/sync-context"
+import { cn } from "@/lib/utils"
 
 const meses = [
   { valor: 1, nome: "Janeiro" },
@@ -139,8 +140,22 @@ export default function ConsultaSentinelaPage() {
     setEstudoAtivo(0)
   }
 
-  const estudoAtual = estudos[estudoAtivo]
-  const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtual?.id)
+  const estudoAtualDataData = estudos[estudoAtivo]
+  const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtualDataData?.id)
+
+  // Identificar qual semana é a atual (baseado na data de hoje)
+  const hoje = new Date()
+  const hojeStr = hoje.toISOString().split("T")[0]
+  const indiceSemanaAtual = estudos.findIndex(
+    (e) => hojeStr >= e.data_inicio && hojeStr <= e.data_fim
+  )
+
+  // Selecionar automaticamente a semana atual quando carregar os dados
+  useEffect(() => {
+    if (estudos.length > 0 && indiceSemanaAtual >= 0) {
+      setEstudoAtivo(indiceSemanaAtual)
+    }
+  }, [estudos, indiceSemanaAtual])
 
   const formatarData = (data: string) => {
     return new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { 
@@ -217,23 +232,35 @@ export default function ConsultaSentinelaPage() {
         <>
           {/* Seletor de Semanas */}
           <div className="flex flex-wrap gap-2">
-            {estudos.map((estudo, index) => (
-              <Button
-                key={estudo.id}
-                variant={estudoAtivo === index ? "default" : "outline"}
-                size="sm"
-                onClick={() => setEstudoAtivo(index)}
-              >
-                {formatarPeriodoCurto(estudo.data_inicio, estudo.data_fim)}
-              </Button>
-            ))}
+            {estudos.map((estudo, index) => {
+              const isAtual = index === indiceSemanaAtual
+              return (
+                <Button
+                  key={estudo.id}
+                  variant={estudoAtivo === index ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setEstudoAtivo(index)}
+                  className={cn(
+                    "relative",
+                    isAtual && estudoAtivo !== index && "border-green-500 text-green-400"
+                  )}
+                >
+                  {formatarPeriodoCurto(estudo.data_inicio, estudo.data_fim)}
+                  {isAtual && (
+                    <span className="ml-1.5 text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-medium">
+                      Atual
+                    </span>
+                  )}
+                </Button>
+              )
+            })}
           </div>
 
           {/* Conteúdo do Estudo */}
-          {estudoAtual && (
+          {estudoAtualData && (
             <div className="space-y-4">
               {/* Aviso de Semana sem Reunião */}
-              {estudoAtual.sem_reuniao ? (
+              {estudoAtualData.sem_reuniao ? (
                 <Card className="bg-amber-500/10 border-amber-500/50">
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center text-center gap-4">
@@ -245,11 +272,11 @@ export default function ConsultaSentinelaPage() {
                           Não haverá reunião esta semana
                         </h3>
                         <p className="text-zinc-300">
-                          Semana de {formatarPeriodo(estudoAtual.data_inicio, estudoAtual.data_fim)}
+                          Semana de {formatarPeriodo(estudoAtualData.data_inicio, estudoAtualData.data_fim)}
                         </p>
-                        {estudoAtual.motivo_sem_reuniao && (
+                        {estudoAtualData.motivo_sem_reuniao && (
                           <p className="text-zinc-400 mt-3 text-sm">
-                            Motivo: {estudoAtual.motivo_sem_reuniao}
+                            Motivo: {estudoAtualData.motivo_sem_reuniao}
                           </p>
                         )}
                       </div>
@@ -264,32 +291,32 @@ export default function ConsultaSentinelaPage() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm text-zinc-400">
                       <Calendar className="w-4 h-4" />
-                      <span>Semana de {formatarPeriodo(estudoAtual.data_inicio, estudoAtual.data_fim)}</span>
+                      <span>Semana de {formatarPeriodo(estudoAtualData.data_inicio, estudoAtualData.data_fim)}</span>
                     </div>
                     <h2 className="text-2xl font-bold text-white">
-                      {estudoAtual.titulo}
+                      {estudoAtualData.titulo}
                     </h2>
-                    {estudoAtual.texto_tema && (
+                    {estudoAtualData.texto_tema && (
                       <p className="text-zinc-300 italic border-l-2 border-red-500 pl-4">
-                        &ldquo;{estudoAtual.texto_tema}&rdquo;
+                        &ldquo;{estudoAtualData.texto_tema}&rdquo;
                       </p>
                     )}
-                    {estudoAtual.objetivo && (
+                    {estudoAtualData.objetivo && (
                       <p className="text-zinc-400 text-sm">
-                        <span className="font-semibold">Objetivo:</span> {estudoAtual.objetivo}
+                        <span className="font-semibold">Objetivo:</span> {estudoAtualData.objetivo}
                       </p>
                     )}
                     <div className="flex flex-wrap gap-4 pt-2">
-                      {estudoAtual.cantico_inicial && (
+                      {estudoAtualData.cantico_inicial && (
                         <div className="flex items-center gap-1 text-sm text-zinc-400">
                           <Music className="w-4 h-4" />
-                          <span>Cântico {estudoAtual.cantico_inicial}{estudoAtual.cantico_inicial_nome && ` - ${estudoAtual.cantico_inicial_nome}`}</span>
+                          <span>Cântico {estudoAtualData.cantico_inicial}{estudoAtualData.cantico_inicial_nome && ` - ${estudoAtualData.cantico_inicial_nome}`}</span>
                         </div>
                       )}
-                      {estudoAtual.cantico_final && (
+                      {estudoAtualData.cantico_final && (
                         <div className="flex items-center gap-1 text-sm text-zinc-400">
                           <Music className="w-4 h-4" />
-                          <span>Cântico {estudoAtual.cantico_final}{estudoAtual.cantico_final_nome && ` - ${estudoAtual.cantico_final_nome}`}</span>
+                          <span>Cântico {estudoAtualData.cantico_final}{estudoAtualData.cantico_final_nome && ` - ${estudoAtualData.cantico_final_nome}`}</span>
                         </div>
                       )}
                     </div>
