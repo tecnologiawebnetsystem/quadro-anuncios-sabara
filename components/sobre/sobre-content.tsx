@@ -6,7 +6,6 @@ import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  ArrowLeft, 
   Download, 
   Smartphone, 
   Calendar, 
@@ -209,10 +208,9 @@ export function SobreContent({ anuncios }: SobreContentProps) {
 
             {/* CTA Button */}
             <div className="hidden md:flex items-center gap-3">
-              <Link href="/">
+              <Link href="/login">
                 <Button variant="outline" size="sm" className="gap-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  Voltar ao App
+                  Acessar Sistema
                 </Button>
               </Link>
             </div>
@@ -246,10 +244,9 @@ export function SobreContent({ anuncios }: SobreContentProps) {
                 </button>
               ))}
               <div className="pt-2 border-t border-border mt-2">
-                <Link href="/">
+                <Link href="/login">
                   <Button variant="outline" className="w-full gap-2">
-                    <ArrowLeft className="h-4 w-4" />
-                    Voltar ao App
+                    Acessar Sistema
                   </Button>
                 </Link>
               </div>
@@ -683,6 +680,44 @@ export function SobreContent({ anuncios }: SobreContentProps) {
       {/* Footer */}
       <footer className="border-t border-border py-12 px-4 sm:px-6 bg-card/30">
         <div className="max-w-6xl mx-auto">
+          {/* Seção Baixar Aplicativo */}
+          <div className="flex flex-col items-center justify-center mb-10 pb-10 border-b border-border">
+            <h3 className="text-lg font-bold text-foreground mb-2">Baixar o Aplicativo</h3>
+            <p className="text-sm text-muted-foreground mb-6 text-center">Acesse o sistema em seu dispositivo móvel</p>
+            
+            <div className="flex items-center gap-4">
+              {/* Android */}
+              <Link href="/login">
+                <button className="flex items-center gap-3 px-5 py-3 rounded-xl bg-card border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
+                  <svg className="w-8 h-8 text-[#3DDC84] group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.523 15.341a.998.998 0 0 0 .498-.868V9.516a.998.998 0 0 0-.498-.867l-5.025-2.9a.998.998 0 0 0-.996 0l-5.025 2.9a.998.998 0 0 0-.5.867v4.957a.998.998 0 0 0 .5.868l5.025 2.9a1 1 0 0 0 .996 0l5.025-2.9z"/>
+                    <path d="M15.99 3.61a.75.75 0 0 1 1.02.25l.85 1.47a.75.75 0 0 1-1.3.75l-.84-1.47a.75.75 0 0 1 .27-1zm-7.98 0a.75.75 0 0 0-1.02.25l-.85 1.47a.75.75 0 0 0 1.3.75l.84-1.47a.75.75 0 0 0-.27-1z"/>
+                    <rect x="5" y="7" width="14" height="10" rx="2" fill="currentColor"/>
+                    <circle cx="8.5" cy="10.5" r="1" fill="white"/>
+                    <circle cx="15.5" cy="10.5" r="1" fill="white"/>
+                  </svg>
+                  <div className="text-left">
+                    <p className="text-[10px] text-muted-foreground leading-tight">Baixar para</p>
+                    <p className="font-semibold text-sm text-foreground leading-tight">Android</p>
+                  </div>
+                </button>
+              </Link>
+
+              {/* iOS */}
+              <Link href="/login">
+                <button className="flex items-center gap-3 px-5 py-3 rounded-xl bg-card border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
+                  <svg className="w-8 h-8 text-foreground group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                  </svg>
+                  <div className="text-left">
+                    <p className="text-[10px] text-muted-foreground leading-tight">Baixar para</p>
+                    <p className="font-semibold text-sm text-foreground leading-tight">iOS</p>
+                  </div>
+                </button>
+              </Link>
+            </div>
+          </div>
+
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* Logo */}
             <div className="flex items-center gap-3">
