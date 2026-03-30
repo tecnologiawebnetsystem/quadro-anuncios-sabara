@@ -14,7 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { BookOpen, ChevronLeft, ChevronRight, Plus, MoreVertical, Trash2, FileText, Wand2, Sparkles, Loader2, ImagePlus, X, ImageIcon } from "lucide-react"
+import { BookOpen, ChevronLeft, ChevronRight, Plus, MoreVertical, Trash2, FileText, Wand2, Sparkles, Loader2, ImagePlus, X, ImageIcon, AlertTriangle } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
@@ -33,6 +34,8 @@ interface Estudo {
   data_fim: string
   cantico_inicial?: number
   cantico_final?: number
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string
 }
 
 interface Paragrafo {
@@ -568,9 +571,45 @@ export default function SentinelaPage() {
                   </div>
                 </div>
 
+                {/* Checkbox Sem Reunião */}
+                <div className="space-y-3 p-4 rounded-lg border border-zinc-700 bg-zinc-800/50">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id={`sem-reuniao-${estudoAtualData.id}`}
+                      checked={estudoAtualData.sem_reuniao || false}
+                      onCheckedChange={(checked) =>
+                        atualizarEstudo(estudoAtualData.id, "sem_reuniao", checked === true)
+                      }
+                    />
+                    <Label 
+                      htmlFor={`sem-reuniao-${estudoAtualData.id}`}
+                      className="text-amber-400 font-medium cursor-pointer flex items-center gap-2"
+                    >
+                      <AlertTriangle className="w-4 h-4" />
+                      Semana especial (sem reunião)
+                    </Label>
+                  </div>
+                  
+                  {estudoAtualData.sem_reuniao && (
+                    <div className="space-y-2 pt-2">
+                      <Label className="text-zinc-400 text-sm">Motivo</Label>
+                      <Textarea
+                        value={estudoAtualData.motivo_sem_reuniao || ""}
+                        onChange={(e) =>
+                          atualizarEstudo(estudoAtualData.id, "motivo_sem_reuniao", e.target.value)
+                        }
+                        placeholder="Ex: Assembleia de Circuito, Congresso Regional, Celebração da Morte de Cristo..."
+                        className="bg-zinc-900 border-zinc-600 min-h-[60px]"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {!estudoAtualData.sem_reuniao && (
+                <>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-zinc-400">Data In��cio</Label>
+                    <Label className="text-zinc-400">Data Início</Label>
                     <Input
                       type="date"
                       value={estudoAtualData.data_inicio || ""}
@@ -608,8 +647,11 @@ export default function SentinelaPage() {
                     />
                   </div>
                 </div>
+                </>
+                )}
 
                 {/* Parágrafos */}
+                {!estudoAtualData.sem_reuniao && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold flex items-center gap-2">
@@ -830,6 +872,7 @@ export default function SentinelaPage() {
                     </div>
                   )}
                 </div>
+                )}
               </div>
             ) : (
               <p className="text-zinc-500 text-center py-8">

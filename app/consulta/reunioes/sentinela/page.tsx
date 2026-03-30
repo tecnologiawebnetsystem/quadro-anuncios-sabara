@@ -9,7 +9,8 @@ import {
   BookMarked,
   Music,
   FileText,
-  Calendar
+  Calendar,
+  AlertTriangle
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useSync } from "@/lib/contexts/sync-context"
@@ -42,6 +43,8 @@ interface Estudo {
   cantico_final: number | null
   cantico_final_nome: string | null
   imagem_capa: string | null
+  sem_reuniao: boolean
+  motivo_sem_reuniao: string | null
 }
 
 interface Paragrafo {
@@ -229,6 +232,32 @@ export default function ConsultaSentinelaPage() {
           {/* Conteúdo do Estudo */}
           {estudoAtual && (
             <div className="space-y-4">
+              {/* Aviso de Semana sem Reunião */}
+              {estudoAtual.sem_reuniao ? (
+                <Card className="bg-amber-500/10 border-amber-500/50">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col items-center text-center gap-4">
+                      <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
+                        <AlertTriangle className="w-8 h-8 text-amber-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-amber-400 mb-2">
+                          Não haverá reunião esta semana
+                        </h3>
+                        <p className="text-zinc-300">
+                          Semana de {formatarPeriodo(estudoAtual.data_inicio, estudoAtual.data_fim)}
+                        </p>
+                        {estudoAtual.motivo_sem_reuniao && (
+                          <p className="text-zinc-400 mt-3 text-sm">
+                            Motivo: {estudoAtual.motivo_sem_reuniao}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+              <>
               {/* Header do Estudo */}
               <Card className="bg-gradient-to-r from-red-900/30 to-zinc-900 border-red-800/50">
                 <CardContent className="p-6">
@@ -328,6 +357,8 @@ export default function ConsultaSentinelaPage() {
                     ))}
                   </CardContent>
                 </Card>
+              )}
+              </>
               )}
             </div>
           )}

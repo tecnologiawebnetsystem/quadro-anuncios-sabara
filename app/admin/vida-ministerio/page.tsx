@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Plus,
@@ -20,6 +21,7 @@ import {
   Loader2,
   Sparkles,
   X,
+  AlertTriangle,
 } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
@@ -69,6 +71,8 @@ interface Semana {
   cantico_meio_nome: string | null
   cantico_final: number | null
   cantico_final_nome: string | null
+  sem_reuniao: boolean
+  motivo_sem_reuniao: string | null
 }
 
 interface Parte {
@@ -462,7 +466,7 @@ export default function AdminVidaMinisterioPage() {
 
   // ──────────────────────────────────────────────
   // Navegação de mês
-  // ──────────────────────────────────────────────
+  // ───────────────────────────────��──────────────
   const mesAnterior = () => {
     if (mesAtual === 1) { setMesAtual(12); setAnoAtual(anoAtual - 1) }
     else setMesAtual(mesAtual - 1)
@@ -1138,7 +1142,42 @@ export default function AdminVidaMinisterioPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Checkbox Sem Reunião */}
+                  <div className="space-y-3 p-4 rounded-lg border border-zinc-700 bg-zinc-800/50">
+                    <div className="flex items-center space-x-3">
+                      <Checkbox
+                        id={`sem-reuniao-${semanaAtualData.id}`}
+                        checked={semanaAtualData.sem_reuniao || false}
+                        onCheckedChange={(checked) =>
+                          atualizarSemana(semanaAtualData.id, "sem_reuniao", checked === true)
+                        }
+                      />
+                      <Label 
+                        htmlFor={`sem-reuniao-${semanaAtualData.id}`}
+                        className="text-amber-400 font-medium cursor-pointer flex items-center gap-2"
+                      >
+                        <AlertTriangle className="w-4 h-4" />
+                        Semana especial (sem reunião)
+                      </Label>
+                    </div>
+                    
+                    {semanaAtualData.sem_reuniao && (
+                      <div className="space-y-2 pt-2">
+                        <Label className="text-zinc-400 text-sm">Motivo</Label>
+                        <Textarea
+                          value={semanaAtualData.motivo_sem_reuniao || ""}
+                          onChange={(e) =>
+                            atualizarSemana(semanaAtualData.id, "motivo_sem_reuniao", e.target.value)
+                          }
+                          placeholder="Ex: Assembleia de Circuito, Congresso Regional, Celebração da Morte de Cristo..."
+                          className="bg-zinc-900 border-zinc-600 min-h-[60px]"
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   {/* Cânticos */}
+                  {!semanaAtualData.sem_reuniao && (
                   <div className="grid grid-cols-3 gap-3">
                     {[
                       { campo: "cantico_inicial", label: "Cântico Inicial" },
@@ -1163,9 +1202,10 @@ export default function AdminVidaMinisterioPage() {
                       </div>
                     ))}
                   </div>
+                  )}
 
                   {/* Seções */}
-                  {(() => {
+                  {!semanaAtualData.sem_reuniao && (() => {
                     // Calcula offset global de numeração por seção
                     // Tesouros: sempre 3 partes (1,2,3); Ministério começa em 4; Vida começa após Ministério
                     const numTesouros = partesAtuais.filter(p => p.secao === "tesouros").length
