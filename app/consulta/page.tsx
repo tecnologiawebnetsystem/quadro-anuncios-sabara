@@ -70,6 +70,22 @@ interface CampoSemanaItem {
   horario: string
 }
 
+interface VidaMinisterioSemana {
+  data_inicio: string
+  data_fim: string
+  leitura_semanal: string
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string
+}
+
+interface SentinelaSemana {
+  data_inicio: string
+  data_fim: string
+  titulo: string
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string
+}
+
 // Mapeia o número do dia da semana (0=Dom, 1=Seg...) para o valor do banco
 const diaSemanaMap: Record<number, string> = {
   0: "domingo",
@@ -151,7 +167,18 @@ export default function ConsultaPage() {
   const [todosCampos, setTodosCampos] = useState<CampoSemanaItem[]>([])
   const [eventos, setEventos] = useState<EventoCalendario[]>([])
   const [mesSelecionado, setMesSelecionado] = useState(new Date())
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; campo?: CampoSemanaItem; isSegunda: boolean } | null>(null)
+  const [vidaMinisterioSemanas, setVidaMinisterioSemanas] = useState<VidaMinisterioSemana[]>([])
+  const [sentinelaSemanas, setSentinelaSemanas] = useState<SentinelaSemana[]>([])
+  const [tooltip, setTooltip] = useState<{ 
+    x: number; 
+    y: number; 
+    campo?: CampoSemanaItem; 
+    isSegunda: boolean;
+    vidaMinisterio?: VidaMinisterioSemana;
+    sentinela?: SentinelaSemana;
+    discurso?: DiscursoPublico;
+  } | null>(null)
+  const [tooltipFixo, setTooltipFixo] = useState(false)
   
   const { syncTrigger } = useSync()
   
@@ -254,6 +281,22 @@ export default function ConsultaPage() {
         if (todosCamposData) {
           setTodosCampos(todosCamposData)
         }
+
+        // Buscar semanas do Vida e Ministério (quinta-feira)
+        const { data: vidaMinisterioData } = await supabase
+          .from("vida_ministerio_semanas")
+          .select("data_inicio, data_fim, leitura_semanal, sem_reuniao, motivo_sem_reuniao")
+        if (vidaMinisterioData) {
+          setVidaMinisterioSemanas(vidaMinisterioData)
+        }
+
+        // Buscar estudos da Sentinela (domingo)
+        const { data: sentinelaData } = await supabase
+          .from("sentinela_estudos")
+          .select("data_inicio, data_fim, titulo, sem_reuniao, motivo_sem_reuniao")
+        if (sentinelaData) {
+          setSentinelaSemanas(sentinelaData)
+        }
         
         setEventos(eventosTemp)
         
@@ -275,6 +318,27 @@ export default function ConsultaPage() {
     const diaSemanaNum = getDay(data) // 0=dom, 1=seg...
     const diaNome = diaSemanaMap[diaSemanaNum]
     return todosCampos.find(c => c.dia_semana === diaNome)
+  }
+
+  const getVidaMinisterioDia = (data: Date): VidaMinisterioSemana | undefined => {
+    // Vida e Ministério é na quinta-feira (dia 4)
+    if (getDay(data) !== 4) return undefined
+    const dataStr = format(data, "yyyy-MM-dd")
+    return vidaMinisterioSemanas.find(vm => dataStr >= vm.data_inicio && dataStr <= vm.data_fim)
+  }
+
+  const getSentinelaDia = (data: Date): SentinelaSemana | undefined => {
+    // Sentinela é no domingo (dia 0)
+    if (getDay(data) !== 0) return undefined
+    const dataStr = format(data, "yyyy-MM-dd")
+    return sentinelaSemanas.find(s => dataStr >= s.data_inicio && dataStr <= s.data_fim)
+  }
+
+  const getDiscursoDia = (data: Date): DiscursoPublico | undefined => {
+    const dataStr = format(data, "yyyy-MM-dd")
+    return eventos.find(e => e.data === dataStr && e.tipo === "discurso") 
+      ? { data: dataStr, tema: eventos.find(e => e.data === dataStr && e.tipo === "discurso")?.titulo || "", orador_nome: null }
+      : undefined
   }
 
   // Skeleton Loading
@@ -310,8 +374,24 @@ export default function ConsultaPage() {
 
   const periodoTooltip = tooltip?.campo?.periodo === "manha" ? "Manhã" : tooltip?.campo?.periodo === "tarde" ? "Tarde" : tooltip?.campo?.periodo
 
+  // Fechar tooltip ao clicar fora
+  const handleClickFora = () => {
+    if (tooltipFixo) {
+      setTooltip(null)
+      setTooltipFixo(false)
+    }
+  }
+
   return (
     <>
+    {/* Overlay para fechar tooltip em mobile */}
+    {tooltipFixo && (
+      <div 
+        className="fixed inset-0 z-[9998]" 
+        onClick={handleClickFora}
+      />
+    )}
+    
     {/* Tooltip fixo do calendário */}
     {tooltip && (
       <div
@@ -319,11 +399,42 @@ export default function ConsultaPage() {
         style={{ left: tooltip.x, top: tooltip.y - 8, transform: "translate(-50%, -100%)" }}
       >
         <div
-          className="rounded-lg border border-zinc-600 shadow-2xl px-3 py-2 text-left space-y-2 min-w-[150px]"
+          className="rounded-lg border border-zinc-600 shadow-2xl px-3 py-2 text-left space-y-2 min-w-[180px] max-w-[250px]"
           style={{ backgroundColor: "#18181b" }}
         >
-          {tooltip.campo && (
+          {/* Vida e Ministério (Quinta) */}
+          {tooltip.vidaMinisterio && (
             <div>
+              <div className="flex items-center gap-1 mb-1">
+                <Gem className="h-3 w-3 text-blue-400 flex-shrink-0" />
+                <span className="text-[10px] font-semibold text-blue-400 uppercase tracking-wide">Vida e Ministério</span>
+              </div>
+              {tooltip.vidaMinisterio.sem_reuniao ? (
+                <p className="text-[10px] text-amber-400">Sem reunião: {tooltip.vidaMinisterio.motivo_sem_reuniao || "Semana especial"}</p>
+              ) : (
+                <p className="text-[10px] text-zinc-300">{tooltip.vidaMinisterio.leitura_semanal || "Reunião de meio de semana"}</p>
+              )}
+            </div>
+          )}
+          
+          {/* Sentinela (Domingo) */}
+          {tooltip.sentinela && (
+            <div className={cn(tooltip.vidaMinisterio ? "border-t border-zinc-600 pt-2" : "")}>
+              <div className="flex items-center gap-1 mb-1">
+                <BookMarked className="h-3 w-3 text-red-400 flex-shrink-0" />
+                <span className="text-[10px] font-semibold text-red-400 uppercase tracking-wide">Estudo Sentinela</span>
+              </div>
+              {tooltip.sentinela.sem_reuniao ? (
+                <p className="text-[10px] text-amber-400">Sem reunião: {tooltip.sentinela.motivo_sem_reuniao || "Semana especial"}</p>
+              ) : (
+                <p className="text-[10px] text-zinc-300 line-clamp-2">{tooltip.sentinela.titulo || "Estudo de A Sentinela"}</p>
+              )}
+            </div>
+          )}
+          
+          {/* Campo */}
+          {tooltip.campo && (
+            <div className={cn((tooltip.vidaMinisterio || tooltip.sentinela) ? "border-t border-zinc-600 pt-2" : "")}>
               <div className="flex items-center gap-1 mb-1">
                 <MapPin className="h-3 w-3 text-green-400 flex-shrink-0" />
                 <span className="text-[10px] font-semibold text-green-400 uppercase tracking-wide">Campo</span>
@@ -332,8 +443,10 @@ export default function ConsultaPage() {
               <p className="text-[10px] text-zinc-300 mt-0.5">{periodoTooltip} {tooltip.campo.horario}</p>
             </div>
           )}
+          
+          {/* Segunda - Cartas */}
           {tooltip.isSegunda && (
-            <div className={cn(tooltip.campo ? "border-t border-zinc-600 pt-2" : "")}>
+            <div className={cn((tooltip.campo || tooltip.vidaMinisterio || tooltip.sentinela) ? "border-t border-zinc-600 pt-2" : "")}>
               <div className="flex items-center gap-1 mb-1">
                 <Mail className="h-3 w-3 text-yellow-400 flex-shrink-0" />
                 <span className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wide">Arranjo de Cartas</span>
@@ -427,35 +540,78 @@ export default function ConsultaPage() {
               ))}
               {diasCalendario.map((dia, i) => {
                 const evento = temEvento(dia)
-                const campo = isSameMonth(dia, mesSelecionado) ? getCampoDia(dia) : undefined
-                const isSegunda = getDay(dia) === 1 && isSameMonth(dia, mesSelecionado)
-                const temTooltip = campo || isSegunda
+                const mesAtual = isSameMonth(dia, mesSelecionado)
+                const campo = mesAtual ? getCampoDia(dia) : undefined
+                const vidaMinisterio = mesAtual ? getVidaMinisterioDia(dia) : undefined
+                const sentinela = mesAtual ? getSentinelaDia(dia) : undefined
+                const isSegunda = getDay(dia) === 1 && mesAtual
+                const isQuinta = getDay(dia) === 4 && mesAtual
+                const isDomingo = getDay(dia) === 0 && mesAtual
+                const temTooltip = campo || isSegunda || vidaMinisterio || sentinela
+                
+                const handleInteracao = (e: React.MouseEvent | React.TouchEvent) => {
+                  if (!temTooltip) return
+                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                  const novoTooltip = { 
+                    x: rect.left + rect.width / 2, 
+                    y: rect.top, 
+                    campo, 
+                    isSegunda, 
+                    vidaMinisterio, 
+                    sentinela 
+                  }
+                  setTooltip(novoTooltip)
+                }
+                
+                const handleClick = (e: React.MouseEvent) => {
+                  if (!temTooltip) return
+                  e.stopPropagation()
+                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                  // Se já está mostrando este tooltip, fecha
+                  if (tooltipFixo && tooltip?.x === rect.left + rect.width / 2) {
+                    setTooltip(null)
+                    setTooltipFixo(false)
+                  } else {
+                    setTooltip({ 
+                      x: rect.left + rect.width / 2, 
+                      y: rect.top, 
+                      campo, 
+                      isSegunda, 
+                      vidaMinisterio, 
+                      sentinela 
+                    })
+                    setTooltipFixo(true)
+                  }
+                }
+                
                 return (
                   <div
                     key={i}
                     className={cn(
-                      "py-1.5 rounded-md text-sm relative transition-colors",
-                      !isSameMonth(dia, mesSelecionado) && "text-zinc-700",
-                      isSameMonth(dia, mesSelecionado) && "text-zinc-300",
+                      "py-1.5 rounded-md text-sm relative transition-colors select-none",
+                      !mesAtual && "text-zinc-700",
+                      mesAtual && "text-zinc-300",
                       isToday(dia) && "bg-blue-600 text-white font-bold",
                       evento && !isToday(dia) && "bg-zinc-800",
                       evento?.tipo === "reuniao" && !isToday(dia) && "ring-1 ring-purple-500/50",
                       evento?.tipo === "discurso" && !isToday(dia) && "ring-1 ring-amber-500/50",
-                      temTooltip && "cursor-pointer"
+                      isQuinta && vidaMinisterio && !isToday(dia) && "ring-1 ring-blue-500/50",
+                      isDomingo && sentinela && !isToday(dia) && "ring-1 ring-red-500/50",
+                      temTooltip && "cursor-pointer hover:bg-zinc-700/50 active:bg-zinc-600/50"
                     )}
-                    onMouseEnter={temTooltip ? (e) => {
-                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                      setTooltip({ x: rect.left + rect.width / 2, y: rect.top, campo, isSegunda })
-                    } : undefined}
-                    onMouseLeave={temTooltip ? () => setTooltip(null) : undefined}
+                    onMouseEnter={temTooltip ? handleInteracao : undefined}
+                    onMouseLeave={temTooltip && !tooltipFixo ? () => setTooltip(null) : undefined}
+                    onClick={handleClick}
                   >
                     {format(dia, "d")}
-                    {evento && (
+                    {(evento || (isQuinta && vidaMinisterio) || (isDomingo && sentinela)) && (
                       <span className={cn(
                         "absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full",
-                        evento.tipo === "reuniao" && "bg-purple-500",
-                        evento.tipo === "discurso" && "bg-amber-500",
-                        evento.tipo === "campo" && "bg-green-500"
+                        evento?.tipo === "reuniao" && "bg-purple-500",
+                        evento?.tipo === "discurso" && "bg-amber-500",
+                        evento?.tipo === "campo" && "bg-green-500",
+                        isQuinta && vidaMinisterio && !evento && "bg-blue-500",
+                        isDomingo && sentinela && !evento && "bg-red-500"
                       )} />
                     )}
                   </div>
@@ -464,9 +620,12 @@ export default function ConsultaPage() {
             </div>
             
             {/* Legenda */}
-            <div className="mt-4 pt-3 border-t border-zinc-800 flex flex-wrap gap-3 text-[10px]">
+            <div className="mt-4 pt-3 border-t border-zinc-800 flex flex-wrap gap-x-3 gap-y-1 text-[10px]">
               <span className="flex items-center gap-1 text-zinc-400">
-                <span className="w-2 h-2 rounded-full bg-purple-500" /> Reunião
+                <span className="w-2 h-2 rounded-full bg-blue-500" /> Vida e Min.
+              </span>
+              <span className="flex items-center gap-1 text-zinc-400">
+                <span className="w-2 h-2 rounded-full bg-red-500" /> Sentinela
               </span>
               <span className="flex items-center gap-1 text-zinc-400">
                 <span className="w-2 h-2 rounded-full bg-amber-500" /> Discurso
@@ -475,6 +634,7 @@ export default function ConsultaPage() {
                 <span className="w-2 h-2 rounded-full bg-blue-600" /> Hoje
               </span>
             </div>
+            <p className="text-[9px] text-zinc-600 mt-2">Toque na data para ver detalhes</p>
           </CardContent>
         </Card>
 
