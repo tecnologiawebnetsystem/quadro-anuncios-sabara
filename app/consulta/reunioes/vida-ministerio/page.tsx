@@ -13,6 +13,7 @@ import {
   Heart,
   User,
   Users,
+  AlertTriangle,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useSync } from "@/lib/contexts/sync-context"
@@ -49,6 +50,8 @@ interface Semana {
   cantico_inicial: number | null
   cantico_meio: number | null
   cantico_final: number | null
+  sem_reuniao: boolean
+  motivo_sem_reuniao: string | null
 }
 
 interface Parte {
@@ -214,6 +217,32 @@ export default function ConsultaVidaMinisterioPage() {
 
           {semanaAtual && (
             <div className="space-y-4">
+              {/* Aviso de Semana sem Reunião */}
+              {semanaAtual.sem_reuniao ? (
+                <Card className="bg-amber-500/10 border-amber-500/50">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col items-center text-center gap-4">
+                      <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
+                        <AlertTriangle className="w-8 h-8 text-amber-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-amber-400 mb-2">
+                          Não haverá reunião esta semana
+                        </h3>
+                        <p className="text-zinc-300">
+                          {formatarDataCompleta(semanaAtual.data_inicio, semanaAtual.data_fim)}
+                        </p>
+                        {semanaAtual.motivo_sem_reuniao && (
+                          <p className="text-zinc-400 mt-3 text-sm">
+                            Motivo: {semanaAtual.motivo_sem_reuniao}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+              <>
               {/* Header da Semana */}
               <Card className="bg-gradient-to-r from-zinc-900 to-zinc-800 border-zinc-700">
                 <CardContent className="p-4">
@@ -428,6 +457,8 @@ export default function ConsultaVidaMinisterioPage() {
                     </div>
                   </CardContent>
                 </Card>
+              )}
+              </>
               )}
             </div>
           )}

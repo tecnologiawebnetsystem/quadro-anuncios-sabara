@@ -14,7 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { BookOpen, ChevronLeft, ChevronRight, Plus, MoreVertical, Trash2, FileText, Wand2, Sparkles, Loader2, ImagePlus, X, ImageIcon } from "lucide-react"
+import { BookOpen, ChevronLeft, ChevronRight, Plus, MoreVertical, Trash2, FileText, Wand2, Sparkles, Loader2, ImagePlus, X, ImageIcon, AlertTriangle } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
@@ -33,6 +34,8 @@ interface Estudo {
   data_fim: string
   cantico_inicial?: number
   cantico_final?: number
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string
 }
 
 interface Paragrafo {
@@ -57,6 +60,7 @@ export default function SentinelaPage() {
   const [paragrafos, setParagrafos] = useState<Paragrafo[]>([])
   const [gerandoResposta, setGerandoResposta] = useState<string | null>(null)
   const [gerandoExplicacao, setGerandoExplicacao] = useState<string | null>(null)
+  const [gerandoDescricao, setGerandoDescricao] = useState<string | null>(null)
   const [enviandoImagem, setEnviandoImagem] = useState<string | null>(null)
   
   const supabase = createClient()
@@ -344,8 +348,38 @@ export default function SentinelaPage() {
     }
   }
 
+  const gerarDescricaoImagem = async (paragrafo: Paragrafo) => {
+    if (!paragrafo.imagem_url) {
+      return
+    }
+
+    setGerandoDescricao(paragrafo.id)
+
+    try {
+      const response = await fetch("/api/ai/explicar-imagem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imagemUrl: paragrafo.imagem_url,
+          textoBase: paragrafo.texto_base,
+          pergunta: paragrafo.pergunta,
+          modo: "descrever"
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        await atualizarParagrafo(paragrafo.id, "imagem_descricao", data.descricao)
+      }
+    } catch (err) {
+      // erro silencioso
+    } finally {
+      setGerandoDescricao(null)
+    }
+  }
+
   const gerarExplicacaoImagem = async (paragrafo: Paragrafo) => {
-    if (!paragrafo.imagem_descricao) {
+    if (!paragrafo.imagem_url) {
       return
     }
 
@@ -356,9 +390,10 @@ export default function SentinelaPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          descricao: paragrafo.imagem_descricao,
+          imagemUrl: paragrafo.imagem_url,
           textoBase: paragrafo.texto_base,
-          pergunta: paragrafo.pergunta
+          pergunta: paragrafo.pergunta,
+          modo: "explicar"
         })
       })
 
@@ -375,17 +410,18 @@ export default function SentinelaPage() {
 
   const formatarData = (dataInicio: string, dataFim: string) => {
     try {
+      const mesesCurtos = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
       const inicio = new Date(dataInicio + "T12:00:00")
       const fim = new Date(dataFim + "T12:00:00")
       const diaInicio = inicio.getDate()
       const diaFim = fim.getDate()
-      const mesInicio = inicio.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")
-      const mesFim = fim.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")
+      const mesInicio = mesesCurtos[inicio.getMonth()]
+      const mesFim = mesesCurtos[fim.getMonth()]
       
       if (mesInicio === mesFim) {
-        return `${diaInicio} - ${diaFim} de ${mesInicio}`
+        return `${diaInicio}-${diaFim} ${mesInicio}`
       }
-      return `${diaInicio} de ${mesInicio} - ${diaFim} de ${mesFim}`
+      return `${diaInicio}/${mesInicio}-${diaFim}/${mesFim}`
     } catch {
       return "Data inválida"
     }
@@ -444,19 +480,19 @@ export default function SentinelaPage() {
 
       {/* Conteúdo Principal */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Lista de Estudos */}
+        {/* Lista de Semanas */}
         <Card className="bg-zinc-900 border-zinc-800">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Estudos</CardTitle>
+              <CardTitle className="text-lg">Semanas</CardTitle>
               <Button size="sm" onClick={adicionarEstudo}>
-                <Plus className="w-4 h-4 mr-1" /> Novo
+                <Plus className="w-4 h-4 mr-1" /> Nova
               </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-2">
             {estudos.length === 0 ? (
-              <p className="text-zinc-500 text-sm">Nenhum estudo cadastrado</p>
+              <p className="text-zinc-500 text-sm">Nenhuma semana cadastrada</p>
             ) : (
               estudos.map((estudo) => (
                 <div
@@ -471,9 +507,9 @@ export default function SentinelaPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">{estudo.titulo || "Novo Estudo"}</p>
-                      <p className="text-xs text-zinc-400">
-                        {formatarData(estudo.data_inicio, estudo.data_fim)}
+                      <p className="font-medium text-sm">{formatarData(estudo.data_inicio, estudo.data_fim)}</p>
+                      <p className="text-xs text-zinc-400 mt-1 line-clamp-1">
+                        {estudo.titulo || "Novo Estudo"}
                       </p>
                     </div>
                     <DropdownMenu>
@@ -535,9 +571,45 @@ export default function SentinelaPage() {
                   </div>
                 </div>
 
+                {/* Checkbox Sem Reunião */}
+                <div className="space-y-3 p-4 rounded-lg border border-zinc-700 bg-zinc-800/50">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id={`sem-reuniao-${estudoAtualData.id}`}
+                      checked={estudoAtualData.sem_reuniao || false}
+                      onCheckedChange={(checked) =>
+                        atualizarEstudo(estudoAtualData.id, "sem_reuniao", checked === true)
+                      }
+                    />
+                    <Label 
+                      htmlFor={`sem-reuniao-${estudoAtualData.id}`}
+                      className="text-amber-400 font-medium cursor-pointer flex items-center gap-2"
+                    >
+                      <AlertTriangle className="w-4 h-4" />
+                      Semana especial (sem reunião)
+                    </Label>
+                  </div>
+                  
+                  {estudoAtualData.sem_reuniao && (
+                    <div className="space-y-2 pt-2">
+                      <Label className="text-zinc-400 text-sm">Motivo</Label>
+                      <Textarea
+                        value={estudoAtualData.motivo_sem_reuniao || ""}
+                        onChange={(e) =>
+                          atualizarEstudo(estudoAtualData.id, "motivo_sem_reuniao", e.target.value)
+                        }
+                        placeholder="Ex: Assembleia de Circuito, Congresso Regional, Celebração da Morte de Cristo..."
+                        className="bg-zinc-900 border-zinc-600 min-h-[60px]"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {!estudoAtualData.sem_reuniao && (
+                <>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-zinc-400">Data In��cio</Label>
+                    <Label className="text-zinc-400">Data Início</Label>
                     <Input
                       type="date"
                       value={estudoAtualData.data_inicio || ""}
@@ -575,8 +647,11 @@ export default function SentinelaPage() {
                     />
                   </div>
                 </div>
+                </>
+                )}
 
                 {/* Parágrafos */}
+                {!estudoAtualData.sem_reuniao && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold flex items-center gap-2">
@@ -728,11 +803,32 @@ export default function SentinelaPage() {
                                   </div>
 
                                   <div className="space-y-2">
-                                    <Label className="text-zinc-400">Descrição da Imagem</Label>
+                                    <div className="flex items-center justify-between">
+                                      <Label className="text-zinc-400">Descrição da Imagem</Label>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="border-amber-500 text-amber-400 hover:bg-amber-500/10"
+                                        onClick={() => gerarDescricaoImagem(paragrafo)}
+                                        disabled={gerandoDescricao === paragrafo.id}
+                                      >
+                                        {gerandoDescricao === paragrafo.id ? (
+                                          <>
+                                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                            Analisando...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Sparkles className="w-4 h-4 mr-1" />
+                                            IA Descrever
+                                          </>
+                                        )}
+                                      </Button>
+                                    </div>
                                     <Textarea
                                       value={paragrafo.imagem_descricao || ""}
                                       onChange={(e) => atualizarParagrafo(paragrafo.id, "imagem_descricao", e.target.value)}
-                                      placeholder="Descreva o que a imagem mostra (ex: Uma família estudando a Bíblia juntos)"
+                                      placeholder="Clique em 'IA Descrever' para a IA analisar a imagem automaticamente ou digite manualmente..."
                                       className="bg-zinc-900 border-zinc-600 min-h-[60px]"
                                     />
                                   </div>
@@ -745,7 +841,7 @@ export default function SentinelaPage() {
                                         variant="outline"
                                         className="border-green-500 text-green-400 hover:bg-green-500/10"
                                         onClick={() => gerarExplicacaoImagem(paragrafo)}
-                                        disabled={gerandoExplicacao === paragrafo.id || !paragrafo.imagem_descricao}
+                                        disabled={gerandoExplicacao === paragrafo.id}
                                       >
                                         {gerandoExplicacao === paragrafo.id ? (
                                           <>
@@ -776,6 +872,7 @@ export default function SentinelaPage() {
                     </div>
                   )}
                 </div>
+                )}
               </div>
             ) : (
               <p className="text-zinc-500 text-center py-8">
