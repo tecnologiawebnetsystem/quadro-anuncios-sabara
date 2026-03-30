@@ -190,6 +190,18 @@ export default function ConsultaPage() {
   const [grupoSelecionado, setGrupoSelecionado] = useState<number | null>(null)
   const [modalGruposAberto, setModalGruposAberto] = useState(false)
   
+  // Cores diferentes para cada grupo
+  const coresGrupos = [
+    { bg: "bg-blue-600/20", text: "text-blue-400", hover: "hover:bg-blue-600/30", border: "hover:border-blue-500/50" },
+    { bg: "bg-emerald-600/20", text: "text-emerald-400", hover: "hover:bg-emerald-600/30", border: "hover:border-emerald-500/50" },
+    { bg: "bg-amber-600/20", text: "text-amber-400", hover: "hover:bg-amber-600/30", border: "hover:border-amber-500/50" },
+    { bg: "bg-purple-600/20", text: "text-purple-400", hover: "hover:bg-purple-600/30", border: "hover:border-purple-500/50" },
+    { bg: "bg-pink-600/20", text: "text-pink-400", hover: "hover:bg-pink-600/30", border: "hover:border-pink-500/50" },
+    { bg: "bg-cyan-600/20", text: "text-cyan-400", hover: "hover:bg-cyan-600/30", border: "hover:border-cyan-500/50" },
+    { bg: "bg-orange-600/20", text: "text-orange-400", hover: "hover:bg-orange-600/30", border: "hover:border-orange-500/50" },
+    { bg: "bg-rose-600/20", text: "text-rose-400", hover: "hover:bg-rose-600/30", border: "hover:border-rose-500/50" },
+  ]
+  
   const hoje = new Date()
   const inicioSemana = startOfWeek(hoje, { weekStartsOn: 1 })
   const fimSemana = endOfWeek(hoje, { weekStartsOn: 1 })
@@ -795,27 +807,40 @@ export default function ConsultaPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {grupos.map((grupo) => {
+              {grupos.map((grupo, index) => {
                 const dirigente = getDirigente(grupo.id)
                 const membros = getPublicadoresPorGrupo(grupo.id)
+                const cor = coresGrupos[index % coresGrupos.length]
                 
                 return (
                   <Dialog key={grupo.id}>
                     <DialogTrigger asChild>
-                      <button className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-zinc-800/50 hover:bg-emerald-600/20 border border-zinc-700 hover:border-emerald-500/50 transition-all duration-200">
-                        <div className="w-12 h-12 rounded-xl bg-emerald-600/20 flex items-center justify-center text-emerald-400 font-bold text-lg group-hover:bg-emerald-600/30 transition-colors">
+                      <button className={cn(
+                        "group flex flex-col items-center gap-1.5 p-3 rounded-lg bg-zinc-800/50 border border-zinc-700 transition-all duration-200",
+                        cor.hover,
+                        cor.border
+                      )}>
+                        <div className={cn(
+                          "w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm transition-colors",
+                          cor.bg,
+                          cor.text
+                        )}>
                           {grupo.numero}
                         </div>
                         <div className="text-center">
-                          <p className="text-sm font-medium text-white">Grupo {grupo.numero}</p>
-                          <p className="text-xs text-zinc-500">{membros.length} membros</p>
+                          <p className="text-xs font-medium text-white">Grupo {grupo.numero}</p>
+                          <p className="text-[10px] text-zinc-500">{membros.length} membros</p>
                         </div>
                       </button>
                     </DialogTrigger>
                     <DialogContent className="bg-zinc-900 border-zinc-700 max-w-md max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-emerald-600/20 flex items-center justify-center text-emerald-400 font-bold">
+                          <div className={cn(
+                            "w-10 h-10 rounded-xl flex items-center justify-center font-bold",
+                            cor.bg,
+                            cor.text
+                          )}>
                             {grupo.numero}
                           </div>
                           <div>
