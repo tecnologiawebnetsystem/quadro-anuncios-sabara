@@ -18,7 +18,8 @@ import {
   Megaphone,
   Info,
   CalendarDays,
-  Mail
+  Mail,
+  Printer
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -109,15 +110,21 @@ const menuSections = [
       { title: "Reuniões Públicas", description: "Discursos e assistência", href: "/consulta/reunioes-publicas", icon: Mic, color: "bg-amber-600" },
     ]
   },
-  {
-    title: "Escalas",
-    items: [
-      { title: "Equipe Técnica", description: "Indicadores e som", href: "/consulta/equipe-tecnica", icon: Wrench, color: "bg-orange-600" },
-      { title: "Limpeza do Salão", description: "Escala semanal", href: "/consulta/limpeza-salao", icon: Sparkles, color: "bg-cyan-600" },
-      { title: "Serviço de Campo", description: "Dirigentes de campo", href: "/consulta/servico-campo", icon: MapPin, color: "bg-green-600" },
-    ]
+{
+  title: "Escalas",
+  items: [
+  { title: "Equipe Técnica", description: "Indicadores e som", href: "/consulta/equipe-tecnica", icon: Wrench, color: "bg-orange-600" },
+  { title: "Limpeza do Salão", description: "Escala semanal", href: "/consulta/limpeza-salao", icon: Sparkles, color: "bg-cyan-600" },
+  { title: "Serviço de Campo", description: "Dirigentes de campo", href: "/consulta/servico-campo", icon: MapPin, color: "bg-green-600" },
+  ]
   },
-]
+  {
+  title: "Ferramentas",
+  items: [
+  { title: "Central de Impressão", description: "Gerar PDFs das escalas", href: "/impressao", icon: Printer, color: "bg-blue-500" },
+  ]
+  },
+  ]
 
 // Skeleton components
 function SkeletonCard({ className }: { className?: string }) {
