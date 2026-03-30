@@ -172,6 +172,21 @@ export default function ConsultaVidaMinisterioPage() {
   const formatarData = (data: string) =>
     new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
 
+  const formatarPeriodoCurto = (inicio: string, fim: string) => {
+    const mesesCurtos = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+    const dataInicio = new Date(inicio + "T12:00:00")
+    const dataFim = new Date(fim + "T12:00:00")
+    const diaInicio = dataInicio.getDate()
+    const diaFim = dataFim.getDate()
+    const mesInicio = mesesCurtos[dataInicio.getMonth()]
+    const mesFim = mesesCurtos[dataFim.getMonth()]
+    
+    if (mesInicio === mesFim) {
+      return `${diaInicio}-${diaFim} ${mesInicio}`
+    }
+    return `${diaInicio}/${mesInicio}-${diaFim}/${mesFim}`
+  }
+
   const formatarDataCompleta = (dataInicio: string, dataFim: string) => {
     const inicio = new Date(dataInicio + "T12:00:00")
     const fim = new Date(dataFim + "T12:00:00")
@@ -229,7 +244,7 @@ export default function ConsultaVidaMinisterioPage() {
                     isAtual && semanaAtiva !== index && "border-red-800 text-red-400"
                   )}
                 >
-                  {formatarData(semana.data_inicio)} - {formatarData(semana.data_fim)}
+                  {formatarPeriodoCurto(semana.data_inicio, semana.data_fim)}
                   {isAtual && (
                     <span className="ml-1.5 text-[10px] bg-zinc-950 text-white px-1.5 py-0.5 rounded-full font-medium border border-zinc-700">
                       Atual
