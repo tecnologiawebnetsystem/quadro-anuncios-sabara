@@ -2,7 +2,7 @@
   "name": "InfoFlow",
   "short_name": "InfoFlow",
   "description": "Sistema de gerenciamento de informações da congregação",
-  "start_url": "/consulta",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
