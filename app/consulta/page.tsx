@@ -192,14 +192,14 @@ export default function ConsultaPage() {
   
   // Cores diferentes para cada grupo
   const coresGrupos = [
-    { bg: "bg-blue-600/20", text: "text-blue-400", hover: "hover:bg-blue-600/30", border: "hover:border-blue-500/50", scrollbar: "[&::-webkit-scrollbar-thumb]:bg-blue-600/60 [&::-webkit-scrollbar-thumb]:hover:bg-blue-500" },
-    { bg: "bg-emerald-600/20", text: "text-emerald-400", hover: "hover:bg-emerald-600/30", border: "hover:border-emerald-500/50", scrollbar: "[&::-webkit-scrollbar-thumb]:bg-emerald-600/60 [&::-webkit-scrollbar-thumb]:hover:bg-emerald-500" },
-    { bg: "bg-amber-600/20", text: "text-amber-400", hover: "hover:bg-amber-600/30", border: "hover:border-amber-500/50", scrollbar: "[&::-webkit-scrollbar-thumb]:bg-amber-600/60 [&::-webkit-scrollbar-thumb]:hover:bg-amber-500" },
-    { bg: "bg-purple-600/20", text: "text-purple-400", hover: "hover:bg-purple-600/30", border: "hover:border-purple-500/50", scrollbar: "[&::-webkit-scrollbar-thumb]:bg-purple-600/60 [&::-webkit-scrollbar-thumb]:hover:bg-purple-500" },
-    { bg: "bg-pink-600/20", text: "text-pink-400", hover: "hover:bg-pink-600/30", border: "hover:border-pink-500/50", scrollbar: "[&::-webkit-scrollbar-thumb]:bg-pink-600/60 [&::-webkit-scrollbar-thumb]:hover:bg-pink-500" },
-    { bg: "bg-cyan-600/20", text: "text-cyan-400", hover: "hover:bg-cyan-600/30", border: "hover:border-cyan-500/50", scrollbar: "[&::-webkit-scrollbar-thumb]:bg-cyan-600/60 [&::-webkit-scrollbar-thumb]:hover:bg-cyan-500" },
-    { bg: "bg-orange-600/20", text: "text-orange-400", hover: "hover:bg-orange-600/30", border: "hover:border-orange-500/50", scrollbar: "[&::-webkit-scrollbar-thumb]:bg-orange-600/60 [&::-webkit-scrollbar-thumb]:hover:bg-orange-500" },
-    { bg: "bg-rose-600/20", text: "text-rose-400", hover: "hover:bg-rose-600/30", border: "hover:border-rose-500/50", scrollbar: "[&::-webkit-scrollbar-thumb]:bg-rose-600/60 [&::-webkit-scrollbar-thumb]:hover:bg-rose-500" },
+    { bg: "bg-blue-600/20", text: "text-blue-400", hover: "hover:bg-blue-600/30", border: "hover:border-blue-500/50", scrollbar: "modal-scrollbar scrollbar-blue" },
+    { bg: "bg-emerald-600/20", text: "text-emerald-400", hover: "hover:bg-emerald-600/30", border: "hover:border-emerald-500/50", scrollbar: "modal-scrollbar scrollbar-emerald" },
+    { bg: "bg-amber-600/20", text: "text-amber-400", hover: "hover:bg-amber-600/30", border: "hover:border-amber-500/50", scrollbar: "modal-scrollbar scrollbar-amber" },
+    { bg: "bg-purple-600/20", text: "text-purple-400", hover: "hover:bg-purple-600/30", border: "hover:border-purple-500/50", scrollbar: "modal-scrollbar scrollbar-purple" },
+    { bg: "bg-pink-600/20", text: "text-pink-400", hover: "hover:bg-pink-600/30", border: "hover:border-pink-500/50", scrollbar: "modal-scrollbar scrollbar-pink" },
+    { bg: "bg-cyan-600/20", text: "text-cyan-400", hover: "hover:bg-cyan-600/30", border: "hover:border-cyan-500/50", scrollbar: "modal-scrollbar scrollbar-cyan" },
+    { bg: "bg-orange-600/20", text: "text-orange-400", hover: "hover:bg-orange-600/30", border: "hover:border-orange-500/50", scrollbar: "modal-scrollbar scrollbar-orange" },
+    { bg: "bg-rose-600/20", text: "text-rose-400", hover: "hover:bg-rose-600/30", border: "hover:border-rose-500/50", scrollbar: "modal-scrollbar scrollbar-rose" },
   ]
   
   const hoje = new Date()
@@ -833,10 +833,10 @@ export default function ConsultaPage() {
                         </div>
                       </button>
                     </DialogTrigger>
-                    <DialogContent className={cn(
-                      "bg-zinc-900 border-zinc-700 max-w-md max-h-[80vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-zinc-800/50 [&::-webkit-scrollbar-thumb]:rounded-full",
-                      cor.scrollbar
-                    )}>
+<DialogContent className={cn(
+  "bg-zinc-900 border-zinc-700 max-w-md max-h-[80vh] overflow-y-auto",
+  cor.scrollbar
+)}>
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-3">
                           <div className={cn(
