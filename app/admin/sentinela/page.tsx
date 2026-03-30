@@ -57,6 +57,7 @@ export default function SentinelaPage() {
   const [paragrafos, setParagrafos] = useState<Paragrafo[]>([])
   const [gerandoResposta, setGerandoResposta] = useState<string | null>(null)
   const [gerandoExplicacao, setGerandoExplicacao] = useState<string | null>(null)
+  const [gerandoDescricao, setGerandoDescricao] = useState<string | null>(null)
   const [enviandoImagem, setEnviandoImagem] = useState<string | null>(null)
   
   const supabase = createClient()
@@ -344,8 +345,38 @@ export default function SentinelaPage() {
     }
   }
 
+  const gerarDescricaoImagem = async (paragrafo: Paragrafo) => {
+    if (!paragrafo.imagem_url) {
+      return
+    }
+
+    setGerandoDescricao(paragrafo.id)
+
+    try {
+      const response = await fetch("/api/ai/explicar-imagem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imagemUrl: paragrafo.imagem_url,
+          textoBase: paragrafo.texto_base,
+          pergunta: paragrafo.pergunta,
+          modo: "descrever"
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        await atualizarParagrafo(paragrafo.id, "imagem_descricao", data.descricao)
+      }
+    } catch (err) {
+      // erro silencioso
+    } finally {
+      setGerandoDescricao(null)
+    }
+  }
+
   const gerarExplicacaoImagem = async (paragrafo: Paragrafo) => {
-    if (!paragrafo.imagem_descricao) {
+    if (!paragrafo.imagem_url) {
       return
     }
 
@@ -356,9 +387,10 @@ export default function SentinelaPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          descricao: paragrafo.imagem_descricao,
+          imagemUrl: paragrafo.imagem_url,
           textoBase: paragrafo.texto_base,
-          pergunta: paragrafo.pergunta
+          pergunta: paragrafo.pergunta,
+          modo: "explicar"
         })
       })
 
@@ -728,11 +760,32 @@ export default function SentinelaPage() {
                                   </div>
 
                                   <div className="space-y-2">
-                                    <Label className="text-zinc-400">Descrição da Imagem</Label>
+                                    <div className="flex items-center justify-between">
+                                      <Label className="text-zinc-400">Descrição da Imagem</Label>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="border-amber-500 text-amber-400 hover:bg-amber-500/10"
+                                        onClick={() => gerarDescricaoImagem(paragrafo)}
+                                        disabled={gerandoDescricao === paragrafo.id}
+                                      >
+                                        {gerandoDescricao === paragrafo.id ? (
+                                          <>
+                                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                            Analisando...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Sparkles className="w-4 h-4 mr-1" />
+                                            IA Descrever
+                                          </>
+                                        )}
+                                      </Button>
+                                    </div>
                                     <Textarea
                                       value={paragrafo.imagem_descricao || ""}
                                       onChange={(e) => atualizarParagrafo(paragrafo.id, "imagem_descricao", e.target.value)}
-                                      placeholder="Descreva o que a imagem mostra (ex: Uma família estudando a Bíblia juntos)"
+                                      placeholder="Clique em 'IA Descrever' para a IA analisar a imagem automaticamente ou digite manualmente..."
                                       className="bg-zinc-900 border-zinc-600 min-h-[60px]"
                                     />
                                   </div>
@@ -745,7 +798,7 @@ export default function SentinelaPage() {
                                         variant="outline"
                                         className="border-green-500 text-green-400 hover:bg-green-500/10"
                                         onClick={() => gerarExplicacaoImagem(paragrafo)}
-                                        disabled={gerandoExplicacao === paragrafo.id || !paragrafo.imagem_descricao}
+                                        disabled={gerandoExplicacao === paragrafo.id}
                                       >
                                         {gerandoExplicacao === paragrafo.id ? (
                                           <>
