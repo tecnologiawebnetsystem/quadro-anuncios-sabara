@@ -19,6 +19,7 @@ import {
   UserCheck,
   Shield,
   Flag,
+  Megaphone,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -65,6 +66,12 @@ const mainItems: MenuItem[] = [
     icon: LayoutDashboard,
     href: "/admin",
     color: "text-blue-400",
+  },
+  {
+    title: "Quadro de Anúncios",
+    icon: Megaphone,
+    href: "/admin/anuncios",
+    color: "text-amber-400",
   },
 ]
 

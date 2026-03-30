@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
-import { ShieldCheck, Delete, Info } from "lucide-react"
+import { ShieldCheck, Delete, Info, Megaphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -98,6 +98,23 @@ export default function Home() {
                   <div className="flex-1">
                     <p className="text-white text-sm font-semibold">Informações da Congregação</p>
                     <p className="text-zinc-500 text-xs mt-0.5">Consultar designações e grupos</p>
+                  </div>
+                  <svg className="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+
+                {/* Sobre / Quadro de Anúncios */}
+                <button
+                  onClick={() => router.push("/sobre")}
+                  className="w-full flex items-center gap-4 p-4 hover:bg-zinc-800/50 transition-colors text-left"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-amber-600/20 border border-amber-600/30 flex items-center justify-center flex-shrink-0">
+                    <Megaphone className="h-5 w-5 text-amber-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white text-sm font-semibold">Quadro de Anúncios</p>
+                    <p className="text-zinc-500 text-xs mt-0.5">Eventos, avisos e download do app</p>
                   </div>
                   <svg className="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
