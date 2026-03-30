@@ -833,7 +833,7 @@ export default function ConsultaPage() {
                         </div>
                       </button>
                     </DialogTrigger>
-                    <DialogContent className="bg-zinc-900 border-zinc-700 max-w-md max-h-[80vh] overflow-y-auto">
+                    <DialogContent className="bg-zinc-900 border-zinc-700 max-w-md max-h-[80vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-zinc-800 [&::-webkit-scrollbar-thumb]:bg-zinc-600 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-zinc-500">
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-3">
                           <div className={cn(
@@ -883,7 +883,7 @@ export default function ConsultaPage() {
                         </div>
                         
                         {/* Lista de Membros */}
-                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                        <div className="space-y-2">
                           {membros.map((membro) => (
                             <div 
                               key={membro.id} 
