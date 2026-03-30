@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge"
 import { 
   Calendar, 
   Users, 
-  BookOpen, 
   ChevronRight,
   ChevronLeft,
   BookMarked,
@@ -22,6 +21,9 @@ import {
   Mail
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { usePublicadoresSupabase } from "@/lib/hooks/use-publicadores-supabase"
+import { Shield, User } from "lucide-react"
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths, getDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
@@ -115,13 +117,6 @@ const menuSections = [
       { title: "Serviço de Campo", description: "Dirigentes de campo", href: "/consulta/servico-campo", icon: MapPin, color: "bg-green-600" },
     ]
   },
-  {
-    title: "Pessoas",
-    items: [
-      { title: "Grupos de Estudo", description: "Membros de cada grupo", href: "/consulta/grupos", icon: Users, color: "bg-emerald-600" },
-      { title: "Publicadores", description: "Lista completa", href: "/consulta/publicadores", icon: BookOpen, color: "bg-pink-600" },
-    ]
-  },
 ]
 
 // Skeleton components
@@ -181,6 +176,19 @@ export default function ConsultaPage() {
   const [tooltipFixo, setTooltipFixo] = useState(false)
   
   const { syncTrigger } = useSync()
+  
+  // Hook para grupos de estudo
+  const { 
+    publicadores, 
+    grupos, 
+    carregando: carregandoGrupos, 
+    getPublicadoresPorGrupo,
+    getDirigente,
+    getAuxiliar 
+  } = usePublicadoresSupabase()
+  
+  const [grupoSelecionado, setGrupoSelecionado] = useState<number | null>(null)
+  const [modalGruposAberto, setModalGruposAberto] = useState(false)
   
   const hoje = new Date()
   const inicioSemana = startOfWeek(hoje, { weekStartsOn: 1 })
@@ -768,6 +776,152 @@ export default function ConsultaPage() {
           </div>
         ))}
       </div>
+
+      {/* Seção Grupos de Estudo - Destaque */}
+      <Card className="border-zinc-800 bg-gradient-to-br from-emerald-600/10 to-emerald-900/5 hover:border-emerald-600/30 transition-colors">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base font-semibold">
+            <Users className="h-5 w-5 text-emerald-500" />
+            Grupos de Estudo
+          </CardTitle>
+          <p className="text-sm text-zinc-400">
+            {carregandoGrupos ? "Carregando..." : `${grupos.length} grupos | ${publicadores.filter(p => p.ativo).length} publicadores ativos`}
+          </p>
+        </CardHeader>
+        <CardContent>
+          {carregandoGrupos ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-emerald-500 border-t-transparent"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {grupos.map((grupo) => {
+                const dirigente = getDirigente(grupo.id)
+                const membros = getPublicadoresPorGrupo(grupo.id)
+                
+                return (
+                  <Dialog key={grupo.id}>
+                    <DialogTrigger asChild>
+                      <button className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-zinc-800/50 hover:bg-emerald-600/20 border border-zinc-700 hover:border-emerald-500/50 transition-all duration-200">
+                        <div className="w-12 h-12 rounded-xl bg-emerald-600/20 flex items-center justify-center text-emerald-400 font-bold text-lg group-hover:bg-emerald-600/30 transition-colors">
+                          {grupo.numero}
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-white">Grupo {grupo.numero}</p>
+                          <p className="text-xs text-zinc-500">{membros.length} membros</p>
+                        </div>
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-zinc-900 border-zinc-700 max-w-md max-h-[80vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-600/20 flex items-center justify-center text-emerald-400 font-bold">
+                            {grupo.numero}
+                          </div>
+                          <div>
+                            <span className="text-white">Grupo {grupo.numero}</span>
+                            <p className="text-sm font-normal text-zinc-400">{membros.length} membros</p>
+                          </div>
+                        </DialogTitle>
+                      </DialogHeader>
+                      
+                      <div className="mt-4 space-y-4">
+                        {/* Dirigente e Auxiliar */}
+                        {dirigente && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-zinc-500">Dirigente:</span>
+                            <span className="text-emerald-400 font-medium">{dirigente.nome}</span>
+                          </div>
+                        )}
+                        {(() => {
+                          const auxiliar = getAuxiliar(grupo.id)
+                          return auxiliar && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className="text-zinc-500">Auxiliar:</span>
+                              <span className="text-blue-400 font-medium">{auxiliar.nome}</span>
+                            </div>
+                          )
+                        })()}
+
+                        {/* Estatísticas */}
+                        <div className="flex gap-2">
+                          {membros.filter(m => m.anciao).length > 0 && (
+                            <Badge className="bg-blue-600/20 text-blue-300 border-blue-600/30 text-xs">
+                              {membros.filter(m => m.anciao).length} ancião{membros.filter(m => m.anciao).length > 1 ? 's' : ''}
+                            </Badge>
+                          )}
+                          {membros.filter(m => m.servo_ministerial).length > 0 && (
+                            <Badge className="bg-amber-600/20 text-amber-300 border-amber-600/30 text-xs">
+                              {membros.filter(m => m.servo_ministerial).length} servo{membros.filter(m => m.servo_ministerial).length > 1 ? 's' : ''}
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        {/* Lista de Membros */}
+                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                          {membros.map((membro) => (
+                            <div 
+                              key={membro.id} 
+                              className="flex items-center justify-between p-2 rounded-lg bg-zinc-800/50"
+                            >
+                              <div className="flex items-center gap-2">
+                                <User className="w-4 h-4 text-zinc-500" />
+                                <span className="text-sm text-zinc-300">{membro.nome}</span>
+                              </div>
+                              <div className="flex gap-1">
+                                {membro.anciao && (
+                                  <Badge className="bg-blue-600/20 text-blue-400 border-0 text-xs px-1.5">
+                                    <Shield className="w-3 h-3" />
+                                  </Badge>
+                                )}
+                                {membro.servo_ministerial && (
+                                  <Badge className="bg-amber-600/20 text-amber-400 border-0 text-xs px-1.5">
+                                    SM
+                                  </Badge>
+                                )}
+                                {membro.pioneiro_regular && (
+                                  <Badge className="bg-emerald-600/20 text-emerald-400 border-0 text-xs px-1.5">
+                                    PR
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Legenda */}
+                        <div className="pt-3 border-t border-zinc-700">
+                          <p className="text-xs text-zinc-500 text-center mb-2">LEGENDA</p>
+                          <div className="flex flex-wrap justify-center gap-3">
+                            <div className="flex items-center gap-1">
+                              <Badge className="bg-blue-600/20 text-blue-400 border-0 text-xs">
+                                <Shield className="w-3 h-3" />
+                              </Badge>
+                              <span className="text-xs text-zinc-400">Ancião</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Badge className="bg-amber-600/20 text-amber-400 border-0 text-xs">
+                                SM
+                              </Badge>
+                              <span className="text-xs text-zinc-400">Servo</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Badge className="bg-emerald-600/20 text-emerald-400 border-0 text-xs">
+                                PR
+                              </Badge>
+                              <span className="text-xs text-zinc-400">Pioneiro</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
     </>
   )
