@@ -476,19 +476,19 @@ export default function SentinelaPage() {
 
       {/* Conteúdo Principal */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Lista de Estudos */}
+        {/* Lista de Semanas */}
         <Card className="bg-zinc-900 border-zinc-800">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Estudos</CardTitle>
+              <CardTitle className="text-lg">Semanas</CardTitle>
               <Button size="sm" onClick={adicionarEstudo}>
-                <Plus className="w-4 h-4 mr-1" /> Novo
+                <Plus className="w-4 h-4 mr-1" /> Nova
               </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-2">
             {estudos.length === 0 ? (
-              <p className="text-zinc-500 text-sm">Nenhum estudo cadastrado</p>
+              <p className="text-zinc-500 text-sm">Nenhuma semana cadastrada</p>
             ) : (
               estudos.map((estudo) => (
                 <div
@@ -503,9 +503,9 @@ export default function SentinelaPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">{estudo.titulo || "Novo Estudo"}</p>
-                      <p className="text-xs text-zinc-400">
-                        {formatarData(estudo.data_inicio, estudo.data_fim)}
+                      <p className="font-medium text-sm">Semana de {formatarData(estudo.data_inicio, estudo.data_fim)}</p>
+                      <p className="text-xs text-zinc-400 mt-1 line-clamp-1">
+                        {estudo.titulo || "Novo Estudo"}
                       </p>
                     </div>
                     <DropdownMenu>

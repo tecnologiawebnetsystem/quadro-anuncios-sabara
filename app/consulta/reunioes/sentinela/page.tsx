@@ -197,7 +197,7 @@ export default function ConsultaSentinelaPage() {
         </Card>
       ) : (
         <>
-          {/* Seletor de Estudos */}
+          {/* Seletor de Semanas */}
           <div className="flex gap-2 overflow-x-auto pb-2">
             {estudos.map((estudo, index) => (
               <Button
@@ -207,7 +207,7 @@ export default function ConsultaSentinelaPage() {
                 onClick={() => setEstudoAtivo(index)}
                 className="whitespace-nowrap"
               >
-                Estudo {estudo.numero_estudo}
+                Semana de {formatarPeriodo(estudo.data_inicio, estudo.data_fim)}
               </Button>
             ))}
           </div>
