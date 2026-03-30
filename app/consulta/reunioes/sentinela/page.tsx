@@ -242,12 +242,12 @@ export default function ConsultaSentinelaPage() {
                   onClick={() => setEstudoAtivo(index)}
                   className={cn(
                     "relative",
-                    isAtual && estudoAtivo !== index && "border-green-500 text-green-400"
+                    isAtual && estudoAtivo !== index && "border-red-800 text-red-400"
                   )}
                 >
                   {formatarPeriodoCurto(estudo.data_inicio, estudo.data_fim)}
                   {isAtual && (
-                    <span className="ml-1.5 text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-medium">
+                    <span className="ml-1.5 text-[10px] bg-zinc-950 text-white px-1.5 py-0.5 rounded-full font-medium border border-zinc-700">
                       Atual
                     </span>
                   )}

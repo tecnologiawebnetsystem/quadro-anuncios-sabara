@@ -226,12 +226,12 @@ export default function ConsultaVidaMinisterioPage() {
                   onClick={() => setSemanaAtiva(index)}
                   className={cn(
                     "whitespace-nowrap relative",
-                    isAtual && semanaAtiva !== index && "border-green-500 text-green-400"
+                    isAtual && semanaAtiva !== index && "border-red-800 text-red-400"
                   )}
                 >
                   {formatarData(semana.data_inicio)} - {formatarData(semana.data_fim)}
                   {isAtual && (
-                    <span className="ml-1.5 text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-medium">
+                    <span className="ml-1.5 text-[10px] bg-zinc-950 text-white px-1.5 py-0.5 rounded-full font-medium border border-zinc-700">
                       Atual
                     </span>
                   )}
