@@ -6,20 +6,11 @@ import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  Smartphone, 
   Calendar, 
   MapPin, 
   Clock, 
-  ChevronRight,
-  Share2,
-  CheckCircle2,
-  Bell,
-  Zap,
-  Shield,
-  Globe,
   Menu,
-  X,
-  Download
+  X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -37,63 +28,25 @@ interface SobreContentProps {
 }
 
 export function SobreContent({ anuncios }: SobreContentProps) {
-  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null)
-  const [isInstallable, setIsInstallable] = useState(false)
-  const [isIOS, setIsIOS] = useState(false)
-  const [isAndroid, setIsAndroid] = useState(false)
-  const [showIOSInstructions, setShowIOSInstructions] = useState(false)
   const [activeSection, setActiveSection] = useState("inicio")
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
   const heroRef = useRef<HTMLElement>(null)
-  
   const anunciosRef = useRef<HTMLElement>(null)
   const appRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    const userAgent = window.navigator.userAgent.toLowerCase()
-    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent)
-    const isAndroidDevice = /android/.test(userAgent)
-    
-    setIsIOS(isIOSDevice)
-    setIsAndroid(isAndroidDevice)
-
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault()
-      setDeferredPrompt(e)
-      setIsInstallable(true)
-    }
-
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
     }
 
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
     window.addEventListener("scroll", handleScroll)
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
       window.removeEventListener("scroll", handleScroll)
     }
   }, [])
-
-  const handleInstallClick = async () => {
-    if (isIOS) {
-      setShowIOSInstructions(true)
-      return
-    }
-
-    if (deferredPrompt) {
-      const promptEvent = deferredPrompt as BeforeInstallPromptEvent
-      promptEvent.prompt()
-      const { outcome } = await promptEvent.userChoice
-      if (outcome === "accepted") {
-        setDeferredPrompt(null)
-        setIsInstallable(false)
-      }
-    }
-  }
 
   const scrollToSection = (sectionId: string) => {
     setIsMenuOpen(false)
@@ -116,41 +69,10 @@ export function SobreContent({ anuncios }: SobreContentProps) {
     })
   }
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
-
-const navItems = [
+  const navItems = [
   { id: "inicio", label: "Home" },
   { id: "anuncios", label: "Anúncios" },
   { id: "app", label: "Baixar App", highlight: true },
-  ]
-
-  const features = [
-    {
-      icon: Bell,
-      title: "Notificações",
-      description: "Receba avisos importantes em tempo real"
-    },
-    {
-      icon: Zap,
-      title: "Acesso Rápido",
-      description: "Informações na palma da sua mão"
-    },
-    {
-      icon: Shield,
-      title: "Seguro",
-      description: "Seus dados protegidos sempre"
-    },
-    {
-      icon: Globe,
-      title: "Funciona Offline",
-      description: "Acesse mesmo sem internet"
-    }
   ]
 
   
@@ -261,7 +183,7 @@ const navItems = [
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border text-sm mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <Bell className="h-4 w-4 text-primary" />
+            <Calendar className="h-4 w-4 text-primary" />
             <span className="text-muted-foreground">Testemunhas de Jeová</span>
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           </div>
@@ -443,102 +365,6 @@ const navItems = [
           </div>
         </div>
       </footer>
-
-      {/* Modal de instruções iOS */}
-      {showIOSInstructions && (
-        <div 
-          className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
-          onClick={() => setShowIOSInstructions(false)}
-        >
-          <Card 
-            className="w-full max-w-md bg-card border-border animate-in slide-in-from-bottom-4 duration-300 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-foreground">
-                  Como instalar no iPhone
-                </h3>
-                <button 
-                  onClick={() => setShowIOSInstructions(false)}
-                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex gap-4 p-4 rounded-xl bg-muted/50">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold">1</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground text-sm mb-1">Abra o menu de compartilhamento</p>
-                    <p className="text-xs text-muted-foreground">
-                      Toque no ícone de <Share2 className="inline h-3 w-3" /> na barra do Safari
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4 p-4 rounded-xl bg-muted/50">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold">2</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground text-sm mb-1">Adicionar à Tela de Início</p>
-                    <p className="text-xs text-muted-foreground">
-                      Role para baixo e toque nessa opção
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4 p-4 rounded-xl bg-muted/50">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold">3</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground text-sm mb-1">Confirme a instalação</p>
-                    <p className="text-xs text-muted-foreground">
-                      Toque em Adicionar no canto superior direito
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                onClick={() => setShowIOSInstructions(false)}
-                className="w-full mt-6 h-12"
-              >
-                Entendi
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Custom Animations */}
-      <style jsx global>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes float-delayed {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-8px); }
-        }
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
-        }
-        .animate-float-delayed {
-          animation: float-delayed 4s ease-in-out infinite 1s;
-        }
-      `}</style>
     </div>
   )
-}
-
-// Tipo para o evento de instalação do PWA
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>
 }
