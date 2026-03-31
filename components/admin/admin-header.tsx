@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Bell, Search, FileText } from "lucide-react"
+import { Bell, Search, FileText, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SidebarTrigger } from "@/components/ui/sidebar"
@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+// DropdownMenu ainda é usado para notificações
 
 
 export function AdminHeader() {
@@ -78,26 +79,17 @@ export function AdminHeader() {
           </Button>
         )}
 
-        {mounted ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="gap-2">
-                <span className="hidden md:inline text-sm">Administrador</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => router.push("/admin/configuracoes")}>
-                Configurações
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive" onClick={handleLogout}>Sair</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Button variant="ghost" className="gap-2">
-            <span className="hidden md:inline text-sm">Administrador</span>
-          </Button>
-        )}
+        {/* Botão Sair */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={handleLogout}
+          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          title="Sair"
+        >
+          <LogOut className="h-5 w-5" />
+          <span className="sr-only">Sair</span>
+        </Button>
       </div>
     </header>
   )

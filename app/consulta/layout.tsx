@@ -111,7 +111,7 @@ function ConsultaLayoutContent({ children }: { children: React.ReactNode }) {
                 <h1 className="text-sm font-semibold text-white leading-tight">
                   Quadro de <span className="text-red-500">Anúncios</span>
                 </h1>
-                <p className="text-[10px] text-zinc-500 leading-tight">Congregação Sabará</p>
+                <p className="text-[10px] text-zinc-500 leading-tight">Congregação Pq. Sabará</p>
               </div>
             </Link>
           </div>

@@ -1,0 +1,382 @@
+/* Estilos específicos para impressão */
+@media print {
+  /* Reset geral */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 10pt !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Ocultar elementos da UI */
+  .no-print,
+  nav,
+  button,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Container de impressão */
+  .print-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  /* Página */
+  @page {
+    size: A4;
+    margin: 10mm 15mm;
+  }
+
+  /* Quebra de página */
+  .page-break {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .page-break-before {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  .avoid-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Header de impressão */
+  .print-header {
+    text-align: center;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #333;
+  }
+
+  .print-header h1 {
+    font-size: 16pt;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    color: #000;
+  }
+
+  .print-header h2 {
+    font-size: 12pt;
+    font-weight: normal;
+    margin: 0;
+    color: #333;
+  }
+
+  /* Tabelas */
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 9pt;
+  }
+
+  .print-table th,
+  .print-table td {
+    border: 1px solid #333;
+    padding: 6px 8px;
+    text-align: left;
+  }
+
+  .print-table th {
+    background-color: #e5e5e5 !important;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 8pt;
+  }
+
+  .print-table tr:nth-child(even) {
+    background-color: #f5f5f5 !important;
+  }
+
+  /* Seções coloridas */
+  .print-section {
+    margin-bottom: 15px;
+    page-break-inside: avoid;
+  }
+
+  .print-section-header {
+    padding: 8px 12px;
+    font-weight: bold;
+    font-size: 10pt;
+    margin-bottom: 5px;
+    border-left: 4px solid;
+  }
+
+  .print-section-tesouros {
+    background-color: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    color: #92400e !important;
+  }
+
+  .print-section-ministerio {
+    background-color: #fef9c3 !important;
+    border-color: #eab308 !important;
+    color: #854d0e !important;
+  }
+
+  .print-section-vida {
+    background-color: #fee2e2 !important;
+    border-color: #ef4444 !important;
+    color: #991b1b !important;
+  }
+
+  /* Cards de semana */
+  .print-week-card {
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
+    page-break-inside: avoid;
+  }
+
+  .print-week-header {
+    background-color: #1f2937 !important;
+    color: white !important;
+    padding: 8px 12px;
+    font-weight: bold;
+  }
+
+  .print-week-content {
+    padding: 10px;
+  }
+
+  /* Parte individual */
+  .print-part {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px dotted #ccc;
+  }
+
+  .print-part:last-child {
+    border-bottom: none;
+  }
+
+  .print-part-title {
+    font-weight: 500;
+  }
+
+  .print-part-name {
+    font-weight: bold;
+    color: #1f2937;
+  }
+
+  /* Grupos de Estudo */
+  .print-groups-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+
+  .print-group-card {
+    border: 1px solid #333;
+    padding: 10px;
+    page-break-inside: avoid;
+  }
+
+  .print-group-header {
+    background-color: #059669 !important;
+    color: white !important;
+    padding: 6px 10px;
+    font-weight: bold;
+    margin: -10px -10px 10px -10px;
+    text-align: center;
+  }
+
+  .print-group-member {
+    padding: 3px 0;
+    border-bottom: 1px dotted #ddd;
+    font-size: 9pt;
+  }
+
+  /* Rodapé */
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 8pt;
+    color: #666;
+    padding: 5px;
+    border-top: 1px solid #ccc;
+  }
+
+  /* Legenda */
+  .print-legend {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    padding: 8px;
+    background-color: #f3f4f6 !important;
+    margin-top: 10px;
+    font-size: 8pt;
+  }
+
+  .print-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .print-legend-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 7pt;
+    font-weight: bold;
+  }
+}
+
+/* Estilos para visualização na tela (preview) */
+.print-preview {
+  background: white;
+  color: black;
+  padding: 20px;
+  max-width: 210mm;
+  margin: 0 auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  min-height: 297mm;
+}
+
+.print-preview .print-header {
+  text-align: center;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #333;
+}
+
+.print-preview .print-header h1 {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 5px 0;
+  color: #000;
+}
+
+.print-preview .print-header h2 {
+  font-size: 14px;
+  font-weight: normal;
+  margin: 0;
+  color: #333;
+}
+
+.print-preview .print-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 12px;
+}
+
+.print-preview .print-table th,
+.print-preview .print-table td {
+  border: 1px solid #333;
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.print-preview .print-table th {
+  background-color: #e5e5e5;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+.print-preview .print-section-header {
+  padding: 8px 12px;
+  font-weight: bold;
+  font-size: 12px;
+  margin-bottom: 5px;
+  border-left: 4px solid;
+}
+
+.print-preview .print-section-tesouros {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.print-preview .print-section-ministerio {
+  background-color: #fef9c3;
+  border-color: #eab308;
+  color: #854d0e;
+}
+
+.print-preview .print-section-vida {
+  background-color: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+.print-preview .print-week-card {
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+}
+
+.print-preview .print-week-header {
+  background-color: #1f2937;
+  color: white;
+  padding: 8px 12px;
+  font-weight: bold;
+}
+
+.print-preview .print-week-content {
+  padding: 10px;
+}
+
+.print-preview .print-part {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px dotted #ccc;
+}
+
+.print-preview .print-part:last-child {
+  border-bottom: none;
+}
+
+.print-preview .print-groups-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.print-preview .print-group-card {
+  border: 1px solid #333;
+  padding: 10px;
+}
+
+.print-preview .print-group-header {
+  background-color: #059669;
+  color: white;
+  padding: 6px 10px;
+  font-weight: bold;
+  margin: -10px -10px 10px -10px;
+  text-align: center;
+}
+
+.print-preview .print-group-member {
+  padding: 3px 0;
+  border-bottom: 1px dotted #ddd;
+  font-size: 11px;
+}
+
+.print-preview .print-legend {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  padding: 8px;
+  background-color: #f3f4f6;
+  margin-top: 10px;
+  font-size: 10px;
+}

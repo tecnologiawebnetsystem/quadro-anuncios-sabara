@@ -20,6 +20,7 @@ import {
   Shield,
   Flag,
   Megaphone,
+  Settings,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -283,12 +284,30 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        <div className="my-1 border-t border-sidebar-border/60" />
+
+        {/* Configurações */}
+        <SidebarGroup className="p-0">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isItemActive("/admin/configuracoes")} className="h-9 rounded-lg font-medium">
+                  <Link href="/admin/configuracoes" className="flex items-center gap-3">
+                    <Settings className="h-4 w-4 flex-shrink-0 text-zinc-400" />
+                    <span>Configurações</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
       </SidebarContent>
 
       {/* Footer */}
       <SidebarFooter className="border-t border-sidebar-border px-4 py-3">
         <p className="text-[10px] text-muted-foreground/50 text-center">
-          Congregação Sabará
+          Congregação Pq. Sabará
         </p>
       </SidebarFooter>
     </Sidebar>
