@@ -249,7 +249,7 @@ const navItems = [
       </nav>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+      <section ref={heroRef} className="relative flex items-center justify-center overflow-hidden pt-24 pb-12">
         {/* Background Elements */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background" />
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
@@ -258,7 +258,7 @@ const navItems = [
         {/* Grid Pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,_var(--border)_1px,_transparent_1px),_linear-gradient(to_bottom,_var(--border)_1px,_transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)] opacity-20" />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-20 text-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border text-sm mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Bell className="h-4 w-4 text-primary" />
@@ -280,16 +280,11 @@ const navItems = [
           
         </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-2">
-            <div className="w-1 h-2 bg-muted-foreground/50 rounded-full animate-pulse" />
-          </div>
-        </div>
+        
       </section>
 
       {/* Anúncios Section */}
-      <section ref={anunciosRef} className="py-20 sm:py-32 px-4 sm:px-6 bg-card/50 relative">
+      <section ref={anunciosRef} className="py-10 sm:py-16 px-4 sm:px-6 bg-card/50 relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/3 via-transparent to-transparent" />
         
         <div className="max-w-6xl mx-auto relative">
