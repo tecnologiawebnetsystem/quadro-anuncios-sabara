@@ -160,7 +160,6 @@ const navItems = [
 
   const stats = [
     { value: "100+", label: "Publicadores" },
-    { value: "39", label: "Anos de história" },
     { value: "2", label: "Reuniões semanais" },
     { value: "24/7", label: "App disponível" }
   ]
