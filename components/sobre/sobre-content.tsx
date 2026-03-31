@@ -52,7 +52,7 @@ export function SobreContent({ anuncios }: SobreContentProps) {
   const [scrolled, setScrolled] = useState(false)
 
   const heroRef = useRef<HTMLElement>(null)
-  const sobreRef = useRef<HTMLElement>(null)
+  
   const anunciosRef = useRef<HTMLElement>(null)
   const appRef = useRef<HTMLElement>(null)
 
@@ -104,7 +104,7 @@ export function SobreContent({ anuncios }: SobreContentProps) {
     setIsMenuOpen(false)
     const refs: { [key: string]: React.RefObject<HTMLElement | null> } = {
       inicio: heroRef,
-      sobre: sobreRef,
+      
       anuncios: anunciosRef,
       app: appRef
     }
@@ -129,11 +129,10 @@ export function SobreContent({ anuncios }: SobreContentProps) {
     })
   }
 
-  const navItems = [
-    { id: "inicio", label: "Início" },
-    { id: "sobre", label: "Quem Somos" },
-    { id: "anuncios", label: "Anúncios" },
-    { id: "app", label: "Baixar App" },
+const navItems = [
+  { id: "inicio", label: "Início" },
+  { id: "anuncios", label: "Anúncios" },
+  { id: "app", label: "Baixar App" },
   ]
 
   const features = [
@@ -326,91 +325,6 @@ export function SobreContent({ anuncios }: SobreContentProps) {
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
           <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-2">
             <div className="w-1 h-2 bg-muted-foreground/50 rounded-full animate-pulse" />
-          </div>
-        </div>
-      </section>
-
-      {/* Sobre Section */}
-      <section ref={sobreRef} className="py-20 sm:py-32 px-4 sm:px-6 relative">
-        <div className="max-w-6xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-medium mb-4">
-              <BookOpen className="h-3 w-3" />
-              <span>Nossa História</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4 text-balance">
-              Quem Somos
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-pretty">
-              Uma comunidade unida pela fé e pelo amor ao próximo
-            </p>
-          </div>
-
-          {/* Content Grid */}
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Image/Visual Side */}
-            <div className="relative order-2 lg:order-1">
-              <div className="aspect-square max-w-md mx-auto relative">
-                {/* Main Card */}
-                <div className="absolute inset-4 sm:inset-8 bg-gradient-to-br from-primary/20 via-card to-accent/20 rounded-3xl border border-border shadow-2xl flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <div className="w-24 h-24 rounded-2xl bg-background/80 backdrop-blur border border-border flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <BookOpen className="h-12 w-12 text-primary" />
-                    </div>
-                    <p className="text-3xl font-bold text-foreground mb-1">1985</p>
-                    <p className="text-sm text-muted-foreground">Ano de fundação</p>
-                  </div>
-                </div>
-                
-                {/* Floating Elements */}
-                <div className="absolute top-0 right-0 sm:-right-4 w-20 h-20 bg-primary/10 rounded-2xl border border-primary/20 flex items-center justify-center animate-float">
-                  <Heart className="h-8 w-8 text-primary" />
-                </div>
-                <div className="absolute bottom-0 left-0 sm:-left-4 w-16 h-16 bg-accent/10 rounded-xl border border-accent/20 flex items-center justify-center animate-float-delayed">
-                  <Users className="h-6 w-6 text-accent" />
-                </div>
-              </div>
-            </div>
-
-            {/* Text Side */}
-            <div className="order-1 lg:order-2">
-              <h3 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">
-                Uma congregação dedicada ao estudo da Bíblia e ao serviço cristão
-              </h3>
-              <p className="text-muted-foreground leading-relaxed mb-6">
-                A Congregação Sabará é uma comunidade de Testemunhas de Jeová localizada em Sabará, 
-                Minas Gerais. Desde 1985, nos reunimos regularmente para adorar a Jeová, 
-                estudar a Bíblia e fortalecer nossa fé como família espiritual.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mb-8">
-                Nosso objetivo é ajudar as pessoas a conhecer melhor o Criador e seu propósito 
-                para a humanidade, conforme revelado nas Escrituras Sagradas.
-              </p>
-
-              {/* Info Cards */}
-              <div className="space-y-4">
-                <div className="flex items-start gap-4 p-4 rounded-xl bg-card border border-border hover:border-primary/30 transition-colors">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-1">Localização</h4>
-                    <p className="text-sm text-muted-foreground">Sabará, Minas Gerais - Brasil</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-4 p-4 rounded-xl bg-card border border-border hover:border-accent/30 transition-colors">
-                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
-                    <Calendar className="h-6 w-6 text-accent" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-1">Reuniões</h4>
-                    <p className="text-sm text-muted-foreground">Terças-feiras e Domingos</p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
