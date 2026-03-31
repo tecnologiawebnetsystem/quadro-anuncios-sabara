@@ -365,8 +365,6 @@ export function SobreContent({ anuncios }: SobreContentProps) {
           </div>
         </div>
       </footer>
-
-      
     </div>
   )
 }
