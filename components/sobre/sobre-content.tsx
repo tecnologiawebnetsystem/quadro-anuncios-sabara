@@ -517,7 +517,7 @@ const navItems = [
 
                 {/* Floating Elements */}
                 <div className="absolute -top-4 -right-4 w-16 h-16 bg-primary/10 rounded-2xl border border-primary/20 flex items-center justify-center animate-float">
-                  <Star className="h-6 w-6 text-primary" />
+                  <Zap className="h-6 w-6 text-primary" />
                 </div>
                 <div className="absolute -bottom-4 -left-4 w-12 h-12 bg-accent/10 rounded-xl border border-accent/20 flex items-center justify-center animate-float-delayed">
                   <Bell className="h-5 w-5 text-accent" />
