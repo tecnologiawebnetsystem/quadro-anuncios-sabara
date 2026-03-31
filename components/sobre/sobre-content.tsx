@@ -6,14 +6,10 @@ import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  Download, 
   Smartphone, 
   Calendar, 
   MapPin, 
   Clock, 
-  Users, 
-  BookOpen,
-  Heart,
   ChevronRight,
   Share2,
   CheckCircle2,
@@ -21,8 +17,6 @@ import {
   Zap,
   Shield,
   Globe,
-  Star,
-  ArrowRight,
   Menu,
   X
 } from "lucide-react"
@@ -158,11 +152,7 @@ const navItems = [
     }
   ]
 
-  const stats = [
-    { value: "100+", label: "Publicadores" },
-    { value: "2", label: "Reuniões semanais" },
-    { value: "24/7", label: "App disponível" }
-  ]
+  
 
   return (
     <div className="min-h-screen bg-background">
@@ -286,42 +276,7 @@ const navItems = [
             </span>
           </h1>
 
-          {/* Subheading */}
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 text-pretty animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-            Bem-vindo ao quadro de anúncios oficial da nossa congregação. 
-            Aqui você encontra todas as <span className="text-foreground font-medium">informações e eventos</span> importantes.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
-            <Button 
-              size="lg" 
-              className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all px-8 h-12"
-              onClick={() => scrollToSection("anuncios")}
-            >
-              Ver Anúncios
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="gap-2 border-border hover:bg-muted px-8 h-12"
-              onClick={() => scrollToSection("app")}
-            >
-              <Download className="h-4 w-4" />
-              Baixar App
-            </Button>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 mt-16 pt-16 border-t border-border/50 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <p className="text-2xl sm:text-3xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+          
         </div>
 
         {/* Scroll Indicator */}
@@ -337,29 +292,7 @@ const navItems = [
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/3 via-transparent to-transparent" />
         
         <div className="max-w-6xl mx-auto relative">
-          {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-4">
-                <Calendar className="h-3 w-3" />
-                <span>Fique por dentro</span>
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
-                Anúncios e Eventos
-              </h2>
-              <p className="text-muted-foreground">
-                Confira as últimas novidades e programações
-              </p>
-            </div>
-            {anuncios.length > 0 && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted border border-border">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-sm text-muted-foreground">
-                  {anuncios.length} {anuncios.length === 1 ? "anúncio ativo" : "anúncios ativos"}
-                </span>
-              </div>
-            )}
-          </div>
+          
 
           {/* Anúncios Grid */}
           {anuncios.length === 0 ? (
