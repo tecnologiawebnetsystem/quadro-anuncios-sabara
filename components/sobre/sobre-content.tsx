@@ -412,58 +412,7 @@ const navItems = [
                 ))}
               </div>
 
-              {/* Download Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                {/* Android */}
-                <Button
-                  onClick={handleInstallClick}
-                  size="lg"
-                  className="gap-3 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all h-14 px-6"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-primary-foreground/20 flex items-center justify-center">
-                    <Download className="h-4 w-4" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[10px] opacity-80 leading-tight">Baixar para</p>
-                    <p className="font-semibold text-sm leading-tight">Android</p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 ml-auto" />
-                </Button>
-
-                {/* iOS */}
-                <Button
-                  onClick={() => setShowIOSInstructions(true)}
-                  variant="outline"
-                  size="lg"
-                  className="gap-3 border-border hover:bg-muted h-14 px-6"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
-                    <Share2 className="h-4 w-4" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[10px] text-muted-foreground leading-tight">Baixar para</p>
-                    <p className="font-semibold text-sm leading-tight">iPhone / iPad</p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 ml-auto text-muted-foreground" />
-                </Button>
               </div>
-
-              {/* Trust badges */}
-              <div className="flex items-center gap-6 mt-8 pt-8 border-t border-border">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span className="text-xs text-muted-foreground">100% Gratuito</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span className="text-xs text-muted-foreground">Sem anúncios</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span className="text-xs text-muted-foreground">Leve e rápido</span>
-                </div>
-              </div>
-            </div>
 
             {/* Phone Mockup Side */}
             <div className="relative order-first lg:order-last">
