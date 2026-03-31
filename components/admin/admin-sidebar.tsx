@@ -307,7 +307,7 @@ export function AdminSidebar() {
       {/* Footer */}
       <SidebarFooter className="border-t border-sidebar-border px-4 py-3">
         <p className="text-[10px] text-muted-foreground/50 text-center">
-          Congregação Sabará
+          Congregação Pq. Sabará
         </p>
       </SidebarFooter>
     </Sidebar>

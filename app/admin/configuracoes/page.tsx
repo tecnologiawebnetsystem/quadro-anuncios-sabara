@@ -52,7 +52,7 @@ export default function ConfiguracoesPage() {
   
   // Configurações da congregação
   const [congregacao, setCongregacao] = useState({
-    nome: "Congregação Sabará",
+    nome: "Congregação Pq. Sabará",
     cidade: "Sabará",
     estado: "MG",
     circuito: "",

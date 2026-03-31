@@ -228,7 +228,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
         })}
 
         <div className="print-footer">
-          Congregação Sabará - {getMesAno(mes, ano)}
+          Congregação Pq. Sabará - {getMesAno(mes, ano)}
         </div>
       </div>
     )
@@ -282,7 +282,7 @@ export const PrintSentinela = forwardRef<HTMLDivElement, SentinelaProps>(
         </table>
 
         <div className="print-footer">
-          Congregação Sabará - {getMesAno(mes, ano)}
+          Congregação Pq. Sabará - {getMesAno(mes, ano)}
         </div>
       </div>
     )
@@ -330,7 +330,7 @@ export const PrintReunioesPublicas = forwardRef<HTMLDivElement, ReunioesPublicas
         </table>
 
         <div className="print-footer">
-          Congregação Sabará - {getMesAno(mes, ano)}
+          Congregação Pq. Sabará - {getMesAno(mes, ano)}
         </div>
       </div>
     )
@@ -384,7 +384,7 @@ export const PrintEquipeTecnica = forwardRef<HTMLDivElement, EquipeTecnicaProps>
         </table>
 
         <div className="print-footer">
-          Congregação Sabará - {mesLabel}
+          Congregação Pq. Sabará - {mesLabel}
         </div>
       </div>
     )
@@ -412,7 +412,7 @@ export const PrintGruposEstudo = forwardRef<HTMLDivElement, GruposEstudoProps>(
       <div ref={ref} className="print-preview">
         <div className="print-header">
           <h1>GRUPOS DE ESTUDO</h1>
-          <h2>Congregação Sabará</h2>
+          <h2>Congregação Pq. Sabará</h2>
         </div>
 
         <div className="print-groups-grid">
@@ -469,7 +469,7 @@ export const PrintGruposEstudo = forwardRef<HTMLDivElement, GruposEstudoProps>(
         </div>
 
         <div className="print-footer">
-          Congregação Sabará
+          Congregação Pq. Sabará
         </div>
       </div>
     )
@@ -515,7 +515,7 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
         </table>
 
         <div className="print-footer">
-          Congregação Sabará - {getMesAno(mes, ano)}
+          Congregação Pq. Sabará - {getMesAno(mes, ano)}
         </div>
       </div>
     )
@@ -559,7 +559,7 @@ export const PrintServicoCampo = forwardRef<HTMLDivElement, ServicoCampoProps>(
         </table>
 
         <div className="print-footer">
-          Congregação Sabará - {getMesAno(mes, ano)}
+          Congregação Pq. Sabará - {getMesAno(mes, ano)}
         </div>
       </div>
     )

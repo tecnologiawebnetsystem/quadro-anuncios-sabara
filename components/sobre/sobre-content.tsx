@@ -173,7 +173,7 @@ const navItems = [
               </div>
               <div className="hidden sm:block">
                 <p className="font-bold text-foreground text-sm">InfoFlow</p>
-                <p className="text-[10px] text-muted-foreground -mt-0.5">Congregação Sabará</p>
+                <p className="text-[10px] text-muted-foreground -mt-0.5">Congregação Pq. Sabará</p>
               </div>
             </Link>
 
@@ -270,7 +270,7 @@ const navItems = [
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 text-balance leading-tight animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
             Congregação{" "}
             <span className="text-primary relative">
-              Sabará
+              Pq. Sabará
               <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 8" fill="none">
                 <path d="M1 5.5C47.6667 2.16667 141 -2.4 199 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary/40"/>
               </svg>
@@ -424,7 +424,7 @@ const navItems = [
               </div>
               <div>
                 <p className="font-bold text-foreground text-sm">InfoFlow</p>
-                <p className="text-[10px] text-muted-foreground">Congregação Sabará</p>
+                <p className="text-[10px] text-muted-foreground">Congregação Pq. Sabará</p>
               </div>
             </div>
 
