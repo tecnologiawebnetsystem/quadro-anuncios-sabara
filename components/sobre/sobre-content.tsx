@@ -183,7 +183,7 @@ export function SobreContent({ anuncios }: SobreContentProps) {
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border text-sm mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <Bell className="h-4 w-4 text-primary" />
+            <Calendar className="h-4 w-4 text-primary" />
             <span className="text-muted-foreground">Testemunhas de Jeová</span>
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           </div>
