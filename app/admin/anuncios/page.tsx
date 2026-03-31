@@ -237,7 +237,7 @@ export default function AnunciosAdminPage() {
         
         <div className="flex items-center gap-3">
           <Button variant="outline" asChild>
-            <a href="/sobre" target="_blank" className="gap-2">
+            <a href="/" target="_blank" className="gap-2">
               <ExternalLink className="h-4 w-4" />
               Ver Página
             </a>
