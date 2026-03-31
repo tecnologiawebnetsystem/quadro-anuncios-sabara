@@ -130,9 +130,9 @@ export function SobreContent({ anuncios }: SobreContentProps) {
   }
 
 const navItems = [
-  { id: "inicio", label: "Início" },
+  { id: "inicio", label: "Home" },
   { id: "anuncios", label: "Anúncios" },
-  { id: "app", label: "Baixar App" },
+  { id: "app", label: "Baixar App", highlight: true },
   ]
 
   const features = [
@@ -195,9 +195,11 @@ const navItems = [
                   onClick={() => scrollToSection(item.id)}
                   className={cn(
                     "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200",
-                    activeSection === item.id
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    item.highlight 
+                      ? "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
+                      : activeSection === item.id
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
                 >
                   {item.label}
@@ -208,7 +210,7 @@ const navItems = [
             {/* CTA Button */}
             <div className="hidden md:flex items-center gap-3">
               <Link href="/login">
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button size="sm" className="gap-2 bg-amber-500 hover:bg-amber-600 text-black font-semibold">
                   Acessar Sistema
                 </Button>
               </Link>
@@ -234,9 +236,11 @@ const navItems = [
                   onClick={() => scrollToSection(item.id)}
                   className={cn(
                     "w-full px-4 py-3 text-left text-sm font-medium rounded-lg transition-colors",
-                    activeSection === item.id
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    item.highlight
+                      ? "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
+                      : activeSection === item.id
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
                 >
                   {item.label}
@@ -244,7 +248,7 @@ const navItems = [
               ))}
               <div className="pt-2 border-t border-border mt-2">
                 <Link href="/login">
-                  <Button variant="outline" className="w-full gap-2">
+                  <Button className="w-full gap-2 bg-amber-500 hover:bg-amber-600 text-black font-semibold">
                     Acessar Sistema
                   </Button>
                 </Link>
