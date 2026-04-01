@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Poppins } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
+import { NavigationProgress } from '@/components/ui/navigation-progress'
 import './globals.css'
 
 const poppins = Poppins({ 
@@ -57,6 +58,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className={`${poppins.variable} font-sans antialiased`}>
+        <NavigationProgress />
         {children}
         <Toaster richColors position="top-right" />
         <Analytics />

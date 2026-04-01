@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { Settings, Clock, Calendar, Save, Loader2, Check, Building2, MapPin, Video, Globe, Bell } from "lucide-react"
 import { CentralNotificacoes } from "@/components/admin/central-notificacoes"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -141,13 +142,7 @@ export default function ConfiguracoesPage() {
     )
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
+  if (loading) return <CenteredLoader />
 
   return (
     <div className="space-y-6">

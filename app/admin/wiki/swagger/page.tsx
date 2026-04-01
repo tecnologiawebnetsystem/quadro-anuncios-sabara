@@ -1,5 +1,7 @@
 "use client"
 
+import { normalizar } from "@/lib/utils"
+
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -488,9 +490,10 @@ export default function SwaggerPage() {
   const [copiado, setCopiado] = useState<string | null>(null)
 
   const apisFiltradas = apis.filter(api => {
-    const matchBusca = !busca || 
-      api.path.toLowerCase().includes(busca.toLowerCase()) ||
-      api.descricao.toLowerCase().includes(busca.toLowerCase())
+    const buscaNorm = normalizar(busca)
+    const matchBusca = !busca ||
+      normalizar(api.path).includes(buscaNorm) ||
+      normalizar(api.descricao).includes(buscaNorm)
     const matchCategoria = !categoriaAtiva || api.categoria === categoriaAtiva
     return matchBusca && matchCategoria
   })

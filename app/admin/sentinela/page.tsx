@@ -438,26 +438,7 @@ export default function SentinelaPage() {
           <h1 className="text-2xl font-bold">Estudo de A Sentinela</h1>
           <p className="text-zinc-400">Gerencie os estudos da Sentinela por mês</p>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="bg-red-600 hover:bg-red-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Adicionar
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={adicionarEstudo}>
-              <FileText className="w-4 h-4 mr-2" />
-              Novo Estudo Manual
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/admin/importar">
-                <Wand2 className="w-4 h-4 mr-2" />
-                Importar com IA
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+
       </div>
 
       {/* Seletor de Mês */}

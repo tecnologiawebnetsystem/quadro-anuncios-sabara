@@ -36,6 +36,7 @@ interface EquipeTecnica {
   indicador2_nome: string | null
   microvolante1_nome: string | null
   microvolante2_nome: string | null
+  microvolante_palco: 1 | 2 | null
   som_nome: string | null
   data: string
   dia_semana: string
@@ -77,6 +78,7 @@ interface VidaMinisterioSemana {
   data_inicio: string
   data_fim: string
   leitura_semanal: string
+  livro_biblia: string | null
   sem_reuniao?: boolean
   motivo_sem_reuniao?: string
 }
@@ -312,7 +314,7 @@ export default function ConsultaPage() {
         // Buscar semanas do Vida e Ministério (quinta-feira)
         const { data: vidaMinisterioData } = await supabase
           .from("vida_ministerio_semanas")
-          .select("data_inicio, data_fim, leitura_semanal, sem_reuniao, motivo_sem_reuniao")
+          .select("data_inicio, data_fim, leitura_semanal, livro_biblia, sem_reuniao, motivo_sem_reuniao")
         if (vidaMinisterioData) {
           setVidaMinisterioSemanas(vidaMinisterioData)
         }
@@ -439,7 +441,7 @@ export default function ConsultaPage() {
               {tooltip.vidaMinisterio.sem_reuniao ? (
                 <p className="text-[10px] text-amber-400">Sem reunião: {tooltip.vidaMinisterio.motivo_sem_reuniao || "Semana especial"}</p>
               ) : (
-                <p className="text-[10px] text-zinc-300">{tooltip.vidaMinisterio.leitura_semanal || "Reunião de meio de semana"}</p>
+                <p className="text-[10px] text-zinc-300">{tooltip.vidaMinisterio.livro_biblia || tooltip.vidaMinisterio.leitura_semanal || "Reunião de meio de semana"}</p>
               )}
             </div>
           )}
@@ -519,7 +521,11 @@ export default function ConsultaPage() {
                   )}
                 </div>
                 <span className="rounded-lg bg-amber-600/20 px-3 py-1.5 text-sm font-medium text-amber-400">
-                  {format(new Date(proximoDiscurso.data), "EEEE, d/MM", { locale: ptBR })}
+                  {(() => {
+                    const [y, m, d] = proximoDiscurso.data.split("-").map(Number)
+                    const dt = new Date(y, m - 1, d)
+                    return format(dt, "EEEE, d/MM", { locale: ptBR })
+                  })()}
                 </span>
               </div>
             </CardContent>
@@ -687,7 +693,10 @@ export default function ConsultaPage() {
                 <div>
                   <p className="text-sm font-medium text-white">Discurso Publico</p>
                   <p className="text-xs text-zinc-400">
-                    {format(new Date(proximoDiscurso.data), "EEEE", { locale: ptBR })}: <span className="text-amber-400">{proximoDiscurso.tema || "Tema a definir"}</span>
+                    {(() => {
+                      const [y, m, d] = proximoDiscurso.data.split("-").map(Number)
+                      return format(new Date(y, m - 1, d), "EEEE", { locale: ptBR })
+                    })()}: <span className="text-amber-400">{proximoDiscurso.tema || "Tema a definir"}</span>
                     {proximoDiscurso.orador_nome && ` - ${proximoDiscurso.orador_nome}`}
                   </p>
                 </div>
@@ -704,7 +713,9 @@ export default function ConsultaPage() {
                 </div>
                 {equipeSemana.map((reuniao, i) => {
                   const diaLabel = reuniao.dia_semana === "quinta" ? "Quinta-Feira" : "Domingo"
-                  const dataLabel = format(new Date(reuniao.data), "dd/MM", { locale: ptBR })
+                  // Usar parseISO evita o offset UTC que deslocaria a data um dia para trás no fuso BR
+                  const [ano, mes, dia] = reuniao.data.split("-")
+                  const dataLabel = `${dia}/${mes}`
                   return (
                     <div key={i} className="space-y-2">
                       <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
@@ -721,8 +732,25 @@ export default function ConsultaPage() {
                         {/* Volantes */}
                         <div className="flex items-center gap-2 text-xs text-zinc-300">
                           <span className="rounded bg-blue-600/20 px-1.5 py-0.5 text-blue-400 font-medium whitespace-nowrap">Volantes</span>
-                          <span>
-                            {[reuniao.microvolante1_nome, reuniao.microvolante2_nome].filter(Boolean).join(" / ") || "A definir"}
+                          <span className="flex items-center gap-1 flex-wrap">
+                            {reuniao.microvolante1_nome ? (
+                              <span className="flex items-center gap-1">
+                                {reuniao.microvolante1_nome}
+                                {reuniao.microvolante_palco === 1 && (
+                                  <span className="text-amber-400 font-semibold">(Palco)</span>
+                                )}
+                              </span>
+                            ) : null}
+                            {reuniao.microvolante1_nome && reuniao.microvolante2_nome && " / "}
+                            {reuniao.microvolante2_nome ? (
+                              <span className="flex items-center gap-1">
+                                {reuniao.microvolante2_nome}
+                                {reuniao.microvolante_palco === 2 && (
+                                  <span className="text-amber-400 font-semibold">(Palco)</span>
+                                )}
+                              </span>
+                            ) : null}
+                            {!reuniao.microvolante1_nome && !reuniao.microvolante2_nome && "A definir"}
                           </span>
                         </div>
                         {/* Som */}

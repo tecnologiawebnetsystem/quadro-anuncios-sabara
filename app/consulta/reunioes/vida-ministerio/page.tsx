@@ -47,6 +47,7 @@ interface Semana {
   data_inicio: string
   data_fim: string
   leitura_semanal: string
+  livro_biblia: string | null
   cantico_inicial: number | null
   cantico_meio: number | null
   cantico_final: number | null
@@ -66,10 +67,6 @@ interface Parte {
   ordem: number
   // Tesouros extras
   textos: string[] | null
-  pergunta1: string | null
-  resposta1: string | null
-  pergunta2: string | null
-  resposta2: string | null
   texto_biblia: string | null
   licao: string | null
   // Ministério extras
@@ -156,20 +153,23 @@ export default function ConsultaVidaMinisterioPage() {
   const partesAtuais = partes.filter((p) => p.semana_id === semanaAtualData?.id)
 
   // Identificar qual semana é a atual (baseado na data de hoje)
+  // Usa ano/mês/dia locais para evitar offset UTC que deslocaria a data
   const hoje = new Date()
-  const hojeStr = hoje.toISOString().split("T")[0]
+  const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`
   const indiceSemanaAtual = semanas.findIndex(
     (s) => hojeStr >= s.data_inicio && hojeStr <= s.data_fim
   )
-
-  console.log("[v0] hojeStr:", hojeStr, "indiceSemanaAtual:", indiceSemanaAtual, "semanaAtualData:", semanaAtualData)
+  // Se hoje não está em nenhuma semana, usar a próxima semana futura
+  const indiceSemanaEfetivo = indiceSemanaAtual >= 0
+    ? indiceSemanaAtual
+    : semanas.findIndex((s) => s.data_inicio > hojeStr)
 
   // Selecionar automaticamente a semana atual quando carregar os dados
   useEffect(() => {
-    if (semanas.length > 0 && indiceSemanaAtual >= 0) {
-      setSemanaAtiva(indiceSemanaAtual)
+    if (semanas.length > 0 && indiceSemanaEfetivo >= 0) {
+      setSemanaAtiva(indiceSemanaEfetivo)
     }
-  }, [semanas.length, indiceSemanaAtual])
+  }, [semanas.length, indiceSemanaEfetivo])
 
   const formatarData = (data: string) =>
     new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
@@ -294,10 +294,10 @@ export default function ConsultaVidaMinisterioPage() {
                       <h3 className="text-lg font-bold text-white">
                         {formatarDataCompleta(semanaAtualData.data_inicio, semanaAtualData.data_fim)}
                       </h3>
-                      {semanaAtualData.leitura_semanal && (
+                      {(semanaAtualData.livro_biblia || semanaAtualData.leitura_semanal) && (
                         <p className="text-sm text-zinc-400 flex items-center gap-2 mt-1">
                           <BookOpen className="w-4 h-4" />
-                          Leitura: {semanaAtualData.leitura_semanal}
+                          {[semanaAtualData.livro_biblia, semanaAtualData.leitura_semanal].filter(Boolean)[0]}
                         </p>
                       )}
                     </div>
@@ -369,17 +369,7 @@ export default function ConsultaVidaMinisterioPage() {
                                         {parte.tempo} min
                                       </span>
                                     )}
-                                    {/* Badge tipo ministério */}
-                                    {secao.id === "ministerio" && (
-                                      <span className={cn(
-                                        "text-xs px-2 py-0.5 rounded",
-                                        temAjudante
-                                          ? "bg-yellow-600/20 text-yellow-400"
-                                          : "bg-zinc-700 text-zinc-300"
-                                      )}>
-                                        {temAjudante ? "Duas pessoas" : "Discurso"}
-                                      </span>
-                                    )}
+
                                   </div>
                                 </div>
 
@@ -410,28 +400,6 @@ export default function ConsultaVidaMinisterioPage() {
                                     </li>
                                   ))}
                                 </ul>
-                              )}
-
-                              {/* Tesouros – Parte 2: perguntas e respostas */}
-                              {secao.id === "tesouros" && parte.ordem === TESOUROS_ORDEM.JOIAS && (
-                                <div className="space-y-3">
-                                  {parte.pergunta1 && (
-                                    <div className="space-y-1">
-                                      <p className="text-sm text-amber-400 font-medium">{parte.pergunta1}</p>
-                                      {parte.resposta1 && (
-                                        <p className="text-sm text-zinc-300 pl-3 border-l border-zinc-700">{parte.resposta1}</p>
-                                      )}
-                                    </div>
-                                  )}
-                                  {parte.pergunta2 && (
-                                    <div className="space-y-1">
-                                      <p className="text-sm text-amber-400 font-medium">{parte.pergunta2}</p>
-                                      {parte.resposta2 && (
-                                        <p className="text-sm text-zinc-300 pl-3 border-l border-zinc-700">{parte.resposta2}</p>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
                               )}
 
                               {/* Tesouros – Parte 3: texto bíblico e lição */}

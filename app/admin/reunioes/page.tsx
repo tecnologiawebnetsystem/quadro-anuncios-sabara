@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { ArrowLeft, ArrowRight, BookOpen, FileText, Loader2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/client"
@@ -112,13 +113,7 @@ export default function ReunioesPage() {
     return `${diaInicio}-${diaFim} de ${mes}`
   }
 
-  if (loading) {
-    return (
-      <div className="flex h-full items-center justify-center p-6">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
+  if (loading) return <CenteredLoader />
 
   if (!semanaAtual) {
     return (

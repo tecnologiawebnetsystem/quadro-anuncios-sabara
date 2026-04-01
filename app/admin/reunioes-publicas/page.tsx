@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { ArrowLeft, ArrowRight, Calendar, Users, Mic, BookOpen, BarChart3 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -97,42 +98,51 @@ export default function ReunioesPublicasPage() {
   useEffect(() => {
     async function carregarDados() {
       setLoading(true)
+
+      const [anoStr, mesStr] = mesAtual.value.split("-")
+      const ultimoDiaDoMes = new Date(Number(anoStr), Number(mesStr), 0).getDate()
+      const dataInicio = `${mesAtual.value}-01`
+      const dataFim = `${mesAtual.value}-${String(ultimoDiaDoMes).padStart(2, "0")}`
+
+      // Cada tabela tem seu próprio try/catch para não bloquear as outras
       try {
-        // Carregar designações (presidente e leitor)
-        const { data: designacoesData } = await supabase
+        const { data: designacoesData, error } = await supabase
           .from("reuniao_publica_designacoes")
           .select("*")
           .eq("mes", mesAtual.value)
-          .order("data")
-        
-        if (designacoesData) setDesignacoes(designacoesData)
-        
-        // Carregar discursos públicos
-        const { data: discursosData } = await supabase
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: true })
+        if (error) console.error("Erro designações:", error)
+        else setDesignacoes(designacoesData ?? [])
+      } catch (e) { console.error("Erro designações:", e) }
+
+      try {
+        const { data: discursosData, error } = await supabase
           .from("discursos_publicos")
           .select("*")
-          .gte("data", `${mesAtual.value}-01`)
-          .lte("data", `${mesAtual.value}-31`)
-          .order("data")
-        
-        if (discursosData) setDiscursos(discursosData)
-        
-        // Carregar assistência
-        const { data: assistenciaData } = await supabase
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: true })
+        if (error) console.error("Erro discursos:", error)
+        else setDiscursos(discursosData ?? [])
+      } catch (e) { console.error("Erro discursos:", e) }
+
+      try {
+        const { data: assistenciaData, error } = await supabase
           .from("assistencia_reunioes")
           .select("*")
           .eq("mes", mesAtual.value)
-          .order("data")
-        
-        if (assistenciaData) setAssistencia(assistenciaData)
-        
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error)
-      } finally {
-        setLoading(false)
-      }
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: true })
+        if (error) console.error("Erro assistência:", error)
+        else setAssistencia(assistenciaData ?? [])
+      } catch (e) { console.error("Erro assistência:", e) }
+
+      setLoading(false)
     }
-    
+
     carregarDados()
   }, [mesAtual.value])
 
@@ -198,51 +208,73 @@ export default function ReunioesPublicasPage() {
 
   // Salvar discurso público
   async function salvarDiscurso(data: string, campo: string, valor: string) {
-    const existente = discursos.find(d => d.data === data)
-    
-    const dadosBase: Partial<DiscursoPublico> = { data }
-    
-    if (campo === "tema") {
-      dadosBase.tema = valor
-    } else if (campo === "orador_nome") {
-      dadosBase.orador_nome = valor
-    } else if (campo === "orador_congregacao") {
-      dadosBase.orador_congregacao = valor
-    }
-    
+    if (!valor.trim()) return
+
     try {
-      if (existente?.id) {
+      // Busca o registro real no banco (garante que temos o id correto)
+      const { data: registroExistente, error: erroSelect } = await supabase
+        .from("discursos_publicos")
+        .select("*")
+        .eq("data", data)
+        .maybeSingle()
+
+      if (erroSelect) throw erroSelect
+
+      if (registroExistente?.id) {
+        // Registro já existe: faz UPDATE pelo id
+        const dadosUpdate: Partial<DiscursoPublico> = {}
+        if (campo === "tema") dadosUpdate.tema = valor
+        else if (campo === "orador_nome") dadosUpdate.orador_nome = valor
+        else if (campo === "orador_congregacao") dadosUpdate.orador_congregacao = valor
+
         const { error } = await supabase
           .from("discursos_publicos")
-          .update(dadosBase)
-          .eq("id", existente.id)
-        
+          .update(dadosUpdate)
+          .eq("id", registroExistente.id)
+
         if (error) throw error
-        
-        setDiscursos(prev => prev.map(d => d.id === existente.id ? { ...d, ...dadosBase } as DiscursoPublico : d))
+
+        setDiscursos(prev => prev.map(d =>
+          d.data === data ? { ...d, ...dadosUpdate } as DiscursoPublico : d
+        ))
       } else {
-        const novosDados: DiscursoPublico = {
+        // Registro não existe: só cria novo se o campo for "tema" (obrigatório no banco)
+        // Se for orador_nome/congregacao e não houver registro, aguarda o tema ser inserido primeiro
+        if (campo !== "tema") {
+          toast.error("Insira o tema do discurso antes do orador")
+          return
+        }
+
+        const novosDados = {
           data,
-          tema: campo === "tema" ? valor : "",
-          orador_nome: campo === "orador_nome" ? valor : null,
-          orador_congregacao: campo === "orador_congregacao" ? valor : null,
+          tema: valor,
+          orador_nome: null,
+          orador_congregacao: null,
           observacoes: null,
         }
-        
+
         const { data: novoData, error } = await supabase
           .from("discursos_publicos")
           .insert(novosDados)
           .select()
           .single()
-        
+
         if (error) throw error
-        
-        setDiscursos(prev => [...prev, novoData])
+
+        setDiscursos(prev => {
+          const idx = prev.findIndex(d => d.data === data)
+          if (idx >= 0) {
+            const atualizado = [...prev]
+            atualizado[idx] = novoData
+            return atualizado
+          }
+          return [...prev, novoData]
+        })
       }
-      
+
       toast.success("Salvo com sucesso")
     } catch (error) {
-      console.error("Erro ao salvar:", error)
+      console.error("Erro ao salvar discurso:", error)
       toast.error("Erro ao salvar")
     }
   }
@@ -320,13 +352,7 @@ export default function ReunioesPublicasPage() {
     return gerarDiasDoMes(ano, mes - 1, 4)
   }, [mesAtual.value])
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    )
-  }
+  if (loading) return <CenteredLoader />
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">

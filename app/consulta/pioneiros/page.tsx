@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Flag, Loader2, ArrowLeft } from "lucide-react"
+import { CenteredLoader } from "@/components/ui/page-loader"
+import { Flag, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 interface Publicador {
@@ -34,13 +35,7 @@ export default function ConsultaPioneirosPage() {
     carregarPioneiros()
   }, [])
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
+  if (loading) return <CenteredLoader />
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

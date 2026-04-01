@@ -144,18 +144,23 @@ export default function ConsultaSentinelaPage() {
   const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtualData?.id)
 
   // Identificar qual semana é a atual (baseado na data de hoje)
+  // Usa ano/mês/dia locais para evitar offset UTC que deslocaria a data
   const hoje = new Date()
-  const hojeStr = hoje.toISOString().split("T")[0]
+  const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`
   const indiceSemanaAtual = estudos.findIndex(
     (e) => hojeStr >= e.data_inicio && hojeStr <= e.data_fim
   )
+  // Se hoje não está em nenhuma semana, usar a próxima semana futura
+  const indiceSemanaEfetivo = indiceSemanaAtual >= 0
+    ? indiceSemanaAtual
+    : estudos.findIndex((e) => e.data_inicio > hojeStr)
 
   // Selecionar automaticamente a semana atual quando carregar os dados
   useEffect(() => {
-    if (estudos.length > 0 && indiceSemanaAtual >= 0) {
-      setEstudoAtivo(indiceSemanaAtual)
+    if (estudos.length > 0 && indiceSemanaEfetivo >= 0) {
+      setEstudoAtivo(indiceSemanaEfetivo)
     }
-  }, [estudos, indiceSemanaAtual])
+  }, [estudos, indiceSemanaEfetivo])
 
   const formatarData = (data: string) => {
     return new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { 

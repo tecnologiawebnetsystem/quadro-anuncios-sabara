@@ -1,31 +1,18 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { toast } from "sonner"
+import { createClient } from "@/lib/supabase/client"
+import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  Plus,
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-  BookOpen,
-  Music,
-  Gem,
-  MessageSquare,
-  Heart,
-  Loader2,
-  Sparkles,
-  X,
-  AlertTriangle,
-} from "lucide-react"
-import { toast } from "sonner"
-import { createClient } from "@/lib/supabase/client"
-import { cn } from "@/lib/utils"
+import { Plus, Trash2, ChevronLeft, ChevronRight, BookOpen, Music, Gem, MessageSquare, Heart, X, AlertTriangle } from "lucide-react"
 
 const meses = [
   { valor: 1, nome: "Janeiro" },
@@ -65,12 +52,15 @@ interface Semana {
   data_inicio: string
   data_fim: string
   leitura_semanal: string
+  livro_biblia: string | null
   cantico_inicial: number | null
   cantico_inicial_nome: string | null
   cantico_meio: number | null
   cantico_meio_nome: string | null
   cantico_final: number | null
   cantico_final_nome: string | null
+  presidente: string | null
+  oracao_inicial: string | null
   sem_reuniao: boolean
   motivo_sem_reuniao: string | null
 }
@@ -89,11 +79,6 @@ interface Parte {
   ordem: number
   // Campos extras Tesouros
   textos: string[]
-  pergunta1: string | null
-  resposta1: string | null
-  pergunta2: string | null
-  resposta2: string | null
-  texto_biblia: string | null
   licao: string | null
   // Campo ministério
   descricao: string | null
@@ -118,12 +103,7 @@ export default function AdminVidaMinisterioPage() {
   const [publicadores, setPublicadores] = useState<Publicador[]>([])
   const [loading, setLoading] = useState(true)
   const [semanaAtiva, setSemanaAtiva] = useState<string | null>(null)
-  const [sugestoes, setSugestoes] = useState<Record<string, { id: string; nome: string; motivo: string }[]>>({})
-  const [buscandoSugestao, setBuscandoSugestao] = useState<string | null>(null)
-  const [gerandoPerguntas, setGerandoPerguntas] = useState<string | null>(null)
-  // "parteId-1" ou "parteId-2" para controlar qual pergunta está sendo gerada individualmente
-  const [gerandoPerguntaIndividual, setGerandoPerguntaIndividual] = useState<string | null>(null)
-  const [gerandoDescricao, setGerandoDescricao] = useState<string | null>(null)
+
 
   const supabase = createClient()
 
@@ -252,9 +232,9 @@ export default function AdminVidaMinisterioPage() {
     }
   }
 
-  // ──────────────────────────────────────────────
+  // ────────────────���─────────────────────────────
   // Partes genéricas
-  // ──────────────────────────────────────────────
+  // ────���───────��─────────────────────────────────
   const adicionarParte = async (semanaId: string, secao: string) => {
     const partesSecao = partes.filter((p) => p.semana_id === semanaId && p.secao === secao)
     const ordem = partesSecao.length + 1
@@ -294,173 +274,6 @@ export default function AdminVidaMinisterioPage() {
     const { error } = await supabase.from("vida_ministerio_partes").delete().eq("id", parteId)
     if (!error) {
       setPartes(partes.filter((p) => p.id !== parteId))
-    }
-  }
-
-  // ──────────────────────────────────────────────
-  // Textos da Parte 1 (Discurso)
-  // ──────────────────────────────────────────────
-  const adicionarTexto = (parteId: string) => {
-    const parte = partes.find((p) => p.id === parteId)
-    if (!parte) return
-    const novosTextos = [...(parte.textos || []), ""]
-    atualizarParte(parteId, "textos", novosTextos)
-  }
-
-  const atualizarTexto = (parteId: string, index: number, valor: string) => {
-    const parte = partes.find((p) => p.id === parteId)
-    if (!parte) return
-    const novosTextos = [...(parte.textos || [])]
-    novosTextos[index] = valor
-    atualizarParte(parteId, "textos", novosTextos)
-  }
-
-  const removerTexto = (parteId: string, index: number) => {
-    const parte = partes.find((p) => p.id === parteId)
-    if (!parte) return
-    const novosTextos = (parte.textos || []).filter((_, i) => i !== index)
-    atualizarParte(parteId, "textos", novosTextos)
-  }
-
-  // ──────────────────────────────────────────────
-  // IA – Sugestões de participante
-  // ──────────────────────────────────────────────
-  const buscarSugestoesIA = async (parteId: string, titulo: string, secao: string) => {
-    setBuscandoSugestao(parteId)
-    try {
-      const response = await fetch("/api/ia/sugerir-designacoes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo: secao, parte: titulo, quantidade: 3 }),
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setSugestoes((prev) => ({ ...prev, [parteId]: data.sugestoes || [] }))
-      }
-    } catch (error) {
-      console.error("Erro ao buscar sugestoes:", error)
-      toast.error("Erro ao buscar sugestões")
-    } finally {
-      setBuscandoSugestao(null)
-    }
-  }
-
-  const aplicarSugestao = async (parteId: string, publicadorId: string, publicadorNome: string) => {
-    await atualizarParteLote(parteId, { participante_id: publicadorId, participante_nome: publicadorNome })
-    toast.success(`${publicadorNome} designado!`)
-    setSugestoes((prev) => {
-      const novo = { ...prev }
-      delete novo[parteId]
-      return novo
-    })
-  }
-
-  // ──────────────────────────────────────────────
-  // IA – Gerar perguntas Joias Espirituais
-  // ──────────────────────────────────────────────
-  const gerarPerguntasJoias = async (parteId: string) => {
-    setGerandoPerguntas(parteId)
-    const semana = semanas.find((s) => s.id === semanaAtiva)
-    const discurso = partes.find(
-      (p) => p.semana_id === semanaAtiva && p.secao === "tesouros" && p.ordem === TESOUROS_ORDEM.DISCURSO
-    )
-
-    try {
-      const response = await fetch("/api/ia/joias-espirituais", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          titulo: discurso?.titulo || "",
-          leituraSemanal: semana?.leitura_semanal || "",
-        }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.pergunta1) await atualizarParte(parteId, "pergunta1", data.pergunta1)
-        if (data.pergunta2) await atualizarParte(parteId, "pergunta2", data.pergunta2)
-        toast.success("Perguntas geradas com sucesso!")
-      } else {
-        toast.error("Erro ao gerar perguntas")
-      }
-    } catch (error) {
-      console.error("Erro ao gerar perguntas Joias:", error)
-      toast.error("Erro ao gerar perguntas")
-    } finally {
-      setGerandoPerguntas(null)
-    }
-  }
-
-  // ──────────────────────────────────────────────
-  // IA – Gerar pergunta individual das Joias
-  // ──────────────────────────────────────────────
-  const gerarPerguntaIndividual = async (parteId: string, numero: 1 | 2) => {
-    const chave = `${parteId}-${numero}`
-    setGerandoPerguntaIndividual(chave)
-    const semana = semanas.find((s) => s.id === semanaAtiva)
-    const discurso = partes.find(
-      (p) => p.semana_id === semanaAtiva && p.secao === "tesouros" && p.ordem === TESOUROS_ORDEM.DISCURSO
-    )
-    try {
-      const response = await fetch("/api/ia/joias-espirituais", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          titulo: discurso?.titulo || "",
-          leituraSemanal: semana?.leitura_semanal || "",
-          apenas: numero,
-        }),
-      })
-      if (response.ok) {
-        const data = await response.json()
-        const campo = numero === 1 ? "pergunta1" : "pergunta2"
-        const valor = numero === 1 ? data.pergunta1 : data.pergunta2
-        if (valor) {
-          await atualizarParte(parteId, campo, valor)
-          toast.success(`Pergunta ${numero} gerada!`)
-        } else {
-          toast.error("Não foi possível gerar a pergunta")
-        }
-      } else {
-        toast.error("Erro ao gerar pergunta")
-      }
-    } catch (error) {
-      console.error("Erro ao gerar pergunta individual:", error)
-      toast.error("Erro ao gerar pergunta")
-    } finally {
-      setGerandoPerguntaIndividual(null)
-    }
-  }
-
-  // ──────────────────────────────────────────────
-  // IA – Gerar descrição do Ministério
-  // ──────────────────────────────────────────────
-  const gerarDescricaoMinisterio = async (parte: Parte) => {
-    if (!parte.titulo) {
-      toast.error("Preencha o título da parte antes de gerar a descrição")
-      return
-    }
-    setGerandoDescricao(parte.id)
-    const temAjudante = !!parte.ajudante_id
-    const tipo = temAjudante ? "duas pessoas conversando" : "discurso"
-    try {
-      const response = await fetch("/api/ia/descricao-ministerio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ titulo: parte.titulo, tipo }),
-      })
-      if (response.ok) {
-        const data = await response.json()
-        if (data.descricao) await atualizarParte(parte.id, "descricao", data.descricao)
-        toast.success("Descrição gerada com sucesso!")
-      } else {
-        toast.error("Erro ao gerar descrição")
-      }
-    } catch (error) {
-      console.error("Erro ao gerar descrição ministerio:", error)
-      toast.error("Erro ao gerar descrição")
-    } finally {
-      setGerandoDescricao(null)
     }
   }
 
@@ -508,9 +321,14 @@ export default function AdminVidaMinisterioPage() {
               />
               <div className="flex items-center gap-1.5 shrink-0">
                 <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
                   value={parte.tempo || ""}
-                  onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
-                  placeholder="min"
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "")
+                    atualizarParte(parte.id, "tempo", val)
+                  }}
                   className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
                 />
                 <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
@@ -527,175 +345,8 @@ export default function AdminVidaMinisterioPage() {
           </Button>
         </div>
 
-        {/* ── PARTE 1: Textos de pontos ── */}
-        {parte.ordem === TESOUROS_ORDEM.DISCURSO && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-zinc-400 text-xs">Pontos do discurso</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs h-7"
-                onClick={() => adicionarTexto(parte.id)}
-              >
-                <Plus className="w-3 h-3 mr-1" /> Adicionar ponto
-              </Button>
-            </div>
-            {(parte.textos || []).length === 0 && (
-              <p className="text-zinc-600 text-xs py-1">Nenhum ponto adicionado</p>
-            )}
-            {(parte.textos || []).map((texto, idx) => (
-              <div key={idx} className="flex items-start gap-2">
-                <Textarea
-                  value={texto}
-                  onChange={(e) => atualizarTexto(parte.id, idx, e.target.value)}
-                  placeholder={`Ponto ${idx + 1} (ex: Não existe ninguém igual a Jeová. (Isa. 46:9; w20.06 5 § 14))`}
-                  className="bg-zinc-900 border-zinc-700 text-sm min-h-[60px] resize-none"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 shrink-0 mt-1"
-                  onClick={() => removerTexto(parte.id, idx)}
-                >
-                  <X className="w-4 h-4 text-zinc-500 hover:text-red-400" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ── PARTE 2: Joias Espirituais ── */}
-        {parte.ordem === TESOUROS_ORDEM.JOIAS && (
-          <div className="space-y-4">
-            {/* Pergunta 1 */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-zinc-500 text-xs">Pergunta 1 (com referência bíblica)</Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
-                  onClick={() => gerarPerguntaIndividual(parte.id, 1)}
-                  disabled={gerandoPerguntaIndividual === `${parte.id}-1`}
-                >
-                  {gerandoPerguntaIndividual === `${parte.id}-1` ? (
-                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                  ) : (
-                    <Sparkles className="h-3 w-3 mr-1" />
-                  )}
-                  Gerar por IA
-                </Button>
-              </div>
-              <Input
-                value={parte.pergunta1 || ""}
-                onChange={(e) => atualizarParte(parte.id, "pergunta1", e.target.value)}
-                placeholder="Ex: Isa. 46:10 — Será que Jeová sabia 'desde o princípio'? (w11 1/1 14 §§ 2-3)"
-                className="bg-zinc-900 border-zinc-700 text-sm"
-              />
-              <Textarea
-                value={parte.resposta1 || ""}
-                onChange={(e) => atualizarParte(parte.id, "resposta1", e.target.value)}
-                placeholder="Resposta ou observações para a pergunta 1"
-                className="bg-zinc-900 border-zinc-700 text-sm min-h-[60px] resize-none"
-              />
-            </div>
-
-            {/* Pergunta 2 */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-zinc-500 text-xs">Pergunta 2</Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
-                  onClick={() => gerarPerguntaIndividual(parte.id, 2)}
-                  disabled={gerandoPerguntaIndividual === `${parte.id}-2`}
-                >
-                  {gerandoPerguntaIndividual === `${parte.id}-2` ? (
-                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                  ) : (
-                    <Sparkles className="h-3 w-3 mr-1" />
-                  )}
-                  Gerar por IA
-                </Button>
-              </div>
-              <Input
-                value={parte.pergunta2 || ""}
-                onChange={(e) => atualizarParte(parte.id, "pergunta2", e.target.value)}
-                placeholder="Que joias espirituais você encontrou na leitura da Bíblia desta semana?"
-                className="bg-zinc-900 border-zinc-700 text-sm"
-              />
-              <Textarea
-                value={parte.resposta2 || ""}
-                onChange={(e) => atualizarParte(parte.id, "resposta2", e.target.value)}
-                placeholder="Resposta ou observações para a pergunta 2"
-                className="bg-zinc-900 border-zinc-700 text-sm min-h-[60px] resize-none"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* ── PARTE 3: Leitura da Bíblia ── */}
-        {parte.ordem === TESOUROS_ORDEM.LEITURA && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label className="text-zinc-500 text-xs">Texto da Bíblia a ser lido</Label>
-                <Input
-                  value={parte.texto_biblia || ""}
-                  onChange={(e) => atualizarParte(parte.id, "texto_biblia", e.target.value)}
-                  placeholder="Ex: Isa. 45:1-11"
-                  className="bg-zinc-900 border-zinc-700 text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-zinc-500 text-xs">Lição (publicação)</Label>
-                <Input
-                  value={parte.licao || ""}
-                  onChange={(e) => atualizarParte(parte.id, "licao", e.target.value)}
-                  placeholder="Ex: th lição 5"
-                  className="bg-zinc-900 border-zinc-700 text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Participante (sem sala, sem ajudante) */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => buscarSugestoesIA(parte.id, parte.titulo, "tesouros")}
-              disabled={buscandoSugestao === parte.id}
-              className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
-            >
-              {buscandoSugestao === parte.id ? (
-                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              ) : (
-                <Sparkles className="h-3 w-3 mr-1" />
-              )}
-              Sugerir com IA
-            </Button>
-
-            {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
-              <div className="flex items-center gap-1 flex-wrap">
-                {sugestoes[parte.id].map((sug, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
-                    className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
-                    title={sug.motivo}
-                  >
-                    {sug.nome}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
           <Select
             value={parte.participante_id || "none"}
             onValueChange={(value) => {
@@ -723,7 +374,7 @@ export default function AdminVidaMinisterioPage() {
     )
   }
 
-  // ──────────────────────────────────────────────
+  // ────────────────────────────────────���─────────
   // Renderização de parte: Faça Seu Melhor no Ministério
   // ──────────────────────────────────────────────
   const renderParteMinisterio = (parte: Parte, numeroParte?: number) => {
@@ -747,9 +398,14 @@ export default function AdminVidaMinisterioPage() {
               />
               <div className="flex items-center gap-1.5 shrink-0">
                 <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
                   value={parte.tempo || ""}
-                  onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
-                  placeholder="min"
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "")
+                    atualizarParte(parte.id, "tempo", val)
+                  }}
                   className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
                 />
                 <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
@@ -770,36 +426,6 @@ export default function AdminVidaMinisterioPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {/* Participante */}
           <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => buscarSugestoesIA(parte.id, parte.titulo, "ministerio")}
-                disabled={buscandoSugestao === parte.id}
-                className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400 h-7"
-              >
-                {buscandoSugestao === parte.id ? (
-                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                ) : (
-                  <Sparkles className="h-3 w-3 mr-1" />
-                )}
-                Sugerir com IA
-              </Button>
-              {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
-                <div className="flex items-center gap-1 flex-wrap">
-                  {sugestoes[parte.id].map((sug, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
-                      className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
-                      title={sug.motivo}
-                    >
-                      {sug.nome}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
             <Select
               value={parte.participante_id || "none"}
               onValueChange={(value) => {
@@ -858,36 +484,6 @@ export default function AdminVidaMinisterioPage() {
           </div>
         </div>
 
-        {/* Descrição */}
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <Label className="text-zinc-400 text-xs">Descrição / Instrução da parte</Label>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
-              onClick={() => gerarDescricaoMinisterio(parte)}
-              disabled={gerandoDescricao === parte.id}
-            >
-              {gerandoDescricao === parte.id ? (
-                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              ) : (
-                <Sparkles className="h-3 w-3 mr-1" />
-              )}
-              Gerar por IA
-            </Button>
-          </div>
-          <Textarea
-            value={parte.descricao || ""}
-            onChange={(e) => atualizarParte(parte.id, "descricao", e.target.value)}
-            placeholder={
-              temAjudante
-                ? "Ex: DE CASA EM CASA. Ofereça um estudo bíblico para uma pessoa que aceitou o convite. (lmd lição 9 ponto 5)"
-                : "Ex: TESTEMUNHO PÚBLICO. Explique para uma pessoa como é a Celebração. (lmd lição 5 ponto 3)"
-            }
-            className="bg-zinc-900 border-zinc-700 text-sm min-h-[70px] resize-none"
-          />
-        </div>
       </div>
     )
   }
@@ -909,60 +505,34 @@ export default function AdminVidaMinisterioPage() {
               placeholder="Título da parte"
               className="bg-zinc-900 border-zinc-700 text-sm flex-1"
             />
-            <div className="flex items-center gap-1.5 shrink-0">
-              <Input
-                value={parte.tempo || ""}
-                onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
-                placeholder="min"
-                className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
-              />
-              <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  value={parte.tempo || ""}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "")
+                    atualizarParte(parte.id, "tempo", val)
+                  }}
+                  className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
+                />
+                <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
+              </div>
             </div>
           </div>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => removerParte(parte.id)}
-        >
-          <Trash2 className="w-4 h-4 text-red-400" />
-        </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => removerParte(parte.id)}
+          >
+            <Trash2 className="w-4 h-4 text-red-400" />
+          </Button>
       </div>
 
-      {/* Sugestões IA + Participante */}
+      {/* Participante */}
       <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => buscarSugestoesIA(parte.id, parte.titulo, secaoId)}
-            disabled={buscandoSugestao === parte.id}
-            className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
-          >
-            {buscandoSugestao === parte.id ? (
-              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-            ) : (
-              <Sparkles className="h-3 w-3 mr-1" />
-            )}
-            Sugerir com IA
-          </Button>
-          {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
-            <div className="flex items-center gap-1 flex-wrap">
-              {sugestoes[parte.id].map((sug, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
-                  className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
-                  title={sug.motivo}
-                >
-                  {sug.nome}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
         <Select
           value={parte.participante_id || "none"}
           onValueChange={(value) => {
@@ -1049,6 +619,8 @@ export default function AdminVidaMinisterioPage() {
   // ──────────────────────────────────────────────
   // JSX principal
   // ──────────────────────────────────────────────
+  if (loading) return <CenteredLoader />
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -1135,11 +707,24 @@ export default function AdminVidaMinisterioPage() {
             {semanaAtualData ? (
               <>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg text-white flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    {formatarData(semanaAtualData.data_inicio)} -{" "}
-                    {formatarData(semanaAtualData.data_fim)}
-                  </CardTitle>
+                  <div className="flex items-start justify-between gap-4">
+                    <CardTitle className="text-lg text-white flex items-center gap-2">
+                      <BookOpen className="w-5 h-5" />
+                      {formatarData(semanaAtualData.data_inicio)} -{" "}
+                      {formatarData(semanaAtualData.data_fim)}
+                    </CardTitle>
+                    <div className="flex flex-col gap-1 min-w-[200px]">
+                      <Label className="text-zinc-400 text-xs">Livro e Capítulos</Label>
+                      <Input
+                        value={semanaAtualData.livro_biblia || ""}
+                        onChange={(e) =>
+                          atualizarSemana(semanaAtualData.id, "livro_biblia", e.target.value)
+                        }
+                        placeholder="Ex: Salmos 10-15"
+                        className="bg-zinc-800 border-zinc-700 h-8 text-sm"
+                      />
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Checkbox Sem Reunião */}
@@ -1201,6 +786,42 @@ export default function AdminVidaMinisterioPage() {
                         />
                       </div>
                     ))}
+                  </div>
+                  )}
+
+                  {/* Presidente e Oração Inicial */}
+                  {!semanaAtualData.sem_reuniao && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label className="text-zinc-400 text-xs">Presidente</Label>
+                      <select
+                        value={semanaAtualData.presidente || ""}
+                        onChange={(e) =>
+                          atualizarSemana(semanaAtualData.id, "presidente", e.target.value || null)
+                        }
+                        className="w-full h-9 rounded-md border border-zinc-700 bg-zinc-800 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Selecionar...</option>
+                        {publicadores.map((p) => (
+                          <option key={p.id} value={p.nome}>{p.nome}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-zinc-400 text-xs">Oração Inicial</Label>
+                      <select
+                        value={semanaAtualData.oracao_inicial || ""}
+                        onChange={(e) =>
+                          atualizarSemana(semanaAtualData.id, "oracao_inicial", e.target.value || null)
+                        }
+                        className="w-full h-9 rounded-md border border-zinc-700 bg-zinc-800 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Selecionar...</option>
+                        {publicadores.map((p) => (
+                          <option key={p.id} value={p.nome}>{p.nome}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   )}
 

@@ -16,6 +16,7 @@ interface EquipeTecnica {
   indicador2_nome: string | null
   microvolante1_nome: string | null
   microvolante2_nome: string | null
+  microvolante_palco: 1 | 2 | null
   som_nome: string | null
 }
 
@@ -62,8 +63,9 @@ export default function ConsultaEquipeTecnicaPage() {
   }
 
   const formatarData = (data: string) => {
-    const d = new Date(data + "T00:00:00")
-    return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+    // Extrai dia/mês diretamente da string "YYYY-MM-DD" para evitar offset UTC
+    const [, m, d] = data.split("-")
+    return `${d}/${m}`
   }
 
   const getDiaSemanaLabel = (dia: string) => {
@@ -162,8 +164,22 @@ export default function ConsultaEquipeTecnicaPage() {
                       Microfone Volante
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-white">{d.microvolante1_nome || "-"}</p>
-                      <p className="text-sm text-white">{d.microvolante2_nome || "-"}</p>
+                      <p className="text-sm text-white flex items-center gap-1.5">
+                        {d.microvolante1_nome || "-"}
+                        {d.microvolante_palco === 1 && (
+                          <span className="text-xs font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/30 px-1.5 py-0.5 rounded">
+                            Palco
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-sm text-white flex items-center gap-1.5">
+                        {d.microvolante2_nome || "-"}
+                        {d.microvolante_palco === 2 && (
+                          <span className="text-xs font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/30 px-1.5 py-0.5 rounded">
+                            Palco
+                          </span>
+                        )}
+                      </p>
                     </div>
                   </div>
 

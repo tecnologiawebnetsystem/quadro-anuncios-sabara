@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo } from "react"
 import { ArrowLeft, ArrowRight, Mic, Volume2, Users, Wand2, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { SeletorPublicador, type Publicador } from "@/components/reuniao/seletor-publicador"
 import { toast } from "sonner"
 
@@ -20,6 +22,7 @@ interface EquipeTecnica {
   microvolante1_nome: string | null
   microvolante2_id: string | null
   microvolante2_nome: string | null
+  microvolante_palco: 1 | 2 | null
   som_id: string | null
   som_nome: string | null
 }
@@ -153,6 +156,53 @@ export default function EquipeTecnicaPage() {
     }
   }
   
+  // Salvar qual microfone volante cuida do palco
+  async function salvarPalco(
+    reuniao: { data: string; dia_semana: string },
+    numero: 1 | 2,
+    marcado: boolean
+  ) {
+    const chave = `${reuniao.data}-${reuniao.dia_semana}`
+    const designacaoExistente = designacoes[chave]
+    const valorAtual = designacaoExistente?.microvolante_palco ?? null
+    // Se já está marcado e clicou de novo, desmarca (toggle)
+    const novoValor: 1 | 2 | null = marcado ? numero : (valorAtual === numero ? null : numero)
+
+    const novaDesignacao: EquipeTecnica = {
+      ...designacaoExistente,
+      mes: mesAtual.value,
+      data: reuniao.data,
+      dia_semana: reuniao.dia_semana,
+      microvolante_palco: novoValor,
+    }
+
+    setSalvando(chave)
+    try {
+      const method = designacaoExistente?.id ? "PUT" : "POST"
+      const body = designacaoExistente?.id
+        ? { id: designacaoExistente.id, ...novaDesignacao }
+        : novaDesignacao
+
+      const response = await fetch("/api/equipe-tecnica", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setDesignacoes(prev => ({ ...prev, [chave]: data }))
+        toast.success(novoValor ? `Microfone ${novoValor} marcado como Palco` : "Palco desmarcado")
+      } else {
+        toast.error("Erro ao salvar")
+      }
+    } catch {
+      toast.error("Erro ao salvar")
+    } finally {
+      setSalvando(null)
+    }
+  }
+
   // Navegação entre meses
   const irParaMesAnterior = () => {
     if (mesAtualIndex > 0) {
@@ -238,14 +288,17 @@ export default function EquipeTecnicaPage() {
           onClick={gerarEscalaIA}
           disabled={gerandoEscala}
           className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
-        >
-          {gerandoEscala ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Wand2 className="h-4 w-4 mr-2" />
-          )}
-          Gerar Escala com IA
-        </Button>
+        disabled
+        className="opacity-50 cursor-not-allowed"
+        title="Função desabilitada"
+      >
+        {gerandoEscala ? (
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+        ) : (
+          <Wand2 className="h-4 w-4 mr-2" />
+        )}
+        Gerar Escala com IA
+      </Button>
       </div>
 
       {/* Navegação do Mês */}
@@ -276,8 +329,9 @@ export default function EquipeTecnicaPage() {
       
       {/* Lista de Reuniões */}
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+        <div className="flex flex-col items-center justify-center gap-3 py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Buscando informações...</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -339,20 +393,61 @@ export default function EquipeTecnicaPage() {
                       Microfone Volante
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <SeletorPublicador
-                        value={designacao.microvolante1_id || undefined}
-                        onSelect={(p) => salvarDesignacao(reuniao, "microvolante1", p)}
-                        filtro="todos"
-                        placeholder="Microfone Volante 1"
-                        disabled={salvando === chave}
-                      />
-                      <SeletorPublicador
-                        value={designacao.microvolante2_id || undefined}
-                        onSelect={(p) => salvarDesignacao(reuniao, "microvolante2", p)}
-                        filtro="todos"
-                        placeholder="Microfone Volante 2"
-                        disabled={salvando === chave}
-                      />
+                      {/* Microfone Volante 1 */}
+                      <div className="space-y-2">
+                        <SeletorPublicador
+                          value={designacao.microvolante1_id || undefined}
+                          onSelect={(p) => salvarDesignacao(reuniao, "microvolante1", p)}
+                          filtro="todos"
+                          placeholder="Microfone Volante 1"
+                          disabled={salvando === chave}
+                        />
+                        <div className="flex items-center gap-2 pl-1">
+                          <Checkbox
+                            id={`palco-1-${chave}`}
+                            checked={designacao.microvolante_palco === 1}
+                            onCheckedChange={(checked) =>
+                              salvarPalco(reuniao, 1, !!checked)
+                            }
+                            disabled={salvando === chave || !designacao.microvolante1_id}
+                            className="border-purple-400 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                          />
+                          <Label
+                            htmlFor={`palco-1-${chave}`}
+                            className="text-xs text-muted-foreground cursor-pointer select-none"
+                          >
+                            Palco
+                          </Label>
+                        </div>
+                      </div>
+
+                      {/* Microfone Volante 2 */}
+                      <div className="space-y-2">
+                        <SeletorPublicador
+                          value={designacao.microvolante2_id || undefined}
+                          onSelect={(p) => salvarDesignacao(reuniao, "microvolante2", p)}
+                          filtro="todos"
+                          placeholder="Microfone Volante 2"
+                          disabled={salvando === chave}
+                        />
+                        <div className="flex items-center gap-2 pl-1">
+                          <Checkbox
+                            id={`palco-2-${chave}`}
+                            checked={designacao.microvolante_palco === 2}
+                            onCheckedChange={(checked) =>
+                              salvarPalco(reuniao, 2, !!checked)
+                            }
+                            disabled={salvando === chave || !designacao.microvolante2_id}
+                            className="border-purple-400 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                          />
+                          <Label
+                            htmlFor={`palco-2-${chave}`}
+                            className="text-xs text-muted-foreground cursor-pointer select-none"
+                          >
+                            Palco
+                          </Label>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   
