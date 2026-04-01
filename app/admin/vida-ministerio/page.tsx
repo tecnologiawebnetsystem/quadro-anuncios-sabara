@@ -234,7 +234,7 @@ export default function AdminVidaMinisterioPage() {
 
   // ────────────────���─────────────────────────────
   // Partes genéricas
-  // ────���─────────────────────────────────────────
+  // ────���───────��─────────────────────────────────
   const adicionarParte = async (semanaId: string, secao: string) => {
     const partesSecao = partes.filter((p) => p.semana_id === semanaId && p.secao === secao)
     const ordem = partesSecao.length + 1
@@ -321,9 +321,14 @@ export default function AdminVidaMinisterioPage() {
               />
               <div className="flex items-center gap-1.5 shrink-0">
                 <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
                   value={parte.tempo || ""}
-                  onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
-                  placeholder="min"
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "")
+                    atualizarParte(parte.id, "tempo", val)
+                  }}
                   className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
                 />
                 <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
@@ -393,9 +398,14 @@ export default function AdminVidaMinisterioPage() {
               />
               <div className="flex items-center gap-1.5 shrink-0">
                 <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
                   value={parte.tempo || ""}
-                  onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
-                  placeholder="min"
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "")
+                    atualizarParte(parte.id, "tempo", val)
+                  }}
                   className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
                 />
                 <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
@@ -495,25 +505,30 @@ export default function AdminVidaMinisterioPage() {
               placeholder="Título da parte"
               className="bg-zinc-900 border-zinc-700 text-sm flex-1"
             />
-            <div className="flex items-center gap-1.5 shrink-0">
-              <Input
-                value={parte.tempo || ""}
-                onChange={(e) => atualizarParte(parte.id, "tempo", e.target.value)}
-                placeholder="min"
-                className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
-              />
-              <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  value={parte.tempo || ""}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "")
+                    atualizarParte(parte.id, "tempo", val)
+                  }}
+                  className="bg-zinc-900 border-zinc-700 text-sm w-16 text-center"
+                />
+                <span className="text-zinc-500 text-xs whitespace-nowrap">min</span>
+              </div>
             </div>
           </div>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => removerParte(parte.id)}
-        >
-          <Trash2 className="w-4 h-4 text-red-400" />
-        </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => removerParte(parte.id)}
+          >
+            <Trash2 className="w-4 h-4 text-red-400" />
+          </Button>
       </div>
 
       {/* Participante */}
