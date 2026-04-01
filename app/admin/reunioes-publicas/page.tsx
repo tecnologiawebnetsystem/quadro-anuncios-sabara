@@ -199,34 +199,24 @@ export default function ReunioesPublicasPage() {
   // Salvar discurso público
   async function salvarDiscurso(data: string, campo: string, valor: string) {
     const existente = discursos.find(d => d.data === data)
-    
-    console.log("[v0] salvarDiscurso chamado:", { data, campo, valor, existente })
-    
-    const dadosBase: Partial<DiscursoPublico> = { data }
-    
-    if (campo === "tema") {
-      dadosBase.tema = valor
-    } else if (campo === "orador_nome") {
-      dadosBase.orador_nome = valor
-    } else if (campo === "orador_congregacao") {
-      dadosBase.orador_congregacao = valor
-    }
-    
+
     try {
       if (existente?.id) {
-        console.log("[v0] Atualizando discurso existente id:", existente.id, "dados:", dadosBase)
+        const dadosUpdate: Partial<DiscursoPublico> = {}
+        if (campo === "tema") dadosUpdate.tema = valor
+        else if (campo === "orador_nome") dadosUpdate.orador_nome = valor
+        else if (campo === "orador_congregacao") dadosUpdate.orador_congregacao = valor
+
         const { error } = await supabase
           .from("discursos_publicos")
-          .update(dadosBase)
+          .update(dadosUpdate)
           .eq("id", existente.id)
-        
-        if (error) {
-          console.error("[v0] Erro no UPDATE discursos_publicos:", error)
-          throw error
-        }
-        
-        setDiscursos(prev => prev.map(d => d.id === existente.id ? { ...d, ...dadosBase } as DiscursoPublico : d))
+
+        if (error) throw error
+
+        setDiscursos(prev => prev.map(d => d.id === existente.id ? { ...d, ...dadosUpdate } as DiscursoPublico : d))
       } else {
+        // Usa upsert para evitar erro de violação de UNIQUE (data)
         const novosDados: DiscursoPublico = {
           data,
           tema: campo === "tema" ? valor : "",
@@ -234,29 +224,29 @@ export default function ReunioesPublicasPage() {
           orador_congregacao: campo === "orador_congregacao" ? valor : null,
           observacoes: null,
         }
-        
-        console.log("[v0] Inserindo novo discurso:", novosDados)
+
         const { data: novoData, error } = await supabase
           .from("discursos_publicos")
-          .insert(novosDados)
+          .upsert(novosDados, { onConflict: "data" })
           .select()
           .single()
-        
-        if (error) {
-          console.error("[v0] Erro no INSERT discursos_publicos:", error)
-          console.error("[v0] Código do erro:", error.code)
-          console.error("[v0] Mensagem do erro:", error.message)
-          console.error("[v0] Detalhes do erro:", error.details)
-          console.error("[v0] Hint do erro:", error.hint)
-          throw error
-        }
-        
-        setDiscursos(prev => [...prev, novoData])
+
+        if (error) throw error
+
+        setDiscursos(prev => {
+          const idx = prev.findIndex(d => d.data === data)
+          if (idx >= 0) {
+            const atualizado = [...prev]
+            atualizado[idx] = novoData
+            return atualizado
+          }
+          return [...prev, novoData]
+        })
       }
-      
+
       toast.success("Salvo com sucesso")
     } catch (error) {
-      console.error("[v0] Erro ao salvar discurso (catch final):", error)
+      console.error("Erro ao salvar discurso:", error)
       toast.error("Erro ao salvar")
     }
   }
