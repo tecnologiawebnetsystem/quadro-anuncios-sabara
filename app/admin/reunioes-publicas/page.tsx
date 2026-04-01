@@ -200,6 +200,8 @@ export default function ReunioesPublicasPage() {
   async function salvarDiscurso(data: string, campo: string, valor: string) {
     const existente = discursos.find(d => d.data === data)
     
+    console.log("[v0] salvarDiscurso chamado:", { data, campo, valor, existente })
+    
     const dadosBase: Partial<DiscursoPublico> = { data }
     
     if (campo === "tema") {
@@ -212,12 +214,16 @@ export default function ReunioesPublicasPage() {
     
     try {
       if (existente?.id) {
+        console.log("[v0] Atualizando discurso existente id:", existente.id, "dados:", dadosBase)
         const { error } = await supabase
           .from("discursos_publicos")
           .update(dadosBase)
           .eq("id", existente.id)
         
-        if (error) throw error
+        if (error) {
+          console.error("[v0] Erro no UPDATE discursos_publicos:", error)
+          throw error
+        }
         
         setDiscursos(prev => prev.map(d => d.id === existente.id ? { ...d, ...dadosBase } as DiscursoPublico : d))
       } else {
@@ -229,20 +235,28 @@ export default function ReunioesPublicasPage() {
           observacoes: null,
         }
         
+        console.log("[v0] Inserindo novo discurso:", novosDados)
         const { data: novoData, error } = await supabase
           .from("discursos_publicos")
           .insert(novosDados)
           .select()
           .single()
         
-        if (error) throw error
+        if (error) {
+          console.error("[v0] Erro no INSERT discursos_publicos:", error)
+          console.error("[v0] Código do erro:", error.code)
+          console.error("[v0] Mensagem do erro:", error.message)
+          console.error("[v0] Detalhes do erro:", error.details)
+          console.error("[v0] Hint do erro:", error.hint)
+          throw error
+        }
         
         setDiscursos(prev => [...prev, novoData])
       }
       
       toast.success("Salvo com sucesso")
     } catch (error) {
-      console.error("Erro ao salvar:", error)
+      console.error("[v0] Erro ao salvar discurso (catch final):", error)
       toast.error("Erro ao salvar")
     }
   }
