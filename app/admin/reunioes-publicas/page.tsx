@@ -108,11 +108,13 @@ export default function ReunioesPublicasPage() {
         if (designacoesData) setDesignacoes(designacoesData)
         
         // Carregar discursos públicos
+        const [anoStr, mesStr] = mesAtual.value.split("-")
+        const ultimoDiaDoMes = new Date(Number(anoStr), Number(mesStr), 0).getDate()
         const { data: discursosData } = await supabase
           .from("discursos_publicos")
           .select("*")
           .gte("data", `${mesAtual.value}-01`)
-          .lte("data", `${mesAtual.value}-31`)
+          .lte("data", `${mesAtual.value}-${String(ultimoDiaDoMes).padStart(2, "0")}`)
           .order("data")
         
         if (discursosData) setDiscursos(discursosData)
