@@ -200,6 +200,14 @@ export default function ReunioesPublicasPage() {
   async function salvarDiscurso(data: string, campo: string, valor: string) {
     const existente = discursos.find(d => d.data === data)
 
+    console.log("[v0] salvarDiscurso =>", { data, campo, valor, existenteId: existente?.id, existente })
+
+    // Não salvar se o valor estiver vazio e não houver registro existente
+    if (!valor.trim() && !existente?.id) {
+      console.log("[v0] Valor vazio sem registro existente, abortando")
+      return
+    }
+
     try {
       if (existente?.id) {
         const dadosUpdate: Partial<DiscursoPublico> = {}
@@ -207,16 +215,22 @@ export default function ReunioesPublicasPage() {
         else if (campo === "orador_nome") dadosUpdate.orador_nome = valor
         else if (campo === "orador_congregacao") dadosUpdate.orador_congregacao = valor
 
-        const { error } = await supabase
+        console.log("[v0] UPDATE id:", existente.id, "dados:", dadosUpdate)
+        const { data: updated, error } = await supabase
           .from("discursos_publicos")
           .update(dadosUpdate)
           .eq("id", existente.id)
+          .select()
+          .single()
 
-        if (error) throw error
+        if (error) {
+          console.error("[v0] Erro UPDATE:", JSON.stringify(error))
+          throw error
+        }
 
+        console.log("[v0] UPDATE ok:", updated)
         setDiscursos(prev => prev.map(d => d.id === existente.id ? { ...d, ...dadosUpdate } as DiscursoPublico : d))
       } else {
-        // Usa upsert para evitar erro de violação de UNIQUE (data)
         const novosDados: DiscursoPublico = {
           data,
           tema: campo === "tema" ? valor : "",
@@ -225,14 +239,19 @@ export default function ReunioesPublicasPage() {
           observacoes: null,
         }
 
+        console.log("[v0] UPSERT dados:", novosDados)
         const { data: novoData, error } = await supabase
           .from("discursos_publicos")
           .upsert(novosDados, { onConflict: "data" })
           .select()
           .single()
 
-        if (error) throw error
+        if (error) {
+          console.error("[v0] Erro UPSERT:", JSON.stringify(error))
+          throw error
+        }
 
+        console.log("[v0] UPSERT ok:", novoData)
         setDiscursos(prev => {
           const idx = prev.findIndex(d => d.data === data)
           if (idx >= 0) {
@@ -246,7 +265,7 @@ export default function ReunioesPublicasPage() {
 
       toast.success("Salvo com sucesso")
     } catch (error) {
-      console.error("Erro ao salvar discurso:", error)
+      console.error("[v0] catch final:", JSON.stringify(error))
       toast.error("Erro ao salvar")
     }
   }
