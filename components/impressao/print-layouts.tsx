@@ -217,7 +217,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 borderRadius: "4px"
               }}>
                 <div style={{ fontSize: "13px", fontWeight: "bold" }}>
-                  {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)} | {semana.leitura_semanal?.toUpperCase() || ""}
+                  {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)} | {semana.livro_biblia?.toUpperCase() || ""}
                 </div>
               </div>
 
