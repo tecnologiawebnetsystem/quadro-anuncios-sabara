@@ -521,7 +521,7 @@ export default function ConsultaPage() {
                   )}
                 </div>
                 <span className="rounded-lg bg-amber-600/20 px-3 py-1.5 text-sm font-medium text-amber-400">
-                  {format(new Date(proximoDiscurso.data), "EEEE, d/MM", { locale: ptBR })}
+                  {format(new Date(proximoDiscurso.data + "T12:00:00"), "EEEE, d/MM", { locale: ptBR })}
                 </span>
               </div>
             </CardContent>
@@ -689,7 +689,7 @@ export default function ConsultaPage() {
                 <div>
                   <p className="text-sm font-medium text-white">Discurso Publico</p>
                   <p className="text-xs text-zinc-400">
-                    {format(new Date(proximoDiscurso.data), "EEEE", { locale: ptBR })}: <span className="text-amber-400">{proximoDiscurso.tema || "Tema a definir"}</span>
+                    {format(new Date(proximoDiscurso.data + "T12:00:00"), "EEEE", { locale: ptBR })}: <span className="text-amber-400">{proximoDiscurso.tema || "Tema a definir"}</span>
                     {proximoDiscurso.orador_nome && ` - ${proximoDiscurso.orador_nome}`}
                   </p>
                 </div>
@@ -706,7 +706,9 @@ export default function ConsultaPage() {
                 </div>
                 {equipeSemana.map((reuniao, i) => {
                   const diaLabel = reuniao.dia_semana === "quinta" ? "Quinta-Feira" : "Domingo"
-                  const dataLabel = format(new Date(reuniao.data), "dd/MM", { locale: ptBR })
+                  // Usar parseISO evita o offset UTC que deslocaria a data um dia para trás no fuso BR
+                  const [ano, mes, dia] = reuniao.data.split("-")
+                  const dataLabel = `${dia}/${mes}`
                   return (
                     <div key={i} className="space-y-2">
                       <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
