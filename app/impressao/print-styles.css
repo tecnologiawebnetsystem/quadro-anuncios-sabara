@@ -398,6 +398,13 @@
 }
 
 @media print {
+  /* Remove cabeçalho e rodapé padrão do navegador */
+  @page {
+    margin: 10mm;
+    margin-top: 5mm;
+    margin-bottom: 5mm;
+  }
+  
   .vida-ministerio-print {
     padding: 0;
     max-width: 100%;

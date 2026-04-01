@@ -187,24 +187,27 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
             }}>
               {/* Cabeçalho da Congregação */}
               <div style={{ 
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
                 borderBottom: "2px solid #374151",
                 paddingBottom: "8px",
                 marginBottom: "12px"
               }}>
-                <div style={{ 
-                  fontSize: "11px", 
-                  color: "#6b7280", 
-                  marginBottom: "2px",
-                  fontWeight: "500"
-                }}>
-                  Reunião do meio de semana
-                </div>
                 <div style={{ 
                   fontSize: "14px", 
                   fontWeight: "bold", 
                   color: "#111827"
                 }}>
                   Parque Sabará - Taubaté SP
+                </div>
+                <div style={{ 
+                  fontSize: "14px", 
+                  fontWeight: "bold", 
+                  color: "#111827",
+                  textAlign: "right"
+                }}>
+                  Reunião do meio de semana
                 </div>
               </div>
 
@@ -267,9 +270,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 fontWeight: "600",
                 color: "#374151",
                 padding: "6px 10px",
-                marginBottom: "12px",
-                backgroundColor: "#f9fafb",
-                borderRadius: "4px"
+                marginBottom: "12px"
               }}>
                 Comentários iniciais
               </div>
@@ -412,9 +413,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 fontWeight: "600",
                 color: "#374151",
                 padding: "6px 10px",
-                marginBottom: "8px",
-                backgroundColor: "#f9fafb",
-                borderRadius: "4px"
+                marginBottom: "8px"
               }}>
                 Comentários finais
               </div>
@@ -445,17 +444,6 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
             </div>
           )
         })}
-
-        <div style={{ 
-          textAlign: "center", 
-          fontSize: "9px", 
-          color: "#6b7280",
-          marginTop: "16px",
-          paddingTop: "8px",
-          borderTop: "1px solid #e5e7eb"
-        }}>
-          Congregação Pq. Sabará - {getMesAno(mes, ano)}
-        </div>
       </div>
     )
   }
