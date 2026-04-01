@@ -47,6 +47,7 @@ interface Semana {
   data_inicio: string
   data_fim: string
   leitura_semanal: string
+  livro_biblia: string | null
   cantico_inicial: number | null
   cantico_meio: number | null
   cantico_final: number | null
@@ -290,10 +291,10 @@ export default function ConsultaVidaMinisterioPage() {
                       <h3 className="text-lg font-bold text-white">
                         {formatarDataCompleta(semanaAtualData.data_inicio, semanaAtualData.data_fim)}
                       </h3>
-                      {semanaAtualData.leitura_semanal && (
+                      {(semanaAtualData.livro_biblia || semanaAtualData.leitura_semanal) && (
                         <p className="text-sm text-zinc-400 flex items-center gap-2 mt-1">
                           <BookOpen className="w-4 h-4" />
-                          Leitura: {semanaAtualData.leitura_semanal}
+                          Leitura: {semanaAtualData.livro_biblia || semanaAtualData.leitura_semanal}
                         </p>
                       )}
                     </div>

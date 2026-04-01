@@ -78,6 +78,7 @@ interface VidaMinisterioSemana {
   data_inicio: string
   data_fim: string
   leitura_semanal: string
+  livro_biblia: string | null
   sem_reuniao?: boolean
   motivo_sem_reuniao?: string
 }
@@ -313,7 +314,7 @@ export default function ConsultaPage() {
         // Buscar semanas do Vida e Ministério (quinta-feira)
         const { data: vidaMinisterioData } = await supabase
           .from("vida_ministerio_semanas")
-          .select("data_inicio, data_fim, leitura_semanal, sem_reuniao, motivo_sem_reuniao")
+          .select("data_inicio, data_fim, leitura_semanal, livro_biblia, sem_reuniao, motivo_sem_reuniao")
         if (vidaMinisterioData) {
           setVidaMinisterioSemanas(vidaMinisterioData)
         }
@@ -440,7 +441,7 @@ export default function ConsultaPage() {
               {tooltip.vidaMinisterio.sem_reuniao ? (
                 <p className="text-[10px] text-amber-400">Sem reunião: {tooltip.vidaMinisterio.motivo_sem_reuniao || "Semana especial"}</p>
               ) : (
-                <p className="text-[10px] text-zinc-300">{tooltip.vidaMinisterio.leitura_semanal || "Reunião de meio de semana"}</p>
+                <p className="text-[10px] text-zinc-300">{tooltip.vidaMinisterio.livro_biblia || tooltip.vidaMinisterio.leitura_semanal || "Reunião de meio de semana"}</p>
               )}
             </div>
           )}
