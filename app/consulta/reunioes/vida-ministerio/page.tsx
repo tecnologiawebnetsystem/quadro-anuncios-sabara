@@ -153,20 +153,23 @@ export default function ConsultaVidaMinisterioPage() {
   const partesAtuais = partes.filter((p) => p.semana_id === semanaAtualData?.id)
 
   // Identificar qual semana é a atual (baseado na data de hoje)
+  // Usa ano/mês/dia locais para evitar offset UTC que deslocaria a data
   const hoje = new Date()
-  const hojeStr = hoje.toISOString().split("T")[0]
+  const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`
   const indiceSemanaAtual = semanas.findIndex(
     (s) => hojeStr >= s.data_inicio && hojeStr <= s.data_fim
   )
-
-  console.log("[v0] hojeStr:", hojeStr, "indiceSemanaAtual:", indiceSemanaAtual, "semanaAtualData:", semanaAtualData)
+  // Se hoje não está em nenhuma semana, usar a próxima semana futura
+  const indiceSemanaEfetivo = indiceSemanaAtual >= 0
+    ? indiceSemanaAtual
+    : semanas.findIndex((s) => s.data_inicio > hojeStr)
 
   // Selecionar automaticamente a semana atual quando carregar os dados
   useEffect(() => {
-    if (semanas.length > 0 && indiceSemanaAtual >= 0) {
-      setSemanaAtiva(indiceSemanaAtual)
+    if (semanas.length > 0 && indiceSemanaEfetivo >= 0) {
+      setSemanaAtiva(indiceSemanaEfetivo)
     }
-  }, [semanas.length, indiceSemanaAtual])
+  }, [semanas.length, indiceSemanaEfetivo])
 
   const formatarData = (data: string) =>
     new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
