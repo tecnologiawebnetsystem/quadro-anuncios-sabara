@@ -521,7 +521,11 @@ export default function ConsultaPage() {
                   )}
                 </div>
                 <span className="rounded-lg bg-amber-600/20 px-3 py-1.5 text-sm font-medium text-amber-400">
-                  {format(new Date(proximoDiscurso.data + "T12:00:00"), "EEEE, d/MM", { locale: ptBR })}
+                  {(() => {
+                    const [y, m, d] = proximoDiscurso.data.split("-").map(Number)
+                    const dt = new Date(y, m - 1, d)
+                    return format(dt, "EEEE, d/MM", { locale: ptBR })
+                  })()}
                 </span>
               </div>
             </CardContent>
@@ -689,7 +693,10 @@ export default function ConsultaPage() {
                 <div>
                   <p className="text-sm font-medium text-white">Discurso Publico</p>
                   <p className="text-xs text-zinc-400">
-                    {format(new Date(proximoDiscurso.data + "T12:00:00"), "EEEE", { locale: ptBR })}: <span className="text-amber-400">{proximoDiscurso.tema || "Tema a definir"}</span>
+                    {(() => {
+                      const [y, m, d] = proximoDiscurso.data.split("-").map(Number)
+                      return format(new Date(y, m - 1, d), "EEEE", { locale: ptBR })
+                    })()}: <span className="text-amber-400">{proximoDiscurso.tema || "Tema a definir"}</span>
                     {proximoDiscurso.orador_nome && ` - ${proximoDiscurso.orador_nome}`}
                   </p>
                 </div>

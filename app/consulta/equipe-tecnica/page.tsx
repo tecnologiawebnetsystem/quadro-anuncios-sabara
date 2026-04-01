@@ -63,8 +63,9 @@ export default function ConsultaEquipeTecnicaPage() {
   }
 
   const formatarData = (data: string) => {
-    const d = new Date(data + "T12:00:00")
-    return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+    // Extrai dia/mês diretamente da string "YYYY-MM-DD" para evitar offset UTC
+    const [, m, d] = data.split("-")
+    return `${d}/${m}`
   }
 
   const getDiaSemanaLabel = (dia: string) => {

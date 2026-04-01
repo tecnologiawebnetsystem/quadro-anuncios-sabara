@@ -49,14 +49,16 @@ const mesesDisponiveis = [
   { value: "2026-12", label: "Dezembro 2026" },
 ]
 
+// Extrai dia/mês diretamente da string "YYYY-MM-DD" para evitar offset UTC
+const MESES_ABREV = ["jan.", "fev.", "mar.", "abr.", "mai.", "jun.", "jul.", "ago.", "set.", "out.", "nov.", "dez."]
 function formatarData(dataStr: string): string {
-  const data = new Date(dataStr + "T12:00:00")
-  return data.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
+  const [, m, d] = dataStr.split("-").map(Number)
+  return `${String(d).padStart(2, "0")} de ${MESES_ABREV[m - 1]}`
 }
 
 function formatarDataCurta(dataStr: string): string {
-  const data = new Date(dataStr + "T12:00:00")
-  return data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+  const [, m, d] = dataStr.split("-")
+  return `${d}/${m}`
 }
 
 export default function ConsultaReunioesPublicasPage() {
