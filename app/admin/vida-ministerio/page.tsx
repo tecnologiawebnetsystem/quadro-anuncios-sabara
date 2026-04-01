@@ -79,7 +79,6 @@ interface Parte {
   ordem: number
   // Campos extras Tesouros
   textos: string[]
-  texto_biblia: string | null
   licao: string | null
   // Campo ministério
   descricao: string | null
@@ -235,7 +234,7 @@ export default function AdminVidaMinisterioPage() {
 
   // ────────────────���─────────────────────────────
   // Partes genéricas
-  // ──────────────────────────────────────────────
+  // ────���─────────────────────────────────────────
   const adicionarParte = async (semanaId: string, secao: string) => {
     const partesSecao = partes.filter((p) => p.semana_id === semanaId && p.secao === secao)
     const ordem = partesSecao.length + 1
@@ -340,32 +339,6 @@ export default function AdminVidaMinisterioPage() {
             <Trash2 className="w-4 h-4 text-red-400" />
           </Button>
         </div>
-
-        {/* ── PARTE 3: Leitura da Bíblia ── */}
-        {parte.ordem === TESOUROS_ORDEM.LEITURA && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label className="text-zinc-500 text-xs">Texto da Bíblia a ser lido</Label>
-                <Input
-                  value={parte.texto_biblia || ""}
-                  onChange={(e) => atualizarParte(parte.id, "texto_biblia", e.target.value)}
-                  placeholder="Ex: Isa. 45:1-11"
-                  className="bg-zinc-900 border-zinc-700 text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-zinc-500 text-xs">Lição (publicação)</Label>
-                <Input
-                  value={parte.licao || ""}
-                  onChange={(e) => atualizarParte(parte.id, "licao", e.target.value)}
-                  placeholder="Ex: th lição 5"
-                  className="bg-zinc-900 border-zinc-700 text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Participante (sem sala, sem ajudante) */}
         <div className="space-y-2">
