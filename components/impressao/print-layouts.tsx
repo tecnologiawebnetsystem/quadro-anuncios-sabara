@@ -121,11 +121,18 @@ const getMesAno = (mes: number, ano: number) => {
 // =====================================
 // VIDA E MINISTÉRIO
 // =====================================
+interface Cantico {
+  id: string
+  numero: number
+  descricao: string
+}
+
 interface VidaMinisterioProps {
   mes: number
   ano: number
   semanas: Semana[]
   partes: Parte[]
+  canticos?: Cantico[]
 }
 
 // Função para formatar data no estilo do PDF (ex: "9 de abril de 2026")
@@ -139,8 +146,15 @@ const formatarDataPDF = (data: string) => {
 }
 
 export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProps>(
-  ({ mes, ano, semanas, partes }, ref) => {
+  ({ mes, ano, semanas, partes, canticos = [] }, ref) => {
     const TESOUROS_ORDEM = { DISCURSO: 1, JOIAS: 2, LEITURA: 3 }
+    
+    // Função para buscar descrição do cântico pelo número
+    const getCanticoDescricao = (numero: number | null) => {
+      if (!numero) return ""
+      const cantico = canticos.find(c => c.numero === numero)
+      return cantico ? cantico.descricao : ""
+    }
 
     return (
       <div ref={ref} className="vida-ministerio-print">
@@ -208,14 +222,14 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 borderRadius: "4px"
               }}>
                 <div>
-                  <span style={{ fontWeight: "600", color: "#374151" }}>Presidente</span>
-                  <span style={{ marginLeft: "8px", color: "#111827", fontWeight: "500" }}>
+                  <span style={{ fontWeight: "600", color: "#374151" }}>Presidente:</span>
+                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
                     {semana.presidente || "-"}
                   </span>
                 </div>
                 <div>
-                  <span style={{ fontWeight: "600", color: "#374151" }}>Oração</span>
-                  <span style={{ marginLeft: "8px", color: "#111827", fontWeight: "500" }}>
+                  <span style={{ fontWeight: "600", color: "#374151" }}>Oração:</span>
+                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
                     {semana.oracao_inicial || "-"}
                   </span>
                 </div>
@@ -224,8 +238,8 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               {/* Cântico Inicial */}
               {semana.cantico_inicial && (
                 <div style={{ 
-                  textAlign: "center", 
-                  padding: "6px", 
+                  textAlign: "left", 
+                  padding: "6px 10px", 
                   backgroundColor: "#e0e7ff",
                   color: "#3730a3",
                   fontSize: "10px",
@@ -233,7 +247,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                   marginBottom: "12px",
                   borderRadius: "4px"
                 }}>
-                  Cântico {semana.cantico_inicial}{semana.cantico_inicial_nome ? `: ${semana.cantico_inicial_nome}` : ""}
+                  Cântico {semana.cantico_inicial}: {getCanticoDescricao(semana.cantico_inicial) || semana.cantico_inicial_nome || ""}
                 </div>
               )}
 
@@ -251,7 +265,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                   }}>
                     TESOUROS DA PALAVRA DE DEUS
                   </div>
-                  <div style={{ backgroundColor: "#fef9c3", padding: "8px 12px", borderRadius: "0 0 4px 4px" }}>
+                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
                     {tesouros.map((parte, i) => (
                       <div key={parte.id} style={{ 
                         display: "flex", 
@@ -287,7 +301,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                   }}>
                     FAÇA SEU MELHOR NO MINISTÉRIO
                   </div>
-                  <div style={{ backgroundColor: "#fef3c7", padding: "8px 12px", borderRadius: "0 0 4px 4px" }}>
+                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
                     {ministerio.map((parte, i) => (
                       <div key={parte.id} style={{ 
                         display: "flex", 
@@ -313,8 +327,8 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               {/* Cântico do Meio */}
               {semana.cantico_meio && (
                 <div style={{ 
-                  textAlign: "center", 
-                  padding: "6px", 
+                  textAlign: "left", 
+                  padding: "6px 10px", 
                   backgroundColor: "#e0e7ff",
                   color: "#3730a3",
                   fontSize: "10px",
@@ -322,7 +336,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                   marginBottom: "12px",
                   borderRadius: "4px"
                 }}>
-                  Cântico {semana.cantico_meio}{semana.cantico_meio_nome ? `: ${semana.cantico_meio_nome}` : ""}
+                  Cântico {semana.cantico_meio}: {getCanticoDescricao(semana.cantico_meio) || semana.cantico_meio_nome || ""}
                 </div>
               )}
 
@@ -340,7 +354,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                   }}>
                     NOSSA VIDA CRISTÃ
                   </div>
-                  <div style={{ backgroundColor: "#fee2e2", padding: "8px 12px", borderRadius: "0 0 4px 4px" }}>
+                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
                     {vida.map((parte, i) => {
                       const numParte = tesouros.length + ministerio.length + i + 1
                       const isEstudoBiblico = parte.titulo?.toLowerCase().includes("estudo bíblico")
@@ -375,7 +389,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: "8px 12px",
-                backgroundColor: "#f3f4f6",
+                backgroundColor: "#e0e7ff",
                 borderRadius: "4px",
                 fontSize: "10px"
               }}>
@@ -383,12 +397,11 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                   color: "#3730a3",
                   fontWeight: "600"
                 }}>
-                  {semana.cantico_final && `Cântico ${semana.cantico_final}`}
-                  {semana.cantico_final_nome && `: ${semana.cantico_final_nome}`}
+                  {semana.cantico_final && `Cântico ${semana.cantico_final}: ${getCanticoDescricao(semana.cantico_final) || semana.cantico_final_nome || ""}`}
                 </div>
                 <div>
-                  <span style={{ fontWeight: "600", color: "#374151" }}>Oração</span>
-                  <span style={{ marginLeft: "8px", color: "#111827", fontWeight: "500" }}>
+                  <span style={{ fontWeight: "600", color: "#374151" }}>Oração:</span>
+                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
                     {oracaoFinal?.oracao_final_nome || "-"}
                   </span>
                 </div>

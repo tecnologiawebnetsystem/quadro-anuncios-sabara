@@ -105,6 +105,7 @@ export default function AdminVidaMinisterioPage() {
   const [semanas, setSemanas] = useState<Semana[]>([])
   const [partes, setPartes] = useState<Parte[]>([])
   const [publicadores, setPublicadores] = useState<Publicador[]>([])
+  const [canticos, setCanticos] = useState<{ id: string; numero: number; descricao: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [semanaAtiva, setSemanaAtiva] = useState<string | null>(null)
 
@@ -125,6 +126,13 @@ export default function AdminVidaMinisterioPage() {
         .select("id, nome")
         .order("nome")
       setPublicadores(pubs || [])
+      
+      // Carregar cânticos
+      const { data: canticosData } = await supabase
+        .from("canticos")
+        .select("id, numero, descricao")
+        .order("numero")
+      setCanticos(canticosData || [])
 
       let { data: mes } = await supabase
         .from("vida_ministerio_meses")
@@ -916,6 +924,7 @@ export default function AdminVidaMinisterioPage() {
           ano={anoAtual}
           semanas={semanas}
           partes={partes}
+          canticos={canticos}
         />
       </div>
     </div>
