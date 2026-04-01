@@ -365,17 +365,7 @@ export default function ConsultaVidaMinisterioPage() {
                                         {parte.tempo} min
                                       </span>
                                     )}
-                                    {/* Badge tipo ministério */}
-                                    {secao.id === "ministerio" && (
-                                      <span className={cn(
-                                        "text-xs px-2 py-0.5 rounded",
-                                        temAjudante
-                                          ? "bg-yellow-600/20 text-yellow-400"
-                                          : "bg-zinc-700 text-zinc-300"
-                                      )}>
-                                        {temAjudante ? "Duas pessoas" : "Discurso"}
-                                      </span>
-                                    )}
+
                                   </div>
                                 </div>
 
