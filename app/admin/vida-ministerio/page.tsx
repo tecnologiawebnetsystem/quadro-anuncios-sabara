@@ -19,8 +19,7 @@ import {
   Gem,
   MessageSquare,
   Heart,
-  Loader2,
-  Sparkles,
+
   X,
   AlertTriangle,
 } from "lucide-react"
@@ -118,7 +117,7 @@ export default function AdminVidaMinisterioPage() {
   const [publicadores, setPublicadores] = useState<Publicador[]>([])
   const [loading, setLoading] = useState(true)
   const [semanaAtiva, setSemanaAtiva] = useState<string | null>(null)
-  const [gerandoDescricao, setGerandoDescricao] = useState<string | null>(null)
+
 
   const supabase = createClient()
 
@@ -247,7 +246,7 @@ export default function AdminVidaMinisterioPage() {
     }
   }
 
-  // ──────────────────────────────────────────────
+  // ────────────────���─────────────────────────────
   // Partes genéricas
   // ──────────────────────────────────────────────
   const adicionarParte = async (semanaId: string, secao: string) => {
@@ -289,38 +288,6 @@ export default function AdminVidaMinisterioPage() {
     const { error } = await supabase.from("vida_ministerio_partes").delete().eq("id", parteId)
     if (!error) {
       setPartes(partes.filter((p) => p.id !== parteId))
-    }
-  }
-
-  // ──────────────────────────────────────────────
-  // IA – Gerar descrição do Ministério
-  // ──────────────────────────────────────���───────
-  const gerarDescricaoMinisterio = async (parte: Parte) => {
-    if (!parte.titulo) {
-      toast.error("Preencha o título da parte antes de gerar a descrição")
-      return
-    }
-    setGerandoDescricao(parte.id)
-    const temAjudante = !!parte.ajudante_id
-    const tipo = temAjudante ? "duas pessoas conversando" : "discurso"
-    try {
-      const response = await fetch("/api/ia/descricao-ministerio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ titulo: parte.titulo, tipo }),
-      })
-      if (response.ok) {
-        const data = await response.json()
-        if (data.descricao) await atualizarParte(parte.id, "descricao", data.descricao)
-        toast.success("Descrição gerada com sucesso!")
-      } else {
-        toast.error("Erro ao gerar descrição")
-      }
-    } catch (error) {
-      console.error("Erro ao gerar descrição ministerio:", error)
-      toast.error("Erro ao gerar descrição")
-    } finally {
-      setGerandoDescricao(null)
     }
   }
 
@@ -442,7 +409,7 @@ export default function AdminVidaMinisterioPage() {
     )
   }
 
-  // ──────────────────────────────────────────────
+  // ────────────────────────────────────���─────────
   // Renderização de parte: Faça Seu Melhor no Ministério
   // ──────────────────────────────────────────────
   const renderParteMinisterio = (parte: Parte, numeroParte?: number) => {
@@ -547,36 +514,6 @@ export default function AdminVidaMinisterioPage() {
           </div>
         </div>
 
-        {/* Descrição */}
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <Label className="text-zinc-400 text-xs">Descrição / Instrução da parte</Label>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
-              onClick={() => gerarDescricaoMinisterio(parte)}
-              disabled={gerandoDescricao === parte.id}
-            >
-              {gerandoDescricao === parte.id ? (
-                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              ) : (
-                <Sparkles className="h-3 w-3 mr-1" />
-              )}
-              Gerar por IA
-            </Button>
-          </div>
-          <Textarea
-            value={parte.descricao || ""}
-            onChange={(e) => atualizarParte(parte.id, "descricao", e.target.value)}
-            placeholder={
-              temAjudante
-                ? "Ex: DE CASA EM CASA. Ofereça um estudo bíblico para uma pessoa que aceitou o convite. (lmd lição 9 ponto 5)"
-                : "Ex: TESTEMUNHO PÚBLICO. Explique para uma pessoa como é a Celebração. (lmd lição 5 ponto 3)"
-            }
-            className="bg-zinc-900 border-zinc-700 text-sm min-h-[70px] resize-none"
-          />
-        </div>
       </div>
     )
   }
