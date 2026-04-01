@@ -97,44 +97,51 @@ export default function ReunioesPublicasPage() {
   useEffect(() => {
     async function carregarDados() {
       setLoading(true)
+
+      const [anoStr, mesStr] = mesAtual.value.split("-")
+      const ultimoDiaDoMes = new Date(Number(anoStr), Number(mesStr), 0).getDate()
+      const dataInicio = `${mesAtual.value}-01`
+      const dataFim = `${mesAtual.value}-${String(ultimoDiaDoMes).padStart(2, "0")}`
+
+      // Cada tabela tem seu próprio try/catch para não bloquear as outras
       try {
-        // Carregar designações (presidente e leitor)
-        const { data: designacoesData } = await supabase
+        const { data: designacoesData, error } = await supabase
           .from("reuniao_publica_designacoes")
           .select("*")
           .eq("mes", mesAtual.value)
-          .order("data")
-        
-        if (designacoesData) setDesignacoes(designacoesData)
-        
-        // Carregar discursos públicos
-        const [anoStr, mesStr] = mesAtual.value.split("-")
-        const ultimoDiaDoMes = new Date(Number(anoStr), Number(mesStr), 0).getDate()
-        const { data: discursosData } = await supabase
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: true })
+        if (error) console.error("Erro designações:", error)
+        else setDesignacoes(designacoesData ?? [])
+      } catch (e) { console.error("Erro designações:", e) }
+
+      try {
+        const { data: discursosData, error } = await supabase
           .from("discursos_publicos")
           .select("*")
-          .gte("data", `${mesAtual.value}-01`)
-          .lte("data", `${mesAtual.value}-${String(ultimoDiaDoMes).padStart(2, "0")}`)
-          .order("data")
-        
-        if (discursosData) setDiscursos(discursosData)
-        
-        // Carregar assistência
-        const { data: assistenciaData } = await supabase
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: true })
+        if (error) console.error("Erro discursos:", error)
+        else setDiscursos(discursosData ?? [])
+      } catch (e) { console.error("Erro discursos:", e) }
+
+      try {
+        const { data: assistenciaData, error } = await supabase
           .from("assistencia_reunioes")
           .select("*")
           .eq("mes", mesAtual.value)
-          .order("data")
-        
-        if (assistenciaData) setAssistencia(assistenciaData)
-        
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error)
-      } finally {
-        setLoading(false)
-      }
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: true })
+        if (error) console.error("Erro assistência:", error)
+        else setAssistencia(assistenciaData ?? [])
+      } catch (e) { console.error("Erro assistência:", e) }
+
+      setLoading(false)
     }
-    
+
     carregarDados()
   }, [mesAtual.value])
 
@@ -230,12 +237,18 @@ export default function ReunioesPublicasPage() {
           d.data === data ? { ...d, ...dadosUpdate } as DiscursoPublico : d
         ))
       } else {
-        // Registro não existe: faz INSERT
+        // Registro não existe: só cria novo se o campo for "tema" (obrigatório no banco)
+        // Se for orador_nome/congregacao e não houver registro, aguarda o tema ser inserido primeiro
+        if (campo !== "tema") {
+          toast.error("Insira o tema do discurso antes do orador")
+          return
+        }
+
         const novosDados = {
           data,
-          tema: campo === "tema" ? valor : "",
-          orador_nome: campo === "orador_nome" ? valor : null,
-          orador_congregacao: campo === "orador_congregacao" ? valor : null,
+          tema: valor,
+          orador_nome: null,
+          orador_congregacao: null,
           observacoes: null,
         }
 
