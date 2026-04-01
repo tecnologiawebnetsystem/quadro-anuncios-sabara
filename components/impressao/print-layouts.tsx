@@ -135,14 +135,24 @@ interface VidaMinisterioProps {
   canticos?: Cantico[]
 }
 
-// Função para formatar data no estilo do PDF (ex: "9 de abril de 2026")
-const formatarDataPDF = (data: string) => {
-  const d = new Date(data + "T12:00:00")
-  const dia = d.getDate()
+// Função para formatar período da semana (ex: "9-15 de abril de 2026")
+const formatarPeriodoPDF = (dataInicio: string, dataFim: string) => {
   const meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
-  const mes = meses[d.getMonth()]
-  const ano = d.getFullYear()
-  return `${dia} de ${mes} de ${ano}`
+  const dInicio = new Date(dataInicio + "T12:00:00")
+  const dFim = new Date(dataFim + "T12:00:00")
+  
+  const diaInicio = dInicio.getDate()
+  const diaFim = dFim.getDate()
+  const mesInicio = meses[dInicio.getMonth()]
+  const mesFim = meses[dFim.getMonth()]
+  const ano = dFim.getFullYear()
+  
+  // Se o mês for o mesmo
+  if (dInicio.getMonth() === dFim.getMonth()) {
+    return `${diaInicio}-${diaFim} de ${mesFim} de ${ano}`
+  }
+  // Se os meses forem diferentes
+  return `${diaInicio} de ${mesInicio} - ${diaFim} de ${mesFim} de ${ano}`
 }
 
 export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProps>(
@@ -207,7 +217,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 borderRadius: "4px"
               }}>
                 <div style={{ fontSize: "13px", fontWeight: "bold" }}>
-                  {formatarDataPDF(semana.data_inicio)} | {semana.leitura_semanal?.toUpperCase() || ""}
+                  {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)} | {semana.leitura_semanal?.toUpperCase() || ""}
                 </div>
               </div>
 
@@ -244,12 +254,25 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                   color: "#3730a3",
                   fontSize: "10px",
                   fontWeight: "600",
-                  marginBottom: "12px",
+                  marginBottom: "8px",
                   borderRadius: "4px"
                 }}>
                   Cântico {semana.cantico_inicial}: {getCanticoDescricao(semana.cantico_inicial) || semana.cantico_inicial_nome || ""}
                 </div>
               )}
+
+              {/* Comentários Iniciais */}
+              <div style={{ 
+                fontSize: "10px",
+                fontWeight: "600",
+                color: "#374151",
+                padding: "6px 10px",
+                marginBottom: "12px",
+                backgroundColor: "#f9fafb",
+                borderRadius: "4px"
+              }}>
+                Comentários iniciais
+              </div>
 
               {/* TESOUROS DA PALAVRA DE DEUS */}
               {tesouros.length > 0 && (
@@ -382,6 +405,19 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                   </div>
                 </div>
               )}
+
+              {/* Comentários Finais */}
+              <div style={{ 
+                fontSize: "10px",
+                fontWeight: "600",
+                color: "#374151",
+                padding: "6px 10px",
+                marginBottom: "8px",
+                backgroundColor: "#f9fafb",
+                borderRadius: "4px"
+              }}>
+                Comentários finais
+              </div>
 
               {/* Cântico Final e Oração */}
               <div style={{ 
