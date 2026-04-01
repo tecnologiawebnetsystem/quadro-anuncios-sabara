@@ -66,10 +66,6 @@ interface Parte {
   ordem: number
   // Tesouros extras
   textos: string[] | null
-  pergunta1: string | null
-  resposta1: string | null
-  pergunta2: string | null
-  resposta2: string | null
   texto_biblia: string | null
   licao: string | null
   // Ministério extras
@@ -410,28 +406,6 @@ export default function ConsultaVidaMinisterioPage() {
                                     </li>
                                   ))}
                                 </ul>
-                              )}
-
-                              {/* Tesouros – Parte 2: perguntas e respostas */}
-                              {secao.id === "tesouros" && parte.ordem === TESOUROS_ORDEM.JOIAS && (
-                                <div className="space-y-3">
-                                  {parte.pergunta1 && (
-                                    <div className="space-y-1">
-                                      <p className="text-sm text-amber-400 font-medium">{parte.pergunta1}</p>
-                                      {parte.resposta1 && (
-                                        <p className="text-sm text-zinc-300 pl-3 border-l border-zinc-700">{parte.resposta1}</p>
-                                      )}
-                                    </div>
-                                  )}
-                                  {parte.pergunta2 && (
-                                    <div className="space-y-1">
-                                      <p className="text-sm text-amber-400 font-medium">{parte.pergunta2}</p>
-                                      {parte.resposta2 && (
-                                        <p className="text-sm text-zinc-300 pl-3 border-l border-zinc-700">{parte.resposta2}</p>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
                               )}
 
                               {/* Tesouros – Parte 3: texto bíblico e lição */}
