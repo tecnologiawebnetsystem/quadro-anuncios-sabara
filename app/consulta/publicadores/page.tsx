@@ -4,6 +4,7 @@ import { useState, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { BookOpen, Search, User, Shield, Users, Loader2 } from "lucide-react"
 import { usePublicadoresSupabase } from "@/lib/hooks/use-publicadores-supabase"
 
@@ -44,16 +45,7 @@ export default function PublicadoresConsultaPage() {
     return grupo ? `Grupo ${grupo.numero}` : null
   }
 
-  if (carregando) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-          <p className="text-zinc-400">Carregando publicadores...</p>
-        </div>
-      </div>
-    )
-  }
+  if (carregando) return <CenteredLoader />
 
   if (erro) {
     return (

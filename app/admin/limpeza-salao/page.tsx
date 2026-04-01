@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { ChevronLeft, ChevronRight, Sparkles, Users, Calendar, Wand2, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -211,6 +212,8 @@ export default function LimpezaSalaoPage() {
       setSalvando(null)
     }
   }
+
+  if (loading) return <CenteredLoader />
 
   return (
     <div className="space-y-6">

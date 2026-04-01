@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -220,6 +221,8 @@ export default function AnunciosAdminPage() {
       minute: "2-digit",
     })
   }
+
+  if (loading) return <CenteredLoader />
 
   return (
     <div className="space-y-6">

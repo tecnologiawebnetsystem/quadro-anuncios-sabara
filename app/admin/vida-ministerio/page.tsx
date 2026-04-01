@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -1049,6 +1050,8 @@ export default function AdminVidaMinisterioPage() {
   // ──────────────────────────────────────────────
   // JSX principal
   // ──────────────────────────────────────────────
+  if (loading) return <CenteredLoader />
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">

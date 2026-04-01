@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { ArrowLeft, ArrowRight, Calendar, Users, Mic, BookOpen, BarChart3 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/client"
@@ -160,13 +161,7 @@ export default function ConsultaReunioesPublicasPage() {
     return { presencial, zoom, total: presencial + zoom }
   }, [assistenciaDomingo])
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    )
-  }
+  if (loading) return <CenteredLoader />
 
   return (
     <div className="space-y-6">
