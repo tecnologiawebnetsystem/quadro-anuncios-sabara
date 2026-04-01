@@ -36,6 +36,7 @@ import {
   deletePublicador as deletePublicadorAction,
   type PublicadorGrupo 
 } from "@/lib/actions/grupos"
+import { normalizar } from "@/lib/utils"
 import { PublicadorModal } from "./publicador-modal"
 import { toast } from "sonner"
 
@@ -107,10 +108,11 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
     filteredPublicadores = publicadores.filter((p) => p.pioneiroRegular)
   }
 
-  // Busca por nome
+  // Busca por nome (sem acento)
   if (busca) {
+    const buscaNormalizada = normalizar(busca)
     filteredPublicadores = filteredPublicadores.filter((p) =>
-      p.nome.toLowerCase().includes(busca.toLowerCase())
+      normalizar(p.nome).includes(buscaNormalizada)
     )
   }
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { normalizar } from "@/lib/utils"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -359,14 +360,14 @@ export default function WikiPage() {
 
   const filtrarItens = (lista: typeof funcionalidadesAdmin) => {
     if (!busca) return lista
-    const termo = busca.toLowerCase()
+    const termo = normalizar(busca)
     return lista.map(cat => ({
       ...cat,
       itens: cat.itens.filter(
         item =>
-          item.titulo.toLowerCase().includes(termo) ||
-          item.descricao.toLowerCase().includes(termo) ||
-          item.funcionalidades.some(f => f.toLowerCase().includes(termo))
+          normalizar(item.titulo).includes(termo) ||
+          normalizar(item.descricao).includes(termo) ||
+          item.funcionalidades.some(f => normalizar(f).includes(termo))
       )
     })).filter(cat => cat.itens.length > 0)
   }
