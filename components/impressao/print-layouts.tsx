@@ -5,19 +5,21 @@ import { forwardRef } from "react"
 // Tipos
 interface Semana {
   id: string
+  mes_id?: string
   data_inicio: string
   data_fim: string
   leitura_semanal: string
+  livro_biblia?: string | null
   cantico_inicial: number | null
-  cantico_inicial_nome: string | null
+  cantico_inicial_nome?: string | null
   cantico_meio: number | null
-  cantico_meio_nome: string | null
+  cantico_meio_nome?: string | null
   cantico_final: number | null
-  cantico_final_nome: string | null
-  presidente: string | null
-  oracao_inicial: string | null
+  cantico_final_nome?: string | null
+  presidente?: string | null
+  oracao_inicial?: string | null
   sem_reuniao: boolean
-  motivo_sem_reuniao: string | null
+  motivo_sem_reuniao?: string | null
 }
 
 interface Parte {
@@ -26,11 +28,18 @@ interface Parte {
   secao: string
   titulo: string
   tempo: string | null
+  participante_id?: string | null
   participante_nome: string | null
+  ajudante_id?: string | null
   ajudante_nome: string | null
   sala: string
   ordem: number
+  textos?: string[]
+  licao?: string | null
+  descricao?: string | null
+  leitor_id?: string | null
   leitor_nome?: string | null
+  oracao_final_id?: string | null
   oracao_final_nome?: string | null
 }
 
