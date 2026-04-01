@@ -198,40 +198,38 @@ export default function ReunioesPublicasPage() {
 
   // Salvar discurso público
   async function salvarDiscurso(data: string, campo: string, valor: string) {
-    const existente = discursos.find(d => d.data === data)
-
-    console.log("[v0] salvarDiscurso =>", { data, campo, valor, existenteId: existente?.id, existente })
-
-    // Não salvar se o valor estiver vazio e não houver registro existente
-    if (!valor.trim() && !existente?.id) {
-      console.log("[v0] Valor vazio sem registro existente, abortando")
-      return
-    }
+    if (!valor.trim()) return
 
     try {
-      if (existente?.id) {
+      // Busca o registro real no banco (garante que temos o id correto)
+      const { data: registroExistente, error: erroSelect } = await supabase
+        .from("discursos_publicos")
+        .select("*")
+        .eq("data", data)
+        .maybeSingle()
+
+      if (erroSelect) throw erroSelect
+
+      if (registroExistente?.id) {
+        // Registro já existe: faz UPDATE pelo id
         const dadosUpdate: Partial<DiscursoPublico> = {}
         if (campo === "tema") dadosUpdate.tema = valor
         else if (campo === "orador_nome") dadosUpdate.orador_nome = valor
         else if (campo === "orador_congregacao") dadosUpdate.orador_congregacao = valor
 
-        console.log("[v0] UPDATE id:", existente.id, "dados:", dadosUpdate)
-        const { data: updated, error } = await supabase
+        const { error } = await supabase
           .from("discursos_publicos")
           .update(dadosUpdate)
-          .eq("id", existente.id)
-          .select()
-          .single()
+          .eq("id", registroExistente.id)
 
-        if (error) {
-          console.error("[v0] Erro UPDATE:", JSON.stringify(error))
-          throw error
-        }
+        if (error) throw error
 
-        console.log("[v0] UPDATE ok:", updated)
-        setDiscursos(prev => prev.map(d => d.id === existente.id ? { ...d, ...dadosUpdate } as DiscursoPublico : d))
+        setDiscursos(prev => prev.map(d =>
+          d.data === data ? { ...d, ...dadosUpdate } as DiscursoPublico : d
+        ))
       } else {
-        const novosDados: DiscursoPublico = {
+        // Registro não existe: faz INSERT
+        const novosDados = {
           data,
           tema: campo === "tema" ? valor : "",
           orador_nome: campo === "orador_nome" ? valor : null,
@@ -239,19 +237,14 @@ export default function ReunioesPublicasPage() {
           observacoes: null,
         }
 
-        console.log("[v0] UPSERT dados:", novosDados)
         const { data: novoData, error } = await supabase
           .from("discursos_publicos")
-          .upsert(novosDados, { onConflict: "data" })
+          .insert(novosDados)
           .select()
           .single()
 
-        if (error) {
-          console.error("[v0] Erro UPSERT:", JSON.stringify(error))
-          throw error
-        }
+        if (error) throw error
 
-        console.log("[v0] UPSERT ok:", novoData)
         setDiscursos(prev => {
           const idx = prev.findIndex(d => d.data === data)
           if (idx >= 0) {
@@ -265,7 +258,7 @@ export default function ReunioesPublicasPage() {
 
       toast.success("Salvo com sucesso")
     } catch (error) {
-      console.error("[v0] catch final:", JSON.stringify(error))
+      console.error("Erro ao salvar discurso:", error)
       toast.error("Erro ao salvar")
     }
   }
