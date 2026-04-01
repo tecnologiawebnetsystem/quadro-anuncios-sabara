@@ -93,10 +93,6 @@ interface Parte {
   ordem: number
   // Campos extras Tesouros
   textos: string[]
-  pergunta1: string | null
-  resposta1: string | null
-  pergunta2: string | null
-  resposta2: string | null
   texto_biblia: string | null
   licao: string | null
   // Campo ministério
@@ -124,9 +120,6 @@ export default function AdminVidaMinisterioPage() {
   const [semanaAtiva, setSemanaAtiva] = useState<string | null>(null)
   const [sugestoes, setSugestoes] = useState<Record<string, { id: string; nome: string; motivo: string }[]>>({})
   const [buscandoSugestao, setBuscandoSugestao] = useState<string | null>(null)
-  const [gerandoPerguntas, setGerandoPerguntas] = useState<string | null>(null)
-  // "parteId-1" ou "parteId-2" para controlar qual pergunta está sendo gerada individualmente
-  const [gerandoPerguntaIndividual, setGerandoPerguntaIndividual] = useState<string | null>(null)
   const [gerandoDescricao, setGerandoDescricao] = useState<string | null>(null)
 
   const supabase = createClient()
@@ -302,31 +295,6 @@ export default function AdminVidaMinisterioPage() {
   }
 
   // ──────────────────────────────────────────────
-  // Textos da Parte 1 (Discurso)
-  // ──────────────────────────────────────────────
-  const adicionarTexto = (parteId: string) => {
-    const parte = partes.find((p) => p.id === parteId)
-    if (!parte) return
-    const novosTextos = [...(parte.textos || []), ""]
-    atualizarParte(parteId, "textos", novosTextos)
-  }
-
-  const atualizarTexto = (parteId: string, index: number, valor: string) => {
-    const parte = partes.find((p) => p.id === parteId)
-    if (!parte) return
-    const novosTextos = [...(parte.textos || [])]
-    novosTextos[index] = valor
-    atualizarParte(parteId, "textos", novosTextos)
-  }
-
-  const removerTexto = (parteId: string, index: number) => {
-    const parte = partes.find((p) => p.id === parteId)
-    if (!parte) return
-    const novosTextos = (parte.textos || []).filter((_, i) => i !== index)
-    atualizarParte(parteId, "textos", novosTextos)
-  }
-
-  // ──────────────────────────────────────────────
   // IA – Sugestões de participante
   // ──────────────────────────────────────────────
   const buscarSugestoesIA = async (parteId: string, titulo: string, secao: string) => {
@@ -360,85 +328,8 @@ export default function AdminVidaMinisterioPage() {
   }
 
   // ──────────────────────────────────────────────
-  // IA – Gerar perguntas Joias Espirituais
-  // ──────────────────────────────────────────────
-  const gerarPerguntasJoias = async (parteId: string) => {
-    setGerandoPerguntas(parteId)
-    const semana = semanas.find((s) => s.id === semanaAtiva)
-    const discurso = partes.find(
-      (p) => p.semana_id === semanaAtiva && p.secao === "tesouros" && p.ordem === TESOUROS_ORDEM.DISCURSO
-    )
-
-    try {
-      const response = await fetch("/api/ia/joias-espirituais", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          titulo: discurso?.titulo || "",
-          leituraSemanal: semana?.leitura_semanal || "",
-        }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.pergunta1) await atualizarParte(parteId, "pergunta1", data.pergunta1)
-        if (data.pergunta2) await atualizarParte(parteId, "pergunta2", data.pergunta2)
-        toast.success("Perguntas geradas com sucesso!")
-      } else {
-        toast.error("Erro ao gerar perguntas")
-      }
-    } catch (error) {
-      console.error("Erro ao gerar perguntas Joias:", error)
-      toast.error("Erro ao gerar perguntas")
-    } finally {
-      setGerandoPerguntas(null)
-    }
-  }
-
-  // ──────────────────────────────────────────────
-  // IA – Gerar pergunta individual das Joias
-  // ──────────────────────────────────────────────
-  const gerarPerguntaIndividual = async (parteId: string, numero: 1 | 2) => {
-    const chave = `${parteId}-${numero}`
-    setGerandoPerguntaIndividual(chave)
-    const semana = semanas.find((s) => s.id === semanaAtiva)
-    const discurso = partes.find(
-      (p) => p.semana_id === semanaAtiva && p.secao === "tesouros" && p.ordem === TESOUROS_ORDEM.DISCURSO
-    )
-    try {
-      const response = await fetch("/api/ia/joias-espirituais", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          titulo: discurso?.titulo || "",
-          leituraSemanal: semana?.leitura_semanal || "",
-          apenas: numero,
-        }),
-      })
-      if (response.ok) {
-        const data = await response.json()
-        const campo = numero === 1 ? "pergunta1" : "pergunta2"
-        const valor = numero === 1 ? data.pergunta1 : data.pergunta2
-        if (valor) {
-          await atualizarParte(parteId, campo, valor)
-          toast.success(`Pergunta ${numero} gerada!`)
-        } else {
-          toast.error("Não foi possível gerar a pergunta")
-        }
-      } else {
-        toast.error("Erro ao gerar pergunta")
-      }
-    } catch (error) {
-      console.error("Erro ao gerar pergunta individual:", error)
-      toast.error("Erro ao gerar pergunta")
-    } finally {
-      setGerandoPerguntaIndividual(null)
-    }
-  }
-
-  // ──────────────────────────────────────────────
   // IA – Gerar descrição do Ministério
-  // ──────────────────────────────────────────────
+  // ──────────────────────────────────────���───────
   const gerarDescricaoMinisterio = async (parte: Parte) => {
     if (!parte.titulo) {
       toast.error("Preencha o título da parte antes de gerar a descrição")
@@ -530,115 +421,6 @@ export default function AdminVidaMinisterioPage() {
             <Trash2 className="w-4 h-4 text-red-400" />
           </Button>
         </div>
-
-        {/* ── PARTE 1: Textos de pontos ── */}
-        {parte.ordem === TESOUROS_ORDEM.DISCURSO && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-zinc-400 text-xs">Pontos do discurso</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs h-7"
-                onClick={() => adicionarTexto(parte.id)}
-              >
-                <Plus className="w-3 h-3 mr-1" /> Adicionar ponto
-              </Button>
-            </div>
-            {(parte.textos || []).length === 0 && (
-              <p className="text-zinc-600 text-xs py-1">Nenhum ponto adicionado</p>
-            )}
-            {(parte.textos || []).map((texto, idx) => (
-              <div key={idx} className="flex items-start gap-2">
-                <Textarea
-                  value={texto}
-                  onChange={(e) => atualizarTexto(parte.id, idx, e.target.value)}
-                  placeholder={`Ponto ${idx + 1} (ex: Não existe ninguém igual a Jeová. (Isa. 46:9; w20.06 5 § 14))`}
-                  className="bg-zinc-900 border-zinc-700 text-sm min-h-[60px] resize-none"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 shrink-0 mt-1"
-                  onClick={() => removerTexto(parte.id, idx)}
-                >
-                  <X className="w-4 h-4 text-zinc-500 hover:text-red-400" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ── PARTE 2: Joias Espirituais ── */}
-        {parte.ordem === TESOUROS_ORDEM.JOIAS && (
-          <div className="space-y-4">
-            {/* Pergunta 1 */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-zinc-500 text-xs">Pergunta 1 (com referência bíblica)</Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
-                  onClick={() => gerarPerguntaIndividual(parte.id, 1)}
-                  disabled={gerandoPerguntaIndividual === `${parte.id}-1`}
-                >
-                  {gerandoPerguntaIndividual === `${parte.id}-1` ? (
-                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                  ) : (
-                    <Sparkles className="h-3 w-3 mr-1" />
-                  )}
-                  Gerar por IA
-                </Button>
-              </div>
-              <Input
-                value={parte.pergunta1 || ""}
-                onChange={(e) => atualizarParte(parte.id, "pergunta1", e.target.value)}
-                placeholder="Ex: Isa. 46:10 — Será que Jeová sabia 'desde o princípio'? (w11 1/1 14 §§ 2-3)"
-                className="bg-zinc-900 border-zinc-700 text-sm"
-              />
-              <Textarea
-                value={parte.resposta1 || ""}
-                onChange={(e) => atualizarParte(parte.id, "resposta1", e.target.value)}
-                placeholder="Resposta ou observações para a pergunta 1"
-                className="bg-zinc-900 border-zinc-700 text-sm min-h-[60px] resize-none"
-              />
-            </div>
-
-            {/* Pergunta 2 */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-zinc-500 text-xs">Pergunta 2</Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-7 border-amber-600/30 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400"
-                  onClick={() => gerarPerguntaIndividual(parte.id, 2)}
-                  disabled={gerandoPerguntaIndividual === `${parte.id}-2`}
-                >
-                  {gerandoPerguntaIndividual === `${parte.id}-2` ? (
-                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                  ) : (
-                    <Sparkles className="h-3 w-3 mr-1" />
-                  )}
-                  Gerar por IA
-                </Button>
-              </div>
-              <Input
-                value={parte.pergunta2 || ""}
-                onChange={(e) => atualizarParte(parte.id, "pergunta2", e.target.value)}
-                placeholder="Que joias espirituais você encontrou na leitura da Bíblia desta semana?"
-                className="bg-zinc-900 border-zinc-700 text-sm"
-              />
-              <Textarea
-                value={parte.resposta2 || ""}
-                onChange={(e) => atualizarParte(parte.id, "resposta2", e.target.value)}
-                placeholder="Resposta ou observações para a pergunta 2"
-                className="bg-zinc-900 border-zinc-700 text-sm min-h-[60px] resize-none"
-              />
-            </div>
-          </div>
-        )}
 
         {/* ── PARTE 3: Leitura da Bíblia ── */}
         {parte.ordem === TESOUROS_ORDEM.LEITURA && (
