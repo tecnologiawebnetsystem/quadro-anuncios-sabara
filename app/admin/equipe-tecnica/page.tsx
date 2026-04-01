@@ -288,14 +288,17 @@ export default function EquipeTecnicaPage() {
           onClick={gerarEscalaIA}
           disabled={gerandoEscala}
           className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
-        >
-          {gerandoEscala ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Wand2 className="h-4 w-4 mr-2" />
-          )}
-          Gerar Escala com IA
-        </Button>
+        disabled
+        className="opacity-50 cursor-not-allowed"
+        title="Função desabilitada"
+      >
+        {gerandoEscala ? (
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+        ) : (
+          <Wand2 className="h-4 w-4 mr-2" />
+        )}
+        Gerar Escala com IA
+      </Button>
       </div>
 
       {/* Navegação do Mês */}
