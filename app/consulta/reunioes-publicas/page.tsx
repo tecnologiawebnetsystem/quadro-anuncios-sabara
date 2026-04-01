@@ -77,53 +77,64 @@ export default function ConsultaReunioesPublicasPage() {
   useEffect(() => {
     async function carregarDados() {
       setLoading(true)
+
+      const [anoStr, mesStr] = mesAtual.value.split("-")
+      const ultimoDiaDoMes = new Date(Number(anoStr), Number(mesStr), 0).getDate()
+      const dataInicio = `${mesAtual.value}-01`
+      const dataFim = `${mesAtual.value}-${String(ultimoDiaDoMes).padStart(2, "0")}`
+
       try {
-        // Carregar designações (presidente e leitor)
-        const { data: designacoesData } = await supabase
+        const { data: designacoesData, error } = await supabase
           .from("reuniao_publica_designacoes")
           .select("*")
           .eq("mes", mesAtual.value)
-          .order("data")
-        
-        if (designacoesData) setDesignacoes(designacoesData)
-        
-        // Carregar discursos públicos
-        const { data: discursosData } = await supabase
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: true })
+        if (error) console.error("Erro designações:", error)
+        else setDesignacoes(designacoesData ?? [])
+      } catch (e) { console.error("Erro designações:", e) }
+
+      try {
+        const { data: discursosData, error } = await supabase
           .from("discursos_publicos")
           .select("*")
-          .gte("data", `${mesAtual.value}-01`)
-          .lte("data", `${mesAtual.value}-31`)
-          .order("data")
-        
-        if (discursosData) setDiscursos(discursosData)
-        
-        // Carregar assistência quinta
-        const { data: assistenciaQuintaData } = await supabase
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: true })
+        if (error) console.error("Erro discursos:", error)
+        else setDiscursos(discursosData ?? [])
+      } catch (e) { console.error("Erro discursos:", e) }
+
+      try {
+        const { data: assistenciaQuintaData, error } = await supabase
           .from("assistencia_reunioes")
           .select("*")
           .eq("mes", mesAtual.value)
           .eq("dia_semana", "quinta")
-          .order("data")
-        
-        if (assistenciaQuintaData) setAssistenciaQuinta(assistenciaQuintaData)
-        
-        // Carregar assistência domingo
-        const { data: assistenciaDomingoData } = await supabase
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: true })
+        if (error) console.error("Erro assistência quinta:", error)
+        else setAssistenciaQuinta(assistenciaQuintaData ?? [])
+      } catch (e) { console.error("Erro assistência quinta:", e) }
+
+      try {
+        const { data: assistenciaDomingoData, error } = await supabase
           .from("assistencia_reunioes")
           .select("*")
           .eq("mes", mesAtual.value)
           .eq("dia_semana", "domingo")
-          .order("data")
-        
-        if (assistenciaDomingoData) setAssistenciaDomingo(assistenciaDomingoData)
-        
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error)
-      } finally {
-        setLoading(false)
-      }
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: true })
+        if (error) console.error("Erro assistência domingo:", error)
+        else setAssistenciaDomingo(assistenciaDomingoData ?? [])
+      } catch (e) { console.error("Erro assistência domingo:", e) }
+
+      setLoading(false)
     }
-    
+
     carregarDados()
   }, [mesAtual.value, syncTrigger])
 

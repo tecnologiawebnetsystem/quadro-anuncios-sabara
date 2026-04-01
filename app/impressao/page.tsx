@@ -139,12 +139,14 @@ export default function ImpressaoPage() {
         }
 
         case "reunioes-publicas": {
+          const ultimoDia = new Date(Number(anoAtual), Number(mesAtual), 0).getDate()
+          const dataFim = `${mesStr}-${String(ultimoDia).padStart(2, "0")}`
           const { data } = await supabase
             .from("reunioes_publicas")
             .select("*")
             .gte("data", `${mesStr}-01`)
-            .lte("data", `${mesStr}-31`)
-            .order("data")
+            .lte("data", dataFim)
+            .order("data", { ascending: true })
 
           setReunioesPublicas(data || [])
           break
@@ -160,24 +162,28 @@ export default function ImpressaoPage() {
         }
 
         case "limpeza-salao": {
+          const ultimoDia = new Date(Number(anoAtual), Number(mesAtual), 0).getDate()
+          const dataFim = `${mesStr}-${String(ultimoDia).padStart(2, "0")}`
           const { data } = await supabase
             .from("limpeza_salao")
             .select("*")
             .gte("data", `${mesStr}-01`)
-            .lte("data", `${mesStr}-31`)
-            .order("data")
+            .lte("data", dataFim)
+            .order("data", { ascending: true })
 
           setLimpezaSalao(data || [])
           break
         }
 
         case "servico-campo": {
+          const ultimoDia = new Date(Number(anoAtual), Number(mesAtual), 0).getDate()
+          const dataFim = `${mesStr}-${String(ultimoDia).padStart(2, "0")}`
           const { data } = await supabase
             .from("servico_campo")
             .select("*")
             .gte("data", `${mesStr}-01`)
-            .lte("data", `${mesStr}-31`)
-            .order("data")
+            .lte("data", dataFim)
+            .order("data", { ascending: true })
 
           setServicoCampo(data || [])
           break
