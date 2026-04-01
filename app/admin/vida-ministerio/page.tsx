@@ -19,7 +19,6 @@ import {
   Gem,
   MessageSquare,
   Heart,
-
   X,
   AlertTriangle,
 } from "lucide-react"
