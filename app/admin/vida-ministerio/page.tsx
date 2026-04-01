@@ -1,6 +1,9 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { toast } from "sonner"
+import { createClient } from "@/lib/supabase/client"
+import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CenteredLoader } from "@/components/ui/page-loader"
 import { Button } from "@/components/ui/button"
@@ -9,22 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  Plus,
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-  BookOpen,
-  Music,
-  Gem,
-  MessageSquare,
-  Heart,
-  X,
-  AlertTriangle,
-} from "lucide-react"
-import { toast } from "sonner"
-import { createClient } from "@/lib/supabase/client"
-import { cn } from "@/lib/utils"
+import { Plus, Trash2, ChevronLeft, ChevronRight, BookOpen, Music, Gem, MessageSquare, Heart, X, AlertTriangle } from "lucide-react"
 
 const meses = [
   { valor: 1, nome: "Janeiro" },
