@@ -198,36 +198,36 @@ export default function ReunioesPublicasPage() {
 
   // Salvar discurso público
   async function salvarDiscurso(data: string, campo: string, valor: string) {
-  const existente = discursos.find(d => d.data === data)
-  
-  const dadosBase: Partial<DiscursoPublico> = { data }
-  
-  if (campo === "tema") {
-  dadosBase.tema = valor
-  } else if (campo === "orador_nome") {
-  dadosBase.orador_nome = valor
-  } else if (campo === "orador_congregacao") {
-  dadosBase.orador_congregacao = valor
-  }
-  
-  try {
-  if (existente?.id) {
-  const { error } = await supabase
-  .from("discursos_publicos")
-  .update(dadosBase)
-  .eq("id", existente.id)
-  
-  if (error) throw error
-  
-  setDiscursos(prev => prev.map(d => d.id === existente.id ? { ...d, ...dadosBase } as DiscursoPublico : d))
-  } else {
-  const novosDados: DiscursoPublico = {
-  data,
-  tema: campo === "tema" ? valor : "",
-  orador_nome: campo === "orador_nome" ? valor : null,
-  orador_congregacao: campo === "orador_congregacao" ? valor : null,
-  observacoes: null,
-  }
+    const existente = discursos.find(d => d.data === data)
+    
+    const dadosBase: Partial<DiscursoPublico> = { data }
+    
+    if (campo === "tema") {
+      dadosBase.tema = valor
+    } else if (campo === "orador_nome") {
+      dadosBase.orador_nome = valor
+    } else if (campo === "orador_congregacao") {
+      dadosBase.orador_congregacao = valor
+    }
+    
+    try {
+      if (existente?.id) {
+        const { error } = await supabase
+          .from("discursos_publicos")
+          .update(dadosBase)
+          .eq("id", existente.id)
+        
+        if (error) throw error
+        
+        setDiscursos(prev => prev.map(d => d.id === existente.id ? { ...d, ...dadosBase } as DiscursoPublico : d))
+      } else {
+        const novosDados: DiscursoPublico = {
+          data,
+          tema: campo === "tema" ? valor : "",
+          orador_nome: campo === "orador_nome" ? valor : null,
+          orador_congregacao: campo === "orador_congregacao" ? valor : null,
+          observacoes: null,
+        }
         
         const { data: novoData, error } = await supabase
           .from("discursos_publicos")
