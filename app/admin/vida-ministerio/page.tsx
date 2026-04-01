@@ -118,8 +118,6 @@ export default function AdminVidaMinisterioPage() {
   const [publicadores, setPublicadores] = useState<Publicador[]>([])
   const [loading, setLoading] = useState(true)
   const [semanaAtiva, setSemanaAtiva] = useState<string | null>(null)
-  const [sugestoes, setSugestoes] = useState<Record<string, { id: string; nome: string; motivo: string }[]>>({})
-  const [buscandoSugestao, setBuscandoSugestao] = useState<string | null>(null)
   const [gerandoDescricao, setGerandoDescricao] = useState<string | null>(null)
 
   const supabase = createClient()
@@ -295,39 +293,6 @@ export default function AdminVidaMinisterioPage() {
   }
 
   // ──────────────────────────────────────────────
-  // IA – Sugestões de participante
-  // ──────────────────────────────────────────────
-  const buscarSugestoesIA = async (parteId: string, titulo: string, secao: string) => {
-    setBuscandoSugestao(parteId)
-    try {
-      const response = await fetch("/api/ia/sugerir-designacoes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo: secao, parte: titulo, quantidade: 3 }),
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setSugestoes((prev) => ({ ...prev, [parteId]: data.sugestoes || [] }))
-      }
-    } catch (error) {
-      console.error("Erro ao buscar sugestoes:", error)
-      toast.error("Erro ao buscar sugestões")
-    } finally {
-      setBuscandoSugestao(null)
-    }
-  }
-
-  const aplicarSugestao = async (parteId: string, publicadorId: string, publicadorNome: string) => {
-    await atualizarParteLote(parteId, { participante_id: publicadorId, participante_nome: publicadorNome })
-    toast.success(`${publicadorNome} designado!`)
-    setSugestoes((prev) => {
-      const novo = { ...prev }
-      delete novo[parteId]
-      return novo
-    })
-  }
-
-  // ──────────────────────────────────────────────
   // IA – Gerar descrição do Ministério
   // ──────────────────────────────────────���───────
   const gerarDescricaoMinisterio = async (parte: Parte) => {
@@ -450,38 +415,6 @@ export default function AdminVidaMinisterioPage() {
 
         {/* Participante (sem sala, sem ajudante) */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => buscarSugestoesIA(parte.id, parte.titulo, "tesouros")}
-              disabled={buscandoSugestao === parte.id}
-              className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
-            >
-              {buscandoSugestao === parte.id ? (
-                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              ) : (
-                <Sparkles className="h-3 w-3 mr-1" />
-              )}
-              Sugerir com IA
-            </Button>
-
-            {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
-              <div className="flex items-center gap-1 flex-wrap">
-                {sugestoes[parte.id].map((sug, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
-                    className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
-                    title={sug.motivo}
-                  >
-                    {sug.nome}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
           <Select
             value={parte.participante_id || "none"}
             onValueChange={(value) => {
@@ -556,36 +489,6 @@ export default function AdminVidaMinisterioPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {/* Participante */}
           <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => buscarSugestoesIA(parte.id, parte.titulo, "ministerio")}
-                disabled={buscandoSugestao === parte.id}
-                className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400 h-7"
-              >
-                {buscandoSugestao === parte.id ? (
-                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                ) : (
-                  <Sparkles className="h-3 w-3 mr-1" />
-                )}
-                Sugerir com IA
-              </Button>
-              {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
-                <div className="flex items-center gap-1 flex-wrap">
-                  {sugestoes[parte.id].map((sug, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
-                      className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
-                      title={sug.motivo}
-                    >
-                      {sug.nome}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
             <Select
               value={parte.participante_id || "none"}
               onValueChange={(value) => {
@@ -716,39 +619,8 @@ export default function AdminVidaMinisterioPage() {
         </Button>
       </div>
 
-      {/* Sugestões IA + Participante */}
+      {/* Participante */}
       <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => buscarSugestoesIA(parte.id, parte.titulo, secaoId)}
-            disabled={buscandoSugestao === parte.id}
-            className="text-xs border-violet-600/30 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400"
-          >
-            {buscandoSugestao === parte.id ? (
-              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-            ) : (
-              <Sparkles className="h-3 w-3 mr-1" />
-            )}
-            Sugerir com IA
-          </Button>
-          {sugestoes[parte.id] && sugestoes[parte.id].length > 0 && (
-            <div className="flex items-center gap-1 flex-wrap">
-              {sugestoes[parte.id].map((sug, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => aplicarSugestao(parte.id, sug.id, sug.nome)}
-                  className="px-2 py-1 rounded text-xs bg-violet-600/20 text-violet-300 hover:bg-violet-600/40 transition-colors"
-                  title={sug.motivo}
-                >
-                  {sug.nome}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
         <Select
           value={parte.participante_id || "none"}
           onValueChange={(value) => {
