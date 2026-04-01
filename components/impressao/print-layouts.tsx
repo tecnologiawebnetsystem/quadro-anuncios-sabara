@@ -780,3 +780,265 @@ export const PrintServicoCampo = forwardRef<HTMLDivElement, ServicoCampoProps>(
   }
 )
 PrintServicoCampo.displayName = "PrintServicoCampo"
+
+// =====================================
+// PROGRAMAÇÃO DA CONGREGAÇÃO (EQUIPE TÉCNICA)
+// =====================================
+interface DesignacaoTecnica {
+  id: string
+  data: string
+  dia_semana: string
+  indicador1: string | null
+  indicador2: string | null
+  mic_volante1: string | null
+  mic_volante2: string | null
+  audio_video: string | null
+  palco: string | null
+}
+
+interface ReuniaoPublicaDesig {
+  id: string
+  data: string
+  presidente: string | null
+  leitor_sentinela: string | null
+}
+
+interface ArranjoDiscurso {
+  id: string
+  data: string
+  tema: string | null
+  orador: string | null
+}
+
+interface AssistenciaReuniao {
+  id: string
+  data: string
+  dia_semana: string
+  presencial: number
+  zoom: number
+}
+
+interface ProgramacaoCongregacaoProps {
+  mes: number
+  ano: number
+  designacoesTecnicas: DesignacaoTecnica[]
+  reunioesPublicas: ReuniaoPublicaDesig[]
+  discursos: ArranjoDiscurso[]
+  assistencias: AssistenciaReuniao[]
+}
+
+// Função para formatar data curta (ex: "02/04")
+const formatarDataCurta = (data: string) => {
+  const d = new Date(data + "T12:00:00")
+  return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`
+}
+
+// Função para formatar dia da semana
+const formatarDiaSemana = (data: string) => {
+  const d = new Date(data + "T12:00:00")
+  const dias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]
+  return dias[d.getDay()]
+}
+
+export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, ProgramacaoCongregacaoProps>(
+  ({ mes, ano, designacoesTecnicas, reunioesPublicas, discursos, assistencias }, ref) => {
+    
+    // Agrupar por semanas (quinta + domingo)
+    const semanas: { quinta?: DesignacaoTecnica; domingo?: DesignacaoTecnica; reuniaoPublica?: ReuniaoPublicaDesig; discurso?: ArranjoDiscurso }[] = []
+    
+    // Ordenar por data
+    const todasDatas = [...designacoesTecnicas].sort((a, b) => a.data.localeCompare(b.data))
+    
+    // Agrupar quinta com seu domingo seguinte
+    let semanaAtual: typeof semanas[0] = {}
+    todasDatas.forEach(d => {
+      if (d.dia_semana === 'QUINTA') {
+        if (semanaAtual.quinta) {
+          semanas.push(semanaAtual)
+          semanaAtual = {}
+        }
+        semanaAtual.quinta = d
+      } else if (d.dia_semana === 'DOMINGO') {
+        semanaAtual.domingo = d
+        // Buscar reunião pública e discurso para este domingo
+        semanaAtual.reuniaoPublica = reunioesPublicas.find(r => r.data === d.data)
+        semanaAtual.discurso = discursos.find(disc => disc.data === d.data)
+        semanas.push(semanaAtual)
+        semanaAtual = {}
+      }
+    })
+    if (semanaAtual.quinta || semanaAtual.domingo) {
+      semanas.push(semanaAtual)
+    }
+
+    return (
+      <div ref={ref} className="programacao-print" style={{ backgroundColor: "white", padding: "16px", maxWidth: "210mm", margin: "0 auto" }}>
+        {/* Cabeçalho */}
+        <div style={{ 
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderBottom: "2px solid #374151",
+          paddingBottom: "8px",
+          marginBottom: "16px"
+        }}>
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>
+            Parque Sabará - Taubaté SP
+          </div>
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>
+            Designações - {getMesAno(mes, ano)}
+          </div>
+        </div>
+
+        {/* Tabela de Equipe Técnica */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ 
+            backgroundColor: "#2a6b77",
+            color: "white",
+            padding: "8px 12px",
+            fontWeight: "bold",
+            fontSize: "11px",
+            marginBottom: "1px"
+          }}>
+            EQUIPE TÉCNICA
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
+            <thead>
+              <tr style={{ backgroundColor: "#f3f4f6" }}>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Data</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Indicadores</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Mic. Volante</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Áudio/Vídeo</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Palco</th>
+              </tr>
+            </thead>
+            <tbody>
+              {designacoesTecnicas.map((d, i) => (
+                <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>
+                    <strong>{formatarDataCurta(d.data)}</strong> - {d.dia_semana}
+                  </td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>
+                    {d.indicador1}{d.indicador2 ? ` / ${d.indicador2}` : ""}
+                  </td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>
+                    {d.mic_volante1}{d.mic_volante2 ? ` / ${d.mic_volante2}` : ""}
+                  </td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{d.audio_video || "-"}</td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{d.palco || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Presidente e Leitor A Sentinela */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ 
+            backgroundColor: "#c69214",
+            color: "white",
+            padding: "8px 12px",
+            fontWeight: "bold",
+            fontSize: "11px",
+            marginBottom: "1px"
+          }}>
+            PRESIDENTE E LEITOR DE A SENTINELA
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
+            <thead>
+              <tr style={{ backgroundColor: "#f3f4f6" }}>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "25%" }}>Data</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "37.5%" }}>Presidente</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "37.5%" }}>Leitor A Sentinela</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reunioesPublicas.map((r, i) => (
+                <tr key={r.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>
+                    <strong>{formatarDataCurta(r.data)}</strong> - Domingo
+                  </td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{r.presidente || "-"}</td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{r.leitor_sentinela || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Arranjo de Discursos */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ 
+            backgroundColor: "#8b2332",
+            color: "white",
+            padding: "8px 12px",
+            fontWeight: "bold",
+            fontSize: "11px",
+            marginBottom: "1px"
+          }}>
+            ARRANJO DE DISCURSOS
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
+            <thead>
+              <tr style={{ backgroundColor: "#f3f4f6" }}>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "15%" }}>Data</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "60%" }}>Tema</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "25%" }}>Orador</th>
+              </tr>
+            </thead>
+            <tbody>
+              {discursos.map((d, i) => (
+                <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>
+                    <strong>{formatarDataCurta(d.data)}</strong>
+                  </td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{d.tema || "-"}</td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{d.orador || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Assistência às Reuniões */}
+        {assistencias.length > 0 && (
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{ 
+              backgroundColor: "#374151",
+              color: "white",
+              padding: "8px 12px",
+              fontWeight: "bold",
+              fontSize: "11px",
+              marginBottom: "1px"
+            }}>
+              ASSISTÊNCIA ÀS REUNIÕES
+            </div>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
+              <thead>
+                <tr style={{ backgroundColor: "#f3f4f6" }}>
+                  <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Data</th>
+                  <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Dia</th>
+                  <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center" }}>Presencial</th>
+                  <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center" }}>Zoom</th>
+                  <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center" }}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {assistencias.map((a, i) => (
+                  <tr key={a.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                    <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{formatarDataCurta(a.data)}</td>
+                    <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{a.dia_semana}</td>
+                    <td style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{a.presencial}</td>
+                    <td style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{a.zoom}</td>
+                    <td style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>{a.presencial + a.zoom}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    )
+  }
+)
+PrintProgramacaoCongregacao.displayName = "PrintProgramacaoCongregacao"
