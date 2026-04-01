@@ -294,7 +294,7 @@ export default function ConsultaVidaMinisterioPage() {
                       {(semanaAtualData.livro_biblia || semanaAtualData.leitura_semanal) && (
                         <p className="text-sm text-zinc-400 flex items-center gap-2 mt-1">
                           <BookOpen className="w-4 h-4" />
-                          Leitura: {semanaAtualData.livro_biblia || semanaAtualData.leitura_semanal}
+                          {[semanaAtualData.livro_biblia, semanaAtualData.leitura_semanal].filter(Boolean)[0]}
                         </p>
                       )}
                     </div>
