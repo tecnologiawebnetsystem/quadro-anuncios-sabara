@@ -66,12 +66,15 @@ interface Semana {
   data_inicio: string
   data_fim: string
   leitura_semanal: string
+  livro_biblia: string | null
   cantico_inicial: number | null
   cantico_inicial_nome: string | null
   cantico_meio: number | null
   cantico_meio_nome: string | null
   cantico_final: number | null
   cantico_final_nome: string | null
+  presidente: string | null
+  oracao_inicial: string | null
   sem_reuniao: boolean
   motivo_sem_reuniao: string | null
 }
@@ -1138,11 +1141,24 @@ export default function AdminVidaMinisterioPage() {
             {semanaAtualData ? (
               <>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg text-white flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    {formatarData(semanaAtualData.data_inicio)} -{" "}
-                    {formatarData(semanaAtualData.data_fim)}
-                  </CardTitle>
+                  <div className="flex items-start justify-between gap-4">
+                    <CardTitle className="text-lg text-white flex items-center gap-2">
+                      <BookOpen className="w-5 h-5" />
+                      {formatarData(semanaAtualData.data_inicio)} -{" "}
+                      {formatarData(semanaAtualData.data_fim)}
+                    </CardTitle>
+                    <div className="flex flex-col gap-1 min-w-[200px]">
+                      <Label className="text-zinc-400 text-xs">Livro e Capítulos</Label>
+                      <Input
+                        value={semanaAtualData.livro_biblia || ""}
+                        onChange={(e) =>
+                          atualizarSemana(semanaAtualData.id, "livro_biblia", e.target.value)
+                        }
+                        placeholder="Ex: Salmos 10-15"
+                        className="bg-zinc-800 border-zinc-700 h-8 text-sm"
+                      />
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Checkbox Sem Reunião */}
@@ -1204,6 +1220,42 @@ export default function AdminVidaMinisterioPage() {
                         />
                       </div>
                     ))}
+                  </div>
+                  )}
+
+                  {/* Presidente e Oração Inicial */}
+                  {!semanaAtualData.sem_reuniao && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label className="text-zinc-400 text-xs">Presidente</Label>
+                      <select
+                        value={semanaAtualData.presidente || ""}
+                        onChange={(e) =>
+                          atualizarSemana(semanaAtualData.id, "presidente", e.target.value || null)
+                        }
+                        className="w-full h-9 rounded-md border border-zinc-700 bg-zinc-800 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Selecionar...</option>
+                        {publicadores.map((p) => (
+                          <option key={p.id} value={p.nome}>{p.nome}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-zinc-400 text-xs">Oração Inicial</Label>
+                      <select
+                        value={semanaAtualData.oracao_inicial || ""}
+                        onChange={(e) =>
+                          atualizarSemana(semanaAtualData.id, "oracao_inicial", e.target.value || null)
+                        }
+                        className="w-full h-9 rounded-md border border-zinc-700 bg-zinc-800 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Selecionar...</option>
+                        {publicadores.map((p) => (
+                          <option key={p.id} value={p.nome}>{p.nome}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   )}
 
