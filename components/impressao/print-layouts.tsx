@@ -212,6 +212,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               </div>
 
               {/* Data e Leitura da Semana */}
+              {console.log("[v0] Semana:", semana.data_inicio, "livro_biblia:", semana.livro_biblia, "leitura_semanal:", semana.leitura_semanal)}
               <div style={{ 
                 backgroundColor: "#1f2937", 
                 color: "white", 
@@ -279,7 +280,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               {tesouros.length > 0 && (
                 <div style={{ marginBottom: "12px" }}>
                   <div style={{ 
-                    backgroundColor: "#5a6a6e",
+                    backgroundColor: "#2a6b77",
                     color: "white",
                     padding: "8px 12px",
                     fontWeight: "bold",
