@@ -279,7 +279,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               {tesouros.length > 0 && (
                 <div style={{ marginBottom: "12px" }}>
                   <div style={{ 
-                    backgroundColor: "#b8860b",
+                    backgroundColor: "#5a6a6e",
                     color: "white",
                     padding: "8px 12px",
                     fontWeight: "bold",
@@ -315,7 +315,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               {ministerio.length > 0 && (
                 <div style={{ marginBottom: "12px" }}>
                   <div style={{ 
-                    backgroundColor: "#ca8a04",
+                    backgroundColor: "#c69214",
                     color: "white",
                     padding: "8px 12px",
                     fontWeight: "bold",
@@ -368,7 +368,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               {vida.length > 0 && (
                 <div style={{ marginBottom: "12px" }}>
                   <div style={{ 
-                    backgroundColor: "#b91c1c",
+                    backgroundColor: "#8b2332",
                     color: "white",
                     padding: "8px 12px",
                     fontWeight: "bold",
