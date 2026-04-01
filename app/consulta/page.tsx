@@ -36,6 +36,7 @@ interface EquipeTecnica {
   indicador2_nome: string | null
   microvolante1_nome: string | null
   microvolante2_nome: string | null
+  microvolante_palco: 1 | 2 | null
   som_nome: string | null
   data: string
   dia_semana: string
@@ -721,8 +722,25 @@ export default function ConsultaPage() {
                         {/* Volantes */}
                         <div className="flex items-center gap-2 text-xs text-zinc-300">
                           <span className="rounded bg-blue-600/20 px-1.5 py-0.5 text-blue-400 font-medium whitespace-nowrap">Volantes</span>
-                          <span>
-                            {[reuniao.microvolante1_nome, reuniao.microvolante2_nome].filter(Boolean).join(" / ") || "A definir"}
+                          <span className="flex items-center gap-1 flex-wrap">
+                            {reuniao.microvolante1_nome ? (
+                              <span className="flex items-center gap-1">
+                                {reuniao.microvolante1_nome}
+                                {reuniao.microvolante_palco === 1 && (
+                                  <span className="text-amber-400 font-semibold">(Palco)</span>
+                                )}
+                              </span>
+                            ) : null}
+                            {reuniao.microvolante1_nome && reuniao.microvolante2_nome && " / "}
+                            {reuniao.microvolante2_nome ? (
+                              <span className="flex items-center gap-1">
+                                {reuniao.microvolante2_nome}
+                                {reuniao.microvolante_palco === 2 && (
+                                  <span className="text-amber-400 font-semibold">(Palco)</span>
+                                )}
+                              </span>
+                            ) : null}
+                            {!reuniao.microvolante1_nome && !reuniao.microvolante2_nome && "A definir"}
                           </span>
                         </div>
                         {/* Som */}
