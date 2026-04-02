@@ -309,8 +309,8 @@ export default function ServicoCampoPage() {
       data,
       mes: mesAtual.value,
       horario: horarioFinal,
-      dirigente_id: (tipo === "grupo" || tipo === "salao") ? null : (publicador?.id || null),
-      dirigente_nome: tipo === "grupo" ? "GRUPO" : tipo === "salao" ? "NO SALÃO" : (publicador?.nome || null),
+      dirigente_id: tipo === "grupo" ? null : (publicador?.id || null),
+      dirigente_nome: tipo === "grupo" ? "GRUPO" : (publicador?.nome || null),
       tipo,
     }
     
@@ -766,11 +766,11 @@ export default function ServicoCampoPage() {
                           </Button>
                         </div>
 
-                        {/* Seletor de dirigente (somente quando não é grupo nem salão) */}
-                        {tipo === "individual" && (
+                        {/* Seletor de dirigente (individual ou salão) */}
+                        {(tipo === "individual" || tipo === "salao") && (
                           <SeletorPublicador
                             value={registro?.dirigente_id || undefined}
-                            onSelect={(p) => salvarDomingo(data, p, "individual", registro?.horario || "8:45")}
+                            onSelect={(p) => salvarDomingo(data, p, tipo, registro?.horario || "8:45")}
                             filtro="todos"
                             placeholder="Dirigente..."
                             className="w-full"
@@ -779,11 +779,6 @@ export default function ServicoCampoPage() {
                         {tipo === "grupo" && (
                           <div className="text-center py-1.5 text-xs text-green-400 font-semibold uppercase tracking-wide">
                             Saída em grupo
-                          </div>
-                        )}
-                        {tipo === "salao" && (
-                          <div className="text-center py-1.5 text-xs text-blue-400 font-semibold uppercase tracking-wide">
-                            No salão
                           </div>
                         )}
                       </div>

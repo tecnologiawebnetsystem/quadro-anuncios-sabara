@@ -117,6 +117,7 @@ const impressaoGroup: MenuGroup = {
     { title: "Vida e Ministério", icon: Gem, href: "/admin/vida-ministerio", color: "text-amber-400" },
     { title: "Programação", icon: ClipboardList, href: "/admin/programacao-congregacao", color: "text-amber-400" },
     { title: "Grupo de Estudos", icon: BookOpen, href: "/admin/impressao/grupo-estudos", color: "text-amber-400" },
+    { title: "Serviço de Campo", icon: MapPin, href: "/admin/impressao/servico-campo", color: "text-amber-400" },
   ]
 }
 
