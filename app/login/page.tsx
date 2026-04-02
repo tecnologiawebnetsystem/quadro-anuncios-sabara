@@ -119,7 +119,7 @@ export default function LoginPage() {
                     <Info className="h-5 w-5 text-blue-400" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-white text-sm font-semibold">Público</p>
+                    <p className="text-white text-sm font-semibold">Publicador</p>
                     <p className="text-zinc-500 text-xs mt-0.5">Consultar designações e grupos</p>
                   </div>
                   <svg className="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
