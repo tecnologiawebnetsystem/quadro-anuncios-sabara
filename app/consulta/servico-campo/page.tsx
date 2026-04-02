@@ -40,7 +40,7 @@ interface CampoDomingo {
   mes: string
   horario: string
   dirigente_nome: string | null
-  tipo: "individual" | "grupo"
+  tipo: "individual" | "grupo" | "salao"
 }
 
 const meses = [
@@ -360,16 +360,19 @@ export default function ConsultaServicoCampoPage() {
                     {campoDomingo.map((item) => (
                       <div key={item.id} className="p-3 rounded-lg bg-zinc-800/50 text-center">
                         <div className="text-xs text-zinc-400 mb-1">{formatarData(item.data)} - {item.horario}</div>
-                        <div className={`text-sm font-medium ${item.tipo === "grupo" ? "text-green-400" : "text-white"}`}>
-                          {item.tipo === "grupo" ? (
-                            <span className="flex items-center justify-center gap-1">
-                              <Users className="h-3 w-3" />
-                              GRUPO
-                            </span>
-                          ) : (
-                            item.dirigente_nome || "-"
-                          )}
-                        </div>
+                        {item.tipo === "grupo" ? (
+                          <div className="text-sm font-medium text-green-400 flex items-center justify-center gap-1">
+                            <Users className="h-3 w-3" />
+                            GRUPO
+                          </div>
+                        ) : item.tipo === "salao" ? (
+                          <div>
+                            <div className="text-xs text-blue-400 font-semibold uppercase mb-0.5">No Salão</div>
+                            <div className="text-sm font-medium text-white">{item.dirigente_nome || "-"}</div>
+                          </div>
+                        ) : (
+                          <div className="text-sm font-medium text-white">{item.dirigente_nome || "-"}</div>
+                        )}
                       </div>
                     ))}
                   </div>

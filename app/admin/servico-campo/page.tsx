@@ -51,7 +51,7 @@ interface CampoDomingo {
   horario: string
   dirigente_id: string | null
   dirigente_nome: string | null
-  tipo: "individual" | "grupo"
+  tipo: "individual" | "grupo" | "salao"
 }
 
 const diasSemana = [
@@ -301,7 +301,7 @@ export default function ServicoCampoPage() {
   }
 
   // Salvar dirigente de domingo
-  async function salvarDomingo(data: string, publicador: Publicador | null, tipo: "individual" | "grupo", horario?: string) {
+  async function salvarDomingo(data: string, publicador: Publicador | null, tipo: "individual" | "grupo" | "salao", horario?: string) {
     const existente = campoDomingo.find(c => c.data === data)
     const horarioFinal = horario || existente?.horario || "8:45"
     
@@ -362,6 +362,9 @@ export default function ServicoCampoPage() {
     const [ano, mes] = mesAtual.value.split("-").map(Number)
     return gerarDiasDoMes(ano, mes - 1, 0)
   }, [mesAtual.value])
+
+  // Segundo domingo do mês (índice 1 no array)
+  const segundoDomingo = domingosDoMes[1] ?? null
 
   if (loading) return <CenteredLoader />
 
@@ -707,52 +710,75 @@ export default function ServicoCampoPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   {domingosDoMes.map((data) => {
                     const registro = campoDomingo.find(c => c.data === data)
-                    const isGrupo = registro?.tipo === "grupo"
+                    const tipo = registro?.tipo ?? "individual"
+                    const isSegundoDomingo = data === segundoDomingo
                     return (
                       <div key={data} className="p-3 rounded-lg bg-zinc-800/30 space-y-2">
+                        {/* Cabeçalho: data + horário */}
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-foreground">{formatarData(data)}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-medium text-foreground">{formatarData(data)}</span>
+                            {isSegundoDomingo && (
+                              <span className="text-[10px] bg-blue-600/20 text-blue-400 rounded px-1 py-0.5 leading-none">2º Dom.</span>
+                            )}
+                          </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3 text-muted-foreground" />
                             <Input
                               value={registro?.horario || "8:45"}
                               onChange={(e) => {
-                                setCampoDomingo(prev => prev.map(c => 
+                                setCampoDomingo(prev => prev.map(c =>
                                   c.data === data ? { ...c, horario: e.target.value } : c
                                 ))
                               }}
                               onBlur={(e) => {
-                                if (registro) {
-                                  salvarDomingo(data, registro.dirigente_id ? { id: registro.dirigente_id, nome: registro.dirigente_nome || "" } as Publicador : null, registro.tipo, e.target.value)
-                                }
+                                salvarDomingo(
+                                  data,
+                                  registro?.dirigente_id ? { id: registro.dirigente_id, nome: registro.dirigente_nome || "" } as Publicador : null,
+                                  tipo,
+                                  e.target.value
+                                )
                               }}
                               className="w-16 h-7 text-xs bg-zinc-800/50 border-zinc-700 text-center"
                             />
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+
+                        {/* Botões de tipo */}
+                        <div className="flex items-center gap-1.5">
                           <Button
                             size="sm"
-                            variant={isGrupo ? "default" : "outline"}
-                            className={isGrupo ? "bg-green-600 hover:bg-green-700 h-7 text-xs" : "h-7 text-xs"}
-                            onClick={() => salvarDomingo(data, null, isGrupo ? "individual" : "grupo", registro?.horario || "8:45")}
+                            variant={tipo === "grupo" ? "default" : "outline"}
+                            className={tipo === "grupo" ? "bg-green-600 hover:bg-green-700 h-7 text-xs flex-1" : "h-7 text-xs flex-1 border-zinc-600"}
+                            onClick={() => salvarDomingo(data, null, "grupo", registro?.horario || "8:45")}
                           >
                             <Users className="h-3 w-3 mr-1" />
                             Grupo
                           </Button>
+                          <Button
+                            size="sm"
+                            variant={tipo === "salao" ? "default" : "outline"}
+                            className={tipo === "salao" ? "bg-blue-600 hover:bg-blue-700 h-7 text-xs flex-1" : "h-7 text-xs flex-1 border-zinc-600"}
+                            onClick={() => salvarDomingo(data, null, "salao", registro?.horario || "8:45")}
+                          >
+                            <MapPin className="h-3 w-3 mr-1" />
+                            Salão
+                          </Button>
                         </div>
-                        {!isGrupo && (
+
+                        {/* Seletor de dirigente (individual ou salão) */}
+                        {(tipo === "individual" || tipo === "salao") && (
                           <SeletorPublicador
                             value={registro?.dirigente_id || undefined}
-                            onSelect={(p) => salvarDomingo(data, p, "individual", registro?.horario || "8:45")}
+                            onSelect={(p) => salvarDomingo(data, p, tipo, registro?.horario || "8:45")}
                             filtro="todos"
                             placeholder="Dirigente..."
                             className="w-full"
                           />
                         )}
-                        {isGrupo && (
-                          <div className="text-center py-2 text-sm text-green-500 font-medium">
-                            GRUPO
+                        {tipo === "grupo" && (
+                          <div className="text-center py-1.5 text-xs text-green-400 font-semibold uppercase tracking-wide">
+                            Saída em grupo
                           </div>
                         )}
                       </div>

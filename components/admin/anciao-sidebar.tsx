@@ -15,7 +15,6 @@ import {
   Mic,
   ChevronDown,
   Gem,
-  BookMarked,
   UserCheck,
   Shield,
   Flag,
@@ -63,18 +62,8 @@ interface MenuGroup {
 }
 
 const mainItems: MenuItem[] = [
-  {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/admin",
-    color: "text-blue-400",
-  },
-  {
-    title: "Quadro de Anúncios",
-    icon: Megaphone,
-    href: "/admin/anuncios",
-    color: "text-amber-400",
-  },
+  { title: "Dashboard", icon: LayoutDashboard, href: "/anciao", color: "text-blue-400" },
+  { title: "Quadro de Anúncios", icon: Megaphone, href: "/anciao/anuncios", color: "text-amber-400" },
 ]
 
 const menuGroups: MenuGroup[] = [
@@ -83,10 +72,10 @@ const menuGroups: MenuGroup[] = [
     icon: Users,
     color: "text-violet-400",
     items: [
-      { title: "Todos", icon: Users, href: "/admin/publicadores", color: "text-violet-400" },
-      { title: "Anciãos", icon: UserCheck, href: "/admin/publicadores/anciaos", color: "text-violet-400" },
-      { title: "Servos", icon: Shield, href: "/admin/publicadores/servos-ministeriais", color: "text-violet-400" },
-      { title: "Pioneiros", icon: Flag, href: "/admin/publicadores/pioneiros-regulares", color: "text-violet-400" },
+      { title: "Todos", icon: Users, href: "/anciao/publicadores", color: "text-violet-400" },
+      { title: "Anciãos", icon: UserCheck, href: "/anciao/publicadores/anciaos", color: "text-violet-400" },
+      { title: "Servos", icon: Shield, href: "/anciao/publicadores/servos-ministeriais", color: "text-violet-400" },
+      { title: "Pioneiros", icon: Flag, href: "/anciao/publicadores/pioneiros-regulares", color: "text-violet-400" },
     ]
   },
   {
@@ -94,19 +83,19 @@ const menuGroups: MenuGroup[] = [
     icon: Calendar,
     color: "text-blue-400",
     items: [
-      { title: "Vida e Ministério", icon: Gem, href: "/admin/vida-ministerio", color: "text-blue-400" },
-      { title: "Sentinela", icon: BookMarked, href: "/admin/sentinela", color: "text-blue-400" },
-      { title: "Reuniões Públicas", icon: Mic, href: "/admin/reunioes-publicas", color: "text-blue-400" },
-      { title: "Equipe Técnica", icon: Wrench, href: "/admin/equipe-tecnica", color: "text-blue-400" },
+      { title: "Vida e Ministério", icon: Gem, href: "/anciao/vida-ministerio", color: "text-blue-400" },
+      // Sentinela removida no perfil Ancião
+      { title: "Reuniões Públicas", icon: Mic, href: "/anciao/reunioes-publicas", color: "text-blue-400" },
+      { title: "Equipe Técnica", icon: Wrench, href: "/anciao/equipe-tecnica", color: "text-blue-400" },
     ]
   },
 ]
 
 const orgItems: MenuItem[] = [
-  { title: "Cânticos", icon: Music, href: "/admin/canticos", color: "text-purple-400" },
-  { title: "Grupo de Estudos", icon: BookOpen, href: "/admin/grupo-estudos", color: "text-emerald-400" },
-  { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/limpeza-salao", color: "text-cyan-400" },
-  { title: "Serviço de Campo", icon: MapPin, href: "/admin/servico-campo", color: "text-orange-400" },
+  { title: "Cânticos", icon: Music, href: "/anciao/canticos", color: "text-purple-400" },
+  { title: "Grupo de Estudos", icon: BookOpen, href: "/anciao/grupo-estudos", color: "text-emerald-400" },
+  { title: "Limpeza do Salão", icon: Sparkles, href: "/anciao/limpeza-salao", color: "text-cyan-400" },
+  { title: "Serviço de Campo", icon: MapPin, href: "/anciao/servico-campo", color: "text-orange-400" },
 ]
 
 const impressaoGroup: MenuGroup = {
@@ -114,16 +103,16 @@ const impressaoGroup: MenuGroup = {
   icon: ClipboardList,
   color: "text-amber-400",
   items: [
-    { title: "Vida e Ministério", icon: Gem, href: "/admin/vida-ministerio", color: "text-amber-400" },
-    { title: "Programação", icon: ClipboardList, href: "/admin/programacao-congregacao", color: "text-amber-400" },
-    { title: "Grupo de Estudos", icon: BookOpen, href: "/admin/impressao/grupo-estudos", color: "text-amber-400" },
-    { title: "Serviço de Campo", icon: MapPin, href: "/admin/impressao/servico-campo", color: "text-amber-400" },
+    { title: "Vida e Ministério", icon: Gem, href: "/anciao/vida-ministerio", color: "text-amber-400" },
+    { title: "Programação", icon: ClipboardList, href: "/anciao/programacao-congregacao", color: "text-amber-400" },
+    { title: "Grupo de Estudos", icon: BookOpen, href: "/anciao/impressao/grupo-estudos", color: "text-amber-400" },
+    { title: "Serviço de Campo", icon: MapPin, href: "/anciao/impressao/servico-campo", color: "text-amber-400" },
   ]
 }
 
-export function AdminSidebar() {
+export function AnciaoSidebar() {
   const pathname = usePathname()
-  const baseId = useId()
+  useId()
   const [openGroups, setOpenGroups] = useState<string[]>(["Publicadores", "Reuniões", "Impressão"])
   const [stats, setStats] = useState({
     totalPublicadores: 0,
@@ -151,7 +140,7 @@ export function AdminSidebar() {
   }
 
   const isItemActive = (href: string) => {
-    if (href === "/admin") return pathname === "/admin"
+    if (href === "/anciao") return pathname === "/anciao"
     return pathname.startsWith(href)
   }
 
@@ -159,33 +148,31 @@ export function AdminSidebar() {
 
   const getBadgeForItem = (href: string): number | undefined => {
     const badgeMap: Record<string, number> = {
-      "/admin/publicadores": stats.totalPublicadores,
-      "/admin/publicadores/anciaos": stats.totalAnciaos,
-      "/admin/publicadores/servos-ministeriais": stats.totalServos,
-      "/admin/publicadores/pioneiros-regulares": stats.totalPioneiros,
+      "/anciao/publicadores": stats.totalPublicadores,
+      "/anciao/publicadores/anciaos": stats.totalAnciaos,
+      "/anciao/publicadores/servos-ministeriais": stats.totalServos,
+      "/anciao/publicadores/pioneiros-regulares": stats.totalPioneiros,
     }
     return badgeMap[href]
   }
 
   return (
     <Sidebar className="border-r border-sidebar-border">
-      {/* Header */}
       <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
-        <Link href="/admin" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
-            <ClipboardList className="h-5 w-5 text-primary-foreground" />
+        <Link href="/anciao" className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-600/80 shadow-lg shadow-amber-600/20">
+            <ClipboardList className="h-5 w-5 text-white" />
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
-              Info<span className="text-primary">Flow</span>
+              Info<span className="text-amber-500">Flow</span>
             </span>
-            <span className="text-[11px] text-muted-foreground">Administração</span>
+            <span className="text-[11px] text-muted-foreground">Ancião</span>
           </div>
         </Link>
       </SidebarHeader>
 
       <SidebarContent className="px-3 py-3 gap-1">
-
         {/* Dashboard */}
         <SidebarGroup className="p-0">
           <SidebarGroupContent>
@@ -284,7 +271,7 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu suppressHydrationWarning>
-              {/* Grupo Impressão colapsável */}
+              {/* Impressão colapsável */}
               <Collapsible
                 open={openGroups.includes(impressaoGroup.title)}
                 onOpenChange={() => toggleGroup(impressaoGroup.title)}
@@ -328,7 +315,6 @@ export function AdminSidebar() {
                 </SidebarMenuItem>
               </Collapsible>
 
-              {/* Demais itens de organização */}
               {orgItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isItemActive(item.href)} className="h-9 rounded-lg font-medium">
@@ -350,8 +336,8 @@ export function AdminSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isItemActive("/admin/configuracoes")} className="h-9 rounded-lg font-medium">
-                  <Link href="/admin/configuracoes" className="flex items-center gap-3">
+                <SidebarMenuButton asChild isActive={isItemActive("/anciao/configuracoes")} className="h-9 rounded-lg font-medium">
+                  <Link href="/anciao/configuracoes" className="flex items-center gap-3">
                     <Settings className="h-4 w-4 flex-shrink-0 text-zinc-400" />
                     <span>Configurações</span>
                   </Link>
@@ -360,13 +346,11 @@ export function AdminSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
       </SidebarContent>
 
-      {/* Footer */}
       <SidebarFooter className="border-t border-sidebar-border px-4 py-3">
         <p className="text-[10px] text-muted-foreground/50 text-center">
-          Congregação Pq. Sabará
+          Congregação Pq. Sabará — Ancião
         </p>
       </SidebarFooter>
     </Sidebar>
