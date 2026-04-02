@@ -66,10 +66,7 @@ export function SobreContent({ anuncios }: SobreContentProps) {
     })
   }
 
-  const navItems = [
-    { id: "inicio", label: "Home" },
-    { id: "anuncios", label: "Anúncios" },
-  ]
+  const navItems: { id: string; label: string; highlight?: boolean }[] = []
 
   
 
