@@ -104,16 +104,25 @@ const menuGroups: MenuGroup[] = [
 
 const orgItems: MenuItem[] = [
   { title: "Cânticos", icon: Music, href: "/admin/canticos", color: "text-purple-400" },
-  { title: "Programação", icon: ClipboardList, href: "/admin/programacao-congregacao", color: "text-amber-400" },
   { title: "Grupo de Estudos", icon: BookOpen, href: "/admin/grupo-estudos", color: "text-emerald-400" },
   { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/limpeza-salao", color: "text-cyan-400" },
   { title: "Serviço de Campo", icon: MapPin, href: "/admin/servico-campo", color: "text-orange-400" },
 ]
 
+const impressaoGroup: MenuGroup = {
+  title: "Impressão",
+  icon: ClipboardList,
+  color: "text-amber-400",
+  items: [
+    { title: "Vida e Ministério", icon: Gem, href: "/admin/vida-ministerio", color: "text-amber-400" },
+    { title: "Programação", icon: ClipboardList, href: "/admin/programacao-congregacao", color: "text-amber-400" },
+  ]
+}
+
 export function AdminSidebar() {
   const pathname = usePathname()
   const baseId = useId()
-  const [openGroups, setOpenGroups] = useState<string[]>(["Publicadores", "Reuniões"])
+  const [openGroups, setOpenGroups] = useState<string[]>(["Publicadores", "Reuniões", "Impressão"])
   const [stats, setStats] = useState({
     totalPublicadores: 0,
     totalAnciaos: 0,
@@ -272,7 +281,52 @@ export function AdminSidebar() {
             Organização
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu suppressHydrationWarning>
+              {/* Grupo Impressão colapsável */}
+              <Collapsible
+                open={openGroups.includes(impressaoGroup.title)}
+                onOpenChange={() => toggleGroup(impressaoGroup.title)}
+              >
+                <SidebarMenuItem suppressHydrationWarning>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      className={cn(
+                        "h-9 w-full justify-between rounded-lg font-medium transition-all",
+                        impressaoGroup.items.some(item => isItemActive(item.href)) && "bg-sidebar-accent text-sidebar-accent-foreground"
+                      )}
+                    >
+                      <span className="flex items-center gap-3">
+                        <impressaoGroup.icon className={cn("h-4 w-4 flex-shrink-0", impressaoGroup.color)} />
+                        <span>{impressaoGroup.title}</span>
+                      </span>
+                      <ChevronDown className={cn(
+                        "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+                        openGroups.includes(impressaoGroup.title) && "rotate-180"
+                      )} />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub className="ml-4 border-l border-sidebar-border/60 pl-3 mt-0.5 space-y-0.5">
+                      {impressaoGroup.items.map((item) => (
+                        <SidebarMenuSubItem key={item.href}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={isItemActive(item.href)}
+                            className="h-8 rounded-md"
+                          >
+                            <Link href={item.href} className="flex items-center gap-2">
+                              <item.icon className={cn("h-3.5 w-3.5 flex-shrink-0", item.color)} />
+                              <span className="text-sm">{item.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+
+              {/* Demais itens de organização */}
               {orgItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isItemActive(item.href)} className="h-9 rounded-lg font-medium">
