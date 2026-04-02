@@ -318,7 +318,7 @@ export default function ProgramacaoCongregacaoPage() {
         >
           Assistência às Reuniões — {meses.find((m) => m.valor === mesAtual)?.nome}
         </div>
-        <div className="bg-zinc-900/50 p-4 space-y-6">
+        <div className="bg-zinc-900/50 p-4 flex flex-col gap-6">
           {/* Quinta-feira */}
           <TabelaAssistencia titulo="QUINTA" registros={assistenciasQuintas} formatarData={formatarData} />
           {/* Domingo */}
@@ -539,10 +539,10 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
 
         {/* Assistência às Reuniões */}
         <div>
-          <div style={{ ...headerBar("#374151"), textAlign: "center", fontSize: "10px", fontWeight: "bold" }}>
-            Assistência às Reuniões — {mesNome.toUpperCase()}
+          <div style={{ textAlign: "center", fontSize: "10px", fontWeight: "bold", padding: "6px 0", backgroundColor: "#e5e7eb", marginBottom: "4px" }}>
+            ASSISTÊNCIA ÀS REUNIÕES — {mesNome.toUpperCase()}
           </div>
-          <div style={{ display: "flex", gap: "20px", marginTop: "10px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "10px" }}>
             {/* Quinta */}
             <PrintTabelaAssistencia titulo="QUINTA" registros={assistenciasQuintas} formatarData={formatarData} />
             {/* Domingo */}
@@ -579,7 +579,7 @@ function PrintTabelaAssistencia({
       <table style={{ borderCollapse: "collapse", flexShrink: 0 }}>
         <thead>
           <tr>
-            <th style={cell({ fontWeight: "bold", backgroundColor: "#e5e7eb", whiteSpace: "nowrap" })}>{titulo}</th>
+            <th style={cell({ fontWeight: "normal", whiteSpace: "nowrap" })}>{titulo}</th>
           </tr>
         </thead>
         <tbody>
@@ -593,7 +593,7 @@ function PrintTabelaAssistencia({
         <thead>
           <tr>
             {registros.map((a) => (
-              <th key={a.data} style={cell({ backgroundColor: "#e5e7eb", whiteSpace: "nowrap", minWidth: "46px" })}>
+              <th key={a.data} style={cell({ fontWeight: "normal", whiteSpace: "nowrap", minWidth: "46px" })}>
                 {formatarData(a.data)}
               </th>
             ))}
