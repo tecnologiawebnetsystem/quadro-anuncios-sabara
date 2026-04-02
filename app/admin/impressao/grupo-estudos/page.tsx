@@ -94,9 +94,6 @@ export default function ImpressaoGrupoEstudosPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Grupos de Estudos</h1>
-            <p className="text-sm text-muted-foreground">
-              {grupos.length} grupo{grupos.length !== 1 ? "s" : ""} &middot; {totalPublicadores} publicador{totalPublicadores !== 1 ? "es" : ""}
-            </p>
           </div>
         </div>
         <Button onClick={() => handlePrint()} className="gap-2">
@@ -155,22 +152,14 @@ export default function ImpressaoGrupoEstudosPage() {
                       ) : (
                         pubs.map((pub) => (
                           <div key={pub.id} className="flex items-center gap-2">
-                            <div className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-                              pub.is_lider ? "bg-current " + cor.lider : pub.is_auxiliar ? "bg-current " + cor.auxiliar : "bg-zinc-500"
-                            }`} />
-                            <span className={`text-sm ${
-                              pub.is_lider
-                                ? `font-bold ${cor.lider}`
-                                : pub.is_auxiliar
-                                ? `font-semibold ${cor.auxiliar}`
-                                : "text-zinc-300"
-                            }`}>
+                            <div className="h-1.5 w-1.5 rounded-full flex-shrink-0 bg-zinc-400" />
+                            <span className="text-sm text-zinc-200">
                               {pub.nome}
                               {pub.is_lider && (
-                                <span className={`ml-1.5 text-[10px] font-normal opacity-70`}>(Dirigente)</span>
+                                <span className="ml-1.5 text-[11px] font-bold text-zinc-200"> Dirigente</span>
                               )}
                               {pub.is_auxiliar && (
-                                <span className={`ml-1.5 text-[10px] font-normal opacity-70`}>(Auxiliar)</span>
+                                <span className="ml-1.5 text-[11px] font-bold text-zinc-200"> Auxiliar</span>
                               )}
                             </span>
                           </div>
@@ -281,17 +270,13 @@ export default function ImpressaoGrupoEstudosPage() {
                             width: "6px",
                             height: "6px",
                             borderRadius: "50%",
-                            backgroundColor: pub.is_lider ? pc.lider : pub.is_auxiliar ? pc.auxiliar : "#aaa",
+                            backgroundColor: "#888",
                             flexShrink: 0,
                           }} />
-                          <span style={{
-                            fontSize: "11px",
-                            color: pub.is_lider ? pc.lider : pub.is_auxiliar ? pc.auxiliar : "#222",
-                            fontWeight: pub.is_lider ? "700" : pub.is_auxiliar ? "600" : "400",
-                          }}>
+                          <span style={{ fontSize: "11px", color: "#111", fontWeight: "400" }}>
                             {pub.nome}
-                            {pub.is_lider && <span style={{ fontWeight: 400, fontSize: "9px", opacity: 0.7, marginLeft: "4px" }}>(Dirigente)</span>}
-                            {pub.is_auxiliar && <span style={{ fontWeight: 400, fontSize: "9px", opacity: 0.7, marginLeft: "4px" }}>(Auxiliar)</span>}
+                            {pub.is_lider && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "4px" }}>Dirigente</span>}
+                            {pub.is_auxiliar && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "4px" }}>Auxiliar</span>}
                           </span>
                         </div>
                       ))
