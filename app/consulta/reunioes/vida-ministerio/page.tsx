@@ -259,7 +259,6 @@ export default function ConsultaVidaMinisterioPage() {
 
           {semanaAtualData && (
             <div className="space-y-4">
-              {console.log("[v0] sem_reuniao:", semanaAtualData.sem_reuniao, "tipo:", typeof semanaAtualData.sem_reuniao)}
               {/* Aviso de Semana sem Reunião */}
               {semanaAtualData.sem_reuniao === true ? (
                 <Card className="bg-amber-500/10 border-amber-500/50">

@@ -12,7 +12,11 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Trash2, ChevronLeft, ChevronRight, BookOpen, Music, Gem, MessageSquare, Heart, X, AlertTriangle } from "lucide-react"
+import { Plus, Trash2, ChevronLeft, ChevronRight, BookOpen, Music, Gem, MessageSquare, Heart, X, AlertTriangle, Printer } from "lucide-react"
+import { useRef } from "react"
+import { useReactToPrint } from "react-to-print"
+import { PrintVidaMinisterio } from "@/components/impressao/print-layouts"
+import "@/app/impressao/print-styles.css"
 
 const meses = [
   { valor: 1, nome: "Janeiro" },
@@ -101,9 +105,16 @@ export default function AdminVidaMinisterioPage() {
   const [semanas, setSemanas] = useState<Semana[]>([])
   const [partes, setPartes] = useState<Parte[]>([])
   const [publicadores, setPublicadores] = useState<Publicador[]>([])
+  const [canticos, setCanticos] = useState<{ id: string; numero: number; descricao: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [semanaAtiva, setSemanaAtiva] = useState<string | null>(null)
 
+  // Referência para impressão
+  const printRef = useRef<HTMLDivElement>(null)
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Vida_Ministerio_${meses.find((m) => m.valor === mesAtual)?.nome}_${anoAtual}`,
+  })
 
   const supabase = createClient()
 
@@ -115,6 +126,13 @@ export default function AdminVidaMinisterioPage() {
         .select("id, nome")
         .order("nome")
       setPublicadores(pubs || [])
+      
+      // Carregar cânticos
+      const { data: canticosData } = await supabase
+        .from("canticos")
+        .select("id, numero, descricao")
+        .order("numero")
+      setCanticos(canticosData || [])
 
       let { data: mes } = await supabase
         .from("vida_ministerio_meses")
@@ -234,7 +252,7 @@ export default function AdminVidaMinisterioPage() {
 
   // ────────────────���─────────────────────────────
   // Partes genéricas
-  // ────���───────��─────────────────────────────────
+  // ────���───────���─────────────────────────────────
   const adicionarParte = async (semanaId: string, secao: string) => {
     const partesSecao = partes.filter((p) => p.semana_id === semanaId && p.secao === secao)
     const ordem = partesSecao.length + 1
@@ -643,9 +661,21 @@ export default function AdminVidaMinisterioPage() {
               </h2>
               <p className="text-sm text-zinc-500">{semanas.length} semana(s) cadastrada(s)</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={mesProximo}>
-              <ChevronRight className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handlePrint()}
+                disabled={semanas.length === 0}
+                className="border-zinc-700 hover:bg-zinc-800"
+              >
+                <Printer className="w-4 h-4 mr-2" />
+                Imprimir Mês
+              </Button>
+              <Button variant="ghost" size="icon" onClick={mesProximo}>
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -885,6 +915,18 @@ export default function AdminVidaMinisterioPage() {
           </Card>
         </div>
       )}
+
+      {/* Componente de Impressão (oculto) */}
+      <div className="hidden">
+        <PrintVidaMinisterio
+          ref={printRef}
+          mes={mesAtual}
+          ano={anoAtual}
+          semanas={semanas}
+          partes={partes}
+          canticos={canticos}
+        />
+      </div>
     </div>
   )
 }

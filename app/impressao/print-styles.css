@@ -380,3 +380,45 @@
   margin-top: 10px;
   font-size: 10px;
 }
+
+/* =====================================
+   VIDA E MINISTÉRIO - Estilos Específicos
+   ===================================== */
+.vida-ministerio-print {
+  background: white;
+  color: black;
+  padding: 15px;
+  max-width: 210mm;
+  margin: 0 auto;
+}
+
+.vida-ministerio-print .vm-semana {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+@media print {
+  /* Remove cabeçalho e rodapé padrão do navegador */
+  @page {
+    margin: 10mm;
+    margin-top: 5mm;
+    margin-bottom: 5mm;
+  }
+  
+  .vida-ministerio-print {
+    padding: 0;
+    max-width: 100%;
+  }
+  
+  .vida-ministerio-print .vm-semana {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 15px !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .vida-ministerio-print .vm-semana:last-child {
+    margin-bottom: 0 !important;
+  }
+}

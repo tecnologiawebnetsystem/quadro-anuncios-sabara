@@ -5,14 +5,21 @@ import { forwardRef } from "react"
 // Tipos
 interface Semana {
   id: string
+  mes_id?: string
   data_inicio: string
   data_fim: string
   leitura_semanal: string
+  livro_biblia?: string | null
   cantico_inicial: number | null
+  cantico_inicial_nome?: string | null
   cantico_meio: number | null
+  cantico_meio_nome?: string | null
   cantico_final: number | null
+  cantico_final_nome?: string | null
+  presidente?: string | null
+  oracao_inicial?: string | null
   sem_reuniao: boolean
-  motivo_sem_reuniao: string | null
+  motivo_sem_reuniao?: string | null
 }
 
 interface Parte {
@@ -21,11 +28,18 @@ interface Parte {
   secao: string
   titulo: string
   tempo: string | null
+  participante_id?: string | null
   participante_nome: string | null
+  ajudante_id?: string | null
   ajudante_nome: string | null
   sala: string
   ordem: number
+  textos?: string[]
+  licao?: string | null
+  descricao?: string | null
+  leitor_id?: string | null
   leitor_nome?: string | null
+  oracao_final_id?: string | null
   oracao_final_nome?: string | null
 }
 
@@ -107,129 +121,329 @@ const getMesAno = (mes: number, ano: number) => {
 // =====================================
 // VIDA E MINISTÉRIO
 // =====================================
+interface Cantico {
+  id: string
+  numero: number
+  descricao: string
+}
+
 interface VidaMinisterioProps {
   mes: number
   ano: number
   semanas: Semana[]
   partes: Parte[]
+  canticos?: Cantico[]
+}
+
+// Função para formatar período da semana (ex: "9-15 de abril de 2026")
+const formatarPeriodoPDF = (dataInicio: string, dataFim: string) => {
+  const meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
+  const dInicio = new Date(dataInicio + "T12:00:00")
+  const dFim = new Date(dataFim + "T12:00:00")
+  
+  const diaInicio = dInicio.getDate()
+  const diaFim = dFim.getDate()
+  const mesInicio = meses[dInicio.getMonth()]
+  const mesFim = meses[dFim.getMonth()]
+  const ano = dFim.getFullYear()
+  
+  // Se o mês for o mesmo
+  if (dInicio.getMonth() === dFim.getMonth()) {
+    return `${diaInicio}-${diaFim} de ${mesFim} de ${ano}`
+  }
+  // Se os meses forem diferentes
+  return `${diaInicio} de ${mesInicio} - ${diaFim} de ${mesFim} de ${ano}`
 }
 
 export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProps>(
-  ({ mes, ano, semanas, partes }, ref) => {
+  ({ mes, ano, semanas, partes, canticos = [] }, ref) => {
     const TESOUROS_ORDEM = { DISCURSO: 1, JOIAS: 2, LEITURA: 3 }
+    
+    // Função para buscar descrição do cântico pelo número
+    const getCanticoDescricao = (numero: number | null) => {
+      if (!numero) return ""
+      const cantico = canticos.find(c => c.numero === numero)
+      return cantico ? cantico.descricao : ""
+    }
 
     return (
-      <div ref={ref} className="print-preview">
-        <div className="print-header">
-          <h1>VIDA E MINISTÉRIO CRISTÃO</h1>
-          <h2>{getMesAno(mes, ano)}</h2>
-        </div>
-
+      <div ref={ref} className="vida-ministerio-print">
         {semanas.map((semana, idx) => {
           if (semana.sem_reuniao) return null
           const partesSemanais = partes.filter(p => p.semana_id === semana.id)
           const tesouros = partesSemanais.filter(p => p.secao === "tesouros").sort((a, b) => a.ordem - b.ordem)
           const ministerio = partesSemanais.filter(p => p.secao === "ministerio").sort((a, b) => a.ordem - b.ordem)
           const vida = partesSemanais.filter(p => p.secao === "vida").sort((a, b) => a.ordem - b.ordem)
+          const oracaoFinal = vida.find(p => p.oracao_final_nome)
 
           return (
-            <div key={semana.id} className="print-week-card avoid-break">
-              <div className="print-week-header">
-                {formatarPeriodo(semana.data_inicio, semana.data_fim)}
-                {semana.leitura_semanal && ` | Leitura: ${semana.leitura_semanal}`}
-                {semana.cantico_inicial && ` | Cântico ${semana.cantico_inicial}`}
+            <div key={semana.id} className="vm-semana avoid-break" style={{ 
+              backgroundColor: "white", 
+              padding: "16px", 
+              marginBottom: idx < semanas.length - 1 ? "20px" : 0,
+              border: "1px solid #e5e7eb",
+              borderRadius: "4px",
+              pageBreakInside: "avoid"
+            }}>
+              {/* Cabeçalho da Congregação */}
+              <div style={{ 
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderBottom: "2px solid #374151",
+                paddingBottom: "8px",
+                marginBottom: "12px"
+              }}>
+                <div style={{ 
+                  fontSize: "14px", 
+                  fontWeight: "bold", 
+                  color: "#111827"
+                }}>
+                  Parque Sabará - Taubaté SP
+                </div>
+                <div style={{ 
+                  fontSize: "14px", 
+                  fontWeight: "bold", 
+                  color: "#111827",
+                  textAlign: "right"
+                }}>
+                  Reunião do meio de semana
+                </div>
               </div>
-              <div className="print-week-content">
-                {/* Tesouros */}
-                {tesouros.length > 0 && (
-                  <div className="print-section">
-                    <div className="print-section-header print-section-tesouros">
-                      TESOUROS DA PALAVRA DE DEUS
-                    </div>
+
+              {/* Data e Leitura da Semana - USA livro_biblia */}
+              <div style={{ 
+                backgroundColor: "#1f2937", 
+                color: "white", 
+                padding: "10px 14px",
+                marginBottom: "12px",
+                borderRadius: "4px"
+              }}>
+                <div style={{ fontSize: "13px", fontWeight: "bold" }}>
+                  {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)} | {(semana.livro_biblia || "").toUpperCase()}
+                </div>
+              </div>
+
+              {/* Presidente e Oração */}
+              <div style={{ 
+                display: "flex", 
+                justifyContent: "space-between",
+                fontSize: "11px",
+                marginBottom: "8px",
+                padding: "6px 10px",
+                backgroundColor: "#f9fafb",
+                borderRadius: "4px"
+              }}>
+                <div>
+                  <span style={{ fontWeight: "600", color: "#374151" }}>Presidente:</span>
+                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
+                    {semana.presidente || "-"}
+                  </span>
+                </div>
+                <div>
+                  <span style={{ fontWeight: "600", color: "#374151" }}>Oração:</span>
+                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
+                    {semana.oracao_inicial || "-"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Cântico Inicial */}
+              {semana.cantico_inicial && (
+                <div style={{ 
+                  textAlign: "left", 
+                  padding: "6px 10px", 
+                  backgroundColor: "#e0e7ff",
+                  color: "#3730a3",
+                  fontSize: "10px",
+                  fontWeight: "600",
+                  marginBottom: "8px",
+                  borderRadius: "4px"
+                }}>
+                  Cântico {semana.cantico_inicial}: {getCanticoDescricao(semana.cantico_inicial) || semana.cantico_inicial_nome || ""}
+                </div>
+              )}
+
+              {/* Comentários Iniciais */}
+              <div style={{ 
+                fontSize: "10px",
+                fontWeight: "600",
+                color: "#374151",
+                padding: "6px 10px",
+                marginBottom: "12px"
+              }}>
+                Comentários iniciais
+              </div>
+
+              {/* TESOUROS DA PALAVRA DE DEUS */}
+              {tesouros.length > 0 && (
+                <div style={{ marginBottom: "12px" }}>
+                  <div style={{ 
+                    backgroundColor: "#2a6b77",
+                    color: "white",
+                    padding: "8px 12px",
+                    fontWeight: "bold",
+                    fontSize: "11px",
+                    marginBottom: "1px",
+                    borderRadius: "4px 4px 0 0"
+                  }}>
+                    TESOUROS DA PALAVRA DE DEUS
+                  </div>
+                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
                     {tesouros.map((parte, i) => (
-                      <div key={parte.id} className="print-part">
-                        <span className="print-part-title">
-                          {parte.ordem === TESOUROS_ORDEM.DISCURSO && "1. Discurso"}
-                          {parte.ordem === TESOUROS_ORDEM.JOIAS && "2. Joias Espirituais"}
-                          {parte.ordem === TESOUROS_ORDEM.LEITURA && "3. Leitura da Bíblia"}
-                          {parte.titulo && `: ${parte.titulo}`}
-                          {parte.tempo && ` (${parte.tempo} min)`}
+                      <div key={parte.id} style={{ 
+                        display: "flex", 
+                        justifyContent: "space-between",
+                        padding: "5px 0",
+                        borderBottom: i < tesouros.length - 1 ? "1px dotted #d1d5db" : "none",
+                        fontSize: "10px"
+                      }}>
+                        <span style={{ color: "#374151" }}>
+                          {parte.ordem}. {parte.titulo}
+                          {parte.tempo && <span style={{ color: "#6b7280" }}> ({parte.tempo} min)</span>}
                         </span>
-                        <span className="print-part-name">{parte.participante_nome || "-"}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Cântico do Meio */}
-                {semana.cantico_meio && (
-                  <div style={{ textAlign: "center", padding: "5px", backgroundColor: "#f3f4f6", margin: "5px 0", fontSize: "10px" }}>
-                    Cântico {semana.cantico_meio}
-                  </div>
-                )}
-
-                {/* Ministério */}
-                {ministerio.length > 0 && (
-                  <div className="print-section">
-                    <div className="print-section-header print-section-ministerio">
-                      FAÇA SEU MELHOR NO MINISTÉRIO
-                    </div>
-                    {ministerio.map((parte, i) => (
-                      <div key={parte.id} className="print-part">
-                        <span className="print-part-title">
-                          {i + 4}. {parte.titulo}
-                          {parte.tempo && ` (${parte.tempo} min)`}
-                        </span>
-                        <span className="print-part-name">
+                        <span style={{ fontWeight: "600", color: "#111827" }}>
                           {parte.participante_nome || "-"}
-                          {parte.ajudante_nome && ` / ${parte.ajudante_nome}`}
                         </span>
                       </div>
                     ))}
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Nossa Vida Cristã */}
-                {vida.length > 0 && (
-                  <div className="print-section">
-                    <div className="print-section-header print-section-vida">
-                      NOSSA VIDA CRISTÃ
-                    </div>
+              {/* FAÇA SEU MELHOR NO MINISTÉRIO */}
+              {ministerio.length > 0 && (
+                <div style={{ marginBottom: "12px" }}>
+                  <div style={{ 
+                    backgroundColor: "#c69214",
+                    color: "white",
+                    padding: "8px 12px",
+                    fontWeight: "bold",
+                    fontSize: "11px",
+                    marginBottom: "1px",
+                    borderRadius: "4px 4px 0 0"
+                  }}>
+                    FAÇA SEU MELHOR NO MINISTÉRIO
+                  </div>
+                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
+                    {ministerio.map((parte, i) => (
+                      <div key={parte.id} style={{ 
+                        display: "flex", 
+                        justifyContent: "space-between",
+                        padding: "5px 0",
+                        borderBottom: i < ministerio.length - 1 ? "1px dotted #d1d5db" : "none",
+                        fontSize: "10px"
+                      }}>
+                        <span style={{ color: "#374151" }}>
+                          {tesouros.length + i + 1}. {parte.titulo}
+                          {parte.tempo && <span style={{ color: "#6b7280" }}> ({parte.tempo} min)</span>}
+                        </span>
+                        <span style={{ fontWeight: "600", color: "#111827" }}>
+                          {parte.participante_nome || "-"}
+                          {parte.ajudante_nome && <span> / {parte.ajudante_nome}</span>}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Cântico do Meio */}
+              {semana.cantico_meio && (
+                <div style={{ 
+                  textAlign: "left", 
+                  padding: "6px 10px", 
+                  backgroundColor: "#e0e7ff",
+                  color: "#3730a3",
+                  fontSize: "10px",
+                  fontWeight: "600",
+                  marginBottom: "12px",
+                  borderRadius: "4px"
+                }}>
+                  Cântico {semana.cantico_meio}: {getCanticoDescricao(semana.cantico_meio) || semana.cantico_meio_nome || ""}
+                </div>
+              )}
+
+              {/* NOSSA VIDA CRISTÃ */}
+              {vida.length > 0 && (
+                <div style={{ marginBottom: "12px" }}>
+                  <div style={{ 
+                    backgroundColor: "#8b2332",
+                    color: "white",
+                    padding: "8px 12px",
+                    fontWeight: "bold",
+                    fontSize: "11px",
+                    marginBottom: "1px",
+                    borderRadius: "4px 4px 0 0"
+                  }}>
+                    NOSSA VIDA CRISTÃ
+                  </div>
+                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
                     {vida.map((parte, i) => {
                       const numParte = tesouros.length + ministerio.length + i + 1
+                      const isEstudoBiblico = parte.titulo?.toLowerCase().includes("estudo bíblico")
                       return (
                         <div key={parte.id}>
-                          <div className="print-part">
-                            <span className="print-part-title">
+                          <div style={{ 
+                            display: "flex", 
+                            justifyContent: "space-between",
+                            padding: "5px 0",
+                            borderBottom: i < vida.length - 1 && !isEstudoBiblico ? "1px dotted #d1d5db" : "none",
+                            fontSize: "10px"
+                          }}>
+                            <span style={{ color: "#374151" }}>
                               {numParte}. {parte.titulo}
-                              {parte.tempo && ` (${parte.tempo} min)`}
+                              {parte.tempo && <span style={{ color: "#6b7280" }}> ({parte.tempo} min)</span>}
                             </span>
-                            <span className="print-part-name">{parte.participante_nome || "-"}</span>
+                            <span style={{ fontWeight: "600", color: "#111827" }}>
+                              {parte.participante_nome || "-"}
+                              {parte.leitor_nome && <span> / {parte.leitor_nome}</span>}
+                            </span>
                           </div>
-                          {parte.titulo?.toLowerCase().includes("estudo bíblico") && (
-                            <div style={{ paddingLeft: "20px", fontSize: "10px", color: "#666" }}>
-                              {parte.leitor_nome && <div>Leitor: {parte.leitor_nome}</div>}
-                            </div>
-                          )}
                         </div>
                       )
                     })}
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Cântico Final e Oração */}
-                <div style={{ textAlign: "center", padding: "5px", backgroundColor: "#f3f4f6", marginTop: "5px", fontSize: "10px" }}>
-                  {semana.cantico_final && `Cântico ${semana.cantico_final}`}
-                  {vida.find(p => p.oracao_final_nome) && ` | Oração: ${vida.find(p => p.oracao_final_nome)?.oracao_final_nome}`}
+              {/* Comentários Finais */}
+              <div style={{ 
+                fontSize: "10px",
+                fontWeight: "600",
+                color: "#374151",
+                padding: "6px 10px",
+                marginBottom: "8px"
+              }}>
+                Comentários finais
+              </div>
+
+              {/* Cântico Final e Oração */}
+              <div style={{ 
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "8px 12px",
+                backgroundColor: "#e0e7ff",
+                borderRadius: "4px",
+                fontSize: "10px"
+              }}>
+                <div style={{ 
+                  color: "#3730a3",
+                  fontWeight: "600"
+                }}>
+                  {semana.cantico_final && `Cântico ${semana.cantico_final}: ${getCanticoDescricao(semana.cantico_final) || semana.cantico_final_nome || ""}`}
+                </div>
+                <div>
+                  <span style={{ fontWeight: "600", color: "#374151" }}>Oração:</span>
+                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
+                    {oracaoFinal?.oracao_final_nome || "-"}
+                  </span>
                 </div>
               </div>
             </div>
           )
         })}
-
-        <div className="print-footer">
-          Congregação Pq. Sabará - {getMesAno(mes, ano)}
-        </div>
       </div>
     )
   }
@@ -566,3 +780,265 @@ export const PrintServicoCampo = forwardRef<HTMLDivElement, ServicoCampoProps>(
   }
 )
 PrintServicoCampo.displayName = "PrintServicoCampo"
+
+// =====================================
+// PROGRAMAÇÃO DA CONGREGAÇÃO (EQUIPE TÉCNICA)
+// =====================================
+interface DesignacaoTecnica {
+  id: string
+  data: string
+  dia_semana: string
+  indicador1: string | null
+  indicador2: string | null
+  mic_volante1: string | null
+  mic_volante2: string | null
+  audio_video: string | null
+  palco: string | null
+}
+
+interface ReuniaoPublicaDesig {
+  id: string
+  data: string
+  presidente: string | null
+  leitor_sentinela: string | null
+}
+
+interface ArranjoDiscurso {
+  id: string
+  data: string
+  tema: string | null
+  orador: string | null
+}
+
+interface AssistenciaReuniao {
+  id: string
+  data: string
+  dia_semana: string
+  presencial: number
+  zoom: number
+}
+
+interface ProgramacaoCongregacaoProps {
+  mes: number
+  ano: number
+  designacoesTecnicas: DesignacaoTecnica[]
+  reunioesPublicas: ReuniaoPublicaDesig[]
+  discursos: ArranjoDiscurso[]
+  assistencias: AssistenciaReuniao[]
+}
+
+// Função para formatar data curta (ex: "02/04")
+const formatarDataCurta = (data: string) => {
+  const d = new Date(data + "T12:00:00")
+  return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`
+}
+
+// Função para formatar dia da semana
+const formatarDiaSemana = (data: string) => {
+  const d = new Date(data + "T12:00:00")
+  const dias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]
+  return dias[d.getDay()]
+}
+
+export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, ProgramacaoCongregacaoProps>(
+  ({ mes, ano, designacoesTecnicas, reunioesPublicas, discursos, assistencias }, ref) => {
+    
+    // Agrupar por semanas (quinta + domingo)
+    const semanas: { quinta?: DesignacaoTecnica; domingo?: DesignacaoTecnica; reuniaoPublica?: ReuniaoPublicaDesig; discurso?: ArranjoDiscurso }[] = []
+    
+    // Ordenar por data
+    const todasDatas = [...designacoesTecnicas].sort((a, b) => a.data.localeCompare(b.data))
+    
+    // Agrupar quinta com seu domingo seguinte
+    let semanaAtual: typeof semanas[0] = {}
+    todasDatas.forEach(d => {
+      if (d.dia_semana === 'QUINTA') {
+        if (semanaAtual.quinta) {
+          semanas.push(semanaAtual)
+          semanaAtual = {}
+        }
+        semanaAtual.quinta = d
+      } else if (d.dia_semana === 'DOMINGO') {
+        semanaAtual.domingo = d
+        // Buscar reunião pública e discurso para este domingo
+        semanaAtual.reuniaoPublica = reunioesPublicas.find(r => r.data === d.data)
+        semanaAtual.discurso = discursos.find(disc => disc.data === d.data)
+        semanas.push(semanaAtual)
+        semanaAtual = {}
+      }
+    })
+    if (semanaAtual.quinta || semanaAtual.domingo) {
+      semanas.push(semanaAtual)
+    }
+
+    return (
+      <div ref={ref} className="programacao-print" style={{ backgroundColor: "white", padding: "16px", maxWidth: "210mm", margin: "0 auto" }}>
+        {/* Cabeçalho */}
+        <div style={{ 
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderBottom: "2px solid #374151",
+          paddingBottom: "8px",
+          marginBottom: "16px"
+        }}>
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>
+            Parque Sabará - Taubaté SP
+          </div>
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>
+            Designações - {getMesAno(mes, ano)}
+          </div>
+        </div>
+
+        {/* Tabela de Equipe Técnica */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ 
+            backgroundColor: "#2a6b77",
+            color: "white",
+            padding: "8px 12px",
+            fontWeight: "bold",
+            fontSize: "11px",
+            marginBottom: "1px"
+          }}>
+            EQUIPE TÉCNICA
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
+            <thead>
+              <tr style={{ backgroundColor: "#f3f4f6" }}>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Data</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Indicadores</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Mic. Volante</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Áudio/Vídeo</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Palco</th>
+              </tr>
+            </thead>
+            <tbody>
+              {designacoesTecnicas.map((d, i) => (
+                <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>
+                    <strong>{formatarDataCurta(d.data)}</strong> - {d.dia_semana}
+                  </td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>
+                    {d.indicador1}{d.indicador2 ? ` / ${d.indicador2}` : ""}
+                  </td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>
+                    {d.mic_volante1}{d.mic_volante2 ? ` / ${d.mic_volante2}` : ""}
+                  </td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{d.audio_video || "-"}</td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{d.palco || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Presidente e Leitor A Sentinela */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ 
+            backgroundColor: "#c69214",
+            color: "white",
+            padding: "8px 12px",
+            fontWeight: "bold",
+            fontSize: "11px",
+            marginBottom: "1px"
+          }}>
+            PRESIDENTE E LEITOR DE A SENTINELA
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
+            <thead>
+              <tr style={{ backgroundColor: "#f3f4f6" }}>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "25%" }}>Data</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "37.5%" }}>Presidente</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "37.5%" }}>Leitor A Sentinela</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reunioesPublicas.map((r, i) => (
+                <tr key={r.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>
+                    <strong>{formatarDataCurta(r.data)}</strong> - Domingo
+                  </td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{r.presidente || "-"}</td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{r.leitor_sentinela || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Arranjo de Discursos */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ 
+            backgroundColor: "#8b2332",
+            color: "white",
+            padding: "8px 12px",
+            fontWeight: "bold",
+            fontSize: "11px",
+            marginBottom: "1px"
+          }}>
+            ARRANJO DE DISCURSOS
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
+            <thead>
+              <tr style={{ backgroundColor: "#f3f4f6" }}>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "15%" }}>Data</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "60%" }}>Tema</th>
+                <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left", width: "25%" }}>Orador</th>
+              </tr>
+            </thead>
+            <tbody>
+              {discursos.map((d, i) => (
+                <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>
+                    <strong>{formatarDataCurta(d.data)}</strong>
+                  </td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{d.tema || "-"}</td>
+                  <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{d.orador || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Assistência às Reuniões */}
+        {assistencias.length > 0 && (
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{ 
+              backgroundColor: "#374151",
+              color: "white",
+              padding: "8px 12px",
+              fontWeight: "bold",
+              fontSize: "11px",
+              marginBottom: "1px"
+            }}>
+              ASSISTÊNCIA ÀS REUNIÕES
+            </div>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
+              <thead>
+                <tr style={{ backgroundColor: "#f3f4f6" }}>
+                  <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Data</th>
+                  <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "left" }}>Dia</th>
+                  <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center" }}>Presencial</th>
+                  <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center" }}>Zoom</th>
+                  <th style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center" }}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {assistencias.map((a, i) => (
+                  <tr key={a.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                    <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{formatarDataCurta(a.data)}</td>
+                    <td style={{ padding: "6px", border: "1px solid #e5e7eb" }}>{a.dia_semana}</td>
+                    <td style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{a.presencial}</td>
+                    <td style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{a.zoom}</td>
+                    <td style={{ padding: "6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>{a.presencial + a.zoom}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    )
+  }
+)
+PrintProgramacaoCongregacao.displayName = "PrintProgramacaoCongregacao"
