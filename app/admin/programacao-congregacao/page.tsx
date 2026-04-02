@@ -2,11 +2,14 @@
 
 import { useState, useEffect, useRef, forwardRef } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Printer } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 import "@/app/impressao/print-styles.css"
+
+// ─── Tipos ────────────────────────────────────────────────────────────────────
 
 interface DesignacaoTecnica {
   id: string
@@ -44,6 +47,8 @@ interface AssistenciaReuniao {
   zoom: number
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 const meses = [
   { valor: 1, nome: "Janeiro" },
   { valor: 2, nome: "Fevereiro" },
@@ -58,6 +63,15 @@ const meses = [
   { valor: 11, nome: "Novembro" },
   { valor: 12, nome: "Dezembro" },
 ]
+
+const coresSec: Record<string, string> = {
+  tecnica: "#2a6b77",
+  publica: "#c69214",
+  discurso: "#8b2332",
+  assistencia: "#374151",
+}
+
+// ─── Componente principal ─────────────────────────────────────────────────────
 
 export default function ProgramacaoCongregacaoPage() {
   const [mesAtual, setMesAtual] = useState(new Date().getMonth() + 1)
@@ -76,18 +90,19 @@ export default function ProgramacaoCongregacaoPage() {
 
   const supabase = createClient()
 
+  const formatarData = (data: string) => {
+    const d = new Date(data + "T12:00:00")
+    return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`
+  }
+
   const gerarDatasDoMes = () => {
     const datas: { data: string; dia_semana: string }[] = []
     const primeiroDia = new Date(anoAtual, mesAtual - 1, 1)
     const ultimoDia = new Date(anoAtual, mesAtual, 0)
-
     for (let d = new Date(primeiroDia); d <= ultimoDia; d.setDate(d.getDate() + 1)) {
       const diaSemana = d.getDay()
-      if (diaSemana === 4) {
-        datas.push({ data: d.toISOString().split("T")[0], dia_semana: "QUINTA" })
-      } else if (diaSemana === 0) {
-        datas.push({ data: d.toISOString().split("T")[0], dia_semana: "DOMINGO" })
-      }
+      if (diaSemana === 4) datas.push({ data: d.toISOString().split("T")[0], dia_semana: "QUINTA" })
+      else if (diaSemana === 0) datas.push({ data: d.toISOString().split("T")[0], dia_semana: "DOMINGO" })
     }
     return datas
   }
@@ -97,109 +112,66 @@ export default function ProgramacaoCongregacaoPage() {
     const primeiroDia = `${anoAtual}-${String(mesAtual).padStart(2, "0")}-01`
     const ultimoDia = new Date(anoAtual, mesAtual, 0).toISOString().split("T")[0]
 
-    const { data: tecnicas } = await supabase
-      .from("designacoes_tecnicas")
-      .select("*")
-      .gte("data", primeiroDia)
-      .lte("data", ultimoDia)
-      .order("data")
-
-    const { data: reuniaoPublica } = await supabase
-      .from("designacoes_reuniao_publica")
-      .select("*")
-      .gte("data", primeiroDia)
-      .lte("data", ultimoDia)
-      .order("data")
-
-    const { data: discursos } = await supabase
-      .from("arranjo_discursos")
-      .select("*")
-      .gte("data", primeiroDia)
-      .lte("data", ultimoDia)
-      .order("data")
-
-    const { data: assist } = await supabase
-      .from("assistencia_reunioes")
-      .select("*")
-      .eq("mes", mesAtual)
-      .eq("ano", anoAtual)
-      .order("data")
+    const [{ data: tecnicas }, { data: reuniaoPublica }, { data: discursos }, { data: assist }] =
+      await Promise.all([
+        supabase.from("designacoes_tecnicas").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
+        supabase.from("designacoes_reuniao_publica").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
+        supabase.from("arranjo_discursos").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
+        supabase.from("assistencia_reunioes").select("*").eq("mes", mesAtual).eq("ano", anoAtual).order("data"),
+      ])
 
     const datasDoMes = gerarDatasDoMes()
+    const domingos = datasDoMes.filter((d) => d.dia_semana === "DOMINGO")
 
-    const tecnicasCompletas = datasDoMes.map(({ data, dia_semana }) => {
-      const existente = tecnicas?.find((t) => t.data === data)
-      return (
-        existente || {
-          id: `temp-${data}`,
-          data,
-          dia_semana,
-          indicador1: null,
-          indicador2: null,
-          mic_volante1: null,
-          mic_volante2: null,
-          audio_video: null,
-          palco: null,
+    setDesignacoesTecnicas(
+      datasDoMes.map(({ data, dia_semana }) =>
+        tecnicas?.find((t) => t.data === data) || {
+          id: `temp-${data}`, data, dia_semana,
+          indicador1: null, indicador2: null,
+          mic_volante1: null, mic_volante2: null,
+          audio_video: null, palco: null,
         }
       )
-    })
-
-    const domingos = datasDoMes.filter((d) => d.dia_semana === "DOMINGO")
-    const reuniaoPublicaCompleta = domingos.map(({ data }) => {
-      const existente = reuniaoPublica?.find((r) => r.data === data)
-      return existente || { id: `temp-${data}`, data, presidente: null, leitor_sentinela: null }
-    })
-
-    const discursosCompletos = domingos.map(({ data }) => {
-      const existente = discursos?.find((d) => d.data === data)
-      return existente || { id: `temp-${data}`, data, tema: null, orador: null }
-    })
-
-    const assistenciasCompletas = datasDoMes.map(({ data, dia_semana }) => {
-      const existente = assist?.find((a) => a.data === data)
-      return existente || { id: `temp-${data}`, mes: mesAtual, ano: anoAtual, data, dia_semana, presencial: 0, zoom: 0 }
-    })
-
-    setDesignacoesTecnicas(tecnicasCompletas)
-    setDesignacoesReuniaoPublica(reuniaoPublicaCompleta)
-    setArranjoDiscursos(discursosCompletos)
-    setAssistencias(assistenciasCompletas)
+    )
+    setDesignacoesReuniaoPublica(
+      domingos.map(({ data }) =>
+        reuniaoPublica?.find((r) => r.data === data) || { id: `temp-${data}`, data, presidente: null, leitor_sentinela: null }
+      )
+    )
+    setArranjoDiscursos(
+      domingos.map(({ data }) =>
+        discursos?.find((d) => d.data === data) || { id: `temp-${data}`, data, tema: null, orador: null }
+      )
+    )
+    setAssistencias(
+      datasDoMes.map(({ data, dia_semana }) =>
+        assist?.find((a) => a.data === data) || {
+          id: `temp-${data}`, mes: mesAtual, ano: anoAtual, data, dia_semana, presencial: 0, zoom: 0,
+        }
+      )
+    )
     setLoading(false)
   }
 
-  useEffect(() => {
-    carregarDados()
-  }, [mesAtual, anoAtual])
+  useEffect(() => { carregarDados() }, [mesAtual, anoAtual])
 
   const mesAnterior = () => {
     if (mesAtual === 1) { setMesAtual(12); setAnoAtual(anoAtual - 1) }
     else setMesAtual(mesAtual - 1)
   }
-
   const mesProximo = () => {
     if (mesAtual === 12) { setMesAtual(1); setAnoAtual(anoAtual + 1) }
     else setMesAtual(mesAtual + 1)
   }
 
-  const formatarData = (data: string) => {
-    const d = new Date(data + "T12:00:00")
-    return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`
-  }
+  const assistenciasQuintas = assistencias.filter((a) => a.dia_semana === "QUINTA")
+  const assistenciasDomingos = assistencias.filter((a) => a.dia_semana === "DOMINGO")
 
-  const celula = "px-3 py-2 text-sm text-zinc-200"
-  const celulaVazia = "text-zinc-500 italic"
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-      </div>
-    )
-  }
+  if (loading) return <CenteredLoader />
 
   return (
     <div className="space-y-6 pb-10">
-      {/* Navegação de Mês */}
+      {/* Seletor de mês + imprimir */}
       <Card className="bg-zinc-900/50 border-zinc-800">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
@@ -230,177 +202,131 @@ export default function ProgramacaoCongregacaoPage() {
         </CardContent>
       </Card>
 
-      {/* Designações Técnicas */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg text-white flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#2a6b77]"></div>
-            Designações Técnicas
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-zinc-700">
-                  <th className="text-left p-2 text-zinc-400">Data</th>
-                  <th className="text-left p-2 text-zinc-400">Indicadores</th>
-                  <th className="text-left p-2 text-zinc-400">Mic. Volante</th>
-                  <th className="text-left p-2 text-zinc-400">Áudio/Vídeo</th>
-                  <th className="text-left p-2 text-zinc-400">Palco</th>
-                </tr>
-              </thead>
-              <tbody>
-                {designacoesTecnicas.map((d) => (
-                  <tr key={d.data} className={`border-b border-zinc-800 ${d.dia_semana === "DOMINGO" ? "bg-zinc-800/30" : ""}`}>
-                    <td className="p-2 text-white font-medium whitespace-nowrap">
-                      {formatarData(d.data)} <span className="text-zinc-500 text-xs">{d.dia_semana}</span>
-                    </td>
-                    <td className={celula}>
-                      {[d.indicador1, d.indicador2].filter(Boolean).join(" / ") || <span className={celulaVazia}>—</span>}
-                    </td>
-                    <td className={celula}>
-                      {[d.mic_volante1, d.mic_volante2].filter(Boolean).join(" / ") || <span className={celulaVazia}>—</span>}
-                    </td>
-                    <td className={celula}>{d.audio_video || <span className={celulaVazia}>—</span>}</td>
-                    <td className={celula}>{d.palco || <span className={celulaVazia}>—</span>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Reunião Pública */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg text-white flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#c69214]"></div>
-            Reunião Pública (Domingos)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <table className="w-full text-sm">
+      {/* ── Designações Técnicas ── */}
+      <div className="rounded-md overflow-hidden border border-zinc-700/50">
+        <div
+          className="px-4 py-2 text-xs font-bold text-white uppercase tracking-wide"
+          style={{ backgroundColor: coresSec.tecnica }}
+        >
+          Designações Técnicas
+        </div>
+        <div className="overflow-x-auto bg-zinc-900/50">
+          <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-zinc-700">
-                <th className="text-left p-2 text-zinc-400">Data</th>
-                <th className="text-left p-2 text-zinc-400">Presidente</th>
-                <th className="text-left p-2 text-zinc-400">Leitor de A Sentinela</th>
+              <tr className="border-b border-zinc-700 bg-zinc-800/60">
+                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Data</th>
+                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Indicadores</th>
+                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Mic. Volante</th>
+                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Áudio / Vídeo</th>
+                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Palco</th>
+              </tr>
+            </thead>
+            <tbody>
+              {designacoesTecnicas.map((d) => (
+                <tr
+                  key={d.data}
+                  className={`border-b border-zinc-800 ${d.dia_semana === "DOMINGO" ? "bg-zinc-800/30" : ""}`}
+                >
+                  <td className="px-3 py-2 font-semibold text-white whitespace-nowrap">
+                    {formatarData(d.data)}{" "}
+                    <span className="text-zinc-500 font-normal">{d.dia_semana}</span>
+                  </td>
+                  <td className="px-3 py-2 text-zinc-200">
+                    {[d.indicador1, d.indicador2].filter(Boolean).join(" / ") || <span className="text-zinc-600 italic">—</span>}
+                  </td>
+                  <td className="px-3 py-2 text-zinc-200">
+                    {[d.mic_volante1, d.mic_volante2].filter(Boolean).join(" / ") || <span className="text-zinc-600 italic">—</span>}
+                  </td>
+                  <td className="px-3 py-2 text-zinc-200">
+                    {d.audio_video || <span className="text-zinc-600 italic">—</span>}
+                  </td>
+                  <td className="px-3 py-2 text-zinc-200">
+                    {d.palco || <span className="text-zinc-600 italic">—</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ── Reunião Pública ── */}
+      <div className="rounded-md overflow-hidden border border-zinc-700/50">
+        <div
+          className="px-4 py-2 text-xs font-bold text-white uppercase tracking-wide"
+          style={{ backgroundColor: coresSec.publica }}
+        >
+          Reunião Pública — Presidente e Leitor
+        </div>
+        <div className="overflow-x-auto bg-zinc-900/50">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-zinc-700 bg-zinc-800/60">
+                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Data</th>
+                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Presidente de Conferência</th>
+                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Leitor de A Sentinela</th>
               </tr>
             </thead>
             <tbody>
               {designacoesReuniaoPublica.map((r) => (
                 <tr key={r.data} className="border-b border-zinc-800">
-                  <td className="p-2 text-white font-medium">{formatarData(r.data)}</td>
-                  <td className={celula}>{r.presidente || <span className={celulaVazia}>—</span>}</td>
-                  <td className={celula}>{r.leitor_sentinela || <span className={celulaVazia}>—</span>}</td>
+                  <td className="px-3 py-2 font-semibold text-white">{formatarData(r.data)}</td>
+                  <td className="px-3 py-2 text-zinc-200">{r.presidente || <span className="text-zinc-600 italic">—</span>}</td>
+                  <td className="px-3 py-2 text-zinc-200">{r.leitor_sentinela || <span className="text-zinc-600 italic">—</span>}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Arranjo de Discursos */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg text-white flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#8b2332]"></div>
-            Arranjo de Discursos
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <table className="w-full text-sm">
+      {/* ── Arranjo de Discursos ── */}
+      <div className="rounded-md overflow-hidden border border-zinc-700/50">
+        <div
+          className="px-4 py-2 text-xs font-bold text-white uppercase tracking-wide"
+          style={{ backgroundColor: coresSec.discurso }}
+        >
+          Arranjo de Discursos
+        </div>
+        <div className="overflow-x-auto bg-zinc-900/50">
+          <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-zinc-700">
-                <th className="text-left p-2 text-zinc-400">Data</th>
-                <th className="text-left p-2 text-zinc-400">Tema</th>
-                <th className="text-left p-2 text-zinc-400">Orador</th>
+              <tr className="border-b border-zinc-700 bg-zinc-800/60">
+                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Data</th>
+                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Tema</th>
+                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Orador</th>
               </tr>
             </thead>
             <tbody>
               {arranjoDiscursos.map((d) => (
                 <tr key={d.data} className="border-b border-zinc-800">
-                  <td className="p-2 text-white font-medium">{formatarData(d.data)}</td>
-                  <td className={celula}>{d.tema || <span className={celulaVazia}>—</span>}</td>
-                  <td className={celula}>{d.orador || <span className={celulaVazia}>—</span>}</td>
+                  <td className="px-3 py-2 font-semibold text-white">{formatarData(d.data)}</td>
+                  <td className="px-3 py-2 text-zinc-200">{d.tema || <span className="text-zinc-600 italic">—</span>}</td>
+                  <td className="px-3 py-2 text-zinc-200">{d.orador || <span className="text-zinc-600 italic">—</span>}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Assistência às Reuniões */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg text-white">Assistência às Reuniões</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Quinta-feira */}
-            <div>
-              <h4 className="text-sm font-semibold text-zinc-400 mb-2">QUINTA-FEIRA</h4>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-zinc-700">
-                    <th className="text-left p-2 text-zinc-400">Data</th>
-                    <th className="text-center p-2 text-zinc-400 w-20">Presencial</th>
-                    <th className="text-center p-2 text-zinc-400 w-16">Zoom</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assistencias
-                    .filter((a) => a.dia_semana === "QUINTA")
-                    .map((a) => (
-                      <tr key={a.data} className="border-b border-zinc-800">
-                        <td className="p-2 text-white">{formatarData(a.data)}</td>
-                        <td className="p-2 text-center text-zinc-200 font-medium">
-                          {a.presencial > 0 ? a.presencial : <span className="text-zinc-600">—</span>}
-                        </td>
-                        <td className="p-2 text-center text-zinc-200 font-medium">
-                          {a.zoom > 0 ? a.zoom : <span className="text-zinc-600">—</span>}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
+      {/* ── Assistência às Reuniões ── */}
+      <div className="rounded-md overflow-hidden border border-zinc-700/50">
+        <div
+          className="px-4 py-2 text-xs font-bold text-white uppercase tracking-wide"
+          style={{ backgroundColor: coresSec.assistencia }}
+        >
+          Assistência às Reuniões — {meses.find((m) => m.valor === mesAtual)?.nome}
+        </div>
+        <div className="bg-zinc-900/50 p-4 space-y-6">
+          {/* Quinta-feira */}
+          <TabelaAssistencia titulo="QUINTA" registros={assistenciasQuintas} formatarData={formatarData} />
+          {/* Domingo */}
+          <TabelaAssistencia titulo="DOMINGO" registros={assistenciasDomingos} formatarData={formatarData} />
+        </div>
+      </div>
 
-            {/* Domingo */}
-            <div>
-              <h4 className="text-sm font-semibold text-zinc-400 mb-2">DOMINGO</h4>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-zinc-700">
-                    <th className="text-left p-2 text-zinc-400">Data</th>
-                    <th className="text-center p-2 text-zinc-400 w-20">Presencial</th>
-                    <th className="text-center p-2 text-zinc-400 w-16">Zoom</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assistencias
-                    .filter((a) => a.dia_semana === "DOMINGO")
-                    .map((a) => (
-                      <tr key={a.data} className="border-b border-zinc-800">
-                        <td className="p-2 text-white">{formatarData(a.data)}</td>
-                        <td className="p-2 text-center text-zinc-200 font-medium">
-                          {a.presencial > 0 ? a.presencial : <span className="text-zinc-600">—</span>}
-                        </td>
-                        <td className="p-2 text-center text-zinc-200 font-medium">
-                          {a.zoom > 0 ? a.zoom : <span className="text-zinc-600">—</span>}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Componente de Impressão (oculto) */}
+      {/* Componente oculto para impressão */}
       <div className="hidden">
         <PrintProgramacao
           ref={printRef}
@@ -416,7 +342,81 @@ export default function ProgramacaoCongregacaoPage() {
   )
 }
 
-// Componente de impressão
+// ─── Tabela de Assistência (visual da página) ─────────────────────────────────
+
+function TabelaAssistencia({
+  titulo,
+  registros,
+  formatarData,
+}: {
+  titulo: string
+  registros: AssistenciaReuniao[]
+  formatarData: (d: string) => string
+}) {
+  if (registros.length === 0) return null
+
+  return (
+    <div className="flex gap-0 rounded-md overflow-hidden border border-zinc-700">
+      {/* Coluna de labels */}
+      <table className="text-xs border-collapse shrink-0">
+        <thead>
+          <tr>
+            <th className="px-4 py-2 text-center font-bold text-white bg-zinc-700 border border-zinc-600 whitespace-nowrap">
+              {titulo}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="px-4 py-2 text-center font-bold text-zinc-200 bg-zinc-800/50 border border-zinc-700 whitespace-nowrap">
+              PRESENCIAL
+            </td>
+          </tr>
+          <tr>
+            <td className="px-4 py-2 text-center font-bold text-zinc-200 bg-zinc-800/50 border border-zinc-700 whitespace-nowrap">
+              ZOOM
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Colunas de datas */}
+      <table className="text-xs border-collapse flex-1">
+        <thead>
+          <tr>
+            {registros.map((a) => (
+              <th
+                key={a.data}
+                className="px-3 py-2 text-center text-zinc-300 font-semibold bg-zinc-800/30 border border-zinc-700 whitespace-nowrap"
+              >
+                {formatarData(a.data)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {registros.map((a) => (
+              <td key={a.data} className="px-3 py-2 text-center text-zinc-200 border border-zinc-700 min-w-[56px]">
+                {a.presencial > 0 ? a.presencial : ""}
+              </td>
+            ))}
+          </tr>
+          <tr>
+            {registros.map((a) => (
+              <td key={a.data} className="px-3 py-2 text-center text-zinc-200 border border-zinc-700 min-w-[56px]">
+                {a.zoom > 0 ? a.zoom : ""}
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+// ─── Componente de Impressão ──────────────────────────────────────────────────
+
 interface PrintProgramacaoProps {
   mes: number
   ano: number
@@ -438,9 +438,15 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
     const assistenciasQuintas = assistencias.filter((a) => a.dia_semana === "QUINTA")
     const assistenciasDomingos = assistencias.filter((a) => a.dia_semana === "DOMINGO")
 
-    const thStyle: React.CSSProperties = { border: "1px solid #d1d5db", padding: "3px", textAlign: "left" }
-    const tdStyle: React.CSSProperties = { border: "1px solid #d1d5db", padding: "3px" }
-    const tdNumStyle: React.CSSProperties = { border: "1px solid #d1d5db", padding: "3px", textAlign: "center", width: "50px" }
+    const border = "1px solid #d1d5db"
+    const thBase: React.CSSProperties = { border, padding: "4px 6px", textAlign: "left", fontSize: "8px" }
+    const tdBase: React.CSSProperties = { border, padding: "4px 6px", fontSize: "8px" }
+    const headerBar = (color: string): React.CSSProperties => ({
+      backgroundColor: color, color: "white",
+      padding: "5px 8px", fontWeight: "bold",
+      fontSize: "9px", marginBottom: "1px",
+      textTransform: "uppercase",
+    })
 
     return (
       <div
@@ -448,40 +454,37 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         style={{ backgroundColor: "white", padding: "20px", color: "black", fontFamily: "Arial, sans-serif", maxWidth: "210mm" }}
       >
         {/* Cabeçalho */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #374151", paddingBottom: "10px", marginBottom: "15px" }}>
-          <div style={{ fontSize: "14px", fontWeight: "bold" }}>Parque Sabará - Taubaté SP</div>
-          <div style={{ fontSize: "14px", fontWeight: "bold" }}>Programação da Congregação</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #374151", paddingBottom: "8px", marginBottom: "12px" }}>
+          <div style={{ fontSize: "11px", fontWeight: "bold" }}>Parque Sabará — Taubaté SP</div>
+          <div style={{ fontSize: "11px", fontWeight: "bold" }}>Programação da Congregação</div>
         </div>
-
-        <div style={{ textAlign: "center", fontSize: "12px", fontWeight: "bold", marginBottom: "15px", textTransform: "uppercase" }}>
-          PROGRAMAÇÃO DA CONGREGAÇÃO - {mesNome.toUpperCase()} {ano}
+        <div style={{ textAlign: "center", fontSize: "11px", fontWeight: "bold", marginBottom: "14px", textTransform: "uppercase" }}>
+          Programação da Congregação — {mesNome.toUpperCase()} {ano}
         </div>
 
         {/* Designações Técnicas */}
-        <div style={{ marginBottom: "15px" }}>
-          <div style={{ backgroundColor: "#2a6b77", color: "white", padding: "6px 10px", fontWeight: "bold", fontSize: "10px", marginBottom: "1px" }}>
-            DESIGNAÇÕES TÉCNICAS
-          </div>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8px" }}>
+        <div style={{ marginBottom: "12px" }}>
+          <div style={headerBar("#2a6b77")}>Designações Técnicas</div>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ backgroundColor: "#f3f4f6" }}>
-                <th style={thStyle}>DATA</th>
-                <th style={thStyle}>INDICADORES</th>
-                <th style={thStyle}>MIC. VOLANTE</th>
-                <th style={thStyle}>ÁUDIO E VÍDEO</th>
-                <th style={thStyle}>PALCO</th>
+                <th style={thBase}>Data</th>
+                <th style={thBase}>Indicadores</th>
+                <th style={thBase}>Mic. Volante</th>
+                <th style={thBase}>Áudio e Vídeo</th>
+                <th style={thBase}>Palco</th>
               </tr>
             </thead>
             <tbody>
               {designacoesTecnicas.map((d) => (
                 <tr key={d.data} style={{ backgroundColor: d.dia_semana === "DOMINGO" ? "#f9fafb" : "white" }}>
-                  <td style={{ ...tdStyle, fontWeight: "bold", whiteSpace: "nowrap" }}>
+                  <td style={{ ...tdBase, fontWeight: "bold", whiteSpace: "nowrap" }}>
                     {formatarData(d.data)} {d.dia_semana}
                   </td>
-                  <td style={tdStyle}>{[d.indicador1, d.indicador2].filter(Boolean).join(" / ")}</td>
-                  <td style={tdStyle}>{[d.mic_volante1, d.mic_volante2].filter(Boolean).join(" / ")}</td>
-                  <td style={tdStyle}>{d.audio_video || ""}</td>
-                  <td style={tdStyle}>{d.palco || ""}</td>
+                  <td style={tdBase}>{[d.indicador1, d.indicador2].filter(Boolean).join(" / ")}</td>
+                  <td style={tdBase}>{[d.mic_volante1, d.mic_volante2].filter(Boolean).join(" / ")}</td>
+                  <td style={tdBase}>{d.audio_video || ""}</td>
+                  <td style={tdBase}>{d.palco || ""}</td>
                 </tr>
               ))}
             </tbody>
@@ -489,24 +492,22 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Reunião Pública */}
-        <div style={{ marginBottom: "15px" }}>
-          <div style={{ backgroundColor: "#c69214", color: "white", padding: "6px 10px", fontWeight: "bold", fontSize: "10px", marginBottom: "1px" }}>
-            REUNIÃO PÚBLICA - PRESIDENTE E LEITOR
-          </div>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8px" }}>
+        <div style={{ marginBottom: "12px" }}>
+          <div style={headerBar("#c69214")}>Reunião Pública — Presidente e Leitor</div>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ backgroundColor: "#f3f4f6" }}>
-                <th style={thStyle}>DATA</th>
-                <th style={thStyle}>PRESIDENTE DE CONFERÊNCIA</th>
-                <th style={thStyle}>LEITOR DE A SENTINELA</th>
+                <th style={thBase}>Data</th>
+                <th style={thBase}>Presidente de Conferência</th>
+                <th style={thBase}>Leitor de A Sentinela</th>
               </tr>
             </thead>
             <tbody>
               {designacoesReuniaoPublica.map((r) => (
                 <tr key={r.data}>
-                  <td style={{ ...tdStyle, fontWeight: "bold" }}>{formatarData(r.data)}</td>
-                  <td style={tdStyle}>{r.presidente || ""}</td>
-                  <td style={tdStyle}>{r.leitor_sentinela || ""}</td>
+                  <td style={{ ...tdBase, fontWeight: "bold" }}>{formatarData(r.data)}</td>
+                  <td style={tdBase}>{r.presidente || ""}</td>
+                  <td style={tdBase}>{r.leitor_sentinela || ""}</td>
                 </tr>
               ))}
             </tbody>
@@ -514,24 +515,22 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Arranjo de Discursos */}
-        <div style={{ marginBottom: "15px" }}>
-          <div style={{ backgroundColor: "#8b2332", color: "white", padding: "6px 10px", fontWeight: "bold", fontSize: "10px", marginBottom: "1px" }}>
-            ARRANJO DE DISCURSOS
-          </div>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8px" }}>
+        <div style={{ marginBottom: "16px" }}>
+          <div style={headerBar("#8b2332")}>Arranjo de Discursos</div>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ backgroundColor: "#f3f4f6" }}>
-                <th style={thStyle}>DATA</th>
-                <th style={thStyle}>TEMA</th>
-                <th style={thStyle}>ORADOR</th>
+                <th style={thBase}>Data</th>
+                <th style={thBase}>Tema</th>
+                <th style={thBase}>Orador</th>
               </tr>
             </thead>
             <tbody>
               {arranjoDiscursos.map((d) => (
                 <tr key={d.data}>
-                  <td style={{ ...tdStyle, fontWeight: "bold" }}>{formatarData(d.data)}</td>
-                  <td style={tdStyle}>{d.tema || ""}</td>
-                  <td style={tdStyle}>{d.orador || ""}</td>
+                  <td style={{ ...tdBase, fontWeight: "bold" }}>{formatarData(d.data)}</td>
+                  <td style={tdBase}>{d.tema || ""}</td>
+                  <td style={tdBase}>{d.orador || ""}</td>
                 </tr>
               ))}
             </tbody>
@@ -540,56 +539,14 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
 
         {/* Assistência às Reuniões */}
         <div>
-          <div style={{ backgroundColor: "#374151", color: "white", padding: "6px 10px", fontWeight: "bold", fontSize: "10px", marginBottom: "1px" }}>
-            ASSISTÊNCIA ÀS REUNIÕES - {mesNome.toUpperCase()}
+          <div style={{ ...headerBar("#374151"), textAlign: "center", fontSize: "10px", fontWeight: "bold" }}>
+            Assistência às Reuniões — {mesNome.toUpperCase()}
           </div>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <div style={{ flex: 1 }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8px" }}>
-                <thead>
-                  <tr style={{ backgroundColor: "#f3f4f6" }}>
-                    <th colSpan={3} style={{ ...thStyle, textAlign: "center" }}>QUINTA</th>
-                  </tr>
-                  <tr style={{ backgroundColor: "#f3f4f6" }}>
-                    <th style={thStyle}>DATA</th>
-                    <th style={tdNumStyle}>PRESENCIAL</th>
-                    <th style={tdNumStyle}>ZOOM</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assistenciasQuintas.map((a) => (
-                    <tr key={a.data}>
-                      <td style={tdStyle}>{formatarData(a.data)}</td>
-                      <td style={tdNumStyle}>{a.presencial || ""}</td>
-                      <td style={tdNumStyle}>{a.zoom || ""}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div style={{ flex: 1 }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8px" }}>
-                <thead>
-                  <tr style={{ backgroundColor: "#f3f4f6" }}>
-                    <th colSpan={3} style={{ ...thStyle, textAlign: "center" }}>DOMINGO</th>
-                  </tr>
-                  <tr style={{ backgroundColor: "#f3f4f6" }}>
-                    <th style={thStyle}>DATA</th>
-                    <th style={tdNumStyle}>PRESENCIAL</th>
-                    <th style={tdNumStyle}>ZOOM</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assistenciasDomingos.map((a) => (
-                    <tr key={a.data}>
-                      <td style={tdStyle}>{formatarData(a.data)}</td>
-                      <td style={tdNumStyle}>{a.presencial || ""}</td>
-                      <td style={tdNumStyle}>{a.zoom || ""}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div style={{ display: "flex", gap: "20px", marginTop: "10px" }}>
+            {/* Quinta */}
+            <PrintTabelaAssistencia titulo="QUINTA" registros={assistenciasQuintas} formatarData={formatarData} />
+            {/* Domingo */}
+            <PrintTabelaAssistencia titulo="DOMINGO" registros={assistenciasDomingos} formatarData={formatarData} />
           </div>
         </div>
       </div>
@@ -597,3 +554,68 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
   }
 )
 PrintProgramacao.displayName = "PrintProgramacao"
+
+// ─── Tabela Assistência para impressão ───────────────────────────────────────
+
+function PrintTabelaAssistencia({
+  titulo,
+  registros,
+  formatarData,
+}: {
+  titulo: string
+  registros: AssistenciaReuniao[]
+  formatarData: (d: string) => string
+}) {
+  if (registros.length === 0) return null
+
+  const border = "1px solid #9ca3af"
+  const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
+    border, padding: "4px 8px", fontSize: "8px", textAlign: "center", ...extra,
+  })
+
+  return (
+    <div style={{ display: "flex", gap: 0 }}>
+      {/* Labels */}
+      <table style={{ borderCollapse: "collapse", flexShrink: 0 }}>
+        <thead>
+          <tr>
+            <th style={cell({ fontWeight: "bold", backgroundColor: "#e5e7eb", whiteSpace: "nowrap" })}>{titulo}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>PRESENCIAL</td></tr>
+          <tr><td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>ZOOM</td></tr>
+        </tbody>
+      </table>
+
+      {/* Datas */}
+      <table style={{ borderCollapse: "collapse" }}>
+        <thead>
+          <tr>
+            {registros.map((a) => (
+              <th key={a.data} style={cell({ backgroundColor: "#e5e7eb", whiteSpace: "nowrap", minWidth: "46px" })}>
+                {formatarData(a.data)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {registros.map((a) => (
+              <td key={a.data} style={cell({ minWidth: "46px" })}>
+                {a.presencial > 0 ? a.presencial : ""}
+              </td>
+            ))}
+          </tr>
+          <tr>
+            {registros.map((a) => (
+              <td key={a.data} style={cell({ minWidth: "46px" })}>
+                {a.zoom > 0 ? a.zoom : ""}
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  )
+}
