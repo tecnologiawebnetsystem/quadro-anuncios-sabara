@@ -22,6 +22,7 @@ import {
   Megaphone,
   Settings,
   Music,
+  Monitor,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -90,7 +91,7 @@ const menuGroups: MenuGroup[] = [
     ]
   },
   {
-    title: "Reuniões",
+    title: "Cadastros",
     icon: Calendar,
     color: "text-blue-400",
     items: [
@@ -109,12 +110,26 @@ const orgItems: MenuItem[] = [
   { title: "Serviço de Campo", icon: MapPin, href: "/admin/servico-campo", color: "text-orange-400" },
 ]
 
+const visualizacaoGroup: MenuGroup = {
+  title: "Visualização",
+  icon: Monitor,
+  color: "text-indigo-400",
+  items: [
+    { title: "Vida e Ministério", icon: Gem, href: "/admin/visualizacao/vida-ministerio", color: "text-blue-400" },
+    { title: "Estudo Sentinela", icon: BookMarked, href: "/admin/visualizacao/sentinela", color: "text-red-400" },
+    { title: "Reuniões Públicas", icon: Mic, href: "/admin/visualizacao/reunioes-publicas", color: "text-blue-400" },
+    { title: "Equipe Técnica", icon: Wrench, href: "/admin/visualizacao/equipe-tecnica", color: "text-orange-400" },
+    { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/visualizacao/limpeza-salao", color: "text-cyan-400" },
+    { title: "Serviço de Campo", icon: MapPin, href: "/admin/visualizacao/servico-campo", color: "text-green-400" },
+  ]
+}
+
 const impressaoGroup: MenuGroup = {
   title: "Impressão",
   icon: ClipboardList,
   color: "text-amber-400",
   items: [
-    { title: "Vida e Ministério", icon: Gem, href: "/admin/vida-ministerio", color: "text-amber-400" },
+    { title: "Vida e Ministério", icon: Gem, href: "/admin/impressao/vida-ministerio", color: "text-amber-400" },
     { title: "Programação", icon: ClipboardList, href: "/admin/programacao-congregacao", color: "text-amber-400" },
     { title: "Grupo de Estudos", icon: BookOpen, href: "/admin/impressao/grupo-estudos", color: "text-amber-400" },
     { title: "Serviço de Campo", icon: MapPin, href: "/admin/impressao/servico-campo", color: "text-amber-400" },
@@ -124,7 +139,7 @@ const impressaoGroup: MenuGroup = {
 export function AdminSidebar() {
   const pathname = usePathname()
   const baseId = useId()
-  const [openGroups, setOpenGroups] = useState<string[]>(["Publicadores", "Reuniões", "Impressão"])
+  const [openGroups, setOpenGroups] = useState<string[]>(["Publicadores", "Cadastros", "Impressão", "Visualização"])
   const [stats, setStats] = useState({
     totalPublicadores: 0,
     totalAnciaos: 0,
@@ -284,6 +299,50 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu suppressHydrationWarning>
+              {/* Grupo Visualização colapsável */}
+              <Collapsible
+                open={openGroups.includes(visualizacaoGroup.title)}
+                onOpenChange={() => toggleGroup(visualizacaoGroup.title)}
+              >
+                <SidebarMenuItem suppressHydrationWarning>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      className={cn(
+                        "h-9 w-full justify-between rounded-lg font-medium transition-all",
+                        visualizacaoGroup.items.some(item => isItemActive(item.href)) && "bg-sidebar-accent text-sidebar-accent-foreground"
+                      )}
+                    >
+                      <span className="flex items-center gap-3">
+                        <visualizacaoGroup.icon className={cn("h-4 w-4 flex-shrink-0", visualizacaoGroup.color)} />
+                        <span>{visualizacaoGroup.title}</span>
+                      </span>
+                      <ChevronDown className={cn(
+                        "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+                        openGroups.includes(visualizacaoGroup.title) && "rotate-180"
+                      )} />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub className="ml-4 border-l border-sidebar-border/60 pl-3 mt-0.5 space-y-0.5">
+                      {visualizacaoGroup.items.map((item) => (
+                        <SidebarMenuSubItem key={item.href}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={isItemActive(item.href)}
+                            className="h-8 rounded-md"
+                          >
+                            <Link href={item.href} className="flex items-center gap-2">
+                              <item.icon className={cn("h-3.5 w-3.5 flex-shrink-0", item.color)} />
+                              <span className="text-sm">{item.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+
               {/* Grupo Impressão colapsável */}
               <Collapsible
                 open={openGroups.includes(impressaoGroup.title)}
