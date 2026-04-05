@@ -79,7 +79,7 @@ const menuGroups: MenuGroup[] = [
     ]
   },
   {
-    title: "Reuniões",
+    title: "Cadastros",
     icon: Calendar,
     color: "text-blue-400",
     items: [
@@ -113,7 +113,7 @@ const impressaoGroup: MenuGroup = {
 export function AnciaoSidebar() {
   const pathname = usePathname()
   useId()
-  const [openGroups, setOpenGroups] = useState<string[]>(["Publicadores", "Reuniões", "Impressão"])
+  const [openGroups, setOpenGroups] = useState<string[]>(["Publicadores", "Cadastros", "Impressão"])
   const [stats, setStats] = useState({
     totalPublicadores: 0,
     totalAnciaos: 0,
