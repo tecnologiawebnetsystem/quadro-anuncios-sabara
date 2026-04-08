@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useReactToPrint } from "react-to-print"
-import { Printer, Users, MapPin, Loader2, BookOpen } from "lucide-react"
+import { Printer, Users, MapPin, Loader2, BookOpen, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   getGrupos,
@@ -12,24 +12,14 @@ import {
 } from "@/lib/actions/grupos"
 import "@/app/impressao/print-styles.css"
 
-// Paleta de cores para os grupos (ciclica)
-const GROUP_COLORS = [
-  { bg: "bg-blue-950/60", border: "border-blue-700/50", header: "bg-blue-900/80", text: "text-blue-300", badge: "bg-blue-800/60 text-blue-200", lider: "text-blue-300", auxiliar: "text-sky-300" },
-  { bg: "bg-emerald-950/60", border: "border-emerald-700/50", header: "bg-emerald-900/80", text: "text-emerald-300", badge: "bg-emerald-800/60 text-emerald-200", lider: "text-emerald-300", auxiliar: "text-teal-300" },
-  { bg: "bg-violet-950/60", border: "border-violet-700/50", header: "bg-violet-900/80", text: "text-violet-300", badge: "bg-violet-800/60 text-violet-200", lider: "text-violet-300", auxiliar: "text-purple-300" },
-  { bg: "bg-amber-950/60", border: "border-amber-700/50", header: "bg-amber-900/80", text: "text-amber-300", badge: "bg-amber-800/60 text-amber-200", lider: "text-amber-300", auxiliar: "text-yellow-300" },
-  { bg: "bg-rose-950/60", border: "border-rose-700/50", header: "bg-rose-900/80", text: "text-rose-300", badge: "bg-rose-800/60 text-rose-200", lider: "text-rose-300", auxiliar: "text-pink-300" },
-  { bg: "bg-cyan-950/60", border: "border-cyan-700/50", header: "bg-cyan-900/80", text: "text-cyan-300", badge: "bg-cyan-800/60 text-cyan-200", lider: "text-cyan-300", auxiliar: "text-sky-300" },
-]
-
 // Cores para impressão (estilo inline para print)
 const PRINT_COLORS = [
-  { header: "#1e3a5f", headerText: "#93c5fd", border: "#2d6a9f", lider: "#93c5fd", auxiliar: "#7dd3fc" },
-  { header: "#14532d", headerText: "#6ee7b7", border: "#16a34a", lider: "#6ee7b7", auxiliar: "#5eead4" },
-  { header: "#2e1065", headerText: "#c4b5fd", border: "#7c3aed", lider: "#c4b5fd", auxiliar: "#d8b4fe" },
-  { header: "#451a03", headerText: "#fcd34d", border: "#d97706", lider: "#fcd34d", auxiliar: "#fde68a" },
-  { header: "#4c0519", headerText: "#fda4af", border: "#e11d48", lider: "#fda4af", auxiliar: "#f9a8d4" },
-  { header: "#083344", headerText: "#67e8f9", border: "#0891b2", lider: "#67e8f9", auxiliar: "#7dd3fc" },
+  { header: "#1e3a5f", headerText: "#ffffff", border: "#2d6a9f" },
+  { header: "#14532d", headerText: "#ffffff", border: "#16a34a" },
+  { header: "#2e1065", headerText: "#ffffff", border: "#7c3aed" },
+  { header: "#451a03", headerText: "#ffffff", border: "#d97706" },
+  { header: "#4c0519", headerText: "#ffffff", border: "#e11d48" },
+  { header: "#083344", headerText: "#ffffff", border: "#0891b2" },
 ]
 
 export default function ImpressaoGrupoEstudosPage() {
@@ -40,7 +30,18 @@ export default function ImpressaoGrupoEstudosPage() {
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: "Grupos de Estudos",
+    documentTitle: "Grupos_de_Estudos",
+  })
+
+  const handleSaveAs = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: "Grupos_de_Estudos",
+    print: async (printIframe) => {
+      const contentWindow = printIframe.contentWindow
+      if (contentWindow) {
+        contentWindow.print()
+      }
+    },
   })
 
   useEffect(() => {
@@ -76,218 +77,228 @@ export default function ImpressaoGrupoEstudosPage() {
 
   const totalPublicadores = publicadores.filter((p) => p.grupo_id).length
 
-  if (loading) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Cabeçalho da página */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 border border-emerald-500/30">
-            <BookOpen className="h-5 w-5 text-emerald-400" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Grupos de Estudos</h1>
-          </div>
-        </div>
-        <Button onClick={() => handlePrint()} className="gap-2">
-          <Printer className="h-4 w-4" />
-          Imprimir
-        </Button>
-      </div>
-
-      {/* Preview da impressão */}
-      {grupos.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-muted-foreground gap-3">
-          <Users className="h-12 w-12 opacity-30" />
-          <p className="text-sm">Nenhum grupo cadastrado ainda.</p>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
-          {/* Preview visual na tela */}
-          <div className="p-6">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {grupos.map((grupo, idx) => {
-                const cor = GROUP_COLORS[idx % GROUP_COLORS.length]
-                const pubs = getPublicadoresDoGrupo(grupo.id)
-                return (
-                  <div
-                    key={grupo.id}
-                    className={`rounded-xl border ${cor.border} ${cor.bg} overflow-hidden`}
-                  >
-                    {/* Header do grupo */}
-                    <div className={`${cor.header} px-4 py-3 flex items-center justify-between`}>
-                      <div>
-                        <p className={`text-xs font-semibold uppercase tracking-widest ${cor.text} opacity-70`}>
-                          Grupo {grupo.numero}
-                        </p>
-                        <h3 className={`font-bold text-sm ${cor.text}`}>{grupo.nome}</h3>
-                      </div>
-                      <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${cor.badge}`}>
-                        <Users className="h-3 w-3" />
-                        {pubs.length}
-                      </div>
-                    </div>
-
-                    {/* Local */}
-                    {grupo.local && (
-                      <div className={`px-4 py-1.5 border-b ${cor.border} flex items-center gap-1.5`}>
-                        <MapPin className={`h-3 w-3 ${cor.text} opacity-60`} />
-                        <span className={`text-xs ${cor.text} opacity-70`}>{grupo.local}</span>
-                      </div>
-                    )}
-
-                    {/* Lista de publicadores */}
-                    <div className="px-4 py-3 space-y-1.5">
-                      {pubs.length === 0 ? (
-                        <p className="text-xs text-muted-foreground italic py-2 text-center">
-                          Sem publicadores
-                        </p>
-                      ) : (
-                        pubs.map((pub) => (
-                          <div key={pub.id} className="flex items-center gap-2">
-                            <div className="h-1.5 w-1.5 rounded-full flex-shrink-0 bg-zinc-400" />
-                            <span className="text-sm text-zinc-200">
-                              {pub.nome}
-                              {pub.is_lider && (
-                                <span className="ml-1.5 text-[11px] font-bold text-zinc-200"> Dirigente</span>
-                              )}
-                              {pub.is_auxiliar && (
-                                <span className="ml-1.5 text-[11px] font-bold text-zinc-200"> Auxiliar</span>
-                              )}
-                            </span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Barra de controle — não imprime */}
+      <div className="print:hidden sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 border border-emerald-500/30">
+              <BookOpen className="h-4 w-4 text-emerald-400" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold">Grupo de Estudos</h1>
+              <p className="text-xs text-muted-foreground">Visualização para impressão</p>
             </div>
           </div>
         </div>
-      )}
-
-      {/* Layout para impressão (oculto na tela) */}
-      <div className="hidden">
-        <div ref={printRef} className="print-container">
-          <style>{`
-            @media print {
-              body { background: white !important; color: black !important; }
-              .print-container { padding: 16px; font-family: Arial, sans-serif; }
-            }
-          `}</style>
-
-          {/* Título */}
-          <div style={{ textAlign: "center", marginBottom: "20px", paddingBottom: "12px", borderBottom: "2px solid #ddd" }}>
-            <h1 style={{ fontSize: "20px", fontWeight: "bold", margin: 0, color: "#111" }}>
-              Grupos de Estudos
-            </h1>
-            <p style={{ fontSize: "12px", color: "#555", margin: "4px 0 0" }}>
-              Congregação Pq. Sabará &mdash; {grupos.length} grupo{grupos.length !== 1 ? "s" : ""} &middot; {totalPublicadores} publicador{totalPublicadores !== 1 ? "es" : ""}
-            </p>
-          </div>
-
-          {/* Grid de grupos na impressão */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "12px",
-          }}>
-            {grupos.map((grupo, idx) => {
-              const pc = PRINT_COLORS[idx % PRINT_COLORS.length]
-              const pubs = getPublicadoresDoGrupo(grupo.id)
-              return (
-                <div
-                  key={grupo.id}
-                  style={{
-                    border: `1px solid ${pc.border}`,
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                    breakInside: "avoid",
-                  }}
-                >
-                  {/* Header */}
-                  <div style={{
-                    backgroundColor: pc.header,
-                    padding: "8px 12px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}>
-                    <div>
-                      <div style={{ fontSize: "9px", color: pc.headerText, opacity: 0.7, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                        Grupo {grupo.numero}
-                      </div>
-                      <div style={{ fontSize: "13px", fontWeight: "bold", color: pc.headerText }}>
-                        {grupo.nome}
-                      </div>
-                    </div>
-                    <div style={{
-                      backgroundColor: "rgba(255,255,255,0.12)",
-                      borderRadius: "999px",
-                      padding: "2px 8px",
-                      fontSize: "11px",
-                      color: pc.headerText,
-                      fontWeight: "600",
-                    }}>
-                      {pubs.length}
-                    </div>
-                  </div>
-
-                  {/* Local */}
-                  {grupo.local && (
-                    <div style={{
-                      fontSize: "10px",
-                      color: "#555",
-                      padding: "4px 12px",
-                      borderBottom: `1px solid ${pc.border}`,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}>
-                      📍 {grupo.local}
-                    </div>
-                  )}
-
-                  {/* Publicadores */}
-                  <div style={{ padding: "8px 12px" }}>
-                    {pubs.length === 0 ? (
-                      <p style={{ fontSize: "10px", color: "#999", textAlign: "center", margin: "8px 0", fontStyle: "italic" }}>
-                        Sem publicadores
-                      </p>
-                    ) : (
-                      pubs.map((pub) => (
-                        <div key={pub.id} style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
-                          <span style={{
-                            display: "inline-block",
-                            width: "6px",
-                            height: "6px",
-                            borderRadius: "50%",
-                            backgroundColor: "#888",
-                            flexShrink: 0,
-                          }} />
-                          <span style={{ fontSize: "11px", color: "#111", fontWeight: "400" }}>
-                            {pub.nome}
-                            {pub.is_lider && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "4px" }}>Dirigente</span>}
-                            {pub.is_auxiliar && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "4px" }}>Auxiliar</span>}
-                          </span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={() => handleSaveAs()} 
+            variant="outline"
+            className="gap-2 border-emerald-600/50 text-emerald-400 hover:bg-emerald-600/10"
+          >
+            <Save className="h-4 w-4" />
+            Salvar como
+          </Button>
+          <Button onClick={() => handlePrint()} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
+            <Printer className="h-4 w-4" />
+            Imprimir
+          </Button>
         </div>
+      </div>
+
+      {/* Área de conteúdo */}
+      <div className="p-6 max-w-4xl mx-auto print:p-0 print:max-w-none">
+        {loading ? (
+          <div className="flex h-64 items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : grupos.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 text-muted-foreground gap-3">
+            <Users className="h-12 w-12 opacity-30" />
+            <p className="text-sm">Nenhum grupo cadastrado ainda.</p>
+          </div>
+        ) : (
+          <>
+            {/* Preview na tela */}
+            <div className="print:hidden rounded-xl border border-border bg-card p-6">
+              <PrintGrupoEstudos
+                ref={printRef}
+                grupos={grupos}
+                publicadores={publicadores}
+                getPublicadoresDoGrupo={getPublicadoresDoGrupo}
+                totalPublicadores={totalPublicadores}
+              />
+            </div>
+
+            {/* Conteúdo oculto para impressão */}
+            <div className="hidden print:block">
+              <PrintGrupoEstudos
+                ref={printRef}
+                grupos={grupos}
+                publicadores={publicadores}
+                getPublicadoresDoGrupo={getPublicadoresDoGrupo}
+                totalPublicadores={totalPublicadores}
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
 }
+
+// Componente de impressão
+import { forwardRef } from "react"
+
+interface PrintGrupoEstudosProps {
+  grupos: Grupo[]
+  publicadores: PublicadorGrupo[]
+  getPublicadoresDoGrupo: (grupoId: string) => PublicadorGrupo[]
+  totalPublicadores: number
+}
+
+const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
+  ({ grupos, getPublicadoresDoGrupo, totalPublicadores }, ref) => {
+    return (
+      <div ref={ref} style={{ backgroundColor: "white", padding: "16px", color: "black", fontFamily: "Arial, sans-serif" }}>
+        {/* Cabeçalho */}
+        <div style={{ 
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderBottom: "2px solid #374151",
+          paddingBottom: "8px",
+          marginBottom: "12px"
+        }}>
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>
+            Parque Sabará - Taubaté SP
+          </div>
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827", textAlign: "right" }}>
+            Grupos de Estudos
+          </div>
+        </div>
+
+        {/* Subtítulo */}
+        <div style={{ 
+          textAlign: "center", 
+          marginBottom: "16px", 
+          paddingBottom: "8px"
+        }}>
+          <p style={{ fontSize: "11px", color: "#555", margin: 0 }}>
+            {grupos.length} grupo{grupos.length !== 1 ? "s" : ""} &middot; {totalPublicadores} publicador{totalPublicadores !== 1 ? "es" : ""}
+          </p>
+        </div>
+
+        {/* Grid de grupos */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: "12px",
+        }}>
+          {grupos.map((grupo, idx) => {
+            const pc = PRINT_COLORS[idx % PRINT_COLORS.length]
+            const pubs = getPublicadoresDoGrupo(grupo.id)
+            return (
+              <div
+                key={grupo.id}
+                style={{
+                  border: `1px solid ${pc.border}`,
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  breakInside: "avoid",
+                  pageBreakInside: "avoid",
+                }}
+              >
+                {/* Header */}
+                <div style={{
+                  backgroundColor: pc.header,
+                  padding: "10px 14px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}>
+                  <div>
+                    <div style={{ fontSize: "9px", color: pc.headerText, opacity: 0.8, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Grupo {grupo.numero}
+                    </div>
+                    <div style={{ fontSize: "13px", fontWeight: "bold", color: pc.headerText }}>
+                      {grupo.nome}
+                    </div>
+                  </div>
+                  <div style={{
+                    backgroundColor: "rgba(255,255,255,0.2)",
+                    borderRadius: "999px",
+                    padding: "3px 10px",
+                    fontSize: "11px",
+                    color: pc.headerText,
+                    fontWeight: "600",
+                  }}>
+                    {pubs.length}
+                  </div>
+                </div>
+
+                {/* Local */}
+                {grupo.local && (
+                  <div style={{
+                    fontSize: "10px",
+                    color: "#555",
+                    padding: "6px 14px",
+                    borderBottom: `1px solid ${pc.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    backgroundColor: "#f9fafb",
+                  }}>
+                    <MapPin style={{ width: "10px", height: "10px" }} /> {grupo.local}
+                  </div>
+                )}
+
+                {/* Publicadores */}
+                <div style={{ padding: "10px 14px", backgroundColor: "white" }}>
+                  {pubs.length === 0 ? (
+                    <p style={{ fontSize: "10px", color: "#999", textAlign: "center", margin: "8px 0", fontStyle: "italic" }}>
+                      Sem publicadores
+                    </p>
+                  ) : (
+                    pubs.map((pub) => (
+                      <div key={pub.id} style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
+                        <span style={{
+                          display: "inline-block",
+                          width: "5px",
+                          height: "5px",
+                          borderRadius: "50%",
+                          backgroundColor: "#888",
+                          flexShrink: 0,
+                        }} />
+                        <span style={{ fontSize: "10px", color: "#111" }}>
+                          {pub.nome}
+                          {pub.is_lider && <span style={{ fontWeight: 700, fontSize: "10px", marginLeft: "4px", color: pc.header }}>(Dirigente)</span>}
+                          {pub.is_auxiliar && <span style={{ fontWeight: 700, fontSize: "10px", marginLeft: "4px", color: "#666" }}>(Auxiliar)</span>}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Rodapé */}
+        <div style={{ 
+          marginTop: "20px", 
+          paddingTop: "10px", 
+          borderTop: "1px solid #e5e7eb",
+          textAlign: "center",
+          fontSize: "9px",
+          color: "#666"
+        }}>
+          Congregação Pq. Sabará - Grupos de Estudos
+        </div>
+      </div>
+    )
+  }
+)
+PrintGrupoEstudos.displayName = "PrintGrupoEstudos"
