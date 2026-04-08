@@ -87,15 +87,15 @@ const menuGroups: MenuGroup[] = [
       // Sentinela removida no perfil Ancião
       { title: "Reuniões Públicas", icon: Mic, href: "/anciao/reunioes-publicas", color: "text-blue-400" },
       { title: "Equipe Técnica", icon: Wrench, href: "/anciao/equipe-tecnica", color: "text-blue-400" },
+      { title: "Grupo de Estudos", icon: BookOpen, href: "/anciao/grupo-estudos", color: "text-emerald-400" },
+      { title: "Limpeza do Salão", icon: Sparkles, href: "/anciao/limpeza-salao", color: "text-cyan-400" },
+      { title: "Serviço de Campo", icon: MapPin, href: "/anciao/servico-campo", color: "text-orange-400" },
     ]
   },
 ]
 
 const orgItems: MenuItem[] = [
   { title: "Cânticos", icon: Music, href: "/anciao/canticos", color: "text-purple-400" },
-  { title: "Grupo de Estudos", icon: BookOpen, href: "/anciao/grupo-estudos", color: "text-emerald-400" },
-  { title: "Limpeza do Salão", icon: Sparkles, href: "/anciao/limpeza-salao", color: "text-cyan-400" },
-  { title: "Serviço de Campo", icon: MapPin, href: "/anciao/servico-campo", color: "text-orange-400" },
 ]
 
 const impressaoGroup: MenuGroup = {
