@@ -99,15 +99,15 @@ const menuGroups: MenuGroup[] = [
       { title: "Sentinela", icon: BookMarked, href: "/admin/sentinela", color: "text-blue-400" },
       { title: "Reuniões Públicas", icon: Mic, href: "/admin/reunioes-publicas", color: "text-blue-400" },
       { title: "Equipe Técnica", icon: Wrench, href: "/admin/equipe-tecnica", color: "text-blue-400" },
+      { title: "Grupo de Estudos", icon: BookOpen, href: "/admin/grupo-estudos", color: "text-emerald-400" },
+      { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/limpeza-salao", color: "text-cyan-400" },
+      { title: "Serviço de Campo", icon: MapPin, href: "/admin/servico-campo", color: "text-orange-400" },
     ]
   },
 ]
 
 const orgItems: MenuItem[] = [
   { title: "Cânticos", icon: Music, href: "/admin/canticos", color: "text-purple-400" },
-  { title: "Grupo de Estudos", icon: BookOpen, href: "/admin/grupo-estudos", color: "text-emerald-400" },
-  { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/limpeza-salao", color: "text-cyan-400" },
-  { title: "Serviço de Campo", icon: MapPin, href: "/admin/servico-campo", color: "text-orange-400" },
 ]
 
 const visualizacaoGroup: MenuGroup = {

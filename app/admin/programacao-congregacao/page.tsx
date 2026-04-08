@@ -2,10 +2,8 @@
 
 import { useState, useEffect, useRef, forwardRef } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Card, CardContent } from "@/components/ui/card"
-import { CenteredLoader } from "@/components/ui/page-loader"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Printer } from "lucide-react"
+import { ChevronLeft, ChevronRight, Printer, ClipboardList, Loader2, Save } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 import "@/app/impressao/print-styles.css"
 
@@ -64,13 +62,6 @@ const meses = [
   { valor: 12, nome: "Dezembro" },
 ]
 
-const coresSec: Record<string, string> = {
-  tecnica: "#2a6b77",
-  publica: "#c69214",
-  discurso: "#8b2332",
-  assistencia: "#374151",
-}
-
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export default function ProgramacaoCongregacaoPage() {
@@ -83,9 +74,22 @@ export default function ProgramacaoCongregacaoPage() {
   const [loading, setLoading] = useState(true)
 
   const printRef = useRef<HTMLDivElement>(null)
+  const mesNome = meses.find((m) => m.valor === mesAtual)?.nome || ""
+  
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `Programacao_${meses.find((m) => m.valor === mesAtual)?.nome}_${anoAtual}`,
+    documentTitle: `Programacao_${mesNome}_${anoAtual}`,
+  })
+
+  const handleSaveAs = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Programacao_${mesNome}_${anoAtual}`,
+    print: async (printIframe) => {
+      const contentWindow = printIframe.contentWindow
+      if (contentWindow) {
+        contentWindow.print()
+      }
+    },
   })
 
   const supabase = createClient()
@@ -164,253 +168,90 @@ export default function ProgramacaoCongregacaoPage() {
     else setMesAtual(mesAtual + 1)
   }
 
-  const assistenciasQuintas = assistencias.filter((a) => a.dia_semana === "QUINTA")
-  const assistenciasDomingos = assistencias.filter((a) => a.dia_semana === "DOMINGO")
-
-  if (loading) return <CenteredLoader />
-
   return (
-    <div className="space-y-6 pb-10">
-      {/* Seletor de mês + imprimir */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={mesAnterior}>
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            <div className="text-center">
-              <h2 className="text-xl font-bold text-white">
-                {meses.find((m) => m.valor === mesAtual)?.nome} {anoAtual}
-              </h2>
-              <p className="text-sm text-zinc-500">Programação da Congregação — Somente Leitura</p>
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Barra de controle — não imprime */}
+      <div className="print:hidden sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/30">
+              <ClipboardList className="h-4 w-4 text-amber-400" />
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePrint()}
-                className="border-zinc-700 hover:bg-zinc-800"
-              >
-                <Printer className="w-4 h-4 mr-2" />
-                Imprimir
-              </Button>
-              <Button variant="ghost" size="icon" onClick={mesProximo}>
-                <ChevronRight className="w-5 h-5" />
-              </Button>
+            <div>
+              <h1 className="text-base font-bold">Programação da Congregação</h1>
+              <p className="text-xs text-muted-foreground">Visualização para impressão</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* ── Designações Técnicas ── */}
-      <div className="rounded-md overflow-hidden border border-zinc-700/50">
-        <div
-          className="px-4 py-2 text-xs font-bold text-white uppercase tracking-wide"
-          style={{ backgroundColor: coresSec.tecnica }}
-        >
-          Designações Técnicas
+          <div className="flex items-center gap-2 ml-4">
+            <button
+              onClick={mesAnterior}
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-foreground transition hover:bg-accent"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="text-sm font-semibold min-w-[130px] text-center">
+              {mesNome} {anoAtual}
+            </span>
+            <button
+              onClick={mesProximo}
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-foreground transition hover:bg-accent"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
-        <div className="overflow-x-auto bg-zinc-900/50">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-zinc-700 bg-zinc-800/60">
-                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Data</th>
-                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Indicadores</th>
-                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Mic. Volante</th>
-                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Áudio / Vídeo</th>
-                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Palco</th>
-              </tr>
-            </thead>
-            <tbody>
-              {designacoesTecnicas.map((d) => (
-                <tr
-                  key={d.data}
-                  className={`border-b border-zinc-800 ${d.dia_semana === "DOMINGO" ? "bg-zinc-800/30" : ""}`}
-                >
-                  <td className="px-3 py-2 font-semibold text-white whitespace-nowrap">
-                    {formatarData(d.data)}{" "}
-                    <span className="text-zinc-500 font-normal">{d.dia_semana}</span>
-                  </td>
-                  <td className="px-3 py-2 text-zinc-200">
-                    {[d.indicador1, d.indicador2].filter(Boolean).join(" / ") || <span className="text-zinc-600 italic">—</span>}
-                  </td>
-                  <td className="px-3 py-2 text-zinc-200">
-                    {[d.mic_volante1, d.mic_volante2].filter(Boolean).join(" / ") || <span className="text-zinc-600 italic">—</span>}
-                  </td>
-                  <td className="px-3 py-2 text-zinc-200">
-                    {d.audio_video || <span className="text-zinc-600 italic">—</span>}
-                  </td>
-                  <td className="px-3 py-2 text-zinc-200">
-                    {d.palco || <span className="text-zinc-600 italic">—</span>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={() => handleSaveAs()} 
+            variant="outline"
+            className="gap-2 border-amber-600/50 text-amber-400 hover:bg-amber-600/10"
+          >
+            <Save className="h-4 w-4" />
+            Salvar como
+          </Button>
+          <Button onClick={() => handlePrint()} className="gap-2 bg-amber-600 hover:bg-amber-700 text-white">
+            <Printer className="h-4 w-4" />
+            Imprimir
+          </Button>
         </div>
       </div>
 
-      {/* ── Reunião Pública ── */}
-      <div className="rounded-md overflow-hidden border border-zinc-700/50">
-        <div
-          className="px-4 py-2 text-xs font-bold text-white uppercase tracking-wide"
-          style={{ backgroundColor: coresSec.publica }}
-        >
-          Reunião Pública — Presidente e Leitor
-        </div>
-        <div className="overflow-x-auto bg-zinc-900/50">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-zinc-700 bg-zinc-800/60">
-                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Data</th>
-                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Presidente de Conferência</th>
-                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Leitor de A Sentinela</th>
-              </tr>
-            </thead>
-            <tbody>
-              {designacoesReuniaoPublica.map((r) => (
-                <tr key={r.data} className="border-b border-zinc-800">
-                  <td className="px-3 py-2 font-semibold text-white">{formatarData(r.data)}</td>
-                  <td className="px-3 py-2 text-zinc-200">{r.presidente || <span className="text-zinc-600 italic">—</span>}</td>
-                  <td className="px-3 py-2 text-zinc-200">{r.leitor_sentinela || <span className="text-zinc-600 italic">—</span>}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* Área de conteúdo */}
+      <div className="p-6 max-w-4xl mx-auto print:p-0 print:max-w-none">
+        {loading ? (
+          <div className="flex h-64 items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <>
+            {/* Preview na tela */}
+            <div className="print:hidden rounded-xl border border-border bg-card p-6">
+              <PrintProgramacao
+                ref={printRef}
+                mes={mesAtual}
+                ano={anoAtual}
+                designacoesTecnicas={designacoesTecnicas}
+                designacoesReuniaoPublica={designacoesReuniaoPublica}
+                arranjoDiscursos={arranjoDiscursos}
+                assistencias={assistencias}
+              />
+            </div>
+
+            {/* Conteúdo oculto para impressão */}
+            <div className="hidden print:block">
+              <PrintProgramacao
+                ref={printRef}
+                mes={mesAtual}
+                ano={anoAtual}
+                designacoesTecnicas={designacoesTecnicas}
+                designacoesReuniaoPublica={designacoesReuniaoPublica}
+                arranjoDiscursos={arranjoDiscursos}
+                assistencias={assistencias}
+              />
+            </div>
+          </>
+        )}
       </div>
-
-      {/* ── Arranjo de Discursos ── */}
-      <div className="rounded-md overflow-hidden border border-zinc-700/50">
-        <div
-          className="px-4 py-2 text-xs font-bold text-white uppercase tracking-wide"
-          style={{ backgroundColor: coresSec.discurso }}
-        >
-          Arranjo de Discursos
-        </div>
-        <div className="overflow-x-auto bg-zinc-900/50">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-zinc-700 bg-zinc-800/60">
-                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Data</th>
-                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Tema</th>
-                <th className="text-left px-3 py-2 text-zinc-400 font-semibold">Orador</th>
-              </tr>
-            </thead>
-            <tbody>
-              {arranjoDiscursos.map((d) => (
-                <tr key={d.data} className="border-b border-zinc-800">
-                  <td className="px-3 py-2 font-semibold text-white">{formatarData(d.data)}</td>
-                  <td className="px-3 py-2 text-zinc-200">{d.tema || <span className="text-zinc-600 italic">—</span>}</td>
-                  <td className="px-3 py-2 text-zinc-200">{d.orador || <span className="text-zinc-600 italic">—</span>}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* ── Assistência às Reuniões ── */}
-      <div className="rounded-md overflow-hidden border border-zinc-700/50">
-        <div
-          className="px-4 py-2 text-xs font-bold text-white uppercase tracking-wide"
-          style={{ backgroundColor: coresSec.assistencia }}
-        >
-          Assistência às Reuniões — {meses.find((m) => m.valor === mesAtual)?.nome}
-        </div>
-        <div className="bg-zinc-900/50 p-4 flex flex-col gap-6">
-          {/* Quinta-feira */}
-          <TabelaAssistencia titulo="QUINTA" registros={assistenciasQuintas} formatarData={formatarData} />
-          {/* Domingo */}
-          <TabelaAssistencia titulo="DOMINGO" registros={assistenciasDomingos} formatarData={formatarData} />
-        </div>
-      </div>
-
-      {/* Componente oculto para impressão */}
-      <div className="hidden">
-        <PrintProgramacao
-          ref={printRef}
-          mes={mesAtual}
-          ano={anoAtual}
-          designacoesTecnicas={designacoesTecnicas}
-          designacoesReuniaoPublica={designacoesReuniaoPublica}
-          arranjoDiscursos={arranjoDiscursos}
-          assistencias={assistencias}
-        />
-      </div>
-    </div>
-  )
-}
-
-// ─── Tabela de Assistência (visual da página) ─────────────────────────────────
-
-function TabelaAssistencia({
-  titulo,
-  registros,
-  formatarData,
-}: {
-  titulo: string
-  registros: AssistenciaReuniao[]
-  formatarData: (d: string) => string
-}) {
-  if (registros.length === 0) return null
-
-  return (
-    <div className="flex gap-0 rounded-md overflow-hidden border border-zinc-700">
-      {/* Coluna de labels */}
-      <table className="text-xs border-collapse shrink-0">
-        <thead>
-          <tr>
-            <th className="px-4 py-2 text-center font-bold text-white bg-zinc-700 border border-zinc-600 whitespace-nowrap">
-              {titulo}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="px-4 py-2 text-center font-bold text-zinc-200 bg-zinc-800/50 border border-zinc-700 whitespace-nowrap">
-              PRESENCIAL
-            </td>
-          </tr>
-          <tr>
-            <td className="px-4 py-2 text-center font-bold text-zinc-200 bg-zinc-800/50 border border-zinc-700 whitespace-nowrap">
-              ZOOM
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Colunas de datas */}
-      <table className="text-xs border-collapse flex-1">
-        <thead>
-          <tr>
-            {registros.map((a) => (
-              <th
-                key={a.data}
-                className="px-3 py-2 text-center text-zinc-300 font-semibold bg-zinc-800/30 border border-zinc-700 whitespace-nowrap"
-              >
-                {formatarData(a.data)}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            {registros.map((a) => (
-              <td key={a.data} className="px-3 py-2 text-center text-zinc-200 border border-zinc-700 min-w-[56px]">
-                {a.presencial > 0 ? a.presencial : ""}
-              </td>
-            ))}
-          </tr>
-          <tr>
-            {registros.map((a) => (
-              <td key={a.data} className="px-3 py-2 text-center text-zinc-200 border border-zinc-700 min-w-[56px]">
-                {a.zoom > 0 ? a.zoom : ""}
-              </td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
     </div>
   )
 }
@@ -438,53 +279,80 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
     const assistenciasQuintas = assistencias.filter((a) => a.dia_semana === "QUINTA")
     const assistenciasDomingos = assistencias.filter((a) => a.dia_semana === "DOMINGO")
 
-    const border = "1px solid #d1d5db"
-    const thBase: React.CSSProperties = { border, padding: "4px 6px", textAlign: "left", fontSize: "8px" }
-    const tdBase: React.CSSProperties = { border, padding: "4px 6px", fontSize: "8px" }
+    const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
+      border: "1px solid #d1d5db",
+      padding: "6px 10px",
+      fontSize: "10px",
+      color: "#111",
+      ...extra,
+    })
+
     const headerBar = (color: string): React.CSSProperties => ({
-      backgroundColor: color, color: "white",
-      padding: "5px 8px", fontWeight: "bold",
-      fontSize: "9px", marginBottom: "1px",
+      backgroundColor: color, 
+      color: "white",
+      padding: "8px 12px", 
+      fontWeight: "bold",
+      fontSize: "11px", 
+      marginBottom: "1px",
       textTransform: "uppercase",
+      borderRadius: "4px 4px 0 0",
     })
 
     return (
       <div
         ref={ref}
-        style={{ backgroundColor: "white", padding: "20px", color: "black", fontFamily: "Arial, sans-serif", maxWidth: "210mm" }}
+        style={{ backgroundColor: "white", padding: "16px", color: "black", fontFamily: "Arial, sans-serif" }}
       >
         {/* Cabeçalho */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #374151", paddingBottom: "8px", marginBottom: "12px" }}>
-          <div style={{ fontSize: "11px", fontWeight: "bold" }}>Parque Sabará — Taubaté SP</div>
-          <div style={{ fontSize: "11px", fontWeight: "bold" }}>Programação da Congregação</div>
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center", 
+          borderBottom: "2px solid #374151", 
+          paddingBottom: "8px", 
+          marginBottom: "12px" 
+        }}>
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>Parque Sabará — Taubaté SP</div>
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>Programação da Congregação</div>
         </div>
-        <div style={{ textAlign: "center", fontSize: "11px", fontWeight: "bold", marginBottom: "14px", textTransform: "uppercase" }}>
-          Programação da Congregação — {mesNome.toUpperCase()} {ano}
+
+        {/* Título */}
+        <div style={{ 
+          backgroundColor: "#1f2937", 
+          color: "white", 
+          padding: "10px 14px",
+          marginBottom: "16px",
+          borderRadius: "4px",
+          textAlign: "center"
+        }}>
+          <div style={{ fontSize: "13px", fontWeight: "bold", textTransform: "uppercase" }}>
+            {mesNome} {ano}
+          </div>
         </div>
 
         {/* Designações Técnicas */}
-        <div style={{ marginBottom: "12px" }}>
+        <div style={{ marginBottom: "14px" }}>
           <div style={headerBar("#2a6b77")}>Designações Técnicas</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ backgroundColor: "#f3f4f6" }}>
-                <th style={thBase}>Data</th>
-                <th style={thBase}>Indicadores</th>
-                <th style={thBase}>Mic. Volante</th>
-                <th style={thBase}>Áudio e Vídeo</th>
-                <th style={thBase}>Palco</th>
+              <tr>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Data</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Indicadores</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Mic. Volante</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Áudio e Vídeo</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Palco</th>
               </tr>
             </thead>
             <tbody>
               {designacoesTecnicas.map((d) => (
                 <tr key={d.data} style={{ backgroundColor: d.dia_semana === "DOMINGO" ? "#f9fafb" : "white" }}>
-                  <td style={{ ...tdBase, fontWeight: "bold", whiteSpace: "nowrap" }}>
-                    {formatarData(d.data)} {d.dia_semana}
+                  <td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>
+                    {formatarData(d.data)} <span style={{ fontWeight: "normal", color: "#666" }}>{d.dia_semana}</span>
                   </td>
-                  <td style={tdBase}>{[d.indicador1, d.indicador2].filter(Boolean).join(" / ")}</td>
-                  <td style={tdBase}>{[d.mic_volante1, d.mic_volante2].filter(Boolean).join(" / ")}</td>
-                  <td style={tdBase}>{d.audio_video || ""}</td>
-                  <td style={tdBase}>{d.palco || ""}</td>
+                  <td style={cell()}>{[d.indicador1, d.indicador2].filter(Boolean).join(" / ") || "—"}</td>
+                  <td style={cell()}>{[d.mic_volante1, d.mic_volante2].filter(Boolean).join(" / ") || "—"}</td>
+                  <td style={cell()}>{d.audio_video || "—"}</td>
+                  <td style={cell()}>{d.palco || "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -492,22 +360,22 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Reunião Pública */}
-        <div style={{ marginBottom: "12px" }}>
+        <div style={{ marginBottom: "14px" }}>
           <div style={headerBar("#c69214")}>Reunião Pública — Presidente e Leitor</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ backgroundColor: "#f3f4f6" }}>
-                <th style={thBase}>Data</th>
-                <th style={thBase}>Presidente de Conferência</th>
-                <th style={thBase}>Leitor de A Sentinela</th>
+              <tr>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Data</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Presidente de Conferência</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Leitor de A Sentinela</th>
               </tr>
             </thead>
             <tbody>
               {designacoesReuniaoPublica.map((r) => (
                 <tr key={r.data}>
-                  <td style={{ ...tdBase, fontWeight: "bold" }}>{formatarData(r.data)}</td>
-                  <td style={tdBase}>{r.presidente || ""}</td>
-                  <td style={tdBase}>{r.leitor_sentinela || ""}</td>
+                  <td style={cell({ fontWeight: "bold" })}>{formatarData(r.data)}</td>
+                  <td style={cell()}>{r.presidente || "—"}</td>
+                  <td style={cell()}>{r.leitor_sentinela || "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -515,22 +383,22 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Arranjo de Discursos */}
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ marginBottom: "14px" }}>
           <div style={headerBar("#8b2332")}>Arranjo de Discursos</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ backgroundColor: "#f3f4f6" }}>
-                <th style={thBase}>Data</th>
-                <th style={thBase}>Tema</th>
-                <th style={thBase}>Orador</th>
+              <tr>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Data</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Tema</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Orador</th>
               </tr>
             </thead>
             <tbody>
               {arranjoDiscursos.map((d) => (
                 <tr key={d.data}>
-                  <td style={{ ...tdBase, fontWeight: "bold" }}>{formatarData(d.data)}</td>
-                  <td style={tdBase}>{d.tema || ""}</td>
-                  <td style={tdBase}>{d.orador || ""}</td>
+                  <td style={cell({ fontWeight: "bold" })}>{formatarData(d.data)}</td>
+                  <td style={cell()}>{d.tema || "—"}</td>
+                  <td style={cell()}>{d.orador || "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -538,16 +406,28 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Assistência às Reuniões */}
-        <div>
-          <div style={{ textAlign: "center", fontSize: "10px", fontWeight: "bold", padding: "6px 0", backgroundColor: "#e5e7eb", marginBottom: "4px" }}>
-            ASSISTÊNCIA ÀS REUNIÕES — {mesNome.toUpperCase()}
+        <div style={{ marginBottom: "14px" }}>
+          <div style={headerBar("#374151")}>Assistência às Reuniões — {mesNome}</div>
+          <div style={{ padding: "12px", backgroundColor: "#f9fafb", borderRadius: "0 0 4px 4px", border: "1px solid #d1d5db", borderTop: "none" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {/* Quinta */}
+              <PrintTabelaAssistencia titulo="QUINTA" registros={assistenciasQuintas} formatarData={formatarData} />
+              {/* Domingo */}
+              <PrintTabelaAssistencia titulo="DOMINGO" registros={assistenciasDomingos} formatarData={formatarData} />
+            </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "10px" }}>
-            {/* Quinta */}
-            <PrintTabelaAssistencia titulo="QUINTA" registros={assistenciasQuintas} formatarData={formatarData} />
-            {/* Domingo */}
-            <PrintTabelaAssistencia titulo="DOMINGO" registros={assistenciasDomingos} formatarData={formatarData} />
-          </div>
+        </div>
+
+        {/* Rodapé */}
+        <div style={{ 
+          marginTop: "20px", 
+          paddingTop: "10px", 
+          borderTop: "1px solid #e5e7eb",
+          textAlign: "center",
+          fontSize: "9px",
+          color: "#666"
+        }}>
+          Congregação Pq. Sabará - Programação da Congregação
         </div>
       </div>
     )
@@ -568,9 +448,12 @@ function PrintTabelaAssistencia({
 }) {
   if (registros.length === 0) return null
 
-  const border = "1px solid #9ca3af"
   const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
-    border, padding: "4px 8px", fontSize: "8px", textAlign: "center", ...extra,
+    border: "1px solid #d1d5db", 
+    padding: "5px 10px", 
+    fontSize: "9px", 
+    textAlign: "center", 
+    ...extra,
   })
 
   return (
@@ -579,21 +462,21 @@ function PrintTabelaAssistencia({
       <table style={{ borderCollapse: "collapse", flexShrink: 0 }}>
         <thead>
           <tr>
-            <th style={cell({ fontWeight: "normal", whiteSpace: "nowrap" })}>{titulo}</th>
+            <th style={cell({ fontWeight: "bold", whiteSpace: "nowrap", backgroundColor: "#e5e7eb" })}>{titulo}</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>PRESENCIAL</td></tr>
-          <tr><td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>ZOOM</td></tr>
+          <tr><td style={cell({ fontWeight: "600", whiteSpace: "nowrap" })}>PRESENCIAL</td></tr>
+          <tr><td style={cell({ fontWeight: "600", whiteSpace: "nowrap" })}>ZOOM</td></tr>
         </tbody>
       </table>
 
       {/* Datas */}
-      <table style={{ borderCollapse: "collapse" }}>
+      <table style={{ borderCollapse: "collapse", flex: 1 }}>
         <thead>
           <tr>
             {registros.map((a) => (
-              <th key={a.data} style={cell({ fontWeight: "normal", whiteSpace: "nowrap", minWidth: "46px" })}>
+              <th key={a.data} style={cell({ fontWeight: "600", whiteSpace: "nowrap", backgroundColor: "#f3f4f6" })}>
                 {formatarData(a.data)}
               </th>
             ))}
@@ -602,14 +485,14 @@ function PrintTabelaAssistencia({
         <tbody>
           <tr>
             {registros.map((a) => (
-              <td key={a.data} style={cell({ minWidth: "46px" })}>
+              <td key={a.data} style={cell()}>
                 {a.presencial > 0 ? a.presencial : ""}
               </td>
             ))}
           </tr>
           <tr>
             {registros.map((a) => (
-              <td key={a.data} style={cell({ minWidth: "46px" })}>
+              <td key={a.data} style={cell()}>
                 {a.zoom > 0 ? a.zoom : ""}
               </td>
             ))}
