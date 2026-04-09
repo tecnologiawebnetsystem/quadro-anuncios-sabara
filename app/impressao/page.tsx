@@ -16,8 +16,10 @@ import {
   Sparkles,
   MapPin,
   FileText,
-  Download
+  Save,
+  Share2
 } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { usePublicadoresSupabase } from "@/lib/hooks/use-publicadores-supabase"
@@ -382,14 +384,65 @@ export default function ImpressaoPage() {
               <FileText className="h-4 w-4 text-blue-500" />
               Pré-visualização
             </CardTitle>
-            <Button 
-              onClick={() => handlePrint()} 
-              className="bg-blue-600 hover:bg-blue-700"
-              disabled={loading}
-            >
-              <Printer className="h-4 w-4 mr-2" />
-              Imprimir
-            </Button>
+            <TooltipProvider delayDuration={0}>
+              <div className="flex items-center gap-1.5">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={() => handlePrint()} 
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 border-blue-600/50 text-blue-400 hover:bg-blue-600/10 hover:text-blue-300 transition-colors"
+                      disabled={loading}
+                    >
+                      <Save className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
+                    <p>Salvar como PDF</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={() => handlePrint()} 
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 border-blue-600/50 text-blue-400 hover:bg-blue-600/10 hover:text-blue-300 transition-colors"
+                      disabled={loading}
+                    >
+                      <Printer className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
+                    <p>Imprimir</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={() => {
+                        const tipoNome = tiposImpressao.find(t => t.id === tipoSelecionado)?.nome || ''
+                        const texto = `${tipoNome} - ${meses[mesAtual - 1].nome} ${anoAtual}`
+                        const url = `https://wa.me/?text=${encodeURIComponent(texto)}`
+                        window.open(url, '_blank')
+                      }} 
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 border-green-600/50 text-green-400 hover:bg-green-600/10 hover:text-green-300 transition-colors"
+                      disabled={loading}
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
+                    <p>Enviar por WhatsApp</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
           </CardHeader>
           <CardContent>
             {loading ? (
