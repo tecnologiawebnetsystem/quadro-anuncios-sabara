@@ -1,11 +1,9 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo, useRef, forwardRef } from "react"
-import { useReactToPrint } from "react-to-print"
-import { Printer, ArrowLeft, ArrowRight, Calendar, Clock, Mail, Sun, MapPin, Users, Loader2, Save, Share2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { ArrowLeft, ArrowRight, MapPin, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { PrintActionButtons } from "@/components/impressao/print-action-buttons"
 import "@/app/impressao/print-styles.css"
 
 // ---------- Tipos ----------
@@ -91,22 +89,6 @@ export default function ImpressaoServicoCampoPage() {
   const supabase = createClient()
   const mes = meses[mesIdx]
 
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `Servico_Campo_${mes.label.replace(" ", "_")}`,
-  })
-
-  const handleSaveAs = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `Servico_Campo_${mes.label.replace(" ", "_")}`,
-    print: async (printIframe) => {
-      const contentWindow = printIframe.contentWindow
-      if (contentWindow) {
-        contentWindow.print()
-      }
-    },
-  })
-
   const carregarFixos = useCallback(async () => {
     const { data: semana } = await supabase.from("servico_campo_semana").select("*").eq("ativo", true).not("dia_semana", "is", null).neq("dia_semana", "")
     const { data: cartas } = await supabase.from("servico_campo_cartas").select("*").eq("ativo", true)
@@ -181,61 +163,11 @@ export default function ImpressaoServicoCampoPage() {
             </button>
           </div>
         </div>
-        <TooltipProvider delayDuration={0}>
-          <div className="flex items-center gap-1.5">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  onClick={() => handleSaveAs()} 
-                  variant="outline"
-                  size="icon"
-                  className="h-9 w-9 border-orange-600/50 text-orange-400 hover:bg-orange-600/10 hover:text-orange-300 transition-colors"
-                >
-                  <Save className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
-                <p>Salvar como PDF</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  onClick={() => handlePrint()} 
-                  variant="outline"
-                  size="icon"
-                  className="h-9 w-9 border-orange-600/50 text-orange-400 hover:bg-orange-600/10 hover:text-orange-300 transition-colors"
-                >
-                  <Printer className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
-                <p>Imprimir</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  onClick={() => {
-                    const texto = `Serviço de Campo - ${mes.label}`
-                    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`
-                    window.open(url, '_blank')
-                  }} 
-                  variant="outline"
-                  size="icon"
-                  className="h-9 w-9 border-green-600/50 text-green-400 hover:bg-green-600/10 hover:text-green-300 transition-colors"
-                >
-                  <Share2 className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
-                <p>Enviar por WhatsApp</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </TooltipProvider>
+        <PrintActionButtons 
+          printRef={printRef}
+          documentTitle={`Serviço de Campo - ${mes.label}`}
+          colorScheme="orange"
+        />
       </div>
 
       {/* Área de conteúdo */}

@@ -1,16 +1,14 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useReactToPrint } from "react-to-print"
-import { Printer, Users, MapPin, Loader2, BookOpen, Save, Share2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Users, MapPin, Loader2, BookOpen } from "lucide-react"
 import {
   getGrupos,
   getPublicadores,
   type Grupo,
   type PublicadorGrupo,
 } from "@/lib/actions/grupos"
+import { PrintActionButtons } from "@/components/impressao/print-action-buttons"
 import "@/app/impressao/print-styles.css"
 
 // Cores para impressão (estilo inline para print)
@@ -28,22 +26,6 @@ export default function ImpressaoGrupoEstudosPage() {
   const [publicadores, setPublicadores] = useState<PublicadorGrupo[]>([])
   const [loading, setLoading] = useState(true)
   const printRef = useRef<HTMLDivElement>(null)
-
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: "Grupos_de_Estudos",
-  })
-
-  const handleSaveAs = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: "Grupos_de_Estudos",
-    print: async (printIframe) => {
-      const contentWindow = printIframe.contentWindow
-      if (contentWindow) {
-        contentWindow.print()
-      }
-    },
-  })
 
   useEffect(() => {
     async function carregar() {
