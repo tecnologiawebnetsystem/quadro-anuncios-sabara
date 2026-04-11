@@ -1,15 +1,14 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useReactToPrint } from "react-to-print"
-import { Printer, Users, MapPin, Loader2, BookOpen, Save } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Users, MapPin, Loader2, BookOpen } from "lucide-react"
 import {
   getGrupos,
   getPublicadores,
   type Grupo,
   type PublicadorGrupo,
 } from "@/lib/actions/grupos"
+import { PrintActionButtons } from "@/components/impressao/print-action-buttons"
 import "@/app/impressao/print-styles.css"
 
 // Cores para impressão (estilo inline para print)
@@ -27,22 +26,6 @@ export default function ImpressaoGrupoEstudosPage() {
   const [publicadores, setPublicadores] = useState<PublicadorGrupo[]>([])
   const [loading, setLoading] = useState(true)
   const printRef = useRef<HTMLDivElement>(null)
-
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: "Grupos_de_Estudos",
-  })
-
-  const handleSaveAs = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: "Grupos_de_Estudos",
-    print: async (printIframe) => {
-      const contentWindow = printIframe.contentWindow
-      if (contentWindow) {
-        contentWindow.print()
-      }
-    },
-  })
 
   useEffect(() => {
     async function carregar() {
@@ -92,20 +75,61 @@ export default function ImpressaoGrupoEstudosPage() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button 
-            onClick={() => handleSaveAs()} 
-            variant="outline"
-            className="gap-2 border-emerald-600/50 text-emerald-400 hover:bg-emerald-600/10"
-          >
-            <Save className="h-4 w-4" />
-            Salvar como
-          </Button>
-          <Button onClick={() => handlePrint()} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
-            <Printer className="h-4 w-4" />
-            Imprimir
-          </Button>
-        </div>
+        <TooltipProvider delayDuration={0}>
+          <div className="flex items-center gap-1.5">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={() => handleSaveAs()} 
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9 border-emerald-600/50 text-emerald-400 hover:bg-emerald-600/10 hover:text-emerald-300 transition-colors"
+                >
+                  <Save className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
+                <p>Salvar como PDF</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={() => handlePrint()} 
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9 border-emerald-600/50 text-emerald-400 hover:bg-emerald-600/10 hover:text-emerald-300 transition-colors"
+                >
+                  <Printer className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
+                <p>Imprimir</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={() => {
+                    const texto = `Grupos de Estudos - Congregação Pq. Sabará`
+                    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`
+                    window.open(url, '_blank')
+                  }} 
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9 border-green-600/50 text-green-400 hover:bg-green-600/10 hover:text-green-300 transition-colors"
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
+                <p>Enviar por WhatsApp</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </div>
 
       {/* Área de conteúdo */}

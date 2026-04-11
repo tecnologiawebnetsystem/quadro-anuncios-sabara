@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useReactToPrint } from "react-to-print"
-import { Printer, ChevronLeft, ChevronRight, Gem, Loader2 } from "lucide-react"
+import { Printer, ChevronLeft, ChevronRight, Gem, Loader2, Save, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { createClient } from "@/lib/supabase/client"
 import { PrintVidaMinisterio } from "@/components/impressao/print-layouts"
 import "@/app/impressao/print-styles.css"
@@ -81,6 +82,17 @@ export default function ImpressaoVidaMinisterioPage() {
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `Vida_Ministerio_${meses.find((m) => m.valor === mesAtual)?.nome}_${anoAtual}`,
+  })
+
+  const handleSaveAs = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Vida_Ministerio_${meses.find((m) => m.valor === mesAtual)?.nome}_${anoAtual}`,
+    print: async (printIframe) => {
+      const contentWindow = printIframe.contentWindow
+      if (contentWindow) {
+        contentWindow.print()
+      }
+    },
   })
 
   const supabase = createClient()
@@ -185,10 +197,61 @@ export default function ImpressaoVidaMinisterioPage() {
             </button>
           </div>
         </div>
-        <Button onClick={() => handlePrint()} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
-          <Printer className="h-4 w-4" />
-          Imprimir
-        </Button>
+        <TooltipProvider delayDuration={0}>
+          <div className="flex items-center gap-1.5">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={() => handleSaveAs()} 
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9 border-blue-600/50 text-blue-400 hover:bg-blue-600/10 hover:text-blue-300 transition-colors"
+                >
+                  <Save className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
+                <p>Salvar como PDF</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={() => handlePrint()} 
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9 border-blue-600/50 text-blue-400 hover:bg-blue-600/10 hover:text-blue-300 transition-colors"
+                >
+                  <Printer className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
+                <p>Imprimir</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={() => {
+                    const texto = `Vida e Ministério - ${nomesMes} ${anoAtual}`
+                    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`
+                    window.open(url, '_blank')
+                  }} 
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9 border-green-600/50 text-green-400 hover:bg-green-600/10 hover:text-green-300 transition-colors"
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
+                <p>Enviar por WhatsApp</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </div>
 
       {/* Área de conteúdo */}

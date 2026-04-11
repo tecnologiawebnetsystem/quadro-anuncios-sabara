@@ -1,10 +1,9 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo, useRef, forwardRef } from "react"
-import { useReactToPrint } from "react-to-print"
-import { Printer, ArrowLeft, ArrowRight, Calendar, Clock, Mail, Sun, MapPin, Users, Loader2, Save } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ArrowLeft, ArrowRight, MapPin, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { PrintActionButtons } from "@/components/impressao/print-action-buttons"
 import "@/app/impressao/print-styles.css"
 
 // ---------- Tipos ----------
@@ -90,22 +89,6 @@ export default function ImpressaoServicoCampoPage() {
   const supabase = createClient()
   const mes = meses[mesIdx]
 
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `Servico_Campo_${mes.label.replace(" ", "_")}`,
-  })
-
-  const handleSaveAs = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `Servico_Campo_${mes.label.replace(" ", "_")}`,
-    print: async (printIframe) => {
-      const contentWindow = printIframe.contentWindow
-      if (contentWindow) {
-        contentWindow.print()
-      }
-    },
-  })
-
   const carregarFixos = useCallback(async () => {
     const { data: semana } = await supabase.from("servico_campo_semana").select("*").eq("ativo", true).not("dia_semana", "is", null).neq("dia_semana", "")
     const { data: cartas } = await supabase.from("servico_campo_cartas").select("*").eq("ativo", true)
@@ -180,20 +163,11 @@ export default function ImpressaoServicoCampoPage() {
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button 
-            onClick={() => handleSaveAs()} 
-            variant="outline"
-            className="gap-2 border-orange-600/50 text-orange-400 hover:bg-orange-600/10"
-          >
-            <Save className="h-4 w-4" />
-            Salvar como
-          </Button>
-          <Button onClick={() => handlePrint()} className="gap-2 bg-orange-600 hover:bg-orange-700 text-white">
-            <Printer className="h-4 w-4" />
-            Imprimir
-          </Button>
-        </div>
+        <PrintActionButtons 
+          printRef={printRef}
+          documentTitle={`Serviço de Campo - ${mes.label}`}
+          colorScheme="orange"
+        />
       </div>
 
       {/* Área de conteúdo */}

@@ -1,11 +1,10 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { useReactToPrint } from "react-to-print"
-import { Printer, ChevronLeft, ChevronRight, Gem, Loader2, Save } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ChevronLeft, ChevronRight, Gem, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { PrintVidaMinisterio } from "@/components/impressao/print-layouts"
+import { PrintActionButtons } from "@/components/impressao/print-action-buttons"
 import "@/app/impressao/print-styles.css"
 
 const meses = [
@@ -78,22 +77,6 @@ export default function ImpressaoVidaMinisterioPage() {
   const [loading, setLoading] = useState(true)
 
   const printRef = useRef<HTMLDivElement>(null)
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `Vida_Ministerio_${meses.find((m) => m.valor === mesAtual)?.nome}_${anoAtual}`,
-  })
-
-  const handleSaveAs = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `Vida_Ministerio_${meses.find((m) => m.valor === mesAtual)?.nome}_${anoAtual}`,
-    print: async (printIframe) => {
-      const contentWindow = printIframe.contentWindow
-      if (contentWindow) {
-        contentWindow.print()
-      }
-    },
-  })
-
   const supabase = createClient()
 
   const carregarDados = useCallback(async () => {
@@ -196,18 +179,11 @@ export default function ImpressaoVidaMinisterioPage() {
             </button>
           </div>
         </div>
-        <Button 
-          onClick={() => handleSaveAs()} 
-          variant="outline"
-          className="gap-2 border-blue-600/50 text-blue-400 hover:bg-blue-600/10"
-        >
-          <Save className="h-4 w-4" />
-          Salvar como
-        </Button>
-        <Button onClick={() => handlePrint()} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
-          <Printer className="h-4 w-4" />
-          Imprimir
-        </Button>
+        <PrintActionButtons 
+          printRef={printRef}
+          documentTitle={`Vida e Ministério - ${nomesMes} ${anoAtual}`}
+          colorScheme="blue"
+        />
       </div>
 
       {/* Área de conteúdo */}
