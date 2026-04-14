@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { CenteredLoader } from "@/components/ui/page-loader"
-import { ChevronLeft, ChevronRight, Sparkles, Users, Calendar, Wand2, Loader2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Sparkles, Users, Calendar } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -43,7 +43,6 @@ export default function LimpezaSalaoPage() {
   const [designacoes, setDesignacoes] = useState<LimpezaDesignacao[]>([])
   const [loading, setLoading] = useState(true)
   const [salvando, setSalvando] = useState<number | null>(null)
-  const [gerandoEscala, setGerandoEscala] = useState(false)
 
   const mesFormatado = format(mesAtual, "yyyy-MM")
   const mesExibicao = format(mesAtual, "MMMM 'de' yyyy", { locale: ptBR })
@@ -118,59 +117,6 @@ export default function LimpezaSalaoPage() {
     )
   }
 
-  // Gerar escala automática com IA
-  const gerarEscalaIA = async () => {
-    setGerandoEscala(true)
-    toast.loading("Gerando escala com IA...", { id: "gerando-escala" })
-    
-    try {
-      const response = await fetch("/api/ia/gerar-escala", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo: "limpeza", mes: mesFormatado })
-      })
-      
-      if (response.ok) {
-        const { escala } = await response.json()
-        
-        // Salvar cada designação gerada
-        for (const item of escala) {
-          await fetch("/api/limpeza-salao", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              mes: mesFormatado,
-              semana: item.semana,
-              data_inicio: item.data_inicio,
-              data_fim: item.data_fim,
-              grupo_id: item.grupo_id,
-              grupo_nome: item.grupo_nome
-            })
-          })
-        }
-        
-        // Recarregar designações
-        const resDesignacoes = await fetch(`/api/limpeza-salao?mes=${mesFormatado}`)
-        if (resDesignacoes.ok) {
-          const data = await resDesignacoes.json()
-          setDesignacoes(data)
-        }
-        
-        toast.dismiss("gerando-escala")
-        toast.success("Escala gerada com sucesso!")
-      } else {
-        toast.dismiss("gerando-escala")
-        toast.error("Erro ao gerar escala")
-      }
-    } catch (error) {
-      console.error("Erro ao gerar escala:", error)
-      toast.dismiss("gerando-escala")
-      toast.error("Erro ao gerar escala")
-    } finally {
-      setGerandoEscala(false)
-    }
-  }
-
   const getDesignacao = (semana: number): LimpezaDesignacao | undefined => {
     return designacoes.find(d => d.semana === semana)
   }
@@ -230,21 +176,9 @@ export default function LimpezaSalaoPage() {
             </p>
           </div>
         </div>
-        <Button
-          onClick={gerarEscalaIA}
-          disabled={gerandoEscala || grupos.length === 0}
-          className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
-        >
-          {gerandoEscala ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Wand2 className="h-4 w-4 mr-2" />
-          )}
-          Gerar Escala com IA
-        </Button>
       </div>
 
-      {/* Navegação do Mês */}
+      {/* Navega��ão do Mês */}
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
