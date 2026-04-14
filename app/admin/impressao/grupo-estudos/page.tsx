@@ -1,20 +1,15 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Users, MapPin, Loader2, BookOpen, Save, Printer, Share2 } from "lucide-react"
+import { Users, MapPin, Loader2, BookOpen } from "lucide-react"
+import { PrintActionButtons } from "@/components/impressao/print-action-buttons"
 import {
   getGrupos,
   getPublicadores,
   type Grupo,
   type PublicadorGrupo,
 } from "@/lib/actions/grupos"
-import { Button } from "@/components/ui/button"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+
 import "@/app/impressao/print-styles.css"
 
 // Cores para impressão (estilo inline para print)
@@ -66,14 +61,6 @@ export default function ImpressaoGrupoEstudosPage() {
 
   const totalPublicadores = publicadores.filter((p) => p.grupo_id).length
 
-  const handlePrint = () => {
-    window.print()
-  }
-
-  const handleSaveAs = () => {
-    window.print()
-  }
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Barra de controle — não imprime */}
@@ -89,61 +76,11 @@ export default function ImpressaoGrupoEstudosPage() {
             </div>
           </div>
         </div>
-        <TooltipProvider delayDuration={0}>
-          <div className="flex items-center gap-1.5">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  onClick={() => handleSaveAs()} 
-                  variant="outline"
-                  size="icon"
-                  className="h-9 w-9 border-emerald-600/50 text-emerald-400 hover:bg-emerald-600/10 hover:text-emerald-300 transition-colors"
-                >
-                  <Save className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
-                <p>Salvar como PDF</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  onClick={() => handlePrint()} 
-                  variant="outline"
-                  size="icon"
-                  className="h-9 w-9 border-emerald-600/50 text-emerald-400 hover:bg-emerald-600/10 hover:text-emerald-300 transition-colors"
-                >
-                  <Printer className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
-                <p>Imprimir</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  onClick={() => {
-                    const texto = `Grupos de Estudos - Congregação Pq. Sabará`
-                    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`
-                    window.open(url, '_blank')
-                  }} 
-                  variant="outline"
-                  size="icon"
-                  className="h-9 w-9 border-green-600/50 text-green-400 hover:bg-green-600/10 hover:text-green-300 transition-colors"
-                >
-                  <Share2 className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
-                <p>Enviar por WhatsApp</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </TooltipProvider>
+        <PrintActionButtons 
+          printRef={printRef}
+          documentTitle="Grupos de Estudos - Congregação Pq. Sabará"
+          colorScheme="emerald"
+        />
       </div>
 
       {/* Área de conteúdo */}
@@ -216,17 +153,6 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
           <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827", textAlign: "right" }}>
             Grupos de Estudos
           </div>
-        </div>
-
-        {/* Subtítulo */}
-        <div style={{ 
-          textAlign: "center", 
-          marginBottom: "16px", 
-          paddingBottom: "8px"
-        }}>
-          <p style={{ fontSize: "11px", color: "#555", margin: 0 }}>
-            {grupos.length} grupo{grupos.length !== 1 ? "s" : ""} &middot; {totalPublicadores} publicador{totalPublicadores !== 1 ? "es" : ""}
-          </p>
         </div>
 
         {/* Grid de grupos */}
