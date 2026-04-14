@@ -1,14 +1,20 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Users, MapPin, Loader2, BookOpen } from "lucide-react"
+import { Users, MapPin, Loader2, BookOpen, Save, Printer, Share2 } from "lucide-react"
 import {
   getGrupos,
   getPublicadores,
   type Grupo,
   type PublicadorGrupo,
 } from "@/lib/actions/grupos"
-import { PrintActionButtons } from "@/components/impressao/print-action-buttons"
+import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import "@/app/impressao/print-styles.css"
 
 // Cores para impressão (estilo inline para print)
@@ -59,6 +65,14 @@ export default function ImpressaoGrupoEstudosPage() {
   }
 
   const totalPublicadores = publicadores.filter((p) => p.grupo_id).length
+
+  const handlePrint = () => {
+    window.print()
+  }
+
+  const handleSaveAs = () => {
+    window.print()
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">

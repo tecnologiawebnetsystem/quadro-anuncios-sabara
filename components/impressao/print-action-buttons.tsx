@@ -56,21 +56,71 @@ export function PrintActionButtons({
     },
   })
 
+  // Função para aplicar estilos inline com cores RGB no elemento original
+  // e retornar uma função para restaurar os estilos originais
+  const applyInlineColors = (element: HTMLElement): (() => void) => {
+    const originalStyles: { el: HTMLElement; styles: string }[] = []
+    const allElements = [element, ...Array.from(element.querySelectorAll('*'))] as HTMLElement[]
+    
+    allElements.forEach(el => {
+      if (!(el instanceof HTMLElement)) return
+      
+      // Salva o estilo original
+      originalStyles.push({ el, styles: el.getAttribute('style') || '' })
+      
+      const computedStyle = window.getComputedStyle(el)
+      
+      // Aplica cores computadas (que já estão em RGB pelo navegador)
+      const color = computedStyle.color
+      const bgColor = computedStyle.backgroundColor
+      const borderColor = computedStyle.borderColor
+      
+      if (color) el.style.setProperty('color', color, 'important')
+      if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)') {
+        el.style.setProperty('background-color', bgColor, 'important')
+      }
+      if (borderColor && borderColor !== 'rgba(0, 0, 0, 0)') {
+        el.style.setProperty('border-color', borderColor, 'important')
+      }
+    })
+    
+    // Retorna função para restaurar estilos originais
+    return () => {
+      originalStyles.forEach(({ el, styles }) => {
+        if (styles) {
+          el.setAttribute('style', styles)
+        } else {
+          el.removeAttribute('style')
+        }
+      })
+    }
+  }
+
   const handleShareWhatsApp = async () => {
     if (!printRef.current || isGenerating) return
 
     setIsGenerating(true)
+    let restoreStyles: (() => void) | null = null
+    
     try {
-      // Gera o PDF a partir do conteúdo
       const element = printRef.current
+      
+      // Aplica estilos inline ANTES do html2canvas clonar o elemento
+      restoreStyles = applyInlineColors(element)
+      
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        ignoreElements: (el) => {
+          // Ignora elementos que podem causar problemas
+          return el.tagName === 'LINK' && (el as HTMLLinkElement).rel === 'preload'
+        }
       })
       
       const imgData = canvas.toDataURL('image/png')
+      
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -116,6 +166,10 @@ export function PrintActionButtons({
       console.error('Erro ao gerar PDF:', error)
       alert('Erro ao gerar o PDF. Tente novamente.')
     } finally {
+      // Restaura os estilos originais
+      if (restoreStyles) {
+        restoreStyles()
+      }
       setIsGenerating(false)
     }
   }

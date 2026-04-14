@@ -86,6 +86,10 @@ interface Parte {
   licao: string | null
   // Campo ministério
   descricao: string | null
+  // Campos extras Ministério (Parte 3 Tesouros e seção Ministério)
+  texto_ministerio: string | null
+  licao_ministerio: string | null
+  ponto_ministerio: string | null
   // Campos estudo bíblico de congregação
   leitor_id: string | null
   leitor_nome: string | null
@@ -388,6 +392,30 @@ export default function AdminVidaMinisterioPage() {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Campos extras para Parte 3 - Leitura da Bíblia */}
+        {parte.ordem === TESOUROS_ORDEM.LEITURA && (
+          <div className="space-y-3 pt-3 border-t border-zinc-700/50">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-400">Texto</Label>
+              <Input
+                value={parte.texto_ministerio || ""}
+                onChange={(e) => atualizarParte(parte.id, "texto_ministerio", e.target.value)}
+                placeholder="Ex: Mateus 5:1-16"
+                className="bg-zinc-900 border-zinc-700 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-400">Lição</Label>
+              <Input
+                value={parte.licao_ministerio || ""}
+                onChange={(e) => atualizarParte(parte.id, "licao_ministerio", e.target.value)}
+                placeholder="Ex: Lição 2, Ponto 2"
+                className="bg-zinc-900 border-zinc-700 text-sm"
+              />
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -499,6 +527,30 @@ export default function AdminVidaMinisterioPage() {
                 {tipoLabel}
               </span>
             </p>
+          </div>
+        </div>
+
+        {/* Campos extras para Faça Seu Melhor no Ministério */}
+        <div className="space-y-3 pt-3 border-t border-zinc-700/50">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-400">Lição</Label>
+              <Input
+                value={parte.licao_ministerio || ""}
+                onChange={(e) => atualizarParte(parte.id, "licao_ministerio", e.target.value)}
+                placeholder="Ex: Lição 5"
+                className="bg-zinc-900 border-zinc-700 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-400">Ponto</Label>
+              <Input
+                value={parte.ponto_ministerio || ""}
+                onChange={(e) => atualizarParte(parte.id, "ponto_ministerio", e.target.value)}
+                placeholder="Ex: Ponto 3"
+                className="bg-zinc-900 border-zinc-700 text-sm"
+              />
+            </div>
           </div>
         </div>
 

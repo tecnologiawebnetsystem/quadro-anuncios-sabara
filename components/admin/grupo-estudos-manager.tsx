@@ -40,6 +40,7 @@ import {
   Pencil,
   Trash2,
   UserPlus,
+  UserCheck,
   Loader2,
   RefreshCw,
   MapPin,
@@ -74,6 +75,8 @@ export function GrupoEstudosManager() {
   // Estados dos dialogs
   const [dialogGrupoOpen, setDialogGrupoOpen] = useState(false)
   const [dialogPublicadorOpen, setDialogPublicadorOpen] = useState(false)
+  const [dialogAdicionarExistenteOpen, setDialogAdicionarExistenteOpen] = useState(false)
+  const [grupoParaAdicionarPublicador, setGrupoParaAdicionarPublicador] = useState<Grupo | null>(null)
   const [alertDeleteGrupo, setAlertDeleteGrupo] = useState<Grupo | null>(null)
   const [alertDeletePublicador, setAlertDeletePublicador] = useState<PublicadorGrupo | null>(null)
 
@@ -363,6 +366,47 @@ export function GrupoEstudosManager() {
       })
   }
 
+  // Obter publicadores sem grupo (para adicionar a um grupo)
+  function getPublicadoresSemGrupo() {
+    return publicadores
+      .filter((p) => !p.grupo_id)
+      .sort((a, b) => a.nome.localeCompare(b.nome))
+  }
+
+  // Abrir dialog para adicionar publicador existente ao grupo
+  function abrirDialogAdicionarExistente(grupo: Grupo) {
+    setGrupoParaAdicionarPublicador(grupo)
+    setDialogAdicionarExistenteOpen(true)
+  }
+
+  // Adicionar publicador existente ao grupo
+  async function handleAdicionarExistenteAoGrupo(publicadorId: string) {
+    if (!grupoParaAdicionarPublicador) return
+    
+    setIsMoving(true)
+    const publicador = publicadores.find(p => p.id === publicadorId)
+    
+    // Atualiza localmente primeiro para feedback instantâneo
+    setPublicadores(prev => 
+      prev.map(p => 
+        p.id === publicadorId 
+          ? { ...p, grupo_id: grupoParaAdicionarPublicador.id }
+          : p
+      )
+    )
+    
+    const result = await movePublicador(publicadorId, grupoParaAdicionarPublicador.id)
+    
+    if (result.success) {
+      toast.success(`${publicador?.nome} adicionado ao ${grupoParaAdicionarPublicador.nome}`)
+    } else {
+      toast.error(result.error || "Erro ao adicionar publicador ao grupo")
+      carregarDados()
+    }
+    
+    setIsMoving(false)
+  }
+
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -554,17 +598,26 @@ export function GrupoEstudosManager() {
                       )}
                     </div>
                   </ScrollArea>
-                  <div className="mt-3 pt-3 border-t">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => abrirDialogPublicador(undefined, grupo.id)}
-                    >
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Adicionar Publicador
-                    </Button>
-                  </div>
+<div className="mt-3 pt-3 border-t space-y-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="w-full"
+                                      onClick={() => abrirDialogPublicador(undefined, grupo.id)}
+                                    >
+                                      <UserPlus className="mr-2 h-4 w-4" />
+                                      Novo Publicador
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="w-full"
+                                      onClick={() => abrirDialogAdicionarExistente(grupo)}
+                                    >
+                                      <UserCheck className="mr-2 h-4 w-4" />
+                                      Adicionar Existente
+                                    </Button>
+                                  </div>
                 </CardContent>
               </Card>
             )
@@ -712,6 +765,62 @@ export function GrupoEstudosManager() {
             <Button onClick={handleSalvarPublicador} disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {editandoPublicador ? "Salvar" : "Adicionar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Adicionar Publicador Existente ao Grupo */}
+      <Dialog open={dialogAdicionarExistenteOpen} onOpenChange={setDialogAdicionarExistenteOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              Adicionar Publicador ao {grupoParaAdicionarPublicador?.nome}
+            </DialogTitle>
+            <DialogDescription>
+              Selecione um publicador que ainda não está em nenhum grupo para adicionar a este grupo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {getPublicadoresSemGrupo().length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>Todos os publicadores já estão em algum grupo.</p>
+              </div>
+            ) : (
+              <ScrollArea className="h-[300px] pr-4">
+                <div className="space-y-1">
+                  {getPublicadoresSemGrupo().map((publicador) => (
+                    <div
+                      key={publicador.id}
+                      className="flex items-center justify-between rounded-md px-3 py-2 hover:bg-muted/50 cursor-pointer group"
+                      onClick={() => handleAdicionarExistenteAoGrupo(publicador.id)}
+                    >
+                      <span className="text-sm">{publicador.nome}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        disabled={isMoving}
+                      >
+                        {isMoving ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Plus className="h-4 w-4 mr-1" />
+                            Adicionar
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogAdicionarExistenteOpen(false)}>
+              Fechar
             </Button>
           </DialogFooter>
         </DialogContent>

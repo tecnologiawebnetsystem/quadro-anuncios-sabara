@@ -128,6 +128,7 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
           email: data.email,
           observacoes: data.observacoes,
           ativo: data.ativo,
+          grupo_id: data.grupo_id || null,
         })
         if (result.success) {
           toast.success("Publicador atualizado com sucesso!")
@@ -144,6 +145,7 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
           telefone: data.telefone,
           email: data.email,
           observacoes: data.observacoes,
+          grupo_id: data.grupo_id || null,
         })
         if (result.success) {
           toast.success("Publicador adicionado com sucesso!")

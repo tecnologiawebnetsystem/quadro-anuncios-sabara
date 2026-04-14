@@ -12,7 +12,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Publicador } from "./publicadores-list"
+import { getGrupos, type Grupo } from "@/lib/actions/grupos"
 
 interface PublicadorModalProps {
   open: boolean
@@ -27,6 +35,7 @@ export function PublicadorModal({
   publicador,
   onSave,
 }: PublicadorModalProps) {
+  const [grupos, setGrupos] = useState<Grupo[]>([])
   const [formData, setFormData] = useState({
     nome: "",
     telefone: "",
@@ -36,7 +45,19 @@ export function PublicadorModal({
     servoMinisterial: false,
     pioneiroRegular: false,
     ativo: true,
+    grupo_id: "",
   })
+
+  // Carregar grupos quando o modal abrir
+  useEffect(() => {
+    async function carregarGrupos() {
+      const gruposData = await getGrupos()
+      setGrupos(gruposData)
+    }
+    if (open) {
+      carregarGrupos()
+    }
+  }, [open])
 
   useEffect(() => {
     if (publicador) {
@@ -49,6 +70,7 @@ export function PublicadorModal({
         servoMinisterial: publicador.servoMinisterial,
         pioneiroRegular: publicador.pioneiroRegular,
         ativo: publicador.ativo,
+        grupo_id: publicador.grupo_id || "",
       })
     } else {
       setFormData({
@@ -60,6 +82,7 @@ export function PublicadorModal({
         servoMinisterial: false,
         pioneiroRegular: false,
         ativo: true,
+        grupo_id: "",
       })
     }
   }, [publicador, open])
@@ -114,6 +137,26 @@ export function PublicadorModal({
                 className="bg-background"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="grupo">Grupo de Estudos</Label>
+            <Select
+              value={formData.grupo_id}
+              onValueChange={(value) => setFormData({ ...formData, grupo_id: value === "none" ? "" : value })}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="Selecione o grupo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Nenhum grupo</SelectItem>
+                {grupos.map((grupo) => (
+                  <SelectItem key={grupo.id} value={grupo.id}>
+                    {grupo.nome} {grupo.local ? `(${grupo.local})` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-3">

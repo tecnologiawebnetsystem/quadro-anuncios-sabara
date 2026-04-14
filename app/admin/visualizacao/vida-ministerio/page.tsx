@@ -71,6 +71,10 @@ interface Parte {
   licao: string | null
   // Ministério extras
   descricao: string | null
+  // Campos extras para Parte 3 e seção Ministério
+  texto_ministerio: string | null
+  licao_ministerio: string | null
+  ponto_ministerio: string | null
   // Estudo Bíblico de Congregação
   leitor_nome: string | null
   oracao_final_nome: string | null
@@ -401,25 +405,37 @@ export default function ConsultaVidaMinisterioPage() {
                                 </ul>
                               )}
 
-                              {/* Tesouros – Parte 3: texto bíblico e lição */}
-                              {secao.id === "tesouros" && parte.ordem === TESOUROS_ORDEM.LEITURA && (
-                                <div className="flex flex-wrap gap-3 text-sm text-zinc-300">
-                                  {parte.texto_biblia && (
-                                    <span className="flex items-center gap-1">
-                                      <BookOpen className="w-3.5 h-3.5 text-zinc-500" />
-                                      {parte.texto_biblia}
-                                    </span>
-                                  )}
-                                  {parte.licao && (
-                                    <span className="text-zinc-500">({parte.licao})</span>
-                                  )}
-                                </div>
-                              )}
+{/* Tesouros – Parte 3: texto bíblico e lição */}
+                                              {secao.id === "tesouros" && parte.ordem === TESOUROS_ORDEM.LEITURA && (
+                                                <div className="flex flex-wrap gap-3 text-sm text-zinc-300">
+                                                  {parte.texto_ministerio && (
+                                                    <span className="flex items-center gap-1">
+                                                      <BookOpen className="w-3.5 h-3.5 text-zinc-500" />
+                                                      Texto: {parte.texto_ministerio}
+                                                    </span>
+                                                  )}
+                                                  {parte.licao_ministerio && (
+                                                    <span className="text-zinc-400">Lição: {parte.licao_ministerio}</span>
+                                                  )}
+                                                </div>
+                                              )}
 
-                              {/* Ministério: descrição */}
-                              {secao.id === "ministerio" && parte.descricao && (
-                                <p className="text-sm text-zinc-300 leading-relaxed">{parte.descricao}</p>
-                              )}
+{/* Ministério: descrição */}
+                                              {secao.id === "ministerio" && parte.descricao && (
+                                                <p className="text-sm text-zinc-300 leading-relaxed">{parte.descricao}</p>
+                                              )}
+
+                                              {/* Ministério: Lição e Ponto */}
+                                              {secao.id === "ministerio" && (parte.licao_ministerio || parte.ponto_ministerio) && (
+                                                <div className="flex flex-wrap gap-3 text-sm text-zinc-300 pt-1">
+                                                  {parte.licao_ministerio && (
+                                                    <span className="text-zinc-400">Lição: {parte.licao_ministerio}</span>
+                                                  )}
+                                                  {parte.ponto_ministerio && (
+                                                    <span className="text-zinc-400">Ponto: {parte.ponto_ministerio}</span>
+                                                  )}
+                                                </div>
+                                              )}
 
                               {/* Vida Cristã: leitor e oração final do Estudo Bíblico */}
                               {secao.id === "vida" && parte.titulo?.toLowerCase().includes("estudo bíblico") && (
