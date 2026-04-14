@@ -622,67 +622,131 @@ export const PrintGruposEstudo = forwardRef<HTMLDivElement, GruposEstudoProps>(
       return publicadores.filter(p => p.grupo_id === grupoId && p.ativo)
     }
 
+    // Calcula o número de colunas baseado na quantidade de grupos
+    const numGrupos = grupos.length
+    const gridCols = numGrupos <= 4 ? 2 : numGrupos <= 6 ? 3 : 4
+
     return (
-      <div ref={ref} className="print-preview">
-        <div className="print-header">
-          <h1>GRUPOS DE ESTUDO</h1>
-          <h2>Congregação Pq. Sabará</h2>
+      <div ref={ref} style={{
+        backgroundColor: "white",
+        color: "black",
+        padding: "12px",
+        maxWidth: "210mm",
+        margin: "0 auto",
+        minHeight: "auto"
+      }}>
+        {/* Header compacto */}
+        <div style={{
+          textAlign: "center",
+          paddingBottom: "6px",
+          marginBottom: "10px",
+          borderBottom: "2px solid #333"
+        }}>
+          <h1 style={{ fontSize: "14px", fontWeight: "bold", margin: "0 0 2px 0", color: "#000" }}>
+            GRUPOS DE ESTUDO
+          </h1>
+          <h2 style={{ fontSize: "11px", fontWeight: "normal", margin: 0, color: "#333" }}>
+            Congregação Pq. Sabará
+          </h2>
         </div>
 
-        <div className="print-groups-grid">
+        {/* Grid de grupos - compacto */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+          gap: "8px"
+        }}>
           {grupos.map((grupo) => {
             const dirigente = getDirigente(grupo.id)
             const auxiliar = getAuxiliar(grupo.id)
             const membros = getPublicadoresPorGrupo(grupo.id)
 
             return (
-              <div key={grupo.id} className="print-group-card avoid-break">
-                <div className="print-group-header">
+              <div key={grupo.id} style={{
+                border: "1px solid #999",
+                padding: "0",
+                pageBreakInside: "avoid"
+              }}>
+                {/* Header do grupo - compacto */}
+                <div style={{
+                  backgroundColor: "#059669",
+                  color: "white",
+                  padding: "3px 6px",
+                  fontWeight: "bold",
+                  fontSize: "9px",
+                  textAlign: "center"
+                }}>
                   GRUPO {grupo.numero}
                 </div>
                 
-                {dirigente && (
-                  <div style={{ fontSize: "10px", marginBottom: "5px" }}>
-                    <strong>Dirigente:</strong> {dirigente.nome}
-                  </div>
-                )}
-                {auxiliar && (
-                  <div style={{ fontSize: "10px", marginBottom: "8px" }}>
-                    <strong>Auxiliar:</strong> {auxiliar.nome}
-                  </div>
-                )}
-
-                <div style={{ borderTop: "1px solid #ddd", paddingTop: "5px" }}>
-                  {membros.map((membro) => (
-                    <div key={membro.id} className="print-group-member">
-                      {membro.nome}
-                      {membro.anciao && " (A)"}
-                      {membro.servo_ministerial && " (SM)"}
-                      {membro.pioneiro_regular && " (PR)"}
+                <div style={{ padding: "4px 6px" }}>
+                  {/* Dirigente e Auxiliar em linha compacta */}
+                  {dirigente && (
+                    <div style={{ fontSize: "8px", marginBottom: "2px", lineHeight: "1.2" }}>
+                      <strong>Dir:</strong> {dirigente.nome}
                     </div>
-                  ))}
+                  )}
+                  {auxiliar && (
+                    <div style={{ fontSize: "8px", marginBottom: "3px", lineHeight: "1.2" }}>
+                      <strong>Aux:</strong> {auxiliar.nome}
+                    </div>
+                  )}
+
+                  {/* Lista de membros - muito compacta */}
+                  <div style={{ borderTop: "1px solid #ddd", paddingTop: "3px" }}>
+                    {membros.map((membro, idx) => (
+                      <div key={membro.id} style={{
+                        padding: "1px 0",
+                        borderBottom: idx < membros.length - 1 ? "1px dotted #eee" : "none",
+                        fontSize: "7px",
+                        lineHeight: "1.3"
+                      }}>
+                        {membro.nome}
+                        {membro.anciao && <span style={{ color: "#1e40af", fontWeight: "bold" }}> (A)</span>}
+                        {membro.servo_ministerial && <span style={{ color: "#92400e", fontWeight: "bold" }}> (SM)</span>}
+                        {membro.pioneiro_regular && <span style={{ color: "#065f46", fontWeight: "bold" }}> (PR)</span>}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )
           })}
         </div>
 
-        <div className="print-legend">
-          <span className="print-legend-item">
-            <span className="print-legend-badge" style={{ backgroundColor: "#dbeafe", color: "#1e40af" }}>A</span>
+        {/* Legenda compacta */}
+        <div style={{
+          display: "flex",
+          gap: "12px",
+          justifyContent: "center",
+          padding: "6px",
+          backgroundColor: "#f3f4f6",
+          marginTop: "8px",
+          fontSize: "7px"
+        }}>
+          <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+            <span style={{ backgroundColor: "#dbeafe", color: "#1e40af", padding: "1px 4px", borderRadius: "2px", fontWeight: "bold" }}>A</span>
             <span>Ancião</span>
           </span>
-          <span className="print-legend-item">
-            <span className="print-legend-badge" style={{ backgroundColor: "#fef3c7", color: "#92400e" }}>SM</span>
+          <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+            <span style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "1px 4px", borderRadius: "2px", fontWeight: "bold" }}>SM</span>
             <span>Servo Ministerial</span>
           </span>
-          <span className="print-legend-item">
-            <span className="print-legend-badge" style={{ backgroundColor: "#d1fae5", color: "#065f46" }}>PR</span>
+          <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+            <span style={{ backgroundColor: "#d1fae5", color: "#065f46", padding: "1px 4px", borderRadius: "2px", fontWeight: "bold" }}>PR</span>
             <span>Pioneiro Regular</span>
           </span>
         </div>
 
-        <div className="print-footer">
+        {/* Rodapé */}
+        <div style={{
+          textAlign: "center",
+          fontSize: "7px",
+          color: "#666",
+          padding: "4px",
+          marginTop: "6px",
+          borderTop: "1px solid #ccc"
+        }}>
           Congregação Pq. Sabará
         </div>
       </div>

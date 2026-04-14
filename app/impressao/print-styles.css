@@ -172,32 +172,33 @@
     color: #1f2937;
   }
 
-  /* Grupos de Estudo */
+  /* Grupos de Estudo - Layout compacto para caber em 1 página */
   .print-groups-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
   }
 
   .print-group-card {
-    border: 1px solid #333;
-    padding: 10px;
+    border: 1px solid #999;
+    padding: 0;
     page-break-inside: avoid;
   }
 
   .print-group-header {
     background-color: #059669 !important;
     color: white !important;
-    padding: 6px 10px;
+    padding: 2px 4px;
     font-weight: bold;
-    margin: -10px -10px 10px -10px;
+    font-size: 8pt;
     text-align: center;
   }
 
   .print-group-member {
-    padding: 3px 0;
-    border-bottom: 1px dotted #ddd;
-    font-size: 9pt;
+    padding: 1px 0;
+    border-bottom: 1px dotted #eee;
+    font-size: 7pt;
+    line-height: 1.2;
   }
 
   /* Rodapé */
@@ -347,38 +348,39 @@
 
 .print-preview .print-groups-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
 
 .print-preview .print-group-card {
-  border: 1px solid #333;
-  padding: 10px;
+  border: 1px solid #999;
+  padding: 0;
 }
 
 .print-preview .print-group-header {
   background-color: #059669;
   color: white;
-  padding: 6px 10px;
+  padding: 3px 6px;
   font-weight: bold;
-  margin: -10px -10px 10px -10px;
+  font-size: 9px;
   text-align: center;
 }
 
 .print-preview .print-group-member {
-  padding: 3px 0;
-  border-bottom: 1px dotted #ddd;
-  font-size: 11px;
+  padding: 1px 0;
+  border-bottom: 1px dotted #eee;
+  font-size: 8px;
+  line-height: 1.3;
 }
 
 .print-preview .print-legend {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   justify-content: center;
-  padding: 8px;
+  padding: 6px;
   background-color: #f3f4f6;
-  margin-top: 10px;
-  font-size: 10px;
+  margin-top: 8px;
+  font-size: 8px;
 }
 
 /* =====================================
