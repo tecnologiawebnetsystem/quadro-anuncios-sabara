@@ -322,7 +322,14 @@ export default function AdminVidaMinisterioPage() {
   // ──────────────────────────────────────────────
   const formatarMensagemWhatsApp = (parte: Parte, numeroParte?: number) => {
     const semana = semanas.find(s => s.id === parte.semana_id)
-    const dataReuniao = semana ? formatarData(semana.data_inicio) : ""
+    
+    // Calcular a data da reunião (quinta-feira = data_inicio + 3 dias)
+    let dataReuniao = ""
+    if (semana) {
+      const dataInicio = new Date(semana.data_inicio + "T12:00:00")
+      dataInicio.setDate(dataInicio.getDate() + 3) // Segunda + 3 = Quinta-feira
+      dataReuniao = dataInicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
+    }
     
     let mensagem = `*DESIGNACAO - VIDA E MINISTERIO*\n`
     mensagem += `Data: ${dataReuniao}\n\n`
@@ -426,7 +433,7 @@ export default function AdminVidaMinisterioPage() {
     </Button>
   )
 
-  // ──────────────────��───────────────���───────────
+  // ──────────────────���───────────────���───────────
   // Renderização de parte: Tesouros
   // ──────────────────────────────────────────────
   const renderParteTesouro = (parte: Parte) => {
