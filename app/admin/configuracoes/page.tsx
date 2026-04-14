@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { CenteredLoader } from "@/components/ui/page-loader"
-import { Settings, Clock, Calendar, Save, Loader2, Check, Building2, MapPin, Video, Globe } from "lucide-react"
+import { Settings, Clock, Calendar, Save, Loader2, Check, Building2, MapPin, Video, Globe, Lock, Eye, EyeOff, ShieldCheck, UserCheck } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -70,6 +70,14 @@ export default function ConfiguracoesPage() {
     link: "",
     senha: ""
   })
+  
+  // Configurações de senhas de acesso
+  const [senhaAdmin, setSenhaAdmin] = useState({ atual: "", nova: "", confirmar: "" })
+  const [senhaAnciao, setSenhaAnciao] = useState({ atual: "", nova: "", confirmar: "" })
+  const [showSenhaAdmin, setShowSenhaAdmin] = useState({ atual: false, nova: false, confirmar: false })
+  const [showSenhaAnciao, setShowSenhaAnciao] = useState({ atual: false, nova: false, confirmar: false })
+  const [erroSenha, setErroSenha] = useState<string | null>(null)
+  const [sucessoSenha, setSucessoSenha] = useState<string | null>(null)
 
   useEffect(() => {
     async function carregarConfiguracoes() {
@@ -122,6 +130,59 @@ export default function ConfiguracoesPage() {
     }
   }
 
+  async function alterarSenha(perfil: "administrador" | "anciao") {
+    const dados = perfil === "administrador" ? senhaAdmin : senhaAnciao
+    const setDados = perfil === "administrador" ? setSenhaAdmin : setSenhaAnciao
+    
+    setErroSenha(null)
+    setSucessoSenha(null)
+    
+    // Validações
+    if (!dados.nova) {
+      setErroSenha("Digite a nova senha")
+      return
+    }
+    
+    if (!/^\d{6}$/.test(dados.nova)) {
+      setErroSenha("A senha deve ter exatamente 6 dígitos numéricos")
+      return
+    }
+    
+    if (dados.nova !== dados.confirmar) {
+      setErroSenha("As senhas não coincidem")
+      return
+    }
+    
+    setSaving(`senha_${perfil}`)
+    
+    try {
+      const response = await fetch("/api/senhas", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          perfil,
+          novaSenha: dados.nova,
+          senhaAtual: dados.atual || undefined
+        })
+      })
+      
+      const result = await response.json()
+      
+      if (!response.ok) {
+        setErroSenha(result.error || "Erro ao alterar senha")
+        return
+      }
+      
+      setSucessoSenha(`Senha do ${perfil === "administrador" ? "Administrador" : "Ancião"} alterada com sucesso!`)
+      setDados({ atual: "", nova: "", confirmar: "" })
+      setTimeout(() => setSucessoSenha(null), 3000)
+    } catch {
+      setErroSenha("Erro ao conectar com o servidor")
+    } finally {
+      setSaving(null)
+    }
+  }
+
   function BotaoSalvar({ chave, valor }: { chave: string; valor: Record<string, string> }) {
     return (
       <Button 
@@ -157,7 +218,7 @@ export default function ConfiguracoesPage() {
       </div>
 
       <Tabs defaultValue="congregacao" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
           <TabsTrigger value="congregacao" className="gap-2">
             <Building2 className="h-4 w-4 hidden sm:inline" />
             Congregação
@@ -173,6 +234,10 @@ export default function ConfiguracoesPage() {
           <TabsTrigger value="zoom" className="gap-2">
             <Video className="h-4 w-4 hidden sm:inline" />
             Zoom
+          </TabsTrigger>
+          <TabsTrigger value="seguranca" className="gap-2">
+            <Lock className="h-4 w-4 hidden sm:inline" />
+            Segurança
           </TabsTrigger>
         </TabsList>
 
@@ -432,6 +497,229 @@ export default function ConfiguracoesPage() {
               <BotaoSalvar chave="zoom_link" valor={zoom} />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Tab Segurança */}
+        <TabsContent value="seguranca">
+          <div className="space-y-6">
+            {/* Mensagens de feedback */}
+            {erroSenha && (
+              <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">
+                {erroSenha}
+              </div>
+            )}
+            {sucessoSenha && (
+              <div className="bg-green-500/10 border border-green-500/30 text-green-500 px-4 py-3 rounded-lg text-sm">
+                {sucessoSenha}
+              </div>
+            )}
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Senha do Administrador */}
+              <Card className="border-border bg-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShieldCheck className="h-5 w-5 text-red-500" />
+                    Senha do Administrador
+                  </CardTitle>
+                  <CardDescription>
+                    Altere a senha de acesso do perfil Administrador
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="senha-admin-atual">Senha Atual (opcional)</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="senha-admin-atual"
+                        type={showSenhaAdmin.atual ? "text" : "password"}
+                        value={senhaAdmin.atual}
+                        onChange={(e) => setSenhaAdmin(prev => ({ ...prev, atual: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                        className="pl-10 pr-10"
+                        placeholder="******"
+                        maxLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSenhaAdmin(prev => ({ ...prev, atual: !prev.atual }))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showSenhaAdmin.atual ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="senha-admin-nova">Nova Senha (6 dígitos)</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="senha-admin-nova"
+                        type={showSenhaAdmin.nova ? "text" : "password"}
+                        value={senhaAdmin.nova}
+                        onChange={(e) => setSenhaAdmin(prev => ({ ...prev, nova: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                        className="pl-10 pr-10"
+                        placeholder="******"
+                        maxLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSenhaAdmin(prev => ({ ...prev, nova: !prev.nova }))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showSenhaAdmin.nova ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="senha-admin-confirmar">Confirmar Nova Senha</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="senha-admin-confirmar"
+                        type={showSenhaAdmin.confirmar ? "text" : "password"}
+                        value={senhaAdmin.confirmar}
+                        onChange={(e) => setSenhaAdmin(prev => ({ ...prev, confirmar: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                        className="pl-10 pr-10"
+                        placeholder="******"
+                        maxLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSenhaAdmin(prev => ({ ...prev, confirmar: !prev.confirmar }))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showSenhaAdmin.confirmar ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => alterarSenha("administrador")}
+                    disabled={saving === "senha_administrador"}
+                    className="w-full"
+                  >
+                    {saving === "senha_administrador" ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Alterar Senha
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Senha do Ancião */}
+              <Card className="border-border bg-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <UserCheck className="h-5 w-5 text-amber-500" />
+                    Senha do Ancião
+                  </CardTitle>
+                  <CardDescription>
+                    Altere a senha de acesso do perfil Ancião
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="senha-anciao-atual">Senha Atual (opcional)</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="senha-anciao-atual"
+                        type={showSenhaAnciao.atual ? "text" : "password"}
+                        value={senhaAnciao.atual}
+                        onChange={(e) => setSenhaAnciao(prev => ({ ...prev, atual: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                        className="pl-10 pr-10"
+                        placeholder="******"
+                        maxLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSenhaAnciao(prev => ({ ...prev, atual: !prev.atual }))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showSenhaAnciao.atual ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="senha-anciao-nova">Nova Senha (6 dígitos)</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="senha-anciao-nova"
+                        type={showSenhaAnciao.nova ? "text" : "password"}
+                        value={senhaAnciao.nova}
+                        onChange={(e) => setSenhaAnciao(prev => ({ ...prev, nova: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                        className="pl-10 pr-10"
+                        placeholder="******"
+                        maxLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSenhaAnciao(prev => ({ ...prev, nova: !prev.nova }))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showSenhaAnciao.nova ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="senha-anciao-confirmar">Confirmar Nova Senha</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="senha-anciao-confirmar"
+                        type={showSenhaAnciao.confirmar ? "text" : "password"}
+                        value={senhaAnciao.confirmar}
+                        onChange={(e) => setSenhaAnciao(prev => ({ ...prev, confirmar: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                        className="pl-10 pr-10"
+                        placeholder="******"
+                        maxLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSenhaAnciao(prev => ({ ...prev, confirmar: !prev.confirmar }))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showSenhaAnciao.confirmar ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => alterarSenha("anciao")}
+                    disabled={saving === "senha_anciao"}
+                    className="w-full"
+                  >
+                    {saving === "senha_anciao" ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Alterar Senha
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Informações adicionais */}
+            <Card className="border-border bg-card">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3 text-sm text-muted-foreground">
+                  <Lock className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-foreground mb-1">Dicas de Segurança</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>As senhas devem ter exatamente 6 dígitos numéricos</li>
+                      <li>Evite usar sequências óbvias como 123456 ou 000000</li>
+                      <li>Altere as senhas periodicamente para maior segurança</li>
+                      <li>Não compartilhe as senhas com pessoas não autorizadas</li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
       </Tabs>
