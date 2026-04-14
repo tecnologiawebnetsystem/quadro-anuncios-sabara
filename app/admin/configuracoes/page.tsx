@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { CenteredLoader } from "@/components/ui/page-loader"
-import { Settings, Clock, Calendar, Save, Loader2, Check, Building2, MapPin, Video, Globe, Bell } from "lucide-react"
-import { CentralNotificacoes } from "@/components/admin/central-notificacoes"
+import { Settings, Clock, Calendar, Save, Loader2, Check, Building2, MapPin, Video, Globe } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -158,7 +157,7 @@ export default function ConfiguracoesPage() {
       </div>
 
       <Tabs defaultValue="congregacao" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
           <TabsTrigger value="congregacao" className="gap-2">
             <Building2 className="h-4 w-4 hidden sm:inline" />
             Congregação
@@ -174,10 +173,6 @@ export default function ConfiguracoesPage() {
           <TabsTrigger value="zoom" className="gap-2">
             <Video className="h-4 w-4 hidden sm:inline" />
             Zoom
-          </TabsTrigger>
-          <TabsTrigger value="notificacoes" className="gap-2">
-            <Bell className="h-4 w-4 hidden sm:inline" />
-            Notificações IA
           </TabsTrigger>
         </TabsList>
 
@@ -439,10 +434,6 @@ export default function ConfiguracoesPage() {
           </Card>
         </TabsContent>
 
-        {/* Tab Notificações com IA */}
-        <TabsContent value="notificacoes">
-          <CentralNotificacoes />
-        </TabsContent>
       </Tabs>
     </div>
   )
