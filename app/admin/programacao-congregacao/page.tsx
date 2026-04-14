@@ -622,34 +622,21 @@ function PrintTabelaAssistencia({
   if (registros.length === 0) return null
 
   const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
-    border: "1px solid #d1d5db", 
-    padding: "5px 10px", 
-    fontSize: "9px", 
+    border: "1px solid #c9cdd1", 
+    padding: "4px 8px", 
+    fontSize: "8px", 
     textAlign: "center", 
     ...extra,
   })
 
   return (
-    <div style={{ display: "flex", gap: 0 }}>
-      {/* Labels */}
-      <table style={{ borderCollapse: "collapse", flexShrink: 0 }}>
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <table style={{ borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            <th style={cell({ fontWeight: "bold", whiteSpace: "nowrap", backgroundColor: "#e5e7eb" })}>{titulo}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td style={cell({ fontWeight: "600", whiteSpace: "nowrap" })}>PRESENCIAL</td></tr>
-          <tr><td style={cell({ fontWeight: "600", whiteSpace: "nowrap" })}>ZOOM</td></tr>
-        </tbody>
-      </table>
-
-      {/* Datas */}
-      <table style={{ borderCollapse: "collapse", flex: 1 }}>
-        <thead>
-          <tr>
+            <th style={cell({ fontWeight: "bold", whiteSpace: "nowrap", backgroundColor: "#e5e7eb", minWidth: "70px" })}>{titulo}</th>
             {registros.map((a) => (
-              <th key={a.data} style={cell({ fontWeight: "600", whiteSpace: "nowrap", backgroundColor: "#f3f4f6" })}>
+              <th key={a.data} style={cell({ fontWeight: "600", whiteSpace: "nowrap", backgroundColor: "#f3f4f6", minWidth: "45px" })}>
                 {formatarData(a.data)}
               </th>
             ))}
@@ -657,15 +644,17 @@ function PrintTabelaAssistencia({
         </thead>
         <tbody>
           <tr>
+            <td style={cell({ fontWeight: "600", whiteSpace: "nowrap", backgroundColor: "#fff" })}>PRESENCIAL</td>
             {registros.map((a) => (
-              <td key={a.data} style={cell()}>
+              <td key={a.data} style={cell({ backgroundColor: "#fff" })}>
                 {a.presencial > 0 ? a.presencial : ""}
               </td>
             ))}
           </tr>
           <tr>
+            <td style={cell({ fontWeight: "600", whiteSpace: "nowrap", backgroundColor: "#fff" })}>ZOOM</td>
             {registros.map((a) => (
-              <td key={a.data} style={cell()}>
+              <td key={a.data} style={cell({ backgroundColor: "#fff" })}>
                 {a.zoom > 0 ? a.zoom : ""}
               </td>
             ))}
