@@ -440,7 +440,7 @@ export default function AdminVidaMinisterioPage() {
       dataReuniao = dataInicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
     }
     
-    let mensagem = `*DESIGNAÇÃO - VIDA E MINISTÉRIO*\n\n`
+    let mensagem = `*DESIGNAÇÃO - VIDA E MINIST��RIO*\n\n`
     mensagem += `Olá, ${parte.oracao_final_nome}!\n\n`
     mensagem += `Você foi designado para fazer a *Oração Final* na reunião de Vida e Ministério.\n\n`
     mensagem += `*Data:* ${dataReuniao} (quinta-feira)\n`
@@ -932,21 +932,9 @@ export default function AdminVidaMinisterioPage() {
               </h2>
               <p className="text-sm text-zinc-500">{semanas.length} semana(s) cadastrada(s)</p>
             </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => handlePrint()}
-                disabled={semanas.length === 0}
-                className="border-zinc-700 hover:bg-zinc-800"
-              >
-                <Printer className="w-4 h-4 mr-2" />
-                Imprimir Mês
-              </Button>
-              <Button variant="ghost" size="icon" onClick={mesProximo}>
-                <ChevronRight className="w-5 h-5" />
-              </Button>
-            </div>
+  <Button variant="ghost" size="icon" onClick={mesProximo}>
+  <ChevronRight className="w-5 h-5" />
+  </Button>
           </div>
         </CardContent>
       </Card>
