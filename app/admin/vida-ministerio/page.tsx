@@ -337,8 +337,16 @@ export default function AdminVidaMinisterioPage() {
     } else if (parte.secao === "tesouros") {
       const ordemLabel = parte.ordem === 1 ? "Discurso" 
         : parte.ordem === 2 ? "Joias Espirituais" 
-        : "Leitura da Bíblia"
-      mensagem += `${ordemLabel}: ${parte.titulo || "Sem título"}\n`
+        : "Leitura da Biblia"
+      // Evita redundância: se o título for igual ao label, mostra só o label
+      const titulo = parte.titulo || ""
+      const tituloNormalizado = titulo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      const labelNormalizado = ordemLabel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      if (tituloNormalizado === labelNormalizado || !titulo) {
+        mensagem += `${ordemLabel}\n`
+      } else {
+        mensagem += `${ordemLabel}: ${titulo}\n`
+      }
     } else {
       mensagem += `${parte.titulo || "Sem título"}\n`
     }
@@ -418,7 +426,7 @@ export default function AdminVidaMinisterioPage() {
     </Button>
   )
 
-  // ──────────────────────────────────────────────
+  // ──────────────────────────────────���───────────
   // Renderização de parte: Tesouros
   // ──────────────────────────────────────────────
   const renderParteTesouro = (parte: Parte) => {
@@ -798,7 +806,7 @@ export default function AdminVidaMinisterioPage() {
 
   // ──────────────────────────────────────────────
   // JSX principal
-  // ──────────────────────────────────────────────
+  // ──────────────────────────────��───────────────
   if (loading) return <CenteredLoader />
 
   return (
