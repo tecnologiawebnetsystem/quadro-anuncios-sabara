@@ -218,17 +218,6 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
           </div>
         </div>
 
-        {/* Subtítulo */}
-        <div style={{ 
-          textAlign: "center", 
-          marginBottom: "16px", 
-          paddingBottom: "8px"
-        }}>
-          <p style={{ fontSize: "11px", color: "#555", margin: 0 }}>
-            {grupos.length} grupo{grupos.length !== 1 ? "s" : ""} &middot; {totalPublicadores} publicador{totalPublicadores !== 1 ? "es" : ""}
-          </p>
-        </div>
-
         {/* Grid de grupos */}
         <div style={{
           display: "grid",
