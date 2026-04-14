@@ -273,11 +273,15 @@ export default function AdminVidaMinisterioPage() {
   }
 
   const atualizarParte = async (parteId: string, campo: string, valor: unknown) => {
+    console.log("[v0] atualizarParte chamado:", { parteId, campo, valor })
     const { error } = await supabase
       .from("vida_ministerio_partes")
       .update({ [campo]: valor })
       .eq("id", parteId)
-    if (!error) {
+    if (error) {
+      console.log("[v0] Erro ao atualizar:", error)
+    } else {
+      console.log("[v0] Atualizado com sucesso")
       setPartes((prev) => prev.map((p) => (p.id === parteId ? { ...p, [campo]: valor } : p)))
     }
   }
@@ -426,7 +430,7 @@ export default function AdminVidaMinisterioPage() {
     </Button>
   )
 
-  // ──────────────────────────────────���───────────
+  // ──────────────────��───────────────���───────────
   // Renderização de parte: Tesouros
   // ──────────────────────────────────────────────
   const renderParteTesouro = (parte: Parte) => {
