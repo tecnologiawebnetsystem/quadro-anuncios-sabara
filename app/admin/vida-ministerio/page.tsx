@@ -331,7 +331,7 @@ export default function AdminVidaMinisterioPage() {
       dataReuniao = dataInicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
     }
     
-    let mensagem = `*DESIGNACAO - VIDA E MINISTERIO*\n`
+    let mensagem = `*DESIGNAÇÃO - VIDA E MINISTÉRIO*\n`
     mensagem += `Data: ${dataReuniao}\n\n`
     
     // Nome da seção
@@ -344,7 +344,7 @@ export default function AdminVidaMinisterioPage() {
     } else if (parte.secao === "tesouros") {
       const ordemLabel = parte.ordem === 1 ? "Discurso" 
         : parte.ordem === 2 ? "Joias Espirituais" 
-        : "Leitura da Biblia"
+        : "Leitura da Bíblia"
       // Evita redundância: se o título for igual ao label, mostra só o label
       const titulo = parte.titulo || ""
       const tituloNormalizado = titulo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -360,7 +360,7 @@ export default function AdminVidaMinisterioPage() {
     
     // Tempo
     if (parte.tempo) {
-      mensagem += `Duracao: ${parte.tempo} minutos\n`
+      mensagem += `Duração: ${parte.tempo} minutos\n`
     }
     
     // Participante
@@ -380,7 +380,7 @@ export default function AdminVidaMinisterioPage() {
     
     // Lição
     if (parte.licao_ministerio) {
-      mensagem += `*Licao:* ${parte.licao_ministerio}\n`
+      mensagem += `*Lição:* ${parte.licao_ministerio}\n`
     }
     
     // Ponto (para Ministério)
@@ -395,11 +395,8 @@ export default function AdminVidaMinisterioPage() {
     
     // Oração Final
     if (parte.oracao_final_nome) {
-      mensagem += `*Oracao Final:* ${parte.oracao_final_nome}\n`
+      mensagem += `*Oração Final:* ${parte.oracao_final_nome}\n`
     }
-    
-    // Mensagem de encorajamento
-    mensagem += `\n_Que Jeova abencoe sua preparacao!_`
     
     return mensagem
   }
@@ -422,12 +419,11 @@ export default function AdminVidaMinisterioPage() {
       dataReuniao = dataInicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
     }
     
-    let mensagem = `*DESIGNACAO - VIDA E MINISTERIO*\n\n`
-    mensagem += `Ola, ${parte.leitor_nome}!\n\n`
-    mensagem += `Voce foi designado como *Leitor do Estudo Biblico de Congregacao* na reuniao de Vida e Ministerio.\n\n`
+    let mensagem = `*DESIGNAÇÃO - VIDA E MINISTÉRIO*\n\n`
+    mensagem += `Olá, ${parte.leitor_nome}!\n\n`
+    mensagem += `Você foi designado como *Leitor do Estudo Bíblico de Congregação* na reunião de Vida e Ministério.\n\n`
     mensagem += `*Data:* ${dataReuniao} (quinta-feira)\n`
-    mensagem += `*Parte:* ${parte.titulo || "Estudo Biblico de Congregacao"}\n\n`
-    mensagem += `_Que Jeova abencoe sua preparacao!_`
+    mensagem += `*Parte:* ${parte.titulo || "Estudo Bíblico de Congregação"}\n`
     
     return mensagem
   }
@@ -444,11 +440,10 @@ export default function AdminVidaMinisterioPage() {
       dataReuniao = dataInicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
     }
     
-    let mensagem = `*DESIGNACAO - VIDA E MINISTERIO*\n\n`
-    mensagem += `Ola, ${parte.oracao_final_nome}!\n\n`
-    mensagem += `Voce foi designado para fazer a *Oracao Final* na reuniao de Vida e Ministerio.\n\n`
-    mensagem += `*Data:* ${dataReuniao} (quinta-feira)\n\n`
-    mensagem += `_Que Jeova abencoe sua preparacao!_`
+    let mensagem = `*DESIGNAÇÃO - VIDA E MINISTÉRIO*\n\n`
+    mensagem += `Olá, ${parte.oracao_final_nome}!\n\n`
+    mensagem += `Você foi designado para fazer a *Oração Final* na reunião de Vida e Ministério.\n\n`
+    mensagem += `*Data:* ${dataReuniao} (quinta-feira)\n`
     
     return mensagem
   }
