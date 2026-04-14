@@ -177,13 +177,15 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
           const oracaoFinal = vida.find(p => p.oracao_final_nome)
 
           return (
-            <div key={semana.id} className="vm-semana avoid-break" style={{ 
+            <div key={semana.id} className="vm-semana" style={{ 
               backgroundColor: "white", 
-              padding: "16px", 
-              marginBottom: idx < semanas.length - 1 ? "20px" : 0,
-              border: "1px solid #e5e7eb",
-              borderRadius: "4px",
-              pageBreakInside: "avoid"
+              padding: "20px", 
+              marginBottom: "0",
+              border: "none",
+              borderRadius: "0",
+              pageBreakAfter: idx < semanas.filter(s => !s.sem_reuniao).length - 1 ? "always" : "auto",
+              pageBreakInside: "avoid",
+              minHeight: "calc(100vh - 40px)"
             }}>
               {/* Cabeçalho da Congregação */}
               <div style={{ 
@@ -564,40 +566,71 @@ interface EquipeTecnicaProps {
 export const PrintEquipeTecnica = forwardRef<HTMLDivElement, EquipeTecnicaProps>(
   ({ mes, mesLabel, designacoes }, ref) => {
     return (
-      <div ref={ref} className="print-preview">
-        <div className="print-header">
-          <h1>EQUIPE TÉCNICA</h1>
-          <h2>{mesLabel}</h2>
+      <div ref={ref} style={{
+        backgroundColor: "white",
+        color: "black",
+        padding: "12px",
+        maxWidth: "210mm",
+        margin: "0 auto"
+      }}>
+        {/* Header compacto */}
+        <div style={{
+          textAlign: "center",
+          paddingBottom: "6px",
+          marginBottom: "10px",
+          borderBottom: "2px solid #333"
+        }}>
+          <h1 style={{ fontSize: "14px", fontWeight: "bold", margin: "0 0 2px 0", color: "#000" }}>
+            EQUIPE TÉCNICA
+          </h1>
+          <h2 style={{ fontSize: "11px", fontWeight: "normal", margin: 0, color: "#333" }}>
+            {mesLabel}
+          </h2>
         </div>
 
-        <table className="print-table">
+        {/* Tabela compacta */}
+        <table style={{ 
+          width: "100%", 
+          borderCollapse: "collapse", 
+          fontSize: "8px"
+        }}>
           <thead>
-            <tr>
-              <th style={{ width: "12%" }}>Data</th>
-              <th style={{ width: "12%" }}>Dia</th>
-              <th style={{ width: "19%" }}>Indicador 1</th>
-              <th style={{ width: "19%" }}>Indicador 2</th>
-              <th style={{ width: "19%" }}>Microfone 1</th>
-              <th style={{ width: "19%" }}>Microfone 2</th>
-              <th style={{ width: "12%" }}>Som</th>
+            <tr style={{ backgroundColor: "#2a6b77" }}>
+              <th style={{ padding: "4px 6px", border: "1px solid #999", color: "white", textAlign: "left", width: "10%" }}>Data</th>
+              <th style={{ padding: "4px 6px", border: "1px solid #999", color: "white", textAlign: "left", width: "8%" }}>Dia</th>
+              <th style={{ padding: "4px 6px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Indicador 1</th>
+              <th style={{ padding: "4px 6px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Indicador 2</th>
+              <th style={{ padding: "4px 6px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Microfone 1</th>
+              <th style={{ padding: "4px 6px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Microfone 2</th>
+              <th style={{ padding: "4px 6px", border: "1px solid #999", color: "white", textAlign: "left", width: "10%" }}>Som</th>
             </tr>
           </thead>
           <tbody>
-            {designacoes.map((d) => (
-              <tr key={d.id}>
-                <td>{formatarData(d.data)}</td>
-                <td>{d.dia_semana === "quinta" ? "Qui" : "Dom"}</td>
-                <td>{d.indicador1_nome || "-"}</td>
-                <td>{d.indicador2_nome || "-"}</td>
-                <td>{d.microvolante1_nome || "-"}</td>
-                <td>{d.microvolante2_nome || "-"}</td>
-                <td>{d.som_nome || "-"}</td>
+            {designacoes.map((d, i) => (
+              <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
+                <td style={{ padding: "4px 6px", border: "1px solid #ddd" }}>{formatarData(d.data)}</td>
+                <td style={{ padding: "4px 6px", border: "1px solid #ddd", fontWeight: "500" }}>
+                  {d.dia_semana === "quinta" ? "Qui" : "Dom"}
+                </td>
+                <td style={{ padding: "4px 6px", border: "1px solid #ddd" }}>{d.indicador1_nome || "-"}</td>
+                <td style={{ padding: "4px 6px", border: "1px solid #ddd" }}>{d.indicador2_nome || "-"}</td>
+                <td style={{ padding: "4px 6px", border: "1px solid #ddd" }}>{d.microvolante1_nome || "-"}</td>
+                <td style={{ padding: "4px 6px", border: "1px solid #ddd" }}>{d.microvolante2_nome || "-"}</td>
+                <td style={{ padding: "4px 6px", border: "1px solid #ddd" }}>{d.som_nome || "-"}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div className="print-footer">
+        {/* Rodapé */}
+        <div style={{
+          textAlign: "center",
+          fontSize: "7px",
+          color: "#666",
+          padding: "8px",
+          marginTop: "10px",
+          borderTop: "1px solid #ccc"
+        }}>
           Congregação Pq. Sabará - {mesLabel}
         </div>
       </div>
@@ -767,32 +800,61 @@ interface LimpezaSalaoProps {
 export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
   ({ mes, ano, escalas }, ref) => {
     return (
-      <div ref={ref} className="print-preview">
-        <div className="print-header">
-          <h1>ESCALA DE LIMPEZA DO SALÃO</h1>
-          <h2>{getMesAno(mes, ano)}</h2>
+      <div ref={ref} style={{
+        backgroundColor: "white",
+        color: "black",
+        padding: "12px",
+        maxWidth: "210mm",
+        margin: "0 auto"
+      }}>
+        {/* Header compacto */}
+        <div style={{
+          textAlign: "center",
+          paddingBottom: "6px",
+          marginBottom: "10px",
+          borderBottom: "2px solid #333"
+        }}>
+          <h1 style={{ fontSize: "14px", fontWeight: "bold", margin: "0 0 2px 0", color: "#000" }}>
+            ESCALA DE LIMPEZA DO SALÃO
+          </h1>
+          <h2 style={{ fontSize: "11px", fontWeight: "normal", margin: 0, color: "#333" }}>
+            {getMesAno(mes, ano)}
+          </h2>
         </div>
 
-        <table className="print-table">
+        {/* Tabela compacta */}
+        <table style={{ 
+          width: "100%", 
+          borderCollapse: "collapse", 
+          fontSize: "9px"
+        }}>
           <thead>
-            <tr>
-              <th style={{ width: "20%" }}>Data</th>
-              <th style={{ width: "30%" }}>Grupo</th>
-              <th style={{ width: "50%" }}>Responsável</th>
+            <tr style={{ backgroundColor: "#8b2332" }}>
+              <th style={{ padding: "5px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "20%" }}>Data</th>
+              <th style={{ padding: "5px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "25%" }}>Grupo</th>
+              <th style={{ padding: "5px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "55%" }}>Responsável</th>
             </tr>
           </thead>
           <tbody>
-            {escalas.map((escala) => (
-              <tr key={escala.id}>
-                <td>{formatarData(escala.data)}</td>
-                <td>Grupo {escala.grupo_numero}</td>
-                <td>{escala.responsavel_nome || "-"}</td>
+            {escalas.map((escala, i) => (
+              <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd", fontWeight: "500" }}>{formatarData(escala.data)}</td>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>Grupo {escala.grupo_numero}</td>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{escala.responsavel_nome || "-"}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div className="print-footer">
+        {/* Rodapé */}
+        <div style={{
+          textAlign: "center",
+          fontSize: "7px",
+          color: "#666",
+          padding: "8px",
+          marginTop: "10px",
+          borderTop: "1px solid #ccc"
+        }}>
           Congregação Pq. Sabará - {getMesAno(mes, ano)}
         </div>
       </div>
@@ -813,30 +875,59 @@ interface ServicoCampoProps {
 export const PrintServicoCampo = forwardRef<HTMLDivElement, ServicoCampoProps>(
   ({ mes, ano, escalas }, ref) => {
     return (
-      <div ref={ref} className="print-preview">
-        <div className="print-header">
-          <h1>DIRIGENTES DE SERVIÇO DE CAMPO</h1>
-          <h2>{getMesAno(mes, ano)}</h2>
+      <div ref={ref} style={{
+        backgroundColor: "white",
+        color: "black",
+        padding: "12px",
+        maxWidth: "210mm",
+        margin: "0 auto"
+      }}>
+        {/* Header compacto */}
+        <div style={{
+          textAlign: "center",
+          paddingBottom: "6px",
+          marginBottom: "10px",
+          borderBottom: "2px solid #333"
+        }}>
+          <h1 style={{ fontSize: "14px", fontWeight: "bold", margin: "0 0 2px 0", color: "#000" }}>
+            DIRIGENTES DE SERVIÇO DE CAMPO
+          </h1>
+          <h2 style={{ fontSize: "11px", fontWeight: "normal", margin: 0, color: "#333" }}>
+            {getMesAno(mes, ano)}
+          </h2>
         </div>
 
-        <table className="print-table">
+        {/* Tabela compacta */}
+        <table style={{ 
+          width: "100%", 
+          borderCollapse: "collapse", 
+          fontSize: "9px"
+        }}>
           <thead>
-            <tr>
-              <th style={{ width: "30%" }}>Data</th>
-              <th style={{ width: "70%" }}>Dirigente</th>
+            <tr style={{ backgroundColor: "#059669" }}>
+              <th style={{ padding: "5px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "25%" }}>Data</th>
+              <th style={{ padding: "5px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "75%" }}>Dirigente</th>
             </tr>
           </thead>
           <tbody>
-            {escalas.map((escala) => (
-              <tr key={escala.id}>
-                <td>{formatarData(escala.data)}</td>
-                <td>{escala.dirigente_nome || "-"}</td>
+            {escalas.map((escala, i) => (
+              <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd", fontWeight: "500" }}>{formatarData(escala.data)}</td>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{escala.dirigente_nome || "-"}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div className="print-footer">
+        {/* Rodapé */}
+        <div style={{
+          textAlign: "center",
+          fontSize: "7px",
+          color: "#666",
+          padding: "8px",
+          marginTop: "10px",
+          borderTop: "1px solid #ccc"
+        }}>
           Congregação Pq. Sabará - {getMesAno(mes, ano)}
         </div>
       </div>
