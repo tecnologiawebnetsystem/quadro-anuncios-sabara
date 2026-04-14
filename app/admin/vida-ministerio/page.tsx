@@ -273,15 +273,11 @@ export default function AdminVidaMinisterioPage() {
   }
 
   const atualizarParte = async (parteId: string, campo: string, valor: unknown) => {
-    console.log("[v0] atualizarParte chamado:", { parteId, campo, valor })
     const { error } = await supabase
       .from("vida_ministerio_partes")
       .update({ [campo]: valor })
       .eq("id", parteId)
-    if (error) {
-      console.log("[v0] Erro ao atualizar:", error)
-    } else {
-      console.log("[v0] Atualizado com sucesso")
+    if (!error) {
       setPartes((prev) => prev.map((p) => (p.id === parteId ? { ...p, [campo]: valor } : p)))
     }
   }
@@ -958,7 +954,7 @@ export default function AdminVidaMinisterioPage() {
                           onChange={(e) =>
                             atualizarSemana(semanaAtualData.id, "motivo_sem_reuniao", e.target.value)
                           }
-                          placeholder="Ex: Assembleia de Circuito, Congresso Regional, Celebração da Morte de Cristo..."
+                          placeholder="Ex: Assembleia de Circuito, Congresso Regional, Celebra��ão da Morte de Cristo..."
                           className="bg-zinc-900 border-zinc-600 min-h-[60px]"
                         />
                       </div>
