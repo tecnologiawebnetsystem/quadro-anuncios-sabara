@@ -56,63 +56,66 @@ export function PrintActionButtons({
     },
   })
 
-  // Função para converter cores lab/oklch para RGB antes do html2canvas
-  const convertModernColorsToRGB = (element: HTMLElement) => {
-    const allElements = element.querySelectorAll('*')
-    const elementsToRestore: { el: HTMLElement; prop: string; value: string }[] = []
+  // Função para aplicar estilos inline com cores RGB no elemento original
+  // e retornar uma função para restaurar os estilos originais
+  const applyInlineColors = (element: HTMLElement): (() => void) => {
+    const originalStyles: { el: HTMLElement; styles: string }[] = []
+    const allElements = [element, ...Array.from(element.querySelectorAll('*'))] as HTMLElement[]
     
-    const processElement = (el: HTMLElement) => {
-      const computedStyle = window.getComputedStyle(el)
-      const propsToCheck = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor']
+    allElements.forEach(el => {
+      if (!(el instanceof HTMLElement)) return
       
-      propsToCheck.forEach(prop => {
-        const value = computedStyle.getPropertyValue(prop.replace(/([A-Z])/g, '-$1').toLowerCase())
-        if (value && (value.includes('lab(') || value.includes('oklch(') || value.includes('oklab('))) {
-          // Salva o valor original para restaurar depois
-          const inlineValue = el.style.getPropertyValue(prop.replace(/([A-Z])/g, '-$1').toLowerCase())
-          if (inlineValue) {
-            elementsToRestore.push({ el, prop: prop.replace(/([A-Z])/g, '-$1').toLowerCase(), value: inlineValue })
-          }
-          
-          // Cria um elemento temporário para obter a cor computada em RGB
-          const temp = document.createElement('div')
-          temp.style.color = value
-          document.body.appendChild(temp)
-          const rgbColor = window.getComputedStyle(temp).color
-          document.body.removeChild(temp)
-          
-          // Aplica a cor RGB diretamente
-          el.style.setProperty(prop.replace(/([A-Z])/g, '-$1').toLowerCase(), rgbColor, 'important')
+      // Salva o estilo original
+      originalStyles.push({ el, styles: el.getAttribute('style') || '' })
+      
+      const computedStyle = window.getComputedStyle(el)
+      
+      // Aplica cores computadas (que já estão em RGB pelo navegador)
+      const color = computedStyle.color
+      const bgColor = computedStyle.backgroundColor
+      const borderColor = computedStyle.borderColor
+      
+      if (color) el.style.setProperty('color', color, 'important')
+      if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)') {
+        el.style.setProperty('background-color', bgColor, 'important')
+      }
+      if (borderColor && borderColor !== 'rgba(0, 0, 0, 0)') {
+        el.style.setProperty('border-color', borderColor, 'important')
+      }
+    })
+    
+    // Retorna função para restaurar estilos originais
+    return () => {
+      originalStyles.forEach(({ el, styles }) => {
+        if (styles) {
+          el.setAttribute('style', styles)
+        } else {
+          el.removeAttribute('style')
         }
       })
     }
-    
-    processElement(element)
-    allElements.forEach(el => processElement(el as HTMLElement))
-    
-    return elementsToRestore
   }
 
   const handleShareWhatsApp = async () => {
     if (!printRef.current || isGenerating) return
 
     setIsGenerating(true)
+    let restoreStyles: (() => void) | null = null
+    
     try {
-      // Gera o PDF a partir do conteúdo
       const element = printRef.current
       
-      // Converte cores modernas (lab, oklch) para RGB antes do html2canvas
-      const elementsToRestore = convertModernColorsToRGB(element)
+      // Aplica estilos inline ANTES do html2canvas clonar o elemento
+      restoreStyles = applyInlineColors(element)
       
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        onclone: (clonedDoc) => {
-          // Aplica conversão de cores também no clone
-          const clonedElement = clonedDoc.body.querySelector('[data-print-content]') || clonedDoc.body
-          convertModernColorsToRGB(clonedElement as HTMLElement)
+        ignoreElements: (el) => {
+          // Ignora elementos que podem causar problemas
+          return el.tagName === 'LINK' && (el as HTMLLinkElement).rel === 'preload'
         }
       })
       
@@ -163,6 +166,10 @@ export function PrintActionButtons({
       console.error('Erro ao gerar PDF:', error)
       alert('Erro ao gerar o PDF. Tente novamente.')
     } finally {
+      // Restaura os estilos originais
+      if (restoreStyles) {
+        restoreStyles()
+      }
       setIsGenerating(false)
     }
   }
