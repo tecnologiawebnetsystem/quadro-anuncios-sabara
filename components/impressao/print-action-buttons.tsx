@@ -56,27 +56,67 @@ export function PrintActionButtons({
     },
   })
 
+  // Função para converter cores lab/oklch para RGB antes do html2canvas
+  const convertModernColorsToRGB = (element: HTMLElement) => {
+    const allElements = element.querySelectorAll('*')
+    const elementsToRestore: { el: HTMLElement; prop: string; value: string }[] = []
+    
+    const processElement = (el: HTMLElement) => {
+      const computedStyle = window.getComputedStyle(el)
+      const propsToCheck = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor']
+      
+      propsToCheck.forEach(prop => {
+        const value = computedStyle.getPropertyValue(prop.replace(/([A-Z])/g, '-$1').toLowerCase())
+        if (value && (value.includes('lab(') || value.includes('oklch(') || value.includes('oklab('))) {
+          // Salva o valor original para restaurar depois
+          const inlineValue = el.style.getPropertyValue(prop.replace(/([A-Z])/g, '-$1').toLowerCase())
+          if (inlineValue) {
+            elementsToRestore.push({ el, prop: prop.replace(/([A-Z])/g, '-$1').toLowerCase(), value: inlineValue })
+          }
+          
+          // Cria um elemento temporário para obter a cor computada em RGB
+          const temp = document.createElement('div')
+          temp.style.color = value
+          document.body.appendChild(temp)
+          const rgbColor = window.getComputedStyle(temp).color
+          document.body.removeChild(temp)
+          
+          // Aplica a cor RGB diretamente
+          el.style.setProperty(prop.replace(/([A-Z])/g, '-$1').toLowerCase(), rgbColor, 'important')
+        }
+      })
+    }
+    
+    processElement(element)
+    allElements.forEach(el => processElement(el as HTMLElement))
+    
+    return elementsToRestore
+  }
+
   const handleShareWhatsApp = async () => {
     if (!printRef.current || isGenerating) return
 
     setIsGenerating(true)
     try {
-      console.log("[v0] Iniciando geração do PDF...")
-      
       // Gera o PDF a partir do conteúdo
       const element = printRef.current
-      console.log("[v0] Elemento encontrado:", element ? "sim" : "não")
+      
+      // Converte cores modernas (lab, oklch) para RGB antes do html2canvas
+      const elementsToRestore = convertModernColorsToRGB(element)
       
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        onclone: (clonedDoc) => {
+          // Aplica conversão de cores também no clone
+          const clonedElement = clonedDoc.body.querySelector('[data-print-content]') || clonedDoc.body
+          convertModernColorsToRGB(clonedElement as HTMLElement)
+        }
       })
-      console.log("[v0] Canvas gerado:", canvas.width, "x", canvas.height)
       
       const imgData = canvas.toDataURL('image/png')
-      console.log("[v0] Imagem gerada, tamanho:", imgData.length)
       
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -93,34 +133,26 @@ export function PrintActionButtons({
       const imgY = 0
       
       pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
-      console.log("[v0] Imagem adicionada ao PDF")
       
       // Converte para blob
       const pdfBlob = pdf.output('blob')
       const filename = `${documentTitle.replace(/\s+/g, '_')}.pdf`
-      console.log("[v0] PDF blob criado:", pdfBlob.size, "bytes, filename:", filename)
       
       // Faz upload para o Blob
       const formData = new FormData()
       formData.append('file', pdfBlob, filename)
       formData.append('filename', `impressao/${filename}`)
       
-      console.log("[v0] Enviando para /api/upload-pdf...")
       const response = await fetch('/api/upload-pdf', {
         method: 'POST',
         body: formData
       })
       
-      console.log("[v0] Resposta do upload:", response.status, response.statusText)
-      
       if (!response.ok) {
-        const errorText = await response.text()
-        console.error("[v0] Erro na resposta:", errorText)
-        throw new Error(`Falha no upload: ${response.status} - ${errorText}`)
+        throw new Error('Falha no upload')
       }
       
       const { url } = await response.json()
-      console.log("[v0] URL do PDF:", url)
       
       // Abre o WhatsApp com o link do arquivo
       const texto = `${documentTitle}\n\nBaixar PDF: ${url}`
@@ -128,7 +160,7 @@ export function PrintActionButtons({
       window.open(whatsappUrl, '_blank')
       
     } catch (error) {
-      console.error('[v0] Erro ao gerar PDF:', error)
+      console.error('Erro ao gerar PDF:', error)
       alert('Erro ao gerar o PDF. Tente novamente.')
     } finally {
       setIsGenerating(false)
