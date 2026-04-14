@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, forwardRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Printer, ClipboardList, Loader2, Save } from "lucide-react"
+import { ChevronLeft, ChevronRight, Printer, ClipboardList, Loader2, Save, Share2 } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 import "@/app/impressao/print-styles.css"
 
@@ -168,6 +168,91 @@ export default function ProgramacaoCongregacaoPage() {
     else setMesAtual(mesAtual + 1)
   }
 
+  // ──────────────────────────────────────────────
+  // WhatsApp - Compartilhar Programação
+  // ──────────────────────────────────────────────
+  const WhatsAppIcon = () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="w-4 h-4"
+    >
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  )
+
+  const formatarDataCompleta = (data: string) => {
+    const d = new Date(data + "T12:00:00")
+    return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
+  }
+
+  const getDiaSemana = (data: string) => {
+    const d = new Date(data + "T12:00:00")
+    const dias = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"]
+    return dias[d.getDay()]
+  }
+
+  // Compartilhar Designação Técnica
+  const compartilharDesignacaoTecnica = (designacao: DesignacaoTecnica, funcao: string, nome: string) => {
+    const dataFormatada = formatarDataCompleta(designacao.data)
+    const diaSemana = getDiaSemana(designacao.data)
+    
+    let mensagem = `*DESIGNAÇÃO TÉCNICA*\n\n`
+    mensagem += `Olá, ${nome}!\n\n`
+    mensagem += `Você foi designado para a função de *${funcao}* na reunião.\n\n`
+    mensagem += `*Data:* ${dataFormatada} (${diaSemana})\n`
+    
+    const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`
+    window.open(url, "_blank")
+  }
+
+  // Compartilhar Reunião Pública (Presidente ou Leitor)
+  const compartilharReuniaoPublica = (designacao: DesignacaoReuniaoPublica, funcao: string, nome: string) => {
+    const dataFormatada = formatarDataCompleta(designacao.data)
+    
+    let mensagem = `*DESIGNAÇÃO - REUNIÃO PÚBLICA*\n\n`
+    mensagem += `Olá, ${nome}!\n\n`
+    mensagem += `Você foi designado como *${funcao}* na Reunião Pública.\n\n`
+    mensagem += `*Data:* ${dataFormatada} (domingo)\n`
+    
+    const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`
+    window.open(url, "_blank")
+  }
+
+  // Compartilhar Arranjo de Discurso
+  const compartilharDiscurso = (arranjo: ArranjoDiscurso) => {
+    if (!arranjo.orador) return
+    
+    const dataFormatada = formatarDataCompleta(arranjo.data)
+    
+    let mensagem = `*DESIGNAÇÃO - DISCURSO PÚBLICO*\n\n`
+    mensagem += `Olá, ${arranjo.orador}!\n\n`
+    mensagem += `Você foi designado para proferir o Discurso Público.\n\n`
+    mensagem += `*Data:* ${dataFormatada} (domingo)\n`
+    if (arranjo.tema) {
+      mensagem += `*Tema:* ${arranjo.tema}\n`
+    }
+    
+    const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`
+    window.open(url, "_blank")
+  }
+
+  // Botão WhatsApp reutilizável
+  const BotaoWhatsAppInline = ({ onClick, disabled = false }: { onClick: () => void; disabled?: boolean }) => (
+    <button
+      onClick={(e) => {
+        e.stopPropagation()
+        onClick()
+      }}
+      disabled={disabled}
+      className={`inline-flex items-center justify-center h-6 w-6 rounded text-green-500 hover:text-green-400 hover:bg-green-500/10 transition-colors print:hidden ${disabled ? "opacity-30 cursor-not-allowed" : ""}`}
+      title="Enviar por WhatsApp"
+    >
+      <WhatsAppIcon />
+    </button>
+  )
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Barra de controle — não imprime */}
@@ -234,6 +319,9 @@ export default function ProgramacaoCongregacaoPage() {
                 designacoesReuniaoPublica={designacoesReuniaoPublica}
                 arranjoDiscursos={arranjoDiscursos}
                 assistencias={assistencias}
+                onCompartilharTecnica={compartilharDesignacaoTecnica}
+                onCompartilharReuniaoPublica={compartilharReuniaoPublica}
+                onCompartilharDiscurso={compartilharDiscurso}
               />
             </div>
 
@@ -265,10 +353,44 @@ interface PrintProgramacaoProps {
   designacoesReuniaoPublica: DesignacaoReuniaoPublica[]
   arranjoDiscursos: ArranjoDiscurso[]
   assistencias: AssistenciaReuniao[]
+  onCompartilharTecnica?: (designacao: DesignacaoTecnica, funcao: string, nome: string) => void
+  onCompartilharReuniaoPublica?: (designacao: DesignacaoReuniaoPublica, funcao: string, nome: string) => void
+  onCompartilharDiscurso?: (arranjo: ArranjoDiscurso) => void
 }
 
 const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
-  ({ mes, ano, designacoesTecnicas, designacoesReuniaoPublica, arranjoDiscursos, assistencias }, ref) => {
+  ({ mes, ano, designacoesTecnicas, designacoesReuniaoPublica, arranjoDiscursos, assistencias, onCompartilharTecnica, onCompartilharReuniaoPublica, onCompartilharDiscurso }, ref) => {
+    
+    // Ícone WhatsApp para uso interno
+    const WhatsAppIconSmall = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{ width: "14px", height: "14px" }}>
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+    )
+
+    const BotaoWppCell = ({ onClick, disabled = false }: { onClick: () => void; disabled?: boolean }) => (
+      <button
+        onClick={(e) => { e.stopPropagation(); onClick() }}
+        disabled={disabled}
+        className="print:hidden"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "20px",
+          height: "20px",
+          borderRadius: "4px",
+          color: disabled ? "#ccc" : "#22c55e",
+          cursor: disabled ? "not-allowed" : "pointer",
+          border: "none",
+          background: "transparent",
+          marginLeft: "4px",
+        }}
+        title="Enviar por WhatsApp"
+      >
+        <WhatsAppIconSmall />
+      </button>
+    )
     const mesNome = meses.find((m) => m.valor === mes)?.nome || ""
 
     const formatarData = (data: string) => {
@@ -349,10 +471,40 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                   <td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>
                     {formatarData(d.data)} <span style={{ fontWeight: "normal", color: "#666" }}>{d.dia_semana}</span>
                   </td>
-                  <td style={cell()}>{[d.indicador1, d.indicador2].filter(Boolean).join(" / ") || "—"}</td>
-                  <td style={cell()}>{[d.mic_volante1, d.mic_volante2].filter(Boolean).join(" / ") || "—"}</td>
-                  <td style={cell()}>{d.audio_video || "—"}</td>
-                  <td style={cell()}>{d.palco || "—"}</td>
+                  <td style={cell()}>
+                    {[d.indicador1, d.indicador2].filter(Boolean).map((nome, i) => (
+                      <span key={i} style={{ display: "inline-flex", alignItems: "center" }}>
+                        {i > 0 && " / "}{nome}
+                        {onCompartilharTecnica && <BotaoWppCell onClick={() => onCompartilharTecnica(d, "Indicador", nome!)} />}
+                      </span>
+                    ))}
+                    {![d.indicador1, d.indicador2].filter(Boolean).length && "—"}
+                  </td>
+                  <td style={cell()}>
+                    {[d.mic_volante1, d.mic_volante2].filter(Boolean).map((nome, i) => (
+                      <span key={i} style={{ display: "inline-flex", alignItems: "center" }}>
+                        {i > 0 && " / "}{nome}
+                        {onCompartilharTecnica && <BotaoWppCell onClick={() => onCompartilharTecnica(d, "Microfone Volante", nome!)} />}
+                      </span>
+                    ))}
+                    {![d.mic_volante1, d.mic_volante2].filter(Boolean).length && "—"}
+                  </td>
+                  <td style={cell()}>
+                    {d.audio_video ? (
+                      <span style={{ display: "inline-flex", alignItems: "center" }}>
+                        {d.audio_video}
+                        {onCompartilharTecnica && <BotaoWppCell onClick={() => onCompartilharTecnica(d, "Áudio e Vídeo", d.audio_video!)} />}
+                      </span>
+                    ) : "—"}
+                  </td>
+                  <td style={cell()}>
+                    {d.palco ? (
+                      <span style={{ display: "inline-flex", alignItems: "center" }}>
+                        {d.palco}
+                        {onCompartilharTecnica && <BotaoWppCell onClick={() => onCompartilharTecnica(d, "Palco", d.palco!)} />}
+                      </span>
+                    ) : "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -374,8 +526,22 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
               {designacoesReuniaoPublica.map((r) => (
                 <tr key={r.data}>
                   <td style={cell({ fontWeight: "bold" })}>{formatarData(r.data)}</td>
-                  <td style={cell()}>{r.presidente || "—"}</td>
-                  <td style={cell()}>{r.leitor_sentinela || "—"}</td>
+                  <td style={cell()}>
+                    {r.presidente ? (
+                      <span style={{ display: "inline-flex", alignItems: "center" }}>
+                        {r.presidente}
+                        {onCompartilharReuniaoPublica && <BotaoWppCell onClick={() => onCompartilharReuniaoPublica(r, "Presidente de Conferência", r.presidente!)} />}
+                      </span>
+                    ) : "—"}
+                  </td>
+                  <td style={cell()}>
+                    {r.leitor_sentinela ? (
+                      <span style={{ display: "inline-flex", alignItems: "center" }}>
+                        {r.leitor_sentinela}
+                        {onCompartilharReuniaoPublica && <BotaoWppCell onClick={() => onCompartilharReuniaoPublica(r, "Leitor de A Sentinela", r.leitor_sentinela!)} />}
+                      </span>
+                    ) : "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -398,10 +564,17 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                 <tr key={d.data}>
                   <td style={cell({ fontWeight: "bold" })}>{formatarData(d.data)}</td>
                   <td style={cell()}>{d.tema || "—"}</td>
-                  <td style={cell()}>{d.orador || "—"}</td>
-                </tr>
-              ))}
-            </tbody>
+<td style={cell()}>
+                    {d.orador ? (
+                      <span style={{ display: "inline-flex", alignItems: "center" }}>
+                        {d.orador}
+                        {onCompartilharDiscurso && <BotaoWppCell onClick={() => onCompartilharDiscurso(d)} />}
+                      </span>
+                    ) : "—"}
+                  </td>
+                  </tr>
+                  ))}
+                  </tbody>
           </table>
         </div>
 
