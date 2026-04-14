@@ -103,11 +103,13 @@ export function PrintActionButtons({
     let restoreStyles: (() => void) | null = null
     
     try {
+      console.log('[v0] Iniciando geração de PDF para WhatsApp...')
       const element = printRef.current
       
       // Aplica estilos inline ANTES do html2canvas clonar o elemento
       restoreStyles = applyInlineColors(element)
       
+      console.log('[v0] Gerando canvas do elemento...')
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -119,6 +121,7 @@ export function PrintActionButtons({
         }
       })
       
+      console.log('[v0] Canvas gerado, dimensões:', canvas.width, 'x', canvas.height)
       const imgData = canvas.toDataURL('image/png')
       
       const pdf = new jsPDF({
@@ -141,6 +144,9 @@ export function PrintActionButtons({
       const pdfBlob = pdf.output('blob')
       const filename = `${documentTitle.replace(/\s+/g, '_')}.pdf`
       
+      console.log('[v0] PDF gerado, tamanho:', pdfBlob.size, 'bytes')
+      console.log('[v0] Fazendo upload para o Vercel Blob...')
+      
       // Faz upload para o Blob
       const formData = new FormData()
       formData.append('file', pdfBlob, filename)
@@ -151,11 +157,15 @@ export function PrintActionButtons({
         body: formData
       })
       
+      const responseData = await response.json()
+      console.log('[v0] Resposta do upload:', response.status, responseData)
+      
       if (!response.ok) {
-        throw new Error('Falha no upload')
+        throw new Error(responseData.error || 'Falha no upload')
       }
       
-      const { url } = await response.json()
+      const { url } = responseData
+      console.log('[v0] Upload concluído, URL:', url)
       
       // Abre o WhatsApp com o link do arquivo
       const texto = `${documentTitle}\n\nBaixar PDF: ${url}`
@@ -163,8 +173,9 @@ export function PrintActionButtons({
       window.open(whatsappUrl, '_blank')
       
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error)
-      alert('Erro ao gerar o PDF. Tente novamente.')
+      console.error('[v0] Erro ao gerar PDF:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      alert(`Erro ao gerar o PDF: ${errorMessage}`)
     } finally {
       // Restaura os estilos originais
       if (restoreStyles) {

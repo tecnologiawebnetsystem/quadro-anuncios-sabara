@@ -29,7 +29,8 @@ import {
   ChevronRight,
   ExternalLink,
   Mic,
-  Volume2
+  Volume2,
+  Lock
 } from "lucide-react"
 import Link from "next/link"
 
@@ -52,6 +53,17 @@ const funcionalidadesAdmin = [
         ],
         ia: true,
         iaDescricao: "Insights com IA - Gera analises personalizadas sobre a saude da congregacao, sugestoes e alertas inteligentes."
+      },
+      {
+        titulo: "Quadro de Anuncios",
+        descricao: "Gerenciamento de anuncios da congregacao.",
+        link: "/admin/anuncios",
+        funcionalidades: [
+          "Criacao e edicao de anuncios",
+          "Anuncios com data de expiracao",
+          "Categorias e prioridades",
+          "Visualizacao publica no quadro"
+        ]
       }
     ]
   },
@@ -67,70 +79,74 @@ const funcionalidadesAdmin = [
         funcionalidades: [
           "Cadastro com nome, telefone, data de batismo",
           "Classificacao por privilegio (publicador, pioneiro, anciao, servo)",
+          "Atribuicao a grupos de estudo e campo",
           "Filtros e busca avancada",
-          "Exportacao de dados"
+          "Ativar/desativar publicadores"
         ]
       },
       {
         titulo: "Anciaos",
         descricao: "Lista de anciaos da congregacao.",
         link: "/admin/publicadores/anciaos",
-        funcionalidades: ["Visualizacao filtrada de anciaos", "Informacoes de contato"]
+        funcionalidades: ["Visualizacao filtrada de anciaos", "Informacoes de contato", "Contador automatico"]
       },
       {
         titulo: "Servos Ministeriais",
         descricao: "Lista de servos ministeriais.",
         link: "/admin/publicadores/servos-ministeriais",
-        funcionalidades: ["Visualizacao filtrada de servos ministeriais"]
+        funcionalidades: ["Visualizacao filtrada de servos ministeriais", "Contador automatico"]
       },
       {
         titulo: "Pioneiros Regulares",
         descricao: "Lista de pioneiros regulares.",
         link: "/admin/publicadores/pioneiros-regulares",
-        funcionalidades: ["Visualizacao filtrada de pioneiros regulares"]
+        funcionalidades: ["Visualizacao filtrada de pioneiros regulares", "Contador automatico"]
       }
     ]
   },
   {
-    categoria: "Reuniões",
+    categoria: "Reunioes",
     icon: Calendar,
     cor: "bg-purple-600",
     itens: [
       {
-        titulo: "Vida e Ministério",
-        descricao: "Programação completa da reunião de meio de semana.",
+        titulo: "Vida e Ministerio",
+        descricao: "Programacao completa da reuniao de meio de semana.",
         link: "/admin/vida-ministerio",
         funcionalidades: [
-          "Importação automática do JW.org",
-          "Designação de participantes",
-          "Visualização por semana",
-          "Histórico de designações"
+          "Importacao automatica do JW.org",
+          "Designacao de participantes por parte",
+          "Canticos e oracoes",
+          "Marcar semana sem reuniao",
+          "Visualizacao por semana com navegacao"
         ],
         ia: true,
-        iaDescricao: "Sugestão de Designações - IA analisa histórico e sugere os melhores candidatos para cada parte."
+        iaDescricao: "Sugestao de Designacoes - IA analisa historico e sugere os melhores candidatos para cada parte."
       },
       {
         titulo: "Sentinela",
-        descricao: "Programação completa do estudo da Sentinela de domingo.",
+        descricao: "Programacao completa do estudo da Sentinela de domingo.",
         link: "/admin/sentinela",
         funcionalidades: [
-          "Criação manual ou importação com IA",
-          "Parágrafos com texto base, pergunta e resposta",
-          "Botão IA Responder por parágrafo",
-          "Cântico do Meio e Cântico Final",
-          "Designação de Dirigente e Leitor"
+          "Criacao manual ou importacao com IA",
+          "Paragrafos com texto base, pergunta e resposta",
+          "Botao IA Responder por paragrafo",
+          "Cantico do Meio e Cantico Final",
+          "Designacao de Dirigente e Leitor",
+          "Marcar semana sem reuniao"
         ],
         ia: true,
-        iaDescricao: "Geração de Respostas - IA gera respostas para cada parágrafo baseado no texto e pergunta. Pode gerar individualmente ou todas de uma vez na importação."
+        iaDescricao: "Geracao de Respostas - IA gera respostas para cada paragrafo baseado no texto e pergunta. Pode gerar individualmente ou todas de uma vez."
       },
       {
-        titulo: "Reuniões Públicas",
-        descricao: "Programação dos discursos públicos.",
+        titulo: "Reunioes Publicas",
+        descricao: "Programacao dos discursos publicos.",
         link: "/admin/reunioes-publicas",
         funcionalidades: [
-          "Cadastro de discursos",
-          "Designação de oradores",
-          "Calendário mensal"
+          "Cadastro de discursos com tema",
+          "Designacao de oradores",
+          "Designacao de presidente",
+          "Calendario mensal com navegacao"
         ]
       }
     ]
@@ -141,48 +157,160 @@ const funcionalidadesAdmin = [
     cor: "bg-amber-600",
     itens: [
       {
-        titulo: "Equipe Técnica",
+        titulo: "Equipe Tecnica",
         descricao: "Escala de som, microfone e indicadores.",
         link: "/admin/equipe-tecnica",
         funcionalidades: [
-          "Designação por dia da semana",
+          "Designacao por dia da semana",
           "Indicadores 1 e 2",
-          "Microfonistas (volantes)",
+          "Microfonistas volantes (1 e 2)",
+          "Selecao de microfonista no palco",
           "Operador de som"
         ],
         ia: true,
-        iaDescricao: "Geração Automática de Escala - IA distribui equipe equilibradamente considerando histórico."
+        iaDescricao: "Geracao Automatica de Escala - IA distribui equipe equilibradamente considerando historico."
       },
       {
-        titulo: "Limpeza do Salão",
+        titulo: "Limpeza do Salao",
         descricao: "Escala de grupos de limpeza.",
         link: "/admin/limpeza-salao",
         funcionalidades: [
-          "Designação por semana",
-          "Rotação automática de grupos",
-          "Calendário mensal"
+          "Designacao por semana",
+          "Rotacao automatica de grupos",
+          "Calendario mensal",
+          "Grupos personalizados"
         ],
         ia: true,
-        iaDescricao: "Geração Automática de Escala - IA distribui grupos equilibradamente ao longo do mês."
+        iaDescricao: "Geracao Automatica de Escala - IA distribui grupos equilibradamente ao longo do mes."
       },
       {
-        titulo: "Grupos de Campo",
-        descricao: "Gestão de grupos de serviço de campo.",
+        titulo: "Servico de Campo",
+        descricao: "Gestao de grupos de servico de campo.",
         link: "/admin/servico-campo",
         funcionalidades: [
-          "Cadastro de grupos",
-          "Designação de dirigentes",
-          "Pontos de encontro"
+          "Dirigentes por dia da semana",
+          "Periodo (manha/tarde)",
+          "Horario do ponto de encontro",
+          "Ativar/desativar dias"
         ]
       },
       {
-        titulo: "Grupos de Estudo",
-        descricao: "Gestão de grupos de estudo bíblico.",
+        titulo: "Grupo de Estudos",
+        descricao: "Gestao de grupos de estudo biblico.",
         link: "/admin/grupo-estudos",
         funcionalidades: [
-          "Cadastro de grupos",
-          "Designação de dirigentes",
-          "Locais e horários"
+          "Cadastro de grupos com nome",
+          "Designacao de dirigente e auxiliar",
+          "Membros do grupo",
+          "Ordenacao e edicao"
+        ]
+      }
+    ]
+  },
+  {
+    categoria: "Visualizacao",
+    icon: BookMarked,
+    cor: "bg-indigo-600",
+    itens: [
+      {
+        titulo: "Vida e Ministerio",
+        descricao: "Visualizacao formatada da programacao semanal.",
+        link: "/admin/visualizacao/vida-ministerio",
+        funcionalidades: [
+          "Layout otimizado para leitura",
+          "Todas as partes organizadas",
+          "Canticos e designacoes"
+        ]
+      },
+      {
+        titulo: "Estudo Sentinela",
+        descricao: "Visualizacao do estudo com respostas IA.",
+        link: "/admin/visualizacao/sentinela",
+        funcionalidades: [
+          "Paragrafos com respostas geradas",
+          "Perguntas e texto base",
+          "Dirigente e leitor"
+        ]
+      },
+      {
+        titulo: "Reunioes Publicas",
+        descricao: "Visualizacao dos discursos agendados.",
+        link: "/admin/visualizacao/reunioes-publicas",
+        funcionalidades: [
+          "Calendario visual",
+          "Temas e oradores"
+        ]
+      },
+      {
+        titulo: "Equipe Tecnica",
+        descricao: "Visualizacao da escala tecnica.",
+        link: "/admin/visualizacao/equipe-tecnica",
+        funcionalidades: [
+          "Escala completa do mes",
+          "Todos os designados"
+        ]
+      },
+      {
+        titulo: "Limpeza do Salao",
+        descricao: "Visualizacao da escala de limpeza.",
+        link: "/admin/visualizacao/limpeza-salao",
+        funcionalidades: [
+          "Calendario com grupos",
+          "Rotacao visual"
+        ]
+      },
+      {
+        titulo: "Servico de Campo",
+        descricao: "Visualizacao dos dirigentes de campo.",
+        link: "/admin/visualizacao/servico-campo",
+        funcionalidades: [
+          "Dirigentes por dia",
+          "Horarios e periodos"
+        ]
+      }
+    ]
+  },
+  {
+    categoria: "Impressao",
+    icon: FileText,
+    cor: "bg-amber-600",
+    itens: [
+      {
+        titulo: "Vida e Ministerio",
+        descricao: "Impressao da programacao semanal.",
+        link: "/admin/impressao/vida-ministerio",
+        funcionalidades: [
+          "Formato otimizado para impressao",
+          "Layout A4",
+          "Selecao de semana"
+        ]
+      },
+      {
+        titulo: "Programacao Congregacao",
+        descricao: "Impressao da programacao geral mensal.",
+        link: "/admin/programacao-congregacao",
+        funcionalidades: [
+          "Todas as escalas do mes",
+          "Reunioes e designacoes",
+          "Layout compacto"
+        ]
+      },
+      {
+        titulo: "Grupo de Estudos",
+        descricao: "Impressao dos grupos de estudo.",
+        link: "/admin/impressao/grupo-estudos",
+        funcionalidades: [
+          "Lista de grupos e membros",
+          "Dirigentes e auxiliares"
+        ]
+      },
+      {
+        titulo: "Servico de Campo",
+        descricao: "Impressao dos grupos de campo.",
+        link: "/admin/impressao/servico-campo",
+        funcionalidades: [
+          "Pontos de encontro",
+          "Dirigentes e horarios"
         ]
       }
     ]
@@ -210,6 +338,23 @@ const funcionalidadesAdmin = [
     ]
   },
   {
+    categoria: "Organizacao",
+    icon: Gem,
+    cor: "bg-purple-600",
+    itens: [
+      {
+        titulo: "Canticos",
+        descricao: "Biblioteca completa de canticos.",
+        link: "/admin/canticos",
+        funcionalidades: [
+          "Lista de todos os canticos",
+          "Busca por numero ou titulo",
+          "Link para audio/video"
+        ]
+      }
+    ]
+  },
+  {
     categoria: "Configuracoes",
     icon: Settings,
     cor: "bg-zinc-600",
@@ -219,13 +364,269 @@ const funcionalidadesAdmin = [
         descricao: "Configuracoes da congregacao e sistema.",
         link: "/admin/configuracoes",
         funcionalidades: [
-          "Dados da congregacao",
+          "Dados da congregacao (nome, circuito)",
           "Horarios das reunioes",
-          "Configuracao do Zoom",
+          "Configuracao do Zoom (link e senha)",
           "Pontos de encontro do campo"
         ],
         ia: true,
         iaDescricao: "Central de Notificacoes IA - Gera resumos semanais e lembretes personalizados."
+      },
+      {
+        titulo: "Seguranca e Senhas",
+        descricao: "Gerenciamento de senhas de acesso dos perfis.",
+        link: "/admin/configuracoes",
+        funcionalidades: [
+          "Alteracao da senha do Administrador",
+          "Alteracao da senha do Anciao",
+          "Validacao de senha atual (opcional)",
+          "Senhas com 6 digitos numericos",
+          "Confirmacao de nova senha"
+        ]
+      },
+      {
+        titulo: "Wiki / Documentacao",
+        descricao: "Documentacao completa do sistema.",
+        link: "/admin/wiki",
+        funcionalidades: [
+          "Guia de todas as funcionalidades",
+          "Busca integrada",
+          "Documentacao da API (Swagger)"
+        ]
+      }
+    ]
+  }
+]
+
+// Dados da Wiki - Funcionalidades do Anciao
+const funcionalidadesAnciao = [
+  {
+    categoria: "Dashboard",
+    icon: LayoutDashboard,
+    cor: "bg-amber-600",
+    itens: [
+      {
+        titulo: "Painel Principal",
+        descricao: "Visao geral da congregacao para ancioes.",
+        link: "/anciao",
+        funcionalidades: [
+          "Estatisticas de publicadores por privilegio",
+          "Alertas de designacoes pendentes",
+          "Proximos eventos e reunioes",
+          "Acesso rapido as funcionalidades"
+        ]
+      },
+      {
+        titulo: "Quadro de Anuncios",
+        descricao: "Gerenciamento de anuncios da congregacao.",
+        link: "/anciao/anuncios",
+        funcionalidades: [
+          "Visualizacao de anuncios ativos",
+          "Criacao de novos anuncios",
+          "Edicao e exclusao de anuncios",
+          "Data de expiracao"
+        ]
+      }
+    ]
+  },
+  {
+    categoria: "Publicadores",
+    icon: Users,
+    cor: "bg-violet-600",
+    itens: [
+      {
+        titulo: "Gestao de Publicadores",
+        descricao: "Cadastro e gestao de publicadores.",
+        link: "/anciao/publicadores",
+        funcionalidades: [
+          "Lista completa de publicadores",
+          "Cadastro com nome, telefone, batismo",
+          "Filtros e busca avancada",
+          "Atribuicao de privilegios"
+        ]
+      },
+      {
+        titulo: "Anciaos",
+        descricao: "Lista de anciaos da congregacao.",
+        link: "/anciao/publicadores/anciaos",
+        funcionalidades: ["Visualizacao de anciaos", "Contatos", "Contador automatico"]
+      },
+      {
+        titulo: "Servos Ministeriais",
+        descricao: "Lista de servos ministeriais.",
+        link: "/anciao/publicadores/servos-ministeriais",
+        funcionalidades: ["Visualizacao de servos ministeriais", "Contador automatico"]
+      },
+      {
+        titulo: "Pioneiros Regulares",
+        descricao: "Lista de pioneiros regulares.",
+        link: "/anciao/publicadores/pioneiros-regulares",
+        funcionalidades: ["Visualizacao de pioneiros regulares", "Contador automatico"]
+      }
+    ]
+  },
+  {
+    categoria: "Cadastros",
+    icon: Calendar,
+    cor: "bg-blue-600",
+    itens: [
+      {
+        titulo: "Vida e Ministerio",
+        descricao: "Programacao da reuniao de meio de semana.",
+        link: "/anciao/vida-ministerio",
+        funcionalidades: [
+          "Visualizacao da programacao semanal",
+          "Designacao de participantes",
+          "Canticos e oracoes",
+          "Navegacao entre semanas"
+        ]
+      },
+      {
+        titulo: "Reunioes Publicas",
+        descricao: "Programacao dos discursos publicos.",
+        link: "/anciao/reunioes-publicas",
+        funcionalidades: [
+          "Cadastro de discursos com tema",
+          "Designacao de oradores",
+          "Designacao de presidente",
+          "Calendario mensal"
+        ]
+      },
+      {
+        titulo: "Equipe Tecnica",
+        descricao: "Escala de som, microfone e indicadores.",
+        link: "/anciao/equipe-tecnica",
+        funcionalidades: [
+          "Designacao por dia da semana",
+          "Indicadores 1 e 2",
+          "Microfonistas volantes",
+          "Operador de som"
+        ]
+      },
+      {
+        titulo: "Grupo de Estudos",
+        descricao: "Gestao de grupos de estudo biblico.",
+        link: "/anciao/grupo-estudos",
+        funcionalidades: [
+          "Cadastro de grupos",
+          "Designacao de dirigentes e auxiliares",
+          "Membros do grupo"
+        ]
+      },
+      {
+        titulo: "Limpeza do Salao",
+        descricao: "Escala de grupos de limpeza.",
+        link: "/anciao/limpeza-salao",
+        funcionalidades: [
+          "Designacao por semana",
+          "Rotacao de grupos",
+          "Calendario mensal"
+        ]
+      },
+      {
+        titulo: "Servico de Campo",
+        descricao: "Dirigentes de servico de campo.",
+        link: "/anciao/servico-campo",
+        funcionalidades: [
+          "Dirigentes por dia da semana",
+          "Periodo (manha/tarde)",
+          "Horario do ponto de encontro"
+        ]
+      }
+    ]
+  },
+  {
+    categoria: "Organizacao",
+    icon: Gem,
+    cor: "bg-purple-600",
+    itens: [
+      {
+        titulo: "Canticos",
+        descricao: "Biblioteca de canticos.",
+        link: "/anciao/canticos",
+        funcionalidades: [
+          "Lista de canticos",
+          "Busca por numero ou titulo"
+        ]
+      }
+    ]
+  },
+  {
+    categoria: "Impressao",
+    icon: FileText,
+    cor: "bg-amber-600",
+    itens: [
+      {
+        titulo: "Vida e Ministerio",
+        descricao: "Impressao da programacao semanal.",
+        link: "/anciao/impressao/vida-ministerio",
+        funcionalidades: [
+          "Formato para impressao",
+          "Layout otimizado A4"
+        ]
+      },
+      {
+        titulo: "Programacao Congregacao",
+        descricao: "Impressao da programacao geral mensal.",
+        link: "/anciao/programacao-congregacao",
+        funcionalidades: [
+          "Todas as escalas do mes",
+          "Layout compacto"
+        ]
+      },
+      {
+        titulo: "Grupo de Estudos",
+        descricao: "Impressao dos grupos de estudo.",
+        link: "/anciao/impressao/grupo-estudos",
+        funcionalidades: [
+          "Lista de grupos e membros",
+          "Dirigentes e auxiliares"
+        ]
+      },
+      {
+        titulo: "Servico de Campo",
+        descricao: "Impressao dos dirigentes de campo.",
+        link: "/anciao/impressao/servico-campo",
+        funcionalidades: [
+          "Dirigentes por dia",
+          "Horarios e periodos"
+        ]
+      }
+    ]
+  },
+  {
+    categoria: "Configuracoes",
+    icon: Settings,
+    cor: "bg-zinc-600",
+    itens: [
+      {
+        titulo: "Configuracoes Gerais",
+        descricao: "Configuracoes da congregacao.",
+        link: "/anciao/configuracoes",
+        funcionalidades: [
+          "Dados da congregacao",
+          "Horarios das reunioes",
+          "Configuracao do Zoom"
+        ]
+      },
+      {
+        titulo: "Seguranca e Senhas",
+        descricao: "Gerenciamento de senhas de acesso.",
+        link: "/anciao/configuracoes",
+        funcionalidades: [
+          "Alteracao da senha do Administrador",
+          "Alteracao da senha do Anciao",
+          "Senhas com 6 digitos numericos"
+        ]
+      },
+      {
+        titulo: "Wiki / Ajuda",
+        descricao: "Documentacao do sistema.",
+        link: "/admin/wiki",
+        funcionalidades: [
+          "Guia de funcionalidades",
+          "Busca integrada"
+        ]
       }
     ]
   }
@@ -233,6 +634,26 @@ const funcionalidadesAdmin = [
 
 // Dados da Wiki - Funcionalidades de Consulta
 const funcionalidadesConsulta = [
+  {
+    categoria: "Dashboard",
+    icon: LayoutDashboard,
+    cor: "bg-blue-600",
+    itens: [
+      {
+        titulo: "Quadro de Anuncios",
+        descricao: "Painel principal de consulta da congregacao.",
+        link: "/consulta",
+        funcionalidades: [
+          "Proximo discurso publico",
+          "Limpeza da semana",
+          "Dirigente de campo do dia",
+          "Calendario interativo com eventos",
+          "Grupos de estudo da congregacao",
+          "Links rapidos para todas as consultas"
+        ]
+      }
+    ]
+  },
   {
     categoria: "Assistente IA",
     icon: Brain,
@@ -248,23 +669,24 @@ const funcionalidadesConsulta = [
           "Preparador de Partes - Ajuda para designacoes"
         ],
         ia: true,
-        iaDescricao: "Todas as funcionalidades usam IA baseada exclusivamente em conteúdo do jw.org."
+        iaDescricao: "Todas as funcionalidades usam IA baseada exclusivamente em conteudo do jw.org."
       }
     ]
   },
   {
-    categoria: "Reuniões",
+    categoria: "Reunioes",
     icon: Calendar,
     cor: "bg-blue-600",
     itens: [
       {
-        titulo: "Vida e Ministério",
-        descricao: "Consulta da programação semanal.",
+        titulo: "Vida e Ministerio",
+        descricao: "Consulta da programacao semanal.",
         link: "/consulta/reunioes/vida-ministerio",
         funcionalidades: [
-          "Visualização das partes",
-          "Designações da semana",
-          "Cânticos e orações"
+          "Visualizacao das partes",
+          "Designacoes da semana",
+          "Canticos e oracoes",
+          "Navegacao entre semanas"
         ]
       },
       {
@@ -272,20 +694,21 @@ const funcionalidadesConsulta = [
         descricao: "Consulta do estudo da Sentinela de domingo.",
         link: "/consulta/reunioes/sentinela",
         funcionalidades: [
-          "Título e texto tema do estudo",
-          "Parágrafos com perguntas e respostas IA",
-          "Cântico do Meio e Cântico Final",
+          "Titulo e texto tema do estudo",
+          "Paragrafos com perguntas e respostas IA",
+          "Cantico do Meio e Cantico Final",
           "Dirigente e Leitor designados"
         ]
       },
       {
-        titulo: "Reuniões Públicas",
-        descricao: "Consulta dos discursos públicos.",
+        titulo: "Reunioes Publicas",
+        descricao: "Consulta dos discursos publicos.",
         link: "/consulta/reunioes-publicas",
         funcionalidades: [
           "Tema do discurso",
           "Orador designado",
-          "Presidente"
+          "Presidente",
+          "Calendario mensal"
         ]
       }
     ]
@@ -299,25 +722,25 @@ const funcionalidadesConsulta = [
         titulo: "Todos os Publicadores",
         descricao: "Lista completa de publicadores.",
         link: "/consulta/publicadores",
-        funcionalidades: ["Lista com filtros", "Informações de contato"]
+        funcionalidades: ["Lista com filtros", "Informacoes de contato", "Busca por nome"]
       },
       {
-        titulo: "Anciãos",
-        descricao: "Lista de anciãos.",
+        titulo: "Anciaos",
+        descricao: "Lista de anciaos.",
         link: "/consulta/anciaos",
-        funcionalidades: ["Contato dos anciãos"]
+        funcionalidades: ["Contato dos anciaos", "Telefone"]
       },
       {
         titulo: "Servos Ministeriais",
         descricao: "Lista de servos ministeriais.",
         link: "/consulta/servos-ministeriais",
-        funcionalidades: ["Contato dos servos"]
+        funcionalidades: ["Contato dos servos", "Telefone"]
       },
       {
         titulo: "Pioneiros",
         descricao: "Lista de pioneiros regulares.",
         link: "/consulta/pioneiros",
-        funcionalidades: ["Contato dos pioneiros"]
+        funcionalidades: ["Contato dos pioneiros", "Telefone"]
       }
     ]
   },
@@ -327,28 +750,48 @@ const funcionalidadesConsulta = [
     cor: "bg-amber-600",
     itens: [
       {
-        titulo: "Equipe Técnica",
+        titulo: "Equipe Tecnica",
         descricao: "Consulta da escala de som e indicadores.",
         link: "/consulta/equipe-tecnica",
-        funcionalidades: ["Escala do mês", "Designações por dia"]
+        funcionalidades: ["Escala do mes", "Designacoes por dia", "Indicadores, microfonistas e som"]
       },
       {
-        titulo: "Limpeza do Salão",
+        titulo: "Limpeza do Salao",
         descricao: "Consulta da escala de limpeza.",
         link: "/consulta/limpeza-salao",
-        funcionalidades: ["Grupos designados por semana"]
+        funcionalidades: ["Grupos designados por semana", "Calendario mensal"]
       },
       {
-        titulo: "Grupos de Campo",
-        descricao: "Consulta dos grupos de serviço de campo.",
+        titulo: "Servico de Campo",
+        descricao: "Consulta dos dirigentes de campo.",
         link: "/consulta/servico-campo",
-        funcionalidades: ["Grupos e pontos de encontro"]
+        funcionalidades: ["Dirigentes por dia", "Horarios e pontos de encontro"]
       },
       {
         titulo: "Grupos de Estudo",
         descricao: "Consulta dos grupos de estudo.",
         link: "/consulta/grupos",
-        funcionalidades: ["Locais e horarios"]
+        funcionalidades: ["Grupos e membros", "Dirigentes e auxiliares"]
+      }
+    ]
+  },
+  {
+    categoria: "Impressao",
+    icon: FileText,
+    cor: "bg-amber-600",
+    itens: [
+      {
+        titulo: "Central de Impressao",
+        descricao: "Gerar PDFs de todas as escalas.",
+        link: "/impressao",
+        funcionalidades: [
+          "Vida e Ministerio",
+          "Reunioes Publicas",
+          "Equipe Tecnica",
+          "Limpeza do Salao",
+          "Servico de Campo",
+          "Grupos de Estudo"
+        ]
       }
     ]
   }
@@ -373,6 +816,7 @@ export default function WikiPage() {
   }
 
   const dadosFiltradosAdmin = filtrarItens(funcionalidadesAdmin)
+  const dadosFiltradosAnciao = filtrarItens(funcionalidadesAnciao)
   const dadosFiltradosConsulta = filtrarItens(funcionalidadesConsulta)
 
   return (
@@ -419,6 +863,7 @@ export default function WikiPage() {
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-bold text-violet-400">
                 {funcionalidadesAdmin.reduce((acc, cat) => acc + cat.itens.length, 0) + 
+                 funcionalidadesAnciao.reduce((acc, cat) => acc + cat.itens.length, 0) +
                  funcionalidadesConsulta.reduce((acc, cat) => acc + cat.itens.length, 0)}
               </p>
               <p className="text-xs text-muted-foreground">Total de Paginas</p>
@@ -428,6 +873,7 @@ export default function WikiPage() {
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-bold text-blue-400">
                 {funcionalidadesAdmin.reduce((acc, cat) => acc + cat.itens.filter(i => i.ia).length, 0) +
+                 funcionalidadesAnciao.reduce((acc, cat) => acc + cat.itens.filter(i => i.ia).length, 0) +
                  funcionalidadesConsulta.reduce((acc, cat) => acc + cat.itens.filter(i => i.ia).length, 0)}
               </p>
               <p className="text-xs text-muted-foreground">Com IA</p>
@@ -449,10 +895,14 @@ export default function WikiPage() {
 
         {/* Tabs */}
         <Tabs value={tabAtiva} onValueChange={setTabAtiva}>
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="admin" className="gap-2">
               <Shield className="h-4 w-4" />
               Administrador
+            </TabsTrigger>
+            <TabsTrigger value="anciao" className="gap-2">
+              <UserCheck className="h-4 w-4" />
+              Anciao
             </TabsTrigger>
             <TabsTrigger value="consulta" className="gap-2">
               <Users className="h-4 w-4" />
@@ -509,6 +959,70 @@ export default function WikiPage() {
                             {item.ia && item.iaDescricao && (
                               <div className="mt-3 p-2 rounded bg-violet-600/10 border border-violet-600/20">
                                 <p className="text-xs text-violet-300 flex items-start gap-1">
+                                  <Brain className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                                  {item.iaDescricao}
+                                </p>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="anciao" className="mt-6">
+            <ScrollArea className="h-[600px] pr-4">
+              <div className="space-y-8">
+                {dadosFiltradosAnciao.map((categoria) => (
+                  <div key={categoria.categoria}>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${categoria.cor}`}>
+                        <categoria.icon className="h-4 w-4 text-white" />
+                      </div>
+                      <h2 className="text-lg font-semibold">{categoria.categoria}</h2>
+                    </div>
+                    
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {categoria.itens.map((item) => (
+                        <Card key={item.titulo} className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900/80 transition-colors">
+                          <CardHeader className="pb-2">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <CardTitle className="text-base flex items-center gap-2">
+                                  {item.titulo}
+                                  {item.ia && (
+                                    <Badge variant="secondary" className="bg-amber-600/20 text-amber-400 text-xs">
+                                      IA
+                                    </Badge>
+                                  )}
+                                </CardTitle>
+                                <CardDescription className="text-xs mt-1">
+                                  {item.descricao}
+                                </CardDescription>
+                              </div>
+                              <Link href={item.link}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <ExternalLink className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="pt-0">
+                            <ul className="text-xs text-muted-foreground space-y-1">
+                              {item.funcionalidades.map((func, idx) => (
+                                <li key={idx} className="flex items-center gap-1">
+                                  <ChevronRight className="h-3 w-3 text-zinc-600" />
+                                  {func}
+                                </li>
+                              ))}
+                            </ul>
+                            {item.ia && item.iaDescricao && (
+                              <div className="mt-3 p-2 rounded bg-amber-600/10 border border-amber-600/20">
+                                <p className="text-xs text-amber-300 flex items-start gap-1">
                                   <Brain className="h-3 w-3 mt-0.5 flex-shrink-0" />
                                   {item.iaDescricao}
                                 </p>

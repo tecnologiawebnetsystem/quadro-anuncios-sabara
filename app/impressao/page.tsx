@@ -5,7 +5,6 @@ import { useReactToPrint } from "react-to-print"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  Printer, 
   ChevronLeft, 
   ChevronRight,
   Gem,
@@ -16,10 +15,9 @@ import {
   Sparkles,
   MapPin,
   FileText,
-  Save,
-  Share2
+  Printer
 } from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { usePublicadoresSupabase } from "@/lib/hooks/use-publicadores-supabase"
@@ -32,6 +30,7 @@ import {
   PrintLimpezaSalao,
   PrintServicoCampo
 } from "@/components/impressao/print-layouts"
+import { PrintActionButtons } from "@/components/impressao/print-action-buttons"
 import "./print-styles.css"
 
 const meses = [
@@ -384,65 +383,11 @@ export default function ImpressaoPage() {
               <FileText className="h-4 w-4 text-blue-500" />
               Pré-visualização
             </CardTitle>
-            <TooltipProvider delayDuration={0}>
-              <div className="flex items-center gap-1.5">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      onClick={() => handlePrint()} 
-                      variant="outline"
-                      size="icon"
-                      className="h-9 w-9 border-blue-600/50 text-blue-400 hover:bg-blue-600/10 hover:text-blue-300 transition-colors"
-                      disabled={loading}
-                    >
-                      <Save className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
-                    <p>Salvar como PDF</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      onClick={() => handlePrint()} 
-                      variant="outline"
-                      size="icon"
-                      className="h-9 w-9 border-blue-600/50 text-blue-400 hover:bg-blue-600/10 hover:text-blue-300 transition-colors"
-                      disabled={loading}
-                    >
-                      <Printer className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
-                    <p>Imprimir</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      onClick={() => {
-                        const tipoNome = tiposImpressao.find(t => t.id === tipoSelecionado)?.nome || ''
-                        const texto = `${tipoNome} - ${meses[mesAtual - 1].nome} ${anoAtual}`
-                        const url = `https://wa.me/?text=${encodeURIComponent(texto)}`
-                        window.open(url, '_blank')
-                      }} 
-                      variant="outline"
-                      size="icon"
-                      className="h-9 w-9 border-green-600/50 text-green-400 hover:bg-green-600/10 hover:text-green-300 transition-colors"
-                      disabled={loading}
-                    >
-                      <Share2 className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
-                    <p>Enviar por WhatsApp</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </TooltipProvider>
+            <PrintActionButtons 
+              printRef={printRef}
+              documentTitle={`${tiposImpressao.find(t => t.id === tipoSelecionado)?.nome || 'Documento'} - ${meses[mesAtual - 1].nome} ${anoAtual}`}
+              colorScheme="blue"
+            />
           </CardHeader>
           <CardContent>
             {loading ? (

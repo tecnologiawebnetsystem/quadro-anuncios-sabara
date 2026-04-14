@@ -8,9 +8,15 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
-const SENHAS: Record<string, { senha: string; destino: string }> = {
-  anciao:        { senha: "123456", destino: "/anciao" },
-  administrador: { senha: "080754", destino: "/admin" },
+// Senhas padrão (usadas caso não consiga carregar do banco)
+const SENHAS_PADRAO: Record<string, string> = {
+  anciao: "123456",
+  administrador: "080754",
+}
+
+const DESTINOS: Record<string, string> = {
+  anciao: "/anciao",
+  administrador: "/admin",
 }
 
 type Perfil = "anciao" | "administrador" | null
@@ -21,8 +27,22 @@ export default function LoginPage() {
   const [senha, setSenha] = useState("")
   const [erro, setErro] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [senhas, setSenhas] = useState<Record<string, string>>(SENHAS_PADRAO)
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => { 
+    setMounted(true)
+    // Carrega as senhas do banco de dados
+    fetch("/api/senhas")
+      .then(res => res.json())
+      .then(data => {
+        if (data.administrador && data.anciao) {
+          setSenhas(data)
+        }
+      })
+      .catch(() => {
+        // Em caso de erro, mantém as senhas padrão
+      })
+  }, [])
 
   const handleDigito = (digito: string) => {
     if (senha.length >= 6) return
@@ -31,9 +51,9 @@ export default function LoginPage() {
     setErro(false)
 
     if (novaSenha.length === 6 && perfil) {
-      const config = SENHAS[perfil]
-      if (novaSenha === config.senha) {
-        router.push(config.destino)
+      const senhaCorreta = senhas[perfil]
+      if (novaSenha === senhaCorreta) {
+        router.push(DESTINOS[perfil])
       } else {
         setErro(true)
         setTimeout(() => { setSenha(""); setErro(false) }, 1000)
