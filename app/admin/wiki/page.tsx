@@ -29,7 +29,8 @@ import {
   ChevronRight,
   ExternalLink,
   Mic,
-  Volume2
+  Volume2,
+  Lock
 } from "lucide-react"
 import Link from "next/link"
 
@@ -226,6 +227,237 @@ const funcionalidadesAdmin = [
         ],
         ia: true,
         iaDescricao: "Central de Notificacoes IA - Gera resumos semanais e lembretes personalizados."
+      },
+      {
+        titulo: "Seguranca e Senhas",
+        descricao: "Gerenciamento de senhas de acesso dos perfis.",
+        link: "/admin/configuracoes",
+        funcionalidades: [
+          "Alteracao da senha do Administrador",
+          "Alteracao da senha do Anciao",
+          "Validacao de senha atual (opcional)",
+          "Senhas com 6 digitos numericos",
+          "Confirmacao de nova senha"
+        ]
+      }
+    ]
+  }
+]
+
+// Dados da Wiki - Funcionalidades do Ancião
+const funcionalidadesAnciao = [
+  {
+    categoria: "Dashboard",
+    icon: LayoutDashboard,
+    cor: "bg-amber-600",
+    itens: [
+      {
+        titulo: "Painel Principal",
+        descricao: "Visao geral da congregacao para ancioes.",
+        link: "/anciao",
+        funcionalidades: [
+          "Estatisticas de publicadores",
+          "Alertas de designacoes",
+          "Acesso rapido as funcionalidades"
+        ]
+      },
+      {
+        titulo: "Quadro de Anuncios",
+        descricao: "Gerenciamento de anuncios da congregacao.",
+        link: "/anciao/anuncios",
+        funcionalidades: [
+          "Visualizacao de anuncios ativos",
+          "Criacao de novos anuncios",
+          "Edicao e exclusao de anuncios"
+        ]
+      }
+    ]
+  },
+  {
+    categoria: "Publicadores",
+    icon: Users,
+    cor: "bg-violet-600",
+    itens: [
+      {
+        titulo: "Gestao de Publicadores",
+        descricao: "Visualizacao e gestao de publicadores.",
+        link: "/anciao/publicadores",
+        funcionalidades: [
+          "Lista completa de publicadores",
+          "Filtros e busca avancada",
+          "Informacoes de contato"
+        ]
+      },
+      {
+        titulo: "Anciaos",
+        descricao: "Lista de anciaos da congregacao.",
+        link: "/anciao/publicadores/anciaos",
+        funcionalidades: ["Visualizacao de anciaos", "Contatos"]
+      },
+      {
+        titulo: "Servos Ministeriais",
+        descricao: "Lista de servos ministeriais.",
+        link: "/anciao/publicadores/servos-ministeriais",
+        funcionalidades: ["Visualizacao de servos ministeriais"]
+      },
+      {
+        titulo: "Pioneiros Regulares",
+        descricao: "Lista de pioneiros regulares.",
+        link: "/anciao/publicadores/pioneiros-regulares",
+        funcionalidades: ["Visualizacao de pioneiros regulares"]
+      }
+    ]
+  },
+  {
+    categoria: "Cadastros",
+    icon: Calendar,
+    cor: "bg-blue-600",
+    itens: [
+      {
+        titulo: "Vida e Ministerio",
+        descricao: "Programacao da reuniao de meio de semana.",
+        link: "/anciao/vida-ministerio",
+        funcionalidades: [
+          "Visualizacao da programacao",
+          "Designacao de participantes",
+          "Historico de designacoes"
+        ]
+      },
+      {
+        titulo: "Reunioes Publicas",
+        descricao: "Programacao dos discursos publicos.",
+        link: "/anciao/reunioes-publicas",
+        funcionalidades: [
+          "Cadastro de discursos",
+          "Designacao de oradores",
+          "Calendario mensal"
+        ]
+      },
+      {
+        titulo: "Equipe Tecnica",
+        descricao: "Escala de som, microfone e indicadores.",
+        link: "/anciao/equipe-tecnica",
+        funcionalidades: [
+          "Designacao por dia da semana",
+          "Indicadores e microfonistas",
+          "Operador de som"
+        ]
+      },
+      {
+        titulo: "Grupo de Estudos",
+        descricao: "Gestao de grupos de estudo biblico.",
+        link: "/anciao/grupo-estudos",
+        funcionalidades: [
+          "Cadastro de grupos",
+          "Designacao de dirigentes",
+          "Locais e horarios"
+        ]
+      },
+      {
+        titulo: "Limpeza do Salao",
+        descricao: "Escala de grupos de limpeza.",
+        link: "/anciao/limpeza-salao",
+        funcionalidades: [
+          "Designacao por semana",
+          "Rotacao de grupos",
+          "Calendario mensal"
+        ]
+      },
+      {
+        titulo: "Servico de Campo",
+        descricao: "Grupos de servico de campo.",
+        link: "/anciao/servico-campo",
+        funcionalidades: [
+          "Cadastro de grupos",
+          "Pontos de encontro",
+          "Dirigentes designados"
+        ]
+      }
+    ]
+  },
+  {
+    categoria: "Organizacao",
+    icon: Calendar,
+    cor: "bg-purple-600",
+    itens: [
+      {
+        titulo: "Canticos",
+        descricao: "Biblioteca de canticos.",
+        link: "/anciao/canticos",
+        funcionalidades: [
+          "Lista de canticos",
+          "Busca por numero ou titulo"
+        ]
+      }
+    ]
+  },
+  {
+    categoria: "Impressao",
+    icon: FileText,
+    cor: "bg-amber-600",
+    itens: [
+      {
+        titulo: "Vida e Ministerio",
+        descricao: "Impressao da programacao semanal.",
+        link: "/anciao/impressao/vida-ministerio",
+        funcionalidades: [
+          "Formato para impressao",
+          "Layout otimizado"
+        ]
+      },
+      {
+        titulo: "Programacao Congregacao",
+        descricao: "Impressao da programacao geral.",
+        link: "/anciao/programacao-congregacao",
+        funcionalidades: [
+          "Programacao completa",
+          "Escalas e designacoes"
+        ]
+      },
+      {
+        titulo: "Grupo de Estudos",
+        descricao: "Impressao dos grupos de estudo.",
+        link: "/anciao/impressao/grupo-estudos",
+        funcionalidades: [
+          "Lista de grupos",
+          "Membros e dirigentes"
+        ]
+      },
+      {
+        titulo: "Servico de Campo",
+        descricao: "Impressao dos grupos de campo.",
+        link: "/anciao/impressao/servico-campo",
+        funcionalidades: [
+          "Pontos de encontro",
+          "Dirigentes e grupos"
+        ]
+      }
+    ]
+  },
+  {
+    categoria: "Configuracoes",
+    icon: Settings,
+    cor: "bg-zinc-600",
+    itens: [
+      {
+        titulo: "Configuracoes Gerais",
+        descricao: "Configuracoes da congregacao.",
+        link: "/anciao/configuracoes",
+        funcionalidades: [
+          "Dados da congregacao",
+          "Horarios das reunioes",
+          "Configuracao do Zoom"
+        ]
+      },
+      {
+        titulo: "Seguranca e Senhas",
+        descricao: "Gerenciamento de senhas de acesso.",
+        link: "/anciao/configuracoes",
+        funcionalidades: [
+          "Alteracao da senha do Administrador",
+          "Alteracao da senha do Anciao",
+          "Senhas com 6 digitos numericos"
+        ]
       }
     ]
   }
@@ -373,6 +605,7 @@ export default function WikiPage() {
   }
 
   const dadosFiltradosAdmin = filtrarItens(funcionalidadesAdmin)
+  const dadosFiltradosAnciao = filtrarItens(funcionalidadesAnciao)
   const dadosFiltradosConsulta = filtrarItens(funcionalidadesConsulta)
 
   return (
@@ -419,6 +652,7 @@ export default function WikiPage() {
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-bold text-violet-400">
                 {funcionalidadesAdmin.reduce((acc, cat) => acc + cat.itens.length, 0) + 
+                 funcionalidadesAnciao.reduce((acc, cat) => acc + cat.itens.length, 0) +
                  funcionalidadesConsulta.reduce((acc, cat) => acc + cat.itens.length, 0)}
               </p>
               <p className="text-xs text-muted-foreground">Total de Paginas</p>
@@ -428,6 +662,7 @@ export default function WikiPage() {
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-bold text-blue-400">
                 {funcionalidadesAdmin.reduce((acc, cat) => acc + cat.itens.filter(i => i.ia).length, 0) +
+                 funcionalidadesAnciao.reduce((acc, cat) => acc + cat.itens.filter(i => i.ia).length, 0) +
                  funcionalidadesConsulta.reduce((acc, cat) => acc + cat.itens.filter(i => i.ia).length, 0)}
               </p>
               <p className="text-xs text-muted-foreground">Com IA</p>
@@ -449,10 +684,14 @@ export default function WikiPage() {
 
         {/* Tabs */}
         <Tabs value={tabAtiva} onValueChange={setTabAtiva}>
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="admin" className="gap-2">
               <Shield className="h-4 w-4" />
               Administrador
+            </TabsTrigger>
+            <TabsTrigger value="anciao" className="gap-2">
+              <UserCheck className="h-4 w-4" />
+              Anciao
             </TabsTrigger>
             <TabsTrigger value="consulta" className="gap-2">
               <Users className="h-4 w-4" />
@@ -509,6 +748,70 @@ export default function WikiPage() {
                             {item.ia && item.iaDescricao && (
                               <div className="mt-3 p-2 rounded bg-violet-600/10 border border-violet-600/20">
                                 <p className="text-xs text-violet-300 flex items-start gap-1">
+                                  <Brain className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                                  {item.iaDescricao}
+                                </p>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="anciao" className="mt-6">
+            <ScrollArea className="h-[600px] pr-4">
+              <div className="space-y-8">
+                {dadosFiltradosAnciao.map((categoria) => (
+                  <div key={categoria.categoria}>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${categoria.cor}`}>
+                        <categoria.icon className="h-4 w-4 text-white" />
+                      </div>
+                      <h2 className="text-lg font-semibold">{categoria.categoria}</h2>
+                    </div>
+                    
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {categoria.itens.map((item) => (
+                        <Card key={item.titulo} className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900/80 transition-colors">
+                          <CardHeader className="pb-2">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <CardTitle className="text-base flex items-center gap-2">
+                                  {item.titulo}
+                                  {item.ia && (
+                                    <Badge variant="secondary" className="bg-amber-600/20 text-amber-400 text-xs">
+                                      IA
+                                    </Badge>
+                                  )}
+                                </CardTitle>
+                                <CardDescription className="text-xs mt-1">
+                                  {item.descricao}
+                                </CardDescription>
+                              </div>
+                              <Link href={item.link}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <ExternalLink className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="pt-0">
+                            <ul className="text-xs text-muted-foreground space-y-1">
+                              {item.funcionalidades.map((func, idx) => (
+                                <li key={idx} className="flex items-center gap-1">
+                                  <ChevronRight className="h-3 w-3 text-zinc-600" />
+                                  {func}
+                                </li>
+                              ))}
+                            </ul>
+                            {item.ia && item.iaDescricao && (
+                              <div className="mt-3 p-2 rounded bg-amber-600/10 border border-amber-600/20">
+                                <p className="text-xs text-amber-300 flex items-start gap-1">
                                   <Brain className="h-3 w-3 mt-0.5 flex-shrink-0" />
                                   {item.iaDescricao}
                                 </p>

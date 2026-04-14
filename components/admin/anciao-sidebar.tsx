@@ -21,6 +21,7 @@ import {
   Megaphone,
   Settings,
   Music,
+  HelpCircle,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -340,6 +341,14 @@ export function AnciaoSidebar() {
                   <Link href="/anciao/configuracoes" className="flex items-center gap-3">
                     <Settings className="h-4 w-4 flex-shrink-0 text-zinc-400" />
                     <span>Configurações</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isItemActive("/admin/wiki")} className="h-9 rounded-lg font-medium">
+                  <Link href="/admin/wiki" className="flex items-center gap-3">
+                    <HelpCircle className="h-4 w-4 flex-shrink-0 text-blue-400" />
+                    <span>Wiki / Ajuda</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
