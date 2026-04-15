@@ -15,7 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { createClient } from "@/lib/supabase/client"
-import { registrarAtividade } from "@/lib/services/activity-logger"
+import { logActivity } from "@/lib/services/activity-logger"
 
 interface Funcionalidades {
   publicadores: { ver: boolean; criar: boolean; editar: boolean; excluir: boolean }
@@ -152,7 +152,7 @@ export function GestaoPermissoes() {
         .eq("id", permissao.id)
     }
 
-    await registrarAtividade({
+    await logActivity({
       tabela: "permissoes",
       acao: "editar",
       dados_depois: permissoes,

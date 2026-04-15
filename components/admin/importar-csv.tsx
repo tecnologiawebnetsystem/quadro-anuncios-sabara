@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { createClient } from "@/lib/supabase/client"
-import { registrarAtividade } from "@/lib/services/activity-logger"
+import { logActivity } from "@/lib/services/activity-logger"
 
 interface PublicadorCSV {
   nome: string
@@ -188,7 +188,7 @@ export function ImportarCSV({ onImportComplete }: ImportarCSVProps) {
     }
 
     // Registrar atividade
-    await registrarAtividade({
+    await logActivity({
       tabela: "publicadores",
       acao: "criar",
       dados_depois: { importados: sucesso, erros },
