@@ -215,7 +215,7 @@ export default function ConfiguracoesPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl flex items-center gap-3">
           <Settings className="h-7 w-7 text-primary" />
-          Configurações
+          Configura��ões
         </h1>
         <p className="text-muted-foreground">
           Configure as informações da congregação, reuniões e serviço de campo
@@ -223,7 +223,7 @@ export default function ConfiguracoesPage() {
       </div>
 
       <Tabs defaultValue="congregacao" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 lg:w-auto">
           <TabsTrigger value="congregacao" className="gap-2">
             <Building2 className="h-4 w-4 hidden sm:inline" />
             <span className="hidden sm:inline">Congregação</span>
