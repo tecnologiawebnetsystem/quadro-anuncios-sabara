@@ -32,6 +32,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getPublicadores, type PublicadorGrupo } from "@/lib/actions/grupos"
 import { createClient } from "@/lib/supabase/client"
+import { AlertaConflitos } from "@/components/admin/alerta-conflitos"
+import { LogAtividades, AtividadesStats } from "@/components/admin/log-atividades"
 import { format, startOfWeek, endOfWeek, subWeeks, isToday, isTomorrow, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
@@ -365,6 +367,9 @@ export default function AdminDashboard() {
           ))}
         </div>
       )}
+
+      {/* Alertas de Conflitos */}
+      <AlertaConflitos />
 
       {/* Acoes Rapidas */}
       <div className="flex flex-wrap gap-3">
@@ -830,6 +835,12 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Log de Atividades e Estatísticas */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <LogAtividades limite={10} />
+        <AtividadesStats />
       </div>
     </div>
   )

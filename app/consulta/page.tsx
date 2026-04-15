@@ -30,6 +30,8 @@ import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { useSync } from "@/lib/contexts/sync-context"
 import { Button } from "@/components/ui/button"
+import { BuscaDesignacoes } from "@/components/consulta/busca-designacoes"
+import { GerenciarNotificacoes } from "@/components/consulta/gerenciar-notificacoes"
 
 interface EquipeTecnica {
   indicador1_nome: string | null
@@ -499,10 +501,14 @@ export default function ConsultaPage() {
         </p>
       </div>
 
+      {/* Busca de Designações Pessoais e Notificações */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <BuscaDesignacoes />
+        <GerenciarNotificacoes />
+      </div>
+
       {/* Cards de Destaque */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-
         {/* Proximo Discurso */}
         {proximoDiscurso && (
           <Card className="border-zinc-800 bg-gradient-to-br from-amber-600/10 to-amber-900/5 sm:col-span-2 lg:col-span-3 hover:border-amber-600/30 transition-colors">
