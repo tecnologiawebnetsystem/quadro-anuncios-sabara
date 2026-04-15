@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
 import { NavigationProgress } from '@/components/ui/navigation-progress'
+import { ThemeProvider } from '@/components/providers/theme-provider'
 import './globals.css'
 
 const poppins = Poppins({ 
@@ -57,11 +58,13 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body className={`${poppins.variable} font-sans antialiased`}>
-        <NavigationProgress />
-        {children}
-        <Toaster richColors position="top-right" />
-        <Analytics />
+      <body className={`${poppins.variable} font-sans antialiased bg-background`}>
+        <ThemeProvider defaultTheme="dark" storageKey="infoflow-theme">
+          <NavigationProgress />
+          {children}
+          <Toaster richColors position="top-right" />
+          <Analytics />
+        </ThemeProvider>
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -70,6 +73,15 @@ export default function RootLayout({
                   navigator.serviceWorker.register('/sw.js');
                 });
               }
+              // Aplicar tema antes da renderização para evitar flash
+              (function() {
+                const theme = localStorage.getItem('infoflow-theme') || 'dark';
+                if (theme === 'light' || (theme === 'system' && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('light');
+                } else {
+                  document.documentElement.classList.add('dark');
+                }
+              })();
             `,
           }}
         />
