@@ -230,8 +230,8 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
   ({ mesLabel, semanaOrdenada, campoCartas, sabadosManha, sabadosTarde, campoDomingo, segundoDomingo }, ref) => {
     const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
       border: "1px solid #d1d5db",
-      padding: "5px 8px",
-      fontSize: "9px",
+      padding: "3px 5px",
+      fontSize: "7px",
       color: "#111",
       ...extra,
     })
@@ -239,17 +239,17 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
     const headerBar = (bg: string): React.CSSProperties => ({
       backgroundColor: bg,
       color: "#fff",
-      padding: "6px 10px",
-      fontSize: "10px",
+      padding: "3px 6px",
+      fontSize: "8px",
       fontWeight: "bold",
       marginBottom: "1px",
-      borderRadius: "3px 3px 0 0",
+      borderRadius: "2px 2px 0 0",
     })
 
     return (
       <div ref={ref} style={{ 
         fontFamily: "Arial, sans-serif", 
-        padding: "8mm 10mm", 
+        padding: "5mm 8mm", 
         color: "#111", 
         width: "210mm",
         height: "297mm",
@@ -265,15 +265,15 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          borderBottom: "2px solid #374151",
-          paddingBottom: "5px",
-          marginBottom: "8px",
+          borderBottom: "1.5px solid #374151",
+          paddingBottom: "3px",
+          marginBottom: "5px",
           flexShrink: 0
         }}>
-          <div style={{ fontSize: "13px", fontWeight: "bold", color: "#111827" }}>
+          <div style={{ fontSize: "11px", fontWeight: "bold", color: "#111827" }}>
             Parque Sabará - Taubaté SP
           </div>
-          <div style={{ fontSize: "13px", fontWeight: "bold", color: "#111827", textAlign: "right" }}>
+          <div style={{ fontSize: "11px", fontWeight: "bold", color: "#111827", textAlign: "right" }}>
             Serviço de Campo
           </div>
         </div>
@@ -282,27 +282,27 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
         <div style={{ 
           backgroundColor: "#1f2937", 
           color: "white", 
-          padding: "6px 10px",
-          marginBottom: "10px",
-          borderRadius: "3px",
+          padding: "4px 8px",
+          marginBottom: "6px",
+          borderRadius: "2px",
           textAlign: "center",
           flexShrink: 0
         }}>
-          <div style={{ fontSize: "11px", fontWeight: "bold", textTransform: "uppercase" }}>
+          <div style={{ fontSize: "9px", fontWeight: "bold", textTransform: "uppercase" }}>
             Serviço de Campo — {mesLabel}
           </div>
         </div>
 
         {/* DURANTE A SEMANA */}
         {semanaOrdenada.length > 0 && (
-          <div style={{ marginBottom: "8px" }}>
+          <div style={{ marginBottom: "5px" }}>
             <div style={headerBar("#1e3a5f")}>Programa de Ministério Durante a Semana</div>
-            <table style={{ borderCollapse: "collapse", width: "100%", borderRadius: "0 0 3px 3px", overflow: "hidden" }}>
+            <table style={{ borderCollapse: "collapse", width: "100%", borderRadius: "0 0 2px 2px", overflow: "hidden" }}>
               <thead>
                 <tr>
-                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "140px" })}>Dia</th>
+                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "110px" })}>Dia</th>
                   <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Dirigente</th>
-                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "100px" })}>Horário</th>
+                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "80px" })}>Horário</th>
                 </tr>
               </thead>
               <tbody>
@@ -320,15 +320,15 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
 
         {/* ARRANJO DE CARTAS */}
         {campoCartas.length > 0 && (
-          <div style={{ marginBottom: "8px" }}>
+          <div style={{ marginBottom: "5px" }}>
             <div style={headerBar("#92400e")}>Arranjo de Cartas</div>
             <table style={{ borderCollapse: "collapse", width: "100%" }}>
               <thead>
                 <tr>
-                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "120px" })}>Dia</th>
+                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "90px" })}>Dia</th>
                   <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Descrição</th>
                   <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Responsável</th>
-                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "100px" })}>Horário</th>
+                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "80px" })}>Horário</th>
                 </tr>
               </thead>
               <tbody>
@@ -347,7 +347,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
 
         {/* SÁBADOS MANHÃ */}
         {sabadosManha.length > 0 && (
-          <div style={{ marginBottom: "8px" }}>
+          <div style={{ marginBottom: "5px" }}>
             <div style={headerBar("#166534")}>Dirigentes de Campo aos Sábados — Manhã</div>
             <table style={{ borderCollapse: "collapse", width: "100%" }}>
               <thead>
@@ -360,7 +360,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 </tr>
                 <tr>
                   {sabadosManha.map(s => (
-                    <td key={s.id} style={cell({ textAlign: "center", fontSize: "8px", color: "#666" })}>{s.horario}</td>
+                    <td key={s.id} style={cell({ textAlign: "center", fontSize: "6px", color: "#666" })}>{s.horario}</td>
                   ))}
                 </tr>
               </thead>
@@ -377,7 +377,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
 
         {/* SÁBADOS TARDE */}
         {sabadosTarde.length > 0 && (
-          <div style={{ marginBottom: "8px" }}>
+          <div style={{ marginBottom: "5px" }}>
             <div style={headerBar("#166534")}>Dirigentes de Campo aos Sábados — Tarde</div>
             <table style={{ borderCollapse: "collapse", width: "100%" }}>
               <thead>
@@ -390,7 +390,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 </tr>
                 <tr>
                   {sabadosTarde.map(s => (
-                    <td key={s.id} style={cell({ textAlign: "center", fontSize: "8px", color: "#666" })}>{s.horario}</td>
+                    <td key={s.id} style={cell({ textAlign: "center", fontSize: "6px", color: "#666" })}>{s.horario}</td>
                   ))}
                 </tr>
               </thead>
@@ -407,7 +407,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
 
         {/* DOMINGOS */}
         {campoDomingo.length > 0 && (
-          <div style={{ marginBottom: "8px" }}>
+          <div style={{ marginBottom: "5px" }}>
             <div style={headerBar("#9a3412")}>Dirigentes de Campo aos Domingos</div>
             <table style={{ borderCollapse: "collapse", width: "100%" }}>
               <thead>
@@ -420,7 +420,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 </tr>
                 <tr>
                   {campoDomingo.map(d => (
-                    <td key={d.id} style={cell({ textAlign: "center", fontSize: "8px", color: "#666" })}>{d.horario}</td>
+                    <td key={d.id} style={cell({ textAlign: "center", fontSize: "6px", color: "#666" })}>{d.horario}</td>
                   ))}
                 </tr>
               </thead>
@@ -431,7 +431,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                       {d.tipo === "grupo" ? (
                         <span style={{ color: "#166534", fontWeight: "bold" }}>Saída em Grupo</span>
                       ) : d.tipo === "salao" ? (
-                        <span><span style={{ color: "#1e40af", fontWeight: "bold", fontSize: "8px" }}>No Salão</span><br/>{d.dirigente_nome || "—"}</span>
+                        <span><span style={{ color: "#1e40af", fontWeight: "bold", fontSize: "6px" }}>No Salão</span><br/>{d.dirigente_nome || "—"}</span>
                       ) : (
                         d.dirigente_nome || "—"
                       )}
@@ -446,10 +446,10 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
         {/* Rodapé */}
         <div style={{ 
           marginTop: "auto", 
-          paddingTop: "5px", 
+          paddingTop: "3px", 
           borderTop: "1px solid #e5e7eb",
           textAlign: "center",
-          fontSize: "8px",
+          fontSize: "7px",
           color: "#666",
           flexShrink: 0
         }}>
