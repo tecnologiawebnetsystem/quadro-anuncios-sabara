@@ -168,7 +168,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
     }
 
     return (
-      <div ref={ref} style={{ width: "210mm", margin: "0 auto" }}>
+      <div ref={ref} className="vm-print-wrapper" style={{ width: "210mm", margin: "0 auto" }}>
         {semanasComReuniao.map((semana, idx) => {
           const partesSemanais = partes.filter(p => p.semana_id === semana.id)
           const tesouros = partesSemanais.filter(p => p.secao === "tesouros").sort((a, b) => a.ordem - b.ordem)
@@ -179,7 +179,8 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
 
           return (
             <div 
-              key={semana.id} 
+              key={semana.id}
+              className="vm-page"
               style={{ 
                 backgroundColor: "white", 
                 padding: "12mm 15mm", 
@@ -188,8 +189,6 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 boxSizing: "border-box",
                 display: "flex",
                 flexDirection: "column",
-                pageBreakAfter: isLastPage ? "auto" : "always",
-                pageBreakInside: "avoid",
               }}
             >
               {/* Cabeçalho da Congregação */}

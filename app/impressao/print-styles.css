@@ -15,8 +15,8 @@
     margin: 0 !important;
     padding: 0 !important;
     width: 210mm !important;
-    height: 297mm !important;
-    overflow: hidden !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 
   /* Ocultar elementos da UI */
@@ -30,13 +30,11 @@
   /* Container de impressão */
   .print-container {
     width: 210mm !important;
-    height: 297mm !important;
     max-width: 210mm !important;
-    max-height: 297mm !important;
     margin: 0 !important;
     padding: 0 !important;
     background: white !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   /* Página A4 - 210mm x 297mm - SEM MARGENS do navegador */
@@ -397,26 +395,45 @@
    A4: 210mm x 297mm - UMA SEMANA POR PÁGINA
    ===================================== */
 
+/* Estilos de preview na tela */
+.vm-print-wrapper {
+  width: 210mm;
+  margin: 0 auto;
+}
+
+.vm-print-wrapper .vm-page {
+  width: 210mm;
+  min-height: 297mm;
+  box-sizing: border-box;
+  background: white;
+  margin-bottom: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
 @media print {
   /* Vida e Ministério - cada semana em página separada */
-  .vida-ministerio-print-container {
+  .vm-print-wrapper {
     width: 210mm !important;
     margin: 0 !important;
     padding: 0 !important;
   }
   
-  .vida-ministerio-print-container > div {
+  .vm-print-wrapper .vm-page {
     width: 210mm !important;
     height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
     page-break-after: always !important;
     page-break-inside: avoid !important;
     break-after: page !important;
     break-inside: avoid !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
+    margin: 0 !important;
+    box-shadow: none !important;
   }
   
-  .vida-ministerio-print-container > div:last-child {
+  .vm-print-wrapper .vm-page:last-child {
     page-break-after: auto !important;
     break-after: auto !important;
   }
