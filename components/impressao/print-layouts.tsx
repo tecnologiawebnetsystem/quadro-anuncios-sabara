@@ -157,7 +157,8 @@ const formatarPeriodoPDF = (dataInicio: string, dataFim: string) => {
 
 export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProps>(
   ({ mes, ano, semanas, partes, canticos = [] }, ref) => {
-    const TESOUROS_ORDEM = { DISCURSO: 1, JOIAS: 2, LEITURA: 3 }
+    // Filtra semanas com reunião
+    const semanasComReuniao = semanas.filter(s => !s.sem_reuniao)
     
     // Função para buscar descrição do cântico pelo número
     const getCanticoDescricao = (numero: number | null) => {
@@ -167,51 +168,49 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
     }
 
     return (
-      <div ref={ref} className="vida-ministerio-print">
-        {semanas.map((semana, idx) => {
-          if (semana.sem_reuniao) return null
+      <div ref={ref} style={{ width: "210mm", margin: "0 auto" }}>
+        {semanasComReuniao.map((semana, idx) => {
           const partesSemanais = partes.filter(p => p.semana_id === semana.id)
           const tesouros = partesSemanais.filter(p => p.secao === "tesouros").sort((a, b) => a.ordem - b.ordem)
           const ministerio = partesSemanais.filter(p => p.secao === "ministerio").sort((a, b) => a.ordem - b.ordem)
           const vida = partesSemanais.filter(p => p.secao === "vida").sort((a, b) => a.ordem - b.ordem)
           const oracaoFinal = vida.find(p => p.oracao_final_nome)
+          const isLastPage = idx === semanasComReuniao.length - 1
 
           return (
-            <div key={semana.id} className="vm-semana" style={{ 
-              backgroundColor: "white", 
-              padding: "10mm 12mm", 
-              marginBottom: "0",
-              border: "none",
-              borderRadius: "0",
-              pageBreakAfter: idx < semanas.filter(s => !s.sem_reuniao).length - 1 ? "always" : "auto",
-              pageBreakInside: "avoid",
-              width: "210mm",
-              height: "297mm",
-              maxHeight: "297mm",
-              boxSizing: "border-box",
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden"
-            }}>
+            <div 
+              key={semana.id} 
+              style={{ 
+                backgroundColor: "white", 
+                padding: "12mm 15mm", 
+                width: "210mm",
+                height: "297mm",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                pageBreakAfter: isLastPage ? "auto" : "always",
+                pageBreakInside: "avoid",
+              }}
+            >
               {/* Cabeçalho da Congregação */}
               <div style={{ 
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                borderBottom: "2px solid #374151",
-                paddingBottom: "8px",
-                marginBottom: "12px",
+                borderBottom: "3px solid #374151",
+                paddingBottom: "12px",
+                marginBottom: "15px",
                 flexShrink: 0
               }}>
                 <div style={{ 
-                  fontSize: "14px", 
+                  fontSize: "16px", 
                   fontWeight: "bold", 
                   color: "#111827"
                 }}>
                   Parque Sabará - Taubaté SP
                 </div>
                 <div style={{ 
-                  fontSize: "14px", 
+                  fontSize: "16px", 
                   fontWeight: "bold", 
                   color: "#111827",
                   textAlign: "right"
@@ -220,16 +219,16 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 </div>
               </div>
 
-              {/* Data e Leitura da Semana - USA livro_biblia */}
+              {/* Data e Leitura da Semana */}
               <div style={{ 
                 backgroundColor: "#1f2937", 
                 color: "white", 
-                padding: "10px 14px",
-                marginBottom: "12px",
-                borderRadius: "4px",
+                padding: "14px 18px",
+                marginBottom: "15px",
+                borderRadius: "6px",
                 flexShrink: 0
               }}>
-                <div style={{ fontSize: "13px", fontWeight: "bold" }}>
+                <div style={{ fontSize: "15px", fontWeight: "bold" }}>
                   {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)} | {(semana.livro_biblia || "").toUpperCase()}
                 </div>
               </div>
@@ -238,22 +237,22 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               <div style={{ 
                 display: "flex", 
                 justifyContent: "space-between",
-                fontSize: "11px",
-                marginBottom: "10px",
-                padding: "8px 12px",
-                backgroundColor: "#f9fafb",
-                borderRadius: "4px",
+                fontSize: "13px",
+                marginBottom: "12px",
+                padding: "10px 14px",
+                backgroundColor: "#f3f4f6",
+                borderRadius: "6px",
                 flexShrink: 0
               }}>
                 <div>
-                  <span style={{ fontWeight: "600", color: "#374151" }}>Presidente:</span>
-                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
+                  <span style={{ fontWeight: "700", color: "#374151" }}>Presidente:</span>
+                  <span style={{ marginLeft: "8px", color: "#111827", fontWeight: "600" }}>
                     {semana.presidente || "-"}
                   </span>
                 </div>
                 <div>
-                  <span style={{ fontWeight: "600", color: "#374151" }}>Oração:</span>
-                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
+                  <span style={{ fontWeight: "700", color: "#374151" }}>Oração:</span>
+                  <span style={{ marginLeft: "8px", color: "#111827", fontWeight: "600" }}>
                     {semana.oracao_inicial || "-"}
                   </span>
                 </div>
@@ -263,13 +262,13 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               {semana.cantico_inicial && (
                 <div style={{ 
                   textAlign: "left", 
-                  padding: "8px 12px", 
+                  padding: "10px 14px", 
                   backgroundColor: "#e0e7ff",
                   color: "#3730a3",
-                  fontSize: "10px",
-                  fontWeight: "600",
-                  marginBottom: "10px",
-                  borderRadius: "4px",
+                  fontSize: "12px",
+                  fontWeight: "700",
+                  marginBottom: "12px",
+                  borderRadius: "6px",
                   flexShrink: 0
                 }}>
                   Cântico {semana.cantico_inicial}: {getCanticoDescricao(semana.cantico_inicial) || semana.cantico_inicial_nome || ""}
@@ -278,11 +277,11 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
 
               {/* Comentários Iniciais */}
               <div style={{ 
-                fontSize: "10px",
-                fontWeight: "600",
+                fontSize: "12px",
+                fontWeight: "700",
                 color: "#374151",
-                padding: "6px 12px",
-                marginBottom: "10px",
+                padding: "8px 14px",
+                marginBottom: "12px",
                 flexShrink: 0
               }}>
                 Comentários iniciais
@@ -290,32 +289,32 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
 
               {/* TESOUROS DA PALAVRA DE DEUS */}
               {tesouros.length > 0 && (
-                <div style={{ marginBottom: "12px", flex: 1 }}>
+                <div style={{ marginBottom: "15px", flex: 1, display: "flex", flexDirection: "column" }}>
                   <div style={{ 
                     backgroundColor: "#2a6b77",
                     color: "white",
-                    padding: "8px 12px",
+                    padding: "10px 14px",
                     fontWeight: "bold",
-                    fontSize: "11px",
-                    marginBottom: "1px",
-                    borderRadius: "4px 4px 0 0"
+                    fontSize: "13px",
+                    borderRadius: "6px 6px 0 0",
+                    flexShrink: 0
                   }}>
                     TESOUROS DA PALAVRA DE DEUS
                   </div>
-                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
+                  <div style={{ padding: "12px 14px", borderRadius: "0 0 6px 6px", border: "1px solid #d1d5db", borderTop: "none", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-around" }}>
                     {tesouros.map((parte, i) => (
                       <div key={parte.id} style={{ 
                         display: "flex", 
                         justifyContent: "space-between",
-                        padding: "5px 0",
+                        padding: "8px 0",
                         borderBottom: i < tesouros.length - 1 ? "1px dotted #d1d5db" : "none",
-                        fontSize: "10px"
+                        fontSize: "12px"
                       }}>
                         <span style={{ color: "#374151" }}>
                           {parte.ordem}. {parte.titulo}
                           {parte.tempo && <span style={{ color: "#6b7280" }}> ({parte.tempo} min)</span>}
                         </span>
-                        <span style={{ fontWeight: "600", color: "#111827" }}>
+                        <span style={{ fontWeight: "700", color: "#111827" }}>
                           {parte.participante_nome || "-"}
                         </span>
                       </div>
@@ -326,32 +325,32 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
 
               {/* FAÇA SEU MELHOR NO MINISTÉRIO */}
               {ministerio.length > 0 && (
-                <div style={{ marginBottom: "12px", flex: 1 }}>
+                <div style={{ marginBottom: "15px", flex: 1, display: "flex", flexDirection: "column" }}>
                   <div style={{ 
                     backgroundColor: "#c69214",
                     color: "white",
-                    padding: "8px 12px",
+                    padding: "10px 14px",
                     fontWeight: "bold",
-                    fontSize: "11px",
-                    marginBottom: "1px",
-                    borderRadius: "4px 4px 0 0"
+                    fontSize: "13px",
+                    borderRadius: "6px 6px 0 0",
+                    flexShrink: 0
                   }}>
                     FAÇA SEU MELHOR NO MINISTÉRIO
                   </div>
-                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
+                  <div style={{ padding: "12px 14px", borderRadius: "0 0 6px 6px", border: "1px solid #d1d5db", borderTop: "none", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-around" }}>
                     {ministerio.map((parte, i) => (
                       <div key={parte.id} style={{ 
                         display: "flex", 
                         justifyContent: "space-between",
-                        padding: "5px 0",
+                        padding: "8px 0",
                         borderBottom: i < ministerio.length - 1 ? "1px dotted #d1d5db" : "none",
-                        fontSize: "10px"
+                        fontSize: "12px"
                       }}>
                         <span style={{ color: "#374151" }}>
                           {tesouros.length + i + 1}. {parte.titulo}
                           {parte.tempo && <span style={{ color: "#6b7280" }}> ({parte.tempo} min)</span>}
                         </span>
-                        <span style={{ fontWeight: "600", color: "#111827" }}>
+                        <span style={{ fontWeight: "700", color: "#111827" }}>
                           {parte.participante_nome || "-"}
                           {parte.ajudante_nome && <span> / {parte.ajudante_nome}</span>}
                         </span>
@@ -365,13 +364,13 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               {semana.cantico_meio && (
                 <div style={{ 
                   textAlign: "left", 
-                  padding: "8px 12px", 
+                  padding: "10px 14px", 
                   backgroundColor: "#e0e7ff",
                   color: "#3730a3",
-                  fontSize: "10px",
-                  fontWeight: "600",
-                  marginBottom: "12px",
-                  borderRadius: "4px",
+                  fontSize: "12px",
+                  fontWeight: "700",
+                  marginBottom: "15px",
+                  borderRadius: "6px",
                   flexShrink: 0
                 }}>
                   Cântico {semana.cantico_meio}: {getCanticoDescricao(semana.cantico_meio) || semana.cantico_meio_nome || ""}
@@ -380,40 +379,37 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
 
               {/* NOSSA VIDA CRISTÃ */}
               {vida.length > 0 && (
-                <div style={{ marginBottom: "12px", flex: 1 }}>
+                <div style={{ marginBottom: "15px", flex: 1, display: "flex", flexDirection: "column" }}>
                   <div style={{ 
                     backgroundColor: "#8b2332",
                     color: "white",
-                    padding: "8px 12px",
+                    padding: "10px 14px",
                     fontWeight: "bold",
-                    fontSize: "11px",
-                    marginBottom: "1px",
-                    borderRadius: "4px 4px 0 0"
+                    fontSize: "13px",
+                    borderRadius: "6px 6px 0 0",
+                    flexShrink: 0
                   }}>
                     NOSSA VIDA CRISTÃ
                   </div>
-                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
+                  <div style={{ padding: "12px 14px", borderRadius: "0 0 6px 6px", border: "1px solid #d1d5db", borderTop: "none", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-around" }}>
                     {vida.map((parte, i) => {
                       const numParte = tesouros.length + ministerio.length + i + 1
-                      const isEstudoBiblico = parte.titulo?.toLowerCase().includes("estudo bíblico")
                       return (
-                        <div key={parte.id}>
-                          <div style={{ 
-                            display: "flex", 
-                            justifyContent: "space-between",
-                            padding: "5px 0",
-                            borderBottom: i < vida.length - 1 && !isEstudoBiblico ? "1px dotted #d1d5db" : "none",
-                            fontSize: "10px"
-                          }}>
-                            <span style={{ color: "#374151" }}>
-                              {numParte}. {parte.titulo}
-                              {parte.tempo && <span style={{ color: "#6b7280" }}> ({parte.tempo} min)</span>}
-                            </span>
-                            <span style={{ fontWeight: "600", color: "#111827" }}>
-                              {parte.participante_nome || "-"}
-                              {parte.leitor_nome && <span> / {parte.leitor_nome}</span>}
-                            </span>
-                          </div>
+                        <div key={parte.id} style={{ 
+                          display: "flex", 
+                          justifyContent: "space-between",
+                          padding: "8px 0",
+                          borderBottom: i < vida.length - 1 ? "1px dotted #d1d5db" : "none",
+                          fontSize: "12px"
+                        }}>
+                          <span style={{ color: "#374151" }}>
+                            {numParte}. {parte.titulo}
+                            {parte.tempo && <span style={{ color: "#6b7280" }}> ({parte.tempo} min)</span>}
+                          </span>
+                          <span style={{ fontWeight: "700", color: "#111827" }}>
+                            {parte.participante_nome || "-"}
+                            {parte.leitor_nome && <span> / {parte.leitor_nome}</span>}
+                          </span>
                         </div>
                       )
                     })}
@@ -423,11 +419,11 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
 
               {/* Comentários Finais */}
               <div style={{ 
-                fontSize: "10px",
-                fontWeight: "600",
+                fontSize: "12px",
+                fontWeight: "700",
                 color: "#374151",
-                padding: "6px 12px",
-                marginBottom: "10px",
+                padding: "8px 14px",
+                marginBottom: "12px",
                 flexShrink: 0
               }}>
                 Comentários finais
@@ -438,22 +434,22 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                padding: "8px 12px",
+                padding: "12px 14px",
                 backgroundColor: "#e0e7ff",
-                borderRadius: "4px",
-                fontSize: "10px",
+                borderRadius: "6px",
+                fontSize: "12px",
                 flexShrink: 0,
                 marginTop: "auto"
               }}>
                 <div style={{ 
                   color: "#3730a3",
-                  fontWeight: "600"
+                  fontWeight: "700"
                 }}>
                   {semana.cantico_final && `Cântico ${semana.cantico_final}: ${getCanticoDescricao(semana.cantico_final) || semana.cantico_final_nome || ""}`}
                 </div>
                 <div>
-                  <span style={{ fontWeight: "600", color: "#374151" }}>Oração:</span>
-                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
+                  <span style={{ fontWeight: "700", color: "#374151" }}>Oração:</span>
+                  <span style={{ marginLeft: "8px", color: "#111827", fontWeight: "600" }}>
                     {oracaoFinal?.oracao_final_nome || "-"}
                   </span>
                 </div>

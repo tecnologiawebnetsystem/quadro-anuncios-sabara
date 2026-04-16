@@ -394,53 +394,30 @@
 
 /* =====================================
    VIDA E MINISTÉRIO - Estilos Específicos
-   A4: 210mm x 297mm
+   A4: 210mm x 297mm - UMA SEMANA POR PÁGINA
    ===================================== */
-.vida-ministerio-print {
-  background: white;
-  color: black;
-  padding: 10mm;
-  width: 210mm;
-  margin: 0 auto;
-  box-sizing: border-box;
-}
-
-.vida-ministerio-print .vm-semana {
-  page-break-inside: avoid;
-  break-inside: avoid;
-  width: 100%;
-  height: calc(297mm - 20mm);
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
 
 @media print {
-  /* Remove cabeçalho e rodapé padrão do navegador - A4 SEM MARGENS */
-  @page {
-    size: 210mm 297mm;
-    margin: 0;
-  }
-  
-  .vida-ministerio-print {
-    padding: 0 !important;
+  /* Vida e Ministério - cada semana em página separada */
+  .vida-ministerio-print-container {
     width: 210mm !important;
     margin: 0 !important;
+    padding: 0 !important;
   }
   
-  .vida-ministerio-print .vm-semana {
-    page-break-inside: avoid;
-    break-inside: avoid;
-    margin-bottom: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
+  .vida-ministerio-print-container > div {
     width: 210mm !important;
     height: 297mm !important;
-    max-height: 297mm !important;
+    page-break-after: always !important;
+    page-break-inside: avoid !important;
+    break-after: page !important;
+    break-inside: avoid !important;
+    box-sizing: border-box !important;
     overflow: hidden !important;
   }
   
-  .vida-ministerio-print .vm-semana:last-child {
-    margin-bottom: 0 !important;
+  .vida-ministerio-print-container > div:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
 }
