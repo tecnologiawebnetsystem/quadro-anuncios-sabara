@@ -30,6 +30,10 @@ import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { useSync } from "@/lib/contexts/sync-context"
 import { Button } from "@/components/ui/button"
+import { BuscaDesignacoes } from "@/components/consulta/busca-designacoes"
+import { GerenciarNotificacoes } from "@/components/consulta/gerenciar-notificacoes"
+import { LoginPublicador } from "@/components/consulta/login-publicador"
+import { LogOut } from "lucide-react"
 
 interface EquipeTecnica {
   indicador1_nome: string | null
@@ -163,6 +167,10 @@ function SkeletonQuickLink() {
 }
 
 export default function ConsultaPage() {
+  // Estado de autenticação do publicador
+  const [publicadorLogado, setPublicadorLogado] = useState<{ id: string; nome: string } | null>(null)
+  const [verificandoAuth, setVerificandoAuth] = useState(true)
+  
   const [loading, setLoading] = useState(true)
   const [equipeSemana, setEquipeSemana] = useState<EquipeTecnica[]>([])
   const [limpezaSemana, setLimpezaSemana] = useState<LimpezaSemana | null>(null)
@@ -185,6 +193,40 @@ export default function ConsultaPage() {
   const [tooltipFixo, setTooltipFixo] = useState(false)
   
   const { syncTrigger } = useSync()
+  
+  // Verificar sessão salva no localStorage
+  useEffect(() => {
+    const sessaoSalva = localStorage.getItem("publicador_logado")
+    if (sessaoSalva) {
+      try {
+        const dados = JSON.parse(sessaoSalva)
+        // Verificar se a sessão não expirou (7 dias)
+        const logadoEm = new Date(dados.logado_em)
+        const agora = new Date()
+        const diasPassados = (agora.getTime() - logadoEm.getTime()) / (1000 * 60 * 60 * 24)
+        
+        if (diasPassados < 7) {
+          setPublicadorLogado({ id: dados.id, nome: dados.nome })
+        } else {
+          localStorage.removeItem("publicador_logado")
+        }
+      } catch {
+        localStorage.removeItem("publicador_logado")
+      }
+    }
+    setVerificandoAuth(false)
+  }, [])
+  
+  // Função de logout
+  function handleLogout() {
+    localStorage.removeItem("publicador_logado")
+    setPublicadorLogado(null)
+  }
+  
+  // Função de login bem-sucedido
+  function handleLoginSuccess(publicador: { id: string; nome: string }) {
+    setPublicadorLogado(publicador)
+  }
   
   // Hook para grupos de estudo
   const { 
@@ -370,6 +412,20 @@ export default function ConsultaPage() {
       : undefined
   }
 
+  // Verificando autenticação
+  if (verificandoAuth) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Carregando...</div>
+      </div>
+    )
+  }
+  
+  // Se não está logado, mostrar tela de login
+  if (!publicadorLogado) {
+    return <LoginPublicador onLoginSuccess={handleLoginSuccess} />
+  }
+
   // Skeleton Loading
   if (loading) {
     return (
@@ -490,19 +546,42 @@ export default function ConsultaPage() {
     )}
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Header */}
-      <div className="text-center sm:text-left">
-        <h1 className="text-3xl font-bold text-white mb-2">
-          Quadro de Anúncios
-        </h1>
-        <p className="text-zinc-400">
-          {format(hoje, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="text-center sm:text-left">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Quadro de Anúncios
+          </h1>
+          <p className="text-zinc-400">
+            {format(hoje, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+          </p>
+        </div>
+        
+        {/* Info do publicador logado */}
+        <div className="flex items-center gap-3 justify-center sm:justify-end">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800/50 border border-zinc-700">
+            <User className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-white">{publicadorLogado.nome}</span>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={handleLogout}
+            className="text-zinc-400 hover:text-white"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="sr-only">Sair</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* Busca de Designações Pessoais e Notificações */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <BuscaDesignacoes />
+        <GerenciarNotificacoes />
       </div>
 
       {/* Cards de Destaque */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-
         {/* Proximo Discurso */}
         {proximoDiscurso && (
           <Card className="border-zinc-800 bg-gradient-to-br from-amber-600/10 to-amber-900/5 sm:col-span-2 lg:col-span-3 hover:border-amber-600/30 transition-colors">

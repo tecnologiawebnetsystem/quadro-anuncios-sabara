@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { CenteredLoader } from "@/components/ui/page-loader"
-import { Settings, Clock, Calendar, Save, Loader2, Check, Building2, MapPin, Video, Globe, Lock, Eye, EyeOff, ShieldCheck, UserCheck } from "lucide-react"
+import { Settings, Clock, Calendar, Save, Loader2, Check, Building2, MapPin, Video, Globe, Lock, Eye, EyeOff, ShieldCheck, UserCheck, HardDrive, History, BarChart3, Shield, Upload } from "lucide-react"
+import { BackupManager } from "@/components/admin/backup-manager"
+import { HistoricoDesignacoesRelatorio } from "@/components/admin/historico-designacoes"
+import { RelatoriosAvancados } from "@/components/admin/relatorios-avancados"
+import { GestaoPermissoes } from "@/components/admin/gestao-permissoes"
+import { ImportarCSV } from "@/components/admin/importar-csv"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -210,7 +215,7 @@ export default function ConfiguracoesPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl flex items-center gap-3">
           <Settings className="h-7 w-7 text-primary" />
-          Configurações
+          Configura��ões
         </h1>
         <p className="text-muted-foreground">
           Configure as informações da congregação, reuniões e serviço de campo
@@ -218,14 +223,16 @@ export default function ConfiguracoesPage() {
       </div>
 
       <Tabs defaultValue="congregacao" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 lg:w-auto">
           <TabsTrigger value="congregacao" className="gap-2">
             <Building2 className="h-4 w-4 hidden sm:inline" />
-            Congregação
+            <span className="hidden sm:inline">Congregação</span>
+            <span className="sm:hidden">Cong.</span>
           </TabsTrigger>
           <TabsTrigger value="reunioes" className="gap-2">
             <Calendar className="h-4 w-4 hidden sm:inline" />
-            Reuniões
+            <span className="hidden sm:inline">Reuniões</span>
+            <span className="sm:hidden">Reun.</span>
           </TabsTrigger>
           <TabsTrigger value="campo" className="gap-2">
             <MapPin className="h-4 w-4 hidden sm:inline" />
@@ -237,7 +244,27 @@ export default function ConfiguracoesPage() {
           </TabsTrigger>
           <TabsTrigger value="seguranca" className="gap-2">
             <Lock className="h-4 w-4 hidden sm:inline" />
-            Segurança
+            <span className="hidden sm:inline">Segurança</span>
+            <span className="sm:hidden">Seg.</span>
+          </TabsTrigger>
+          <TabsTrigger value="backup" className="gap-2">
+            <HardDrive className="h-4 w-4 hidden sm:inline" />
+            Backup
+          </TabsTrigger>
+          <TabsTrigger value="historico" className="gap-2">
+            <History className="h-4 w-4 hidden sm:inline" />
+            <span className="hidden sm:inline">Histórico</span>
+            <span className="sm:hidden">Hist.</span>
+          </TabsTrigger>
+          <TabsTrigger value="relatorios" className="gap-2">
+            <BarChart3 className="h-4 w-4 hidden sm:inline" />
+            <span className="hidden sm:inline">Relatórios</span>
+            <span className="sm:hidden">Rel.</span>
+          </TabsTrigger>
+          <TabsTrigger value="permissoes" className="gap-2">
+            <Shield className="h-4 w-4 hidden sm:inline" />
+            <span className="hidden sm:inline">Permissões</span>
+            <span className="sm:hidden">Perm.</span>
           </TabsTrigger>
         </TabsList>
 
@@ -720,6 +747,26 @@ export default function ConfiguracoesPage() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Tab Backup */}
+        <TabsContent value="backup">
+          <BackupManager />
+        </TabsContent>
+
+        {/* Tab Histórico */}
+        <TabsContent value="historico">
+          <HistoricoDesignacoesRelatorio />
+        </TabsContent>
+
+        {/* Tab Relatórios */}
+        <TabsContent value="relatorios">
+          <RelatoriosAvancados />
+        </TabsContent>
+
+        {/* Tab Permissões */}
+        <TabsContent value="permissoes">
+          <GestaoPermissoes />
         </TabsContent>
 
       </Tabs>

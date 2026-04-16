@@ -28,7 +28,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Search, MoreHorizontal, Edit, Trash2, Power, Plus, Loader2 } from "lucide-react"
+import { Search, MoreHorizontal, Edit, Trash2, Power, Plus, Loader2, Link2, Key } from "lucide-react"
+import { EnviarLinkSenha } from "./enviar-link-senha"
 import { 
   getPublicadores, 
   createPublicador, 
@@ -64,6 +65,8 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
   const [editingPublicador, setEditingPublicador] = useState<Publicador | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [publicadorToDelete, setPublicadorToDelete] = useState<Publicador | null>(null)
+  const [linkSenhaOpen, setLinkSenhaOpen] = useState(false)
+  const [publicadorParaLink, setPublicadorParaLink] = useState<Publicador | null>(null)
 
   // Carregar publicadores do Supabase
   async function carregarPublicadores() {
@@ -203,6 +206,11 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
     setModalOpen(true)
   }
 
+  const handleEnviarLinkSenha = (publicador: Publicador) => {
+    setPublicadorParaLink(publicador)
+    setLinkSenhaOpen(true)
+  }
+
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -321,6 +329,10 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEnviarLinkSenha(publicador)} className="cursor-pointer">
+                          <Key className="mr-2 h-4 w-4" />
+                          Enviar Link de Senha
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleAtivo(publicador)} className="cursor-pointer">
                           <Power className="mr-2 h-4 w-4" />
                           {publicador.ativo ? "Desativar" : "Ativar"}
@@ -371,6 +383,19 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Modal Enviar Link de Senha */}
+      {publicadorParaLink && (
+        <EnviarLinkSenha
+          publicador={{
+            id: publicadorParaLink.id,
+            nome: publicadorParaLink.nome,
+            senha_cadastrada: false // será verificado dentro do componente
+          }}
+          open={linkSenhaOpen}
+          onOpenChange={setLinkSenhaOpen}
+        />
+      )}
     </div>
   )
 }
