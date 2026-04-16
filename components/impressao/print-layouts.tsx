@@ -179,33 +179,39 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
           return (
             <div key={semana.id} className="vm-semana" style={{ 
               backgroundColor: "white", 
-              padding: "25px", 
+              padding: "10mm 12mm", 
               marginBottom: "0",
               border: "none",
               borderRadius: "0",
               pageBreakAfter: idx < semanas.filter(s => !s.sem_reuniao).length - 1 ? "always" : "auto",
               pageBreakInside: "avoid",
-              minHeight: "277mm",
-              boxSizing: "border-box"
+              width: "210mm",
+              height: "297mm",
+              maxHeight: "297mm",
+              boxSizing: "border-box",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden"
             }}>
               {/* Cabeçalho da Congregação */}
               <div style={{ 
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                borderBottom: "3px solid #374151",
-                paddingBottom: "12px",
-                marginBottom: "18px"
+                borderBottom: "2px solid #374151",
+                paddingBottom: "8px",
+                marginBottom: "12px",
+                flexShrink: 0
               }}>
                 <div style={{ 
-                  fontSize: "18px", 
+                  fontSize: "14px", 
                   fontWeight: "bold", 
                   color: "#111827"
                 }}>
                   Parque Sabará - Taubaté SP
                 </div>
                 <div style={{ 
-                  fontSize: "18px", 
+                  fontSize: "14px", 
                   fontWeight: "bold", 
                   color: "#111827",
                   textAlign: "right"
@@ -218,11 +224,12 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               <div style={{ 
                 backgroundColor: "#1f2937", 
                 color: "white", 
-                padding: "14px 18px",
-                marginBottom: "18px",
-                borderRadius: "6px"
+                padding: "10px 14px",
+                marginBottom: "12px",
+                borderRadius: "4px",
+                flexShrink: 0
               }}>
-                <div style={{ fontSize: "16px", fontWeight: "bold" }}>
+                <div style={{ fontSize: "13px", fontWeight: "bold" }}>
                   {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)} | {(semana.livro_biblia || "").toUpperCase()}
                 </div>
               </div>
@@ -231,21 +238,22 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               <div style={{ 
                 display: "flex", 
                 justifyContent: "space-between",
-                fontSize: "14px",
-                marginBottom: "14px",
-                padding: "10px 14px",
+                fontSize: "11px",
+                marginBottom: "10px",
+                padding: "8px 12px",
                 backgroundColor: "#f9fafb",
-                borderRadius: "6px"
+                borderRadius: "4px",
+                flexShrink: 0
               }}>
                 <div>
                   <span style={{ fontWeight: "600", color: "#374151" }}>Presidente:</span>
-                  <span style={{ marginLeft: "8px", color: "#111827", fontWeight: "500" }}>
+                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
                     {semana.presidente || "-"}
                   </span>
                 </div>
                 <div>
                   <span style={{ fontWeight: "600", color: "#374151" }}>Oração:</span>
-                  <span style={{ marginLeft: "8px", color: "#111827", fontWeight: "500" }}>
+                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
                     {semana.oracao_inicial || "-"}
                   </span>
                 </div>
@@ -255,13 +263,14 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               {semana.cantico_inicial && (
                 <div style={{ 
                   textAlign: "left", 
-                  padding: "10px 14px", 
+                  padding: "8px 12px", 
                   backgroundColor: "#e0e7ff",
                   color: "#3730a3",
-                  fontSize: "13px",
+                  fontSize: "10px",
                   fontWeight: "600",
-                  marginBottom: "14px",
-                  borderRadius: "6px"
+                  marginBottom: "10px",
+                  borderRadius: "4px",
+                  flexShrink: 0
                 }}>
                   Cântico {semana.cantico_inicial}: {getCanticoDescricao(semana.cantico_inicial) || semana.cantico_inicial_nome || ""}
                 </div>
@@ -269,37 +278,38 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
 
               {/* Comentários Iniciais */}
               <div style={{ 
-                fontSize: "13px",
+                fontSize: "10px",
                 fontWeight: "600",
                 color: "#374151",
-                padding: "8px 14px",
-                marginBottom: "16px"
+                padding: "6px 12px",
+                marginBottom: "10px",
+                flexShrink: 0
               }}>
                 Comentários iniciais
               </div>
 
               {/* TESOUROS DA PALAVRA DE DEUS */}
               {tesouros.length > 0 && (
-                <div style={{ marginBottom: "18px" }}>
+                <div style={{ marginBottom: "12px", flex: 1 }}>
                   <div style={{ 
                     backgroundColor: "#2a6b77",
                     color: "white",
-                    padding: "12px 16px",
+                    padding: "8px 12px",
                     fontWeight: "bold",
-                    fontSize: "14px",
+                    fontSize: "11px",
                     marginBottom: "1px",
-                    borderRadius: "6px 6px 0 0"
+                    borderRadius: "4px 4px 0 0"
                   }}>
                     TESOUROS DA PALAVRA DE DEUS
                   </div>
-                  <div style={{ padding: "12px 16px", borderRadius: "0 0 6px 6px", border: "1px solid #e5e7eb", borderTop: "none" }}>
+                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
                     {tesouros.map((parte, i) => (
                       <div key={parte.id} style={{ 
                         display: "flex", 
                         justifyContent: "space-between",
-                        padding: "8px 0",
+                        padding: "5px 0",
                         borderBottom: i < tesouros.length - 1 ? "1px dotted #d1d5db" : "none",
-                        fontSize: "13px"
+                        fontSize: "10px"
                       }}>
                         <span style={{ color: "#374151" }}>
                           {parte.ordem}. {parte.titulo}
@@ -316,26 +326,26 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
 
               {/* FAÇA SEU MELHOR NO MINISTÉRIO */}
               {ministerio.length > 0 && (
-                <div style={{ marginBottom: "18px" }}>
+                <div style={{ marginBottom: "12px", flex: 1 }}>
                   <div style={{ 
                     backgroundColor: "#c69214",
                     color: "white",
-                    padding: "12px 16px",
+                    padding: "8px 12px",
                     fontWeight: "bold",
-                    fontSize: "14px",
+                    fontSize: "11px",
                     marginBottom: "1px",
-                    borderRadius: "6px 6px 0 0"
+                    borderRadius: "4px 4px 0 0"
                   }}>
                     FAÇA SEU MELHOR NO MINISTÉRIO
                   </div>
-                  <div style={{ padding: "12px 16px", borderRadius: "0 0 6px 6px", border: "1px solid #e5e7eb", borderTop: "none" }}>
+                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
                     {ministerio.map((parte, i) => (
                       <div key={parte.id} style={{ 
                         display: "flex", 
                         justifyContent: "space-between",
-                        padding: "8px 0",
+                        padding: "5px 0",
                         borderBottom: i < ministerio.length - 1 ? "1px dotted #d1d5db" : "none",
-                        fontSize: "13px"
+                        fontSize: "10px"
                       }}>
                         <span style={{ color: "#374151" }}>
                           {tesouros.length + i + 1}. {parte.titulo}
@@ -355,13 +365,14 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               {semana.cantico_meio && (
                 <div style={{ 
                   textAlign: "left", 
-                  padding: "10px 14px", 
+                  padding: "8px 12px", 
                   backgroundColor: "#e0e7ff",
                   color: "#3730a3",
-                  fontSize: "13px",
+                  fontSize: "10px",
                   fontWeight: "600",
-                  marginBottom: "18px",
-                  borderRadius: "6px"
+                  marginBottom: "12px",
+                  borderRadius: "4px",
+                  flexShrink: 0
                 }}>
                   Cântico {semana.cantico_meio}: {getCanticoDescricao(semana.cantico_meio) || semana.cantico_meio_nome || ""}
                 </div>
@@ -369,19 +380,19 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
 
               {/* NOSSA VIDA CRISTÃ */}
               {vida.length > 0 && (
-                <div style={{ marginBottom: "18px" }}>
+                <div style={{ marginBottom: "12px", flex: 1 }}>
                   <div style={{ 
                     backgroundColor: "#8b2332",
                     color: "white",
-                    padding: "12px 16px",
+                    padding: "8px 12px",
                     fontWeight: "bold",
-                    fontSize: "14px",
+                    fontSize: "11px",
                     marginBottom: "1px",
-                    borderRadius: "6px 6px 0 0"
+                    borderRadius: "4px 4px 0 0"
                   }}>
                     NOSSA VIDA CRISTÃ
                   </div>
-                  <div style={{ padding: "12px 16px", borderRadius: "0 0 6px 6px", border: "1px solid #e5e7eb", borderTop: "none" }}>
+                  <div style={{ padding: "8px 12px", borderRadius: "0 0 4px 4px", border: "1px solid #e5e7eb", borderTop: "none" }}>
                     {vida.map((parte, i) => {
                       const numParte = tesouros.length + ministerio.length + i + 1
                       const isEstudoBiblico = parte.titulo?.toLowerCase().includes("estudo bíblico")
@@ -390,9 +401,9 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                           <div style={{ 
                             display: "flex", 
                             justifyContent: "space-between",
-                            padding: "8px 0",
+                            padding: "5px 0",
                             borderBottom: i < vida.length - 1 && !isEstudoBiblico ? "1px dotted #d1d5db" : "none",
-                            fontSize: "13px"
+                            fontSize: "10px"
                           }}>
                             <span style={{ color: "#374151" }}>
                               {numParte}. {parte.titulo}
@@ -412,11 +423,12 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
 
               {/* Comentários Finais */}
               <div style={{ 
-                fontSize: "13px",
+                fontSize: "10px",
                 fontWeight: "600",
                 color: "#374151",
-                padding: "8px 14px",
-                marginBottom: "14px"
+                padding: "6px 12px",
+                marginBottom: "10px",
+                flexShrink: 0
               }}>
                 Comentários finais
               </div>
@@ -426,10 +438,12 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                padding: "12px 16px",
+                padding: "8px 12px",
                 backgroundColor: "#e0e7ff",
-                borderRadius: "6px",
-                fontSize: "13px"
+                borderRadius: "4px",
+                fontSize: "10px",
+                flexShrink: 0,
+                marginTop: "auto"
               }}>
                 <div style={{ 
                   color: "#3730a3",
@@ -439,7 +453,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 </div>
                 <div>
                   <span style={{ fontWeight: "600", color: "#374151" }}>Oração:</span>
-                  <span style={{ marginLeft: "8px", color: "#111827", fontWeight: "500" }}>
+                  <span style={{ marginLeft: "6px", color: "#111827", fontWeight: "500" }}>
                     {oracaoFinal?.oracao_final_nome || "-"}
                   </span>
                 </div>
@@ -683,26 +697,31 @@ export const PrintGruposEstudo = forwardRef<HTMLDivElement, GruposEstudoProps>(
       <div ref={ref} style={{
         backgroundColor: "white",
         color: "black",
-        padding: "15mm",
+        padding: "8mm 10mm",
         width: "210mm",
-        minHeight: "297mm",
+        height: "297mm",
+        maxHeight: "297mm",
         margin: "0 auto",
         boxSizing: "border-box",
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        overflow: "hidden"
       }}>
         {/* Header */}
         <div style={{
-          textAlign: "center",
-          paddingBottom: "12px",
-          marginBottom: "20px",
-          borderBottom: "3px solid #333"
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingBottom: "5px",
+          marginBottom: "8px",
+          borderBottom: "2px solid #333",
+          flexShrink: 0
         }}>
-          <h1 style={{ fontSize: "22px", fontWeight: "bold", margin: "0 0 8px 0", color: "#000" }}>
-            GRUPOS DE ESTUDO
+          <h1 style={{ fontSize: "13px", fontWeight: "bold", margin: 0, color: "#000" }}>
+            Parque Sabará - Taubaté SP
           </h1>
-          <h2 style={{ fontSize: "16px", fontWeight: "normal", margin: 0, color: "#333" }}>
-            Congregação Pq. Sabará
+          <h2 style={{ fontSize: "13px", fontWeight: "bold", margin: 0, color: "#000" }}>
+            Grupos de Estudos
           </h2>
         </div>
 
@@ -710,8 +729,9 @@ export const PrintGruposEstudo = forwardRef<HTMLDivElement, GruposEstudoProps>(
         <div style={{
           display: "grid",
           gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
-          gap: "15px",
-          flex: 1
+          gap: "6px",
+          flex: 1,
+          alignContent: "start"
         }}>
           {grupos.map((grupo) => {
             const dirigente = getDirigente(grupo.id)
@@ -722,41 +742,43 @@ export const PrintGruposEstudo = forwardRef<HTMLDivElement, GruposEstudoProps>(
               <div key={grupo.id} style={{
                 border: "1px solid #999",
                 padding: "0",
-                pageBreakInside: "avoid"
+                pageBreakInside: "avoid",
+                borderRadius: "3px",
+                overflow: "hidden"
               }}>
                 {/* Header do grupo */}
                 <div style={{
                   backgroundColor: "#059669",
                   color: "white",
-                  padding: "8px 10px",
+                  padding: "3px 6px",
                   fontWeight: "bold",
-                  fontSize: "14px",
+                  fontSize: "9px",
                   textAlign: "center"
                 }}>
                   GRUPO {grupo.numero}
                 </div>
                 
-                <div style={{ padding: "10px 12px" }}>
+                <div style={{ padding: "4px 6px" }}>
                   {/* Dirigente e Auxiliar */}
                   {dirigente && (
-                    <div style={{ fontSize: "12px", marginBottom: "4px", lineHeight: "1.4" }}>
+                    <div style={{ fontSize: "8px", marginBottom: "1px", lineHeight: "1.3" }}>
                       <strong>Dir:</strong> {dirigente.nome}
                     </div>
                   )}
                   {auxiliar && (
-                    <div style={{ fontSize: "12px", marginBottom: "8px", lineHeight: "1.4" }}>
+                    <div style={{ fontSize: "8px", marginBottom: "3px", lineHeight: "1.3" }}>
                       <strong>Aux:</strong> {auxiliar.nome}
                     </div>
                   )}
 
                   {/* Lista de membros */}
-                  <div style={{ borderTop: "1px solid #ddd", paddingTop: "8px" }}>
+                  <div style={{ borderTop: "1px solid #ddd", paddingTop: "3px" }}>
                     {membros.map((membro, idx) => (
                       <div key={membro.id} style={{
-                        padding: "4px 0",
+                        padding: "1px 0",
                         borderBottom: idx < membros.length - 1 ? "1px dotted #ddd" : "none",
-                        fontSize: "11px",
-                        lineHeight: "1.4"
+                        fontSize: "7px",
+                        lineHeight: "1.3"
                       }}>
                         {membro.nome}
                         {membro.anciao && <span style={{ color: "#1e40af", fontWeight: "bold" }}> (A)</span>}
@@ -774,23 +796,24 @@ export const PrintGruposEstudo = forwardRef<HTMLDivElement, GruposEstudoProps>(
         {/* Legenda */}
         <div style={{
           display: "flex",
-          gap: "20px",
+          gap: "12px",
           justifyContent: "center",
-          padding: "12px",
+          padding: "6px",
           backgroundColor: "#f3f4f6",
-          marginTop: "20px",
-          fontSize: "12px"
+          marginTop: "8px",
+          fontSize: "8px",
+          flexShrink: 0
         }}>
-          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ backgroundColor: "#dbeafe", color: "#1e40af", padding: "3px 8px", borderRadius: "4px", fontWeight: "bold" }}>A</span>
+          <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+            <span style={{ backgroundColor: "#dbeafe", color: "#1e40af", padding: "1px 4px", borderRadius: "2px", fontWeight: "bold" }}>A</span>
             <span>Ancião</span>
           </span>
-          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "3px 8px", borderRadius: "4px", fontWeight: "bold" }}>SM</span>
+          <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+            <span style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "1px 4px", borderRadius: "2px", fontWeight: "bold" }}>SM</span>
             <span>Servo Ministerial</span>
           </span>
-          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ backgroundColor: "#d1fae5", color: "#065f46", padding: "3px 8px", borderRadius: "4px", fontWeight: "bold" }}>PR</span>
+          <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+            <span style={{ backgroundColor: "#d1fae5", color: "#065f46", padding: "1px 4px", borderRadius: "2px", fontWeight: "bold" }}>PR</span>
             <span>Pioneiro Regular</span>
           </span>
         </div>
@@ -798,13 +821,14 @@ export const PrintGruposEstudo = forwardRef<HTMLDivElement, GruposEstudoProps>(
         {/* Rodapé */}
         <div style={{
           textAlign: "center",
-          fontSize: "12px",
+          fontSize: "8px",
           color: "#666",
-          padding: "10px",
+          padding: "5px",
           marginTop: "auto",
-          borderTop: "1px solid #ccc"
+          borderTop: "1px solid #ccc",
+          flexShrink: 0
         }}>
-          Congregação Pq. Sabará
+          Congregação Pq. Sabará - Grupos de Estudos
         </div>
       </div>
     )
