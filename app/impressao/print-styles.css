@@ -7,11 +7,16 @@
     color-adjust: exact !important;
   }
 
-  body {
+  html, body {
     background: white !important;
     color: black !important;
-    font-size: 10pt !important;
-    line-height: 1.4 !important;
+    font-size: 9pt !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 210mm !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 
   /* Ocultar elementos da UI */
@@ -24,17 +29,18 @@
 
   /* Container de impressão */
   .print-container {
-    width: 100% !important;
-    max-width: 100% !important;
+    width: 210mm !important;
+    max-width: 210mm !important;
     margin: 0 !important;
     padding: 0 !important;
     background: white !important;
+    overflow: visible !important;
   }
 
-  /* Página */
+  /* Página A4 - 210mm x 297mm - SEM MARGENS do navegador */
   @page {
-    size: A4;
-    margin: 10mm 15mm;
+    size: 210mm 297mm;
+    margin: 0;
   }
 
   /* Quebra de página */
@@ -56,20 +62,20 @@
   /* Header de impressão */
   .print-header {
     text-align: center;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
     border-bottom: 2px solid #333;
   }
 
   .print-header h1 {
-    font-size: 16pt;
+    font-size: 20pt;
     font-weight: bold;
-    margin: 0 0 5px 0;
+    margin: 0 0 8px 0;
     color: #000;
   }
 
   .print-header h2 {
-    font-size: 12pt;
+    font-size: 14pt;
     font-weight: normal;
     margin: 0;
     color: #333;
@@ -79,14 +85,14 @@
   .print-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 10px 0;
-    font-size: 9pt;
+    margin: 15px 0;
+    font-size: 11pt;
   }
 
   .print-table th,
   .print-table td {
     border: 1px solid #333;
-    padding: 6px 8px;
+    padding: 10px 12px;
     text-align: left;
   }
 
@@ -94,7 +100,7 @@
     background-color: #e5e5e5 !important;
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 8pt;
+    font-size: 10pt;
   }
 
   .print-table tr:nth-child(even) {
@@ -103,15 +109,15 @@
 
   /* Seções coloridas */
   .print-section {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     page-break-inside: avoid;
   }
 
   .print-section-header {
-    padding: 8px 12px;
+    padding: 10px 14px;
     font-weight: bold;
-    font-size: 10pt;
-    margin-bottom: 5px;
+    font-size: 12pt;
+    margin-bottom: 8px;
     border-left: 4px solid;
   }
 
@@ -172,11 +178,11 @@
     color: #1f2937;
   }
 
-  /* Grupos de Estudo - Layout compacto para caber em 1 página */
+  /* Grupos de Estudo - Layout para ocupar pagina A4 */
   .print-groups-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
   }
 
   .print-group-card {
@@ -188,17 +194,17 @@
   .print-group-header {
     background-color: #059669 !important;
     color: white !important;
-    padding: 2px 4px;
+    padding: 6px 8px;
     font-weight: bold;
-    font-size: 8pt;
+    font-size: 11pt;
     text-align: center;
   }
 
   .print-group-member {
-    padding: 1px 0;
-    border-bottom: 1px dotted #eee;
-    font-size: 7pt;
-    line-height: 1.2;
+    padding: 4px 8px;
+    border-bottom: 1px dotted #ddd;
+    font-size: 10pt;
+    line-height: 1.4;
   }
 
   /* Rodapé */
@@ -208,65 +214,66 @@
     left: 0;
     right: 0;
     text-align: center;
-    font-size: 8pt;
+    font-size: 10pt;
     color: #666;
-    padding: 5px;
+    padding: 8px;
     border-top: 1px solid #ccc;
   }
 
   /* Legenda */
   .print-legend {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
-    padding: 8px;
+    padding: 12px;
     background-color: #f3f4f6 !important;
-    margin-top: 10px;
-    font-size: 8pt;
+    margin-top: 15px;
+    font-size: 10pt;
   }
 
   .print-legend-item {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
   }
 
   .print-legend-badge {
     display: inline-block;
-    padding: 2px 6px;
+    padding: 3px 8px;
     border-radius: 3px;
-    font-size: 7pt;
+    font-size: 9pt;
     font-weight: bold;
   }
 }
 
-/* Estilos para visualização na tela (preview) */
+/* Estilos para visualização na tela (preview) - A4: 210mm x 297mm */
 .print-preview {
   background: white;
   color: black;
-  padding: 20px;
-  max-width: 210mm;
+  padding: 10mm;
+  width: 210mm;
+  min-height: 297mm;
   margin: 0 auto;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  min-height: 297mm;
+  box-sizing: border-box;
 }
 
 .print-preview .print-header {
   text-align: center;
-  padding-bottom: 10px;
-  margin-bottom: 15px;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
   border-bottom: 2px solid #333;
 }
 
 .print-preview .print-header h1 {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: bold;
-  margin: 0 0 5px 0;
+  margin: 0 0 8px 0;
   color: #000;
 }
 
 .print-preview .print-header h2 {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: normal;
   margin: 0;
   color: #333;
@@ -275,14 +282,14 @@
 .print-preview .print-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 10px 0;
-  font-size: 12px;
+  margin: 15px 0;
+  font-size: 14px;
 }
 
 .print-preview .print-table th,
 .print-preview .print-table td {
   border: 1px solid #333;
-  padding: 6px 8px;
+  padding: 10px 12px;
   text-align: left;
 }
 
@@ -290,14 +297,14 @@
   background-color: #e5e5e5;
   font-weight: bold;
   text-transform: uppercase;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .print-preview .print-section-header {
-  padding: 8px 12px;
+  padding: 10px 14px;
   font-weight: bold;
-  font-size: 12px;
-  margin-bottom: 5px;
+  font-size: 14px;
+  margin-bottom: 8px;
   border-left: 4px solid;
 }
 
@@ -348,8 +355,8 @@
 
 .print-preview .print-groups-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
 }
 
 .print-preview .print-group-card {
@@ -360,67 +367,74 @@
 .print-preview .print-group-header {
   background-color: #059669;
   color: white;
-  padding: 3px 6px;
+  padding: 8px 10px;
   font-weight: bold;
-  font-size: 9px;
+  font-size: 13px;
   text-align: center;
 }
 
 .print-preview .print-group-member {
-  padding: 1px 0;
-  border-bottom: 1px dotted #eee;
-  font-size: 8px;
-  line-height: 1.3;
+  padding: 6px 8px;
+  border-bottom: 1px dotted #ddd;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .print-preview .print-legend {
   display: flex;
-  gap: 12px;
+  gap: 20px;
   justify-content: center;
-  padding: 6px;
+  padding: 12px;
   background-color: #f3f4f6;
-  margin-top: 8px;
-  font-size: 8px;
+  margin-top: 15px;
+  font-size: 12px;
 }
 
 /* =====================================
    VIDA E MINISTÉRIO - Estilos Específicos
+   A4: 210mm x 297mm - UMA SEMANA POR PÁGINA
    ===================================== */
-.vida-ministerio-print {
-  background: white;
-  color: black;
-  padding: 15px;
-  max-width: 210mm;
+
+/* Estilos de preview na tela */
+.vm-print-wrapper {
+  width: 210mm;
   margin: 0 auto;
 }
 
-.vida-ministerio-print .vm-semana {
-  page-break-inside: avoid;
-  break-inside: avoid;
+.vm-print-wrapper .vm-page {
+  width: 210mm;
+  min-height: 297mm;
+  box-sizing: border-box;
+  background: white;
+  margin-bottom: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 @media print {
-  /* Remove cabeçalho e rodapé padrão do navegador */
-  @page {
-    margin: 10mm;
-    margin-top: 5mm;
-    margin-bottom: 5mm;
+  /* Vida e Ministério - cada semana em página separada */
+  .vm-print-wrapper {
+    width: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
-  .vida-ministerio-print {
-    padding: 0;
-    max-width: 100%;
-  }
-  
-  .vida-ministerio-print .vm-semana {
-    page-break-inside: avoid;
-    break-inside: avoid;
-    margin-bottom: 15px !important;
-    border: none !important;
+  .vm-print-wrapper .vm-page {
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+    page-break-after: always !important;
+    page-break-inside: avoid !important;
+    break-after: page !important;
+    break-inside: avoid !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    margin: 0 !important;
     box-shadow: none !important;
   }
   
-  .vida-ministerio-print .vm-semana:last-child {
-    margin-bottom: 0 !important;
+  .vm-print-wrapper .vm-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
 }

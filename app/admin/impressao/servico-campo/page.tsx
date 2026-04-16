@@ -228,10 +228,19 @@ interface PrintServicoCampoProps {
 
 const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
   ({ mesLabel, semanaOrdenada, campoCartas, sabadosManha, sabadosTarde, campoDomingo, segundoDomingo }, ref) => {
+    // Conta quantas seções temos para distribuir o espaço
+    const totalSecoes = [
+      semanaOrdenada.length > 0,
+      campoCartas.length > 0,
+      sabadosManha.length > 0,
+      sabadosTarde.length > 0,
+      campoDomingo.length > 0
+    ].filter(Boolean).length
+
     const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
-      border: "1px solid #d1d5db",
-      padding: "6px 10px",
-      fontSize: "10px",
+      border: "1px solid #999",
+      padding: "10px 12px",
+      fontSize: "12px",
       color: "#111",
       ...extra,
     })
@@ -239,204 +248,208 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
     const headerBar = (bg: string): React.CSSProperties => ({
       backgroundColor: bg,
       color: "#fff",
-      padding: "8px 12px",
-      fontSize: "11px",
+      padding: "10px 14px",
+      fontSize: "14px",
       fontWeight: "bold",
-      marginBottom: "1px",
+      marginBottom: "0",
       borderRadius: "4px 4px 0 0",
     })
 
     return (
-      <div ref={ref} style={{ fontFamily: "Arial, sans-serif", padding: "16px", color: "#111", width: "100%", backgroundColor: "white" }}>
+      <div ref={ref} style={{ 
+        fontFamily: "Arial, sans-serif", 
+        padding: "10mm 12mm", 
+        color: "#111", 
+        width: "210mm",
+        height: "297mm",
+        maxHeight: "297mm",
+        backgroundColor: "white",
+        boxSizing: "border-box",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column"
+      }}>
         {/* Cabeçalho */}
         <div style={{ 
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          borderBottom: "2px solid #374151",
-          paddingBottom: "8px",
-          marginBottom: "12px"
+          borderBottom: "3px solid #374151",
+          paddingBottom: "10px",
+          marginBottom: "12px",
+          flexShrink: 0
         }}>
-          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>
+          <div style={{ fontSize: "18px", fontWeight: "bold", color: "#111827" }}>
             Parque Sabará - Taubaté SP
           </div>
-          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827", textAlign: "right" }}>
-            Serviço de Campo
+          <div style={{ fontSize: "18px", fontWeight: "bold", color: "#111827", textAlign: "right" }}>
+            Serviço de Campo - {mesLabel}
           </div>
         </div>
 
-        {/* Título */}
-        <div style={{ 
-          backgroundColor: "#1f2937", 
-          color: "white", 
-          padding: "10px 14px",
-          marginBottom: "16px",
-          borderRadius: "4px",
-          textAlign: "center"
-        }}>
-          <div style={{ fontSize: "13px", fontWeight: "bold", textTransform: "uppercase" }}>
-            Serviço de Campo — {mesLabel}
-          </div>
+        {/* Container flexível para as seções */}
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: "12px" }}>
+
+          {/* DURANTE A SEMANA */}
+          {semanaOrdenada.length > 0 && (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <div style={headerBar("#1e3a5f")}>Programa de Ministério Durante a Semana</div>
+              <table style={{ borderCollapse: "collapse", width: "100%", flex: 1 }}>
+                <thead>
+                  <tr>
+                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold", width: "30%" })}>Dia</th>
+                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold" })}>Dirigente</th>
+                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold", width: "25%" })}>Horário</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {semanaOrdenada.map(item => (
+                    <tr key={item.id}>
+                      <td style={cell({ fontWeight: "600" })}>{diasSemanaLabel[item.dia_semana]}</td>
+                      <td style={cell({ fontSize: "13px" })}>{item.dirigente_nome || "—"}</td>
+                      <td style={cell({ textAlign: "center", fontWeight: "500" })}>{item.periodo === "manha" ? "Manhã" : "Tarde"} {item.horario}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* ARRANJO DE CARTAS */}
+          {campoCartas.length > 0 && (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <div style={headerBar("#92400e")}>Arranjo de Cartas</div>
+              <table style={{ borderCollapse: "collapse", width: "100%", flex: 1 }}>
+                <thead>
+                  <tr>
+                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold", width: "20%" })}>Dia</th>
+                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold" })}>Descrição</th>
+                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold", width: "25%" })}>Responsável</th>
+                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold", width: "18%" })}>Horário</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {campoCartas.map(carta => (
+                    <tr key={carta.id}>
+                      <td style={cell({ fontWeight: "600" })}>{diasSemanaLabel[carta.dia_semana]}</td>
+                      <td style={cell()}>{carta.descricao || "—"}</td>
+                      <td style={cell({ fontWeight: "600", fontSize: "13px" })}>{carta.responsavel_nome}</td>
+                      <td style={cell({ textAlign: "center" })}>{carta.periodo === "manha" ? "Manhã" : "Tarde"} {carta.horario}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* SÁBADOS MANHÃ */}
+          {sabadosManha.length > 0 && (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <div style={headerBar("#166534")}>Dirigentes de Campo aos Sábados — Manhã</div>
+              <table style={{ borderCollapse: "collapse", width: "100%", flex: 1 }}>
+                <thead>
+                  <tr>
+                    {sabadosManha.map(s => (
+                      <th key={s.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "14px" })}>
+                        {formatarData(s.data)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    {sabadosManha.map(s => (
+                      <td key={s.id} style={cell({ textAlign: "center", fontSize: "10px", color: "#555", padding: "6px" })}>{s.horario}</td>
+                    ))}
+                  </tr>
+                  <tr>
+                    {sabadosManha.map(s => (
+                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "14px" })}>{s.dirigente_nome || "—"}</td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* SÁBADOS TARDE */}
+          {sabadosTarde.length > 0 && (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <div style={headerBar("#166534")}>Dirigentes de Campo aos Sábados — Tarde</div>
+              <table style={{ borderCollapse: "collapse", width: "100%", flex: 1 }}>
+                <thead>
+                  <tr>
+                    {sabadosTarde.map(s => (
+                      <th key={s.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "14px" })}>
+                        {formatarData(s.data)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    {sabadosTarde.map(s => (
+                      <td key={s.id} style={cell({ textAlign: "center", fontSize: "10px", color: "#555", padding: "6px" })}>{s.horario}</td>
+                    ))}
+                  </tr>
+                  <tr>
+                    {sabadosTarde.map(s => (
+                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "14px" })}>{s.dirigente_nome || "—"}</td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* DOMINGOS */}
+          {campoDomingo.length > 0 && (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <div style={headerBar("#9a3412")}>Dirigentes de Campo aos Domingos</div>
+              <table style={{ borderCollapse: "collapse", width: "100%", flex: 1 }}>
+                <thead>
+                  <tr>
+                    {campoDomingo.map(d => (
+                      <th key={d.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "14px" })}>
+                        {formatarData(d.data)}{d.data === segundoDomingo ? " (2º)" : ""}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    {campoDomingo.map(d => (
+                      <td key={d.id} style={cell({ textAlign: "center", fontSize: "10px", color: "#555", padding: "6px" })}>{d.horario}</td>
+                    ))}
+                  </tr>
+                  <tr>
+                    {campoDomingo.map(d => (
+                      <td key={d.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "14px" })}>
+                        {d.tipo === "grupo" ? (
+                          <span style={{ color: "#166534", fontWeight: "bold" }}>Saída em Grupo</span>
+                        ) : d.tipo === "salao" ? (
+                          <span><span style={{ color: "#1e40af", fontWeight: "bold", fontSize: "11px" }}>No Salão</span><br/>{d.dirigente_nome || "—"}</span>
+                        ) : (
+                          d.dirigente_nome || "—"
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-
-        {/* DURANTE A SEMANA */}
-        {semanaOrdenada.length > 0 && (
-          <div style={{ marginBottom: "14px" }}>
-            <div style={headerBar("#1e3a5f")}>Programa de Ministério Durante a Semana</div>
-            <table style={{ borderCollapse: "collapse", width: "100%", borderRadius: "0 0 4px 4px", overflow: "hidden" }}>
-              <thead>
-                <tr>
-                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "180px" })}>Dia</th>
-                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Dirigente</th>
-                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "130px" })}>Horário</th>
-                </tr>
-              </thead>
-              <tbody>
-                {semanaOrdenada.map(item => (
-                  <tr key={item.id}>
-                    <td style={cell({ fontWeight: "500" })}>{diasSemanaLabel[item.dia_semana]}</td>
-                    <td style={cell()}>{item.dirigente_nome || "—"}</td>
-                    <td style={cell({ textAlign: "center" })}>{item.periodo === "manha" ? "Manhã" : "Tarde"} {item.horario}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* ARRANJO DE CARTAS */}
-        {campoCartas.length > 0 && (
-          <div style={{ marginBottom: "14px" }}>
-            <div style={headerBar("#92400e")}>Arranjo de Cartas</div>
-            <table style={{ borderCollapse: "collapse", width: "100%" }}>
-              <thead>
-                <tr>
-                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "140px" })}>Dia</th>
-                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Descrição</th>
-                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Responsável</th>
-                  <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", width: "130px" })}>Horário</th>
-                </tr>
-              </thead>
-              <tbody>
-                {campoCartas.map(carta => (
-                  <tr key={carta.id}>
-                    <td style={cell({ fontWeight: "500" })}>{diasSemanaLabel[carta.dia_semana]}</td>
-                    <td style={cell()}>{carta.descricao || "—"}</td>
-                    <td style={cell({ fontWeight: "600" })}>{carta.responsavel_nome}</td>
-                    <td style={cell({ textAlign: "center" })}>{carta.periodo === "manha" ? "Manhã" : "Tarde"} {carta.horario}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* SÁBADOS MANHÃ */}
-        {sabadosManha.length > 0 && (
-          <div style={{ marginBottom: "14px" }}>
-            <div style={headerBar("#166534")}>Dirigentes de Campo aos Sábados — Manhã</div>
-            <table style={{ borderCollapse: "collapse", width: "100%" }}>
-              <thead>
-                <tr>
-                  {sabadosManha.map(s => (
-                    <th key={s.id} style={cell({ backgroundColor: "#f3f4f6", textAlign: "center", fontWeight: "bold" })}>
-                      {formatarData(s.data)}
-                    </th>
-                  ))}
-                </tr>
-                <tr>
-                  {sabadosManha.map(s => (
-                    <td key={s.id} style={cell({ textAlign: "center", fontSize: "9px", color: "#666" })}>{s.horario}</td>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {sabadosManha.map(s => (
-                    <td key={s.id} style={cell({ textAlign: "center", fontWeight: "500" })}>{s.dirigente_nome || "—"}</td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* SÁBADOS TARDE */}
-        {sabadosTarde.length > 0 && (
-          <div style={{ marginBottom: "14px" }}>
-            <div style={headerBar("#166534")}>Dirigentes de Campo aos Sábados — Tarde</div>
-            <table style={{ borderCollapse: "collapse", width: "100%" }}>
-              <thead>
-                <tr>
-                  {sabadosTarde.map(s => (
-                    <th key={s.id} style={cell({ backgroundColor: "#f3f4f6", textAlign: "center", fontWeight: "bold" })}>
-                      {formatarData(s.data)}
-                    </th>
-                  ))}
-                </tr>
-                <tr>
-                  {sabadosTarde.map(s => (
-                    <td key={s.id} style={cell({ textAlign: "center", fontSize: "9px", color: "#666" })}>{s.horario}</td>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {sabadosTarde.map(s => (
-                    <td key={s.id} style={cell({ textAlign: "center", fontWeight: "500" })}>{s.dirigente_nome || "—"}</td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* DOMINGOS */}
-        {campoDomingo.length > 0 && (
-          <div style={{ marginBottom: "14px" }}>
-            <div style={headerBar("#9a3412")}>Dirigentes de Campo aos Domingos</div>
-            <table style={{ borderCollapse: "collapse", width: "100%" }}>
-              <thead>
-                <tr>
-                  {campoDomingo.map(d => (
-                    <th key={d.id} style={cell({ backgroundColor: "#f3f4f6", textAlign: "center", fontWeight: "bold" })}>
-                      {formatarData(d.data)}{d.data === segundoDomingo ? " (2º)" : ""}
-                    </th>
-                  ))}
-                </tr>
-                <tr>
-                  {campoDomingo.map(d => (
-                    <td key={d.id} style={cell({ textAlign: "center", fontSize: "9px", color: "#666" })}>{d.horario}</td>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {campoDomingo.map(d => (
-                    <td key={d.id} style={cell({ textAlign: "center", fontWeight: "500" })}>
-                      {d.tipo === "grupo" ? (
-                        <span style={{ color: "#166534", fontWeight: "bold" }}>Saída em Grupo</span>
-                      ) : d.tipo === "salao" ? (
-                        <span><span style={{ color: "#1e40af", fontWeight: "bold", fontSize: "9px" }}>No Salão</span><br/>{d.dirigente_nome || "—"}</span>
-                      ) : (
-                        d.dirigente_nome || "—"
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        )}
 
         {/* Rodapé */}
         <div style={{ 
-          marginTop: "20px", 
           paddingTop: "10px", 
-          borderTop: "1px solid #e5e7eb",
+          borderTop: "2px solid #e5e7eb",
           textAlign: "center",
-          fontSize: "9px",
-          color: "#666"
+          fontSize: "11px",
+          color: "#555",
+          flexShrink: 0,
+          marginTop: "12px"
         }}>
           Congregação Pq. Sabará - Serviço de Campo
         </div>
