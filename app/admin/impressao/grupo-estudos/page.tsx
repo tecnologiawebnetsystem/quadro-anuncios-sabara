@@ -139,34 +139,37 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
     return (
       <div ref={ref} style={{ 
         backgroundColor: "white", 
-        padding: "8px 10px", 
+        padding: "15mm", 
         color: "black", 
         fontFamily: "Arial, sans-serif",
-        fontSize: "8px",
-        lineHeight: "1.2",
+        fontSize: "12px",
+        lineHeight: "1.4",
+        width: "210mm",
+        minHeight: "297mm",
+        boxSizing: "border-box",
       }}>
-        {/* Cabeçalho compacto */}
+        {/* Cabeçalho */}
         <div style={{ 
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          borderBottom: "1.5px solid #374151",
-          paddingBottom: "4px",
-          marginBottom: "6px"
+          borderBottom: "3px solid #374151",
+          paddingBottom: "12px",
+          marginBottom: "20px"
         }}>
-          <div style={{ fontSize: "11px", fontWeight: "bold", color: "#111827" }}>
+          <div style={{ fontSize: "18px", fontWeight: "bold", color: "#111827" }}>
             Parque Sabará - Taubaté SP
           </div>
-          <div style={{ fontSize: "11px", fontWeight: "bold", color: "#111827", textAlign: "right" }}>
+          <div style={{ fontSize: "18px", fontWeight: "bold", color: "#111827", textAlign: "right" }}>
             Grupos de Estudos
           </div>
         </div>
 
-        {/* Grid de grupos - 2 colunas, espaçamento mínimo */}
+        {/* Grid de grupos - 2 colunas */}
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "6px",
+          gap: "15px",
         }}>
           {grupos.map((grupo, idx) => {
             const pc = PRINT_COLORS[idx % PRINT_COLORS.length]
@@ -176,33 +179,33 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                 key={grupo.id}
                 style={{
                   border: `1px solid ${pc.border}`,
-                  borderRadius: "4px",
+                  borderRadius: "6px",
                   overflow: "hidden",
                   breakInside: "avoid",
                   pageBreakInside: "avoid",
                 }}
               >
-                {/* Header compacto */}
+                {/* Header */}
                 <div style={{
                   backgroundColor: pc.header,
-                  padding: "4px 8px",
+                  padding: "10px 14px",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
                 }}>
                   <div>
-                    <div style={{ fontSize: "7px", color: pc.headerText, opacity: 0.85, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    <div style={{ fontSize: "10px", color: pc.headerText, opacity: 0.85, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                       Grupo {grupo.numero}
                     </div>
-                    <div style={{ fontSize: "10px", fontWeight: "bold", color: pc.headerText }}>
+                    <div style={{ fontSize: "14px", fontWeight: "bold", color: pc.headerText }}>
                       {grupo.nome}
                     </div>
                   </div>
                   <div style={{
                     backgroundColor: "rgba(255,255,255,0.25)",
                     borderRadius: "999px",
-                    padding: "1px 6px",
-                    fontSize: "8px",
+                    padding: "4px 12px",
+                    fontSize: "12px",
                     color: pc.headerText,
                     fontWeight: "600",
                   }}>
@@ -210,43 +213,43 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                   </div>
                 </div>
 
-                {/* Local compacto */}
+                {/* Local */}
                 {grupo.local && (
                   <div style={{
-                    fontSize: "7px",
+                    fontSize: "11px",
                     color: "#555",
-                    padding: "2px 8px",
+                    padding: "6px 14px",
                     borderBottom: `1px solid ${pc.border}`,
                     display: "flex",
                     alignItems: "center",
-                    gap: "2px",
+                    gap: "6px",
                     backgroundColor: "#f9fafb",
                   }}>
-                    <MapPin style={{ width: "7px", height: "7px" }} /> {grupo.local}
+                    <MapPin style={{ width: "12px", height: "12px" }} /> {grupo.local}
                   </div>
                 )}
 
-                {/* Publicadores compactos */}
-                <div style={{ padding: "4px 8px", backgroundColor: "white" }}>
+                {/* Publicadores */}
+                <div style={{ padding: "10px 14px", backgroundColor: "white" }}>
                   {pubs.length === 0 ? (
-                    <p style={{ fontSize: "7px", color: "#999", textAlign: "center", margin: "2px 0", fontStyle: "italic" }}>
+                    <p style={{ fontSize: "11px", color: "#999", textAlign: "center", margin: "8px 0", fontStyle: "italic" }}>
                       Sem publicadores
                     </p>
                   ) : (
                     pubs.map((pub) => (
-                      <div key={pub.id} style={{ display: "flex", alignItems: "center", gap: "3px", marginBottom: "1px" }}>
+                      <div key={pub.id} style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
                         <span style={{
                           display: "inline-block",
-                          width: "3px",
-                          height: "3px",
+                          width: "5px",
+                          height: "5px",
                           borderRadius: "50%",
                           backgroundColor: "#888",
                           flexShrink: 0,
                         }} />
-                        <span style={{ fontSize: "8px", color: "#111" }}>
+                        <span style={{ fontSize: "12px", color: "#111" }}>
                           {pub.nome}
-                          {pub.is_lider && <span style={{ fontWeight: 700, fontSize: "7px", marginLeft: "2px", color: pc.header }}>(D)</span>}
-                          {pub.is_auxiliar && <span style={{ fontWeight: 700, fontSize: "7px", marginLeft: "2px", color: "#666" }}>(A)</span>}
+                          {pub.is_lider && <span style={{ fontWeight: 700, fontSize: "10px", marginLeft: "4px", color: pc.header }}>(D)</span>}
+                          {pub.is_auxiliar && <span style={{ fontWeight: 700, fontSize: "10px", marginLeft: "4px", color: "#666" }}>(A)</span>}
                         </span>
                       </div>
                     ))
@@ -257,13 +260,13 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
           })}
         </div>
 
-        {/* Rodapé compacto */}
+        {/* Rodapé */}
         <div style={{ 
-          marginTop: "8px", 
-          paddingTop: "4px", 
+          marginTop: "auto", 
+          paddingTop: "15px", 
           borderTop: "1px solid #e5e7eb",
           textAlign: "center",
-          fontSize: "7px",
+          fontSize: "12px",
           color: "#666"
         }}>
           Congregação Pq. Sabará - Grupos de Estudos
