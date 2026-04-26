@@ -102,9 +102,9 @@ export default function ProgramacaoCongregacaoPage() {
 
     const [{ data: tecnicas }, { data: reuniaoPublica }, { data: discursos }, { data: assist }] =
       await Promise.all([
-        supabase.from("designacoes_tecnicas").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
-        supabase.from("designacoes_reuniao_publica").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
-        supabase.from("arranjo_discursos").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
+        supabase.from("equipe_tecnica").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
+        supabase.from("reuniao_publica_designacoes").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
+        supabase.from("discursos_publicos").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
         supabase.from("assistencia_reunioes").select("*").eq("mes", mesAtual).eq("ano", anoAtual).order("data"),
       ])
 
@@ -115,20 +115,20 @@ export default function ProgramacaoCongregacaoPage() {
       datasDoMes.map(({ data, dia_semana }) =>
         tecnicas?.find((t) => t.data === data) || {
           id: `temp-${data}`, data, dia_semana,
-          indicador1: null, indicador2: null,
-          mic_volante1: null, mic_volante2: null,
-          audio_video: null, palco: null,
+          indicador1_nome: null, indicador2_nome: null,
+          microvolante1_nome: null, microvolante2_nome: null,
+          som_nome: null, microvolante_palco: null,
         }
       )
     )
     setDesignacoesReuniaoPublica(
       domingos.map(({ data }) =>
-        reuniaoPublica?.find((r) => r.data === data) || { id: `temp-${data}`, data, presidente: null, leitor_sentinela: null }
+        reuniaoPublica?.find((r) => r.data === data) || { id: `temp-${data}`, data, presidente_nome: null, leitor_sentinela_nome: null }
       )
     )
     setArranjoDiscursos(
       domingos.map(({ data }) =>
-        discursos?.find((d) => d.data === data) || { id: `temp-${data}`, data, tema: null, orador: null }
+        discursos?.find((d) => d.data === data) || { id: `temp-${data}`, data, tema: null, orador_nome: null }
       )
     )
     setAssistencias(
@@ -325,10 +325,10 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                   <td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>
                     {formatarData(d.data)} <span style={{ fontWeight: "normal", color: "#666" }}>{d.dia_semana}</span>
                   </td>
-                  <td style={cell()}>{[d.indicador1, d.indicador2].filter(Boolean).join(" / ") || "—"}</td>
-                  <td style={cell()}>{[d.mic_volante1, d.mic_volante2].filter(Boolean).join(" / ") || "—"}</td>
-                  <td style={cell()}>{d.audio_video || "—"}</td>
-                  <td style={cell()}>{d.palco || "—"}</td>
+                  <td style={cell()}>{[d.indicador1_nome, d.indicador2_nome].filter(Boolean).join(" / ") || "—"}</td>
+                  <td style={cell()}>{[d.microvolante1_nome, d.microvolante2_nome].filter(Boolean).join(" / ") || "—"}</td>
+                  <td style={cell()}>{d.som_nome || "—"}</td>
+                  <td style={cell()}>{d.microvolante_palco ? `Mic. ${d.microvolante_palco}` : "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -350,8 +350,8 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
               {designacoesReuniaoPublica.map((r) => (
                 <tr key={r.data}>
                   <td style={cell({ fontWeight: "bold" })}>{formatarData(r.data)}</td>
-                  <td style={cell()}>{r.presidente || "—"}</td>
-                  <td style={cell()}>{r.leitor_sentinela || "—"}</td>
+                  <td style={cell()}>{r.presidente_nome || "—"}</td>
+                  <td style={cell()}>{r.leitor_sentinela_nome || "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -374,7 +374,7 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                 <tr key={d.data}>
                   <td style={cell({ fontWeight: "bold" })}>{formatarData(d.data)}</td>
                   <td style={cell()}>{d.tema || "—"}</td>
-<td style={cell()}>{d.orador || "—"}</td>
+                  <td style={cell()}>{d.orador_nome || "—"}</td>
                 </tr>
               ))}
             </tbody>
