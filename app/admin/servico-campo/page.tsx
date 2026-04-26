@@ -15,7 +15,7 @@ import { createClient } from "@/lib/supabase/client"
 // Tipos
 interface CampoSemana {
   id?: string
-  data: string
+  data?: string | null
   mes: string
   dia_semana: string
   dirigente_id: string | null
@@ -238,8 +238,8 @@ export default function ServicoCampoPage() {
   async function salvarCampoSemana(dia: string, publicador: Publicador | null, periodo: string, horario: string) {
     const existente = campoSemana.find(c => c.dia_semana === dia && c.mes === mesSemana.value)
     
-    const dados: CampoSemana = {
-      data: "", // Não usado, apenas para compatibilidade
+    // Dados para salvar - omitindo 'data' pois não é necessário para Durante a Semana
+    const dados = {
       mes: mesSemana.value,
       dia_semana: dia,
       dirigente_id: publicador?.id || null,
@@ -260,7 +260,7 @@ export default function ServicoCampoPage() {
         
         setCampoSemana(prev => prev.map(c => c.id === existente.id ? { ...c, ...dados } : c))
       } else {
-        const { data, error } = await supabase
+        const { data: novoRegistro, error } = await supabase
           .from("servico_campo_semana")
           .insert(dados)
           .select()
@@ -268,7 +268,7 @@ export default function ServicoCampoPage() {
         
         if (error) throw error
         
-        setCampoSemana(prev => [...prev, data])
+        setCampoSemana(prev => [...prev, novoRegistro as CampoSemana])
       }
       
       toast.success("Salvo com sucesso")
