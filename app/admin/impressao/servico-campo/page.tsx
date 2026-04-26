@@ -9,6 +9,8 @@ import "@/app/impressao/print-styles.css"
 // ---------- Tipos ----------
 interface CampoSemana {
   id: string
+  data: string
+  mes: string
   dia_semana: string
   dirigente_nome: string
   periodo: string
@@ -92,15 +94,17 @@ export default function ImpressaoServicoCampoPage() {
   const mes = meses[mesIdx]
 
   const carregarFixos = useCallback(async () => {
-    const { data: semana } = await supabase.from("servico_campo_semana").select("*").eq("ativo", true).not("dia_semana", "is", null).neq("dia_semana", "")
-    if (semana) setCampoSemana(semana)
+    // Não há mais dados fixos - tudo é mensal agora
   }, [supabase])
 
   const carregarMes = useCallback(async () => {
     setLoading(true)
+    // Carregar Durante a Semana do mês
+    const { data: semana } = await supabase.from("servico_campo_semana").select("*").eq("mes", mes.valor).eq("ativo", true).not("dia_semana", "is", null).neq("dia_semana", "")
     const { data: sabado } = await supabase.from("servico_campo_sabado").select("*").eq("mes", mes.valor).order("data")
     const { data: domingo } = await supabase.from("servico_campo_domingo").select("*").eq("mes", mes.valor).order("data")
     const { data: cartas } = await supabase.from("servico_campo_cartas").select("*").eq("mes", mes.valor).eq("ativo", true).order("data")
+    if (semana) setCampoSemana(semana)
     if (sabado) setCampoSabado(sabado)
     if (domingo) setCampoDomingo(domingo)
     if (cartas) setCampoCartas(cartas)
@@ -320,7 +324,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
           {/* ARRANJO DE CARTAS */}
           {campoCartas.length > 0 && (
             <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-              <div style={headerBar("#92400e")}>Arranjo de Cartas — Sextas-feiras</div>
+              <div style={headerBar("#92400e")}>Arranjo de Cartas — Segundas-feiras</div>
               <table style={{ borderCollapse: "collapse", width: "100%", flex: 1 }}>
                 <thead>
                   <tr>

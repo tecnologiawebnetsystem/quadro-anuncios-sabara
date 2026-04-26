@@ -9,6 +9,8 @@ import { createClient } from "@/lib/supabase/client"
 
 interface CampoSemana {
   id: string
+  data: string
+  mes: string
   dia_semana: string
   dirigente_nome: string
   periodo: string
@@ -73,12 +75,20 @@ export default function ConsultaServicoCampoPage() {
   const supabase = createClient()
   const mes = meses[mesAtual]
 
-  // Carregar dados fixos (semana e cartas)
+  // Carregar dados fixos (nenhum, pois agora tudo é mensal)
   const carregarDadosFixos = useCallback(async () => {
+    // Não há mais dados fixos - tudo é mensal agora
+  }, [])
+
+  // Carregar dados mensais (semana, cartas, sábados e domingos)
+  const carregarDadosMes = useCallback(async () => {
+    setLoading(true)
     try {
+      // Carregar Durante a Semana do mês
       const { data: semanaData } = await supabase
         .from("servico_campo_semana")
         .select("*")
+        .eq("mes", mes.valor)
         .eq("ativo", true)
         .not("dia_semana", "is", null)
         .neq("dia_semana", "")
@@ -86,16 +96,6 @@ export default function ConsultaServicoCampoPage() {
       
       if (semanaData) setCampoSemana(semanaData)
       
-      // Cartas serão carregadas junto com sábados/domingos por mês
-    } catch (error) {
-      console.error("Erro ao carregar dados:", error)
-    }
-  }, [])
-
-  // Carregar dados mensais (sábados e domingos)
-  const carregarDadosMes = useCallback(async () => {
-    setLoading(true)
-    try {
       const { data: sabadoData } = await supabase
         .from("servico_campo_sabado")
         .select("*")
@@ -224,7 +224,7 @@ export default function ConsultaServicoCampoPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-medium text-white flex items-center gap-2">
                 <Mail className="h-5 w-5 text-amber-500" />
-                Arranjo de Cartas - Sextas-feiras
+                Arranjo de Cartas - Segundas-feiras
                 {campoCartas.length > 0 && (
                   <span className="text-sm font-normal text-zinc-400">({campoCartas[0]?.horario || "17:00"}h)</span>
                 )}

@@ -129,10 +129,11 @@ export default function ServicoCampoPage() {
     async function carregarDados() {
       setLoading(true)
       try {
-        // Carregar campo durante a semana
+        // Carregar campo durante a semana (inicial)
         const { data: semanaData } = await supabase
           .from("servico_campo_semana")
           .select("*")
+          .eq("mes", mesesDisponiveis[2].value)
           .order("dia_semana")
         
         if (semanaData) setCampoSemana(semanaData)
@@ -204,12 +205,33 @@ export default function ServicoCampoPage() {
     
     carregarCartasMes()
   }, [mesCartas.value])
+  
+  // Carregar Durante a Semana quando mês mudar
+  useEffect(() => {
+    async function carregarSemanaMes() {
+      try {
+        const { data: semanaData } = await supabase
+          .from("servico_campo_semana")
+          .select("*")
+          .eq("mes", mesSemana.value)
+          .order("dia_semana")
+        
+        if (semanaData) setCampoSemana(semanaData)
+      } catch (error) {
+        console.error("Erro ao carregar semana:", error)
+      }
+    }
+    
+    carregarSemanaMes()
+  }, [mesSemana.value])
 
   // Salvar campo durante a semana
   async function salvarCampoSemana(dia: string, publicador: Publicador | null, periodo: string, horario: string) {
-    const existente = campoSemana.find(c => c.dia_semana === dia)
+    const existente = campoSemana.find(c => c.dia_semana === dia && c.mes === mesSemana.value)
     
     const dados: CampoSemana = {
+      data: "", // Não usado, apenas para compatibilidade
+      mes: mesSemana.value,
       dia_semana: dia,
       dirigente_id: publicador?.id || null,
       dirigente_nome: publicador?.nome || "",
@@ -396,6 +418,15 @@ export default function ServicoCampoPage() {
   const irParaProximoMesCartas = () => {
     if (mesCartasIndex < mesesDisponiveis.length - 1) setMesCartasIndex(mesCartasIndex + 1)
   }
+  
+  // Navegação de meses para Durante a Semana
+  const irParaMesAnteriorSemana = () => {
+    if (mesSemanaIndex > 0) setMesSemanaIndex(mesSemanaIndex - 1)
+  }
+  
+  const irParaProximoMesSemana = () => {
+    if (mesSemanaIndex < mesesDisponiveis.length - 1) setMesSemanaIndex(mesSemanaIndex + 1)
+  }
 
   // Gerar sábados e domingos do mês atual
   const sabadosDoMes = useMemo(() => {
@@ -436,14 +467,34 @@ export default function ServicoCampoPage() {
 
         {/* PROGRAMA DURANTE A SEMANA */}
         <TabsContent value="semana" className="mt-6">
-          <Card className="border-0 bg-card/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-blue-500" />
-                Programa de Ministério de Campo Durante a Semana
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="space-y-6">
+            {/* Navegação de meses */}
+            <div className="flex items-center justify-center gap-8">
+              <button
+                onClick={irParaMesAnteriorSemana}
+                disabled={mesSemanaIndex === 0}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 transition-all hover:bg-blue-100 disabled:opacity-30 dark:border-blue-800 dark:bg-blue-950 dark:hover:bg-blue-900"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+              <span className="text-lg font-medium min-w-[150px] text-center">{mesSemana.label}</span>
+              <button
+                onClick={irParaProximoMesSemana}
+                disabled={mesSemanaIndex === mesesDisponiveis.length - 1}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 transition-all hover:bg-blue-100 disabled:opacity-30 dark:border-blue-800 dark:bg-blue-950 dark:hover:bg-blue-900"
+              >
+                <ArrowRight className="h-5 w-5" />
+              </button>
+            </div>
+
+            <Card className="border-0 bg-card/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-blue-500" />
+                  Programa de Ministério de Campo Durante a Semana
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
               <div className="space-y-4">
                 {diasSemana.map((dia) => {
                   const registro = campoSemana.find(c => c.dia_semana === dia.value)
@@ -506,7 +557,8 @@ export default function ServicoCampoPage() {
                 })}
               </div>
             </CardContent>
-          </Card>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* ARRANJO DE CARTAS */}
