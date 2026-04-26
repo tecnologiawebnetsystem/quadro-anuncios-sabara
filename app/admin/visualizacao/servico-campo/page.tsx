@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Calendar, Clock, Mail, Sun, MapPin, Users } from "lucide-react"
@@ -9,6 +10,8 @@ import { createClient } from "@/lib/supabase/client"
 
 interface CampoSemana {
   id: string
+  data: string
+  mes: string
   dia_semana: string
   dirigente_nome: string
   periodo: string
@@ -17,6 +20,8 @@ interface CampoSemana {
 
 interface CampoCartas {
   id: string
+  data: string
+  mes: string
   dia_semana: string
   descricao: string
   responsavel_nome: string
@@ -51,6 +56,14 @@ const meses = [
   { valor: "2026-06", label: "Junho 2026" },
 ]
 
+// Calcular índice do mês atual baseado na data do sistema
+function calcularIndiceMesAtual(): number {
+  const agora = new Date()
+  const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`
+  const indice = meses.findIndex(m => m.valor === mesAtual)
+  return indice >= 0 ? indice : 0
+}
+
 const diasSemanaLabel: Record<string, string> = {
   segunda: "Segunda",
   terca: "Terça",
@@ -60,7 +73,7 @@ const diasSemanaLabel: Record<string, string> = {
 }
 
 export default function ConsultaServicoCampoPage() {
-  const [mesAtual, setMesAtual] = useState(2) // Março 2026
+  const [mesAtual, setMesAtual] = useState(() => calcularIndiceMesAtual())
   const [campoSemana, setCampoSemana] = useState<CampoSemana[]>([])
   const [campoCartas, setCampoCartas] = useState<CampoCartas[]>([])
   const [campoSabado, setCampoSabado] = useState<CampoSabado[]>([])
@@ -71,12 +84,20 @@ export default function ConsultaServicoCampoPage() {
   const supabase = createClient()
   const mes = meses[mesAtual]
 
-  // Carregar dados fixos (semana e cartas)
+  // Carregar dados fixos (nenhum, pois agora tudo é mensal)
   const carregarDadosFixos = useCallback(async () => {
+    // Não há mais dados fixos - tudo é mensal agora
+  }, [])
+
+  // Carregar dados mensais (semana, cartas, sábados e domingos)
+  const carregarDadosMes = useCallback(async () => {
+    setLoading(true)
     try {
+      // Carregar Durante a Semana do mês
       const { data: semanaData } = await supabase
         .from("servico_campo_semana")
         .select("*")
+        .eq("mes", mes.valor)
         .eq("ativo", true)
         .not("dia_semana", "is", null)
         .neq("dia_semana", "")
@@ -84,21 +105,6 @@ export default function ConsultaServicoCampoPage() {
       
       if (semanaData) setCampoSemana(semanaData)
       
-      const { data: cartasData } = await supabase
-        .from("servico_campo_cartas")
-        .select("*")
-        .eq("ativo", true)
-      
-      if (cartasData) setCampoCartas(cartasData)
-    } catch (error) {
-      console.error("Erro ao carregar dados:", error)
-    }
-  }, [])
-
-  // Carregar dados mensais (sábados e domingos)
-  const carregarDadosMes = useCallback(async () => {
-    setLoading(true)
-    try {
       const { data: sabadoData } = await supabase
         .from("servico_campo_sabado")
         .select("*")
@@ -114,6 +120,16 @@ export default function ConsultaServicoCampoPage() {
         .order("data")
       
       if (domingoData) setCampoDomingo(domingoData)
+      
+      // Carregar cartas do mês
+      const { data: cartasData } = await supabase
+        .from("servico_campo_cartas")
+        .select("*")
+        .eq("mes", mes.valor)
+        .eq("ativo", true)
+        .order("data")
+      
+      if (cartasData) setCampoCartas(cartasData)
     } catch (error) {
       console.error("Erro ao carregar dados:", error)
     } finally {
@@ -150,9 +166,11 @@ export default function ConsultaServicoCampoPage() {
   // Ordenar dias da semana
   const ordemDias = ["segunda", "terca", "quarta", "quinta", "sexta"]
   const campoSemanaOrdenado = [...campoSemana]
-    .filter((item) => ordemDias.includes(item.dia_semana))
-    .sort((a, b) => ordemDias.indexOf(a.dia_semana) - ordemDias.indexOf(b.dia_semana))
+  .filter((item) => ordemDias.includes(item.dia_semana))
+  .sort((a, b) => ordemDias.indexOf(a.dia_semana) - ordemDias.indexOf(b.dia_semana))
 
+  if (loading) return <CenteredLoader />
+  
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
@@ -217,30 +235,21 @@ export default function ConsultaServicoCampoPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-medium text-white flex items-center gap-2">
                 <Mail className="h-5 w-5 text-amber-500" />
-                Arranjo de Cartas
+                Arranjo de Cartas - Segundas-feiras
+                {campoCartas.length > 0 && (
+                  <span className="text-sm font-normal text-zinc-400">({campoCartas[0]?.horario || "17:00"}h)</span>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {campoCartas.map((carta) => (
-                <div key={carta.id} className="flex flex-wrap items-center gap-3 text-sm">
-                  <span className="text-zinc-400">{diasSemanaLabel[carta.dia_semana]}</span>
-                  {carta.descricao && (
-                    <>
-                      <span className="text-zinc-600">-</span>
-                      <span className="text-white">{carta.descricao}</span>
-                    </>
-                  )}
-                  <span className="text-zinc-600">-</span>
-                  <span className="text-green-400 font-medium">{carta.responsavel_nome}</span>
-                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${
-                    carta.periodo === "manha" 
-                      ? "bg-amber-600/20 text-amber-400" 
-                      : "bg-purple-600/20 text-purple-400"
-                  }`}>
-                    {carta.periodo === "manha" ? "Manhã" : "Tarde"} {carta.horario}
-                  </span>
-                </div>
-              ))}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {campoCartas.map((carta) => (
+                  <div key={carta.id} className="p-3 rounded-lg bg-zinc-800/50 text-center">
+                    <div className="text-xs text-zinc-400 mb-1">{formatarData(carta.data)} - {carta.horario}</div>
+                    <div className="text-sm font-medium text-white">{carta.responsavel_nome || "-"}</div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}

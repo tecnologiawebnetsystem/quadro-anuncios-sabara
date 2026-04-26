@@ -55,6 +55,14 @@ const mesesDisponiveis = [
   { value: "2026-12", label: "Dezembro 2026" },
 ]
 
+// Calcular índice do mês atual baseado na data do sistema
+function calcularIndiceMesAtual(): number {
+  const agora = new Date()
+  const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`
+  const indice = mesesDisponiveis.findIndex(m => m.value === mesAtual)
+  return indice >= 0 ? indice : 0
+}
+
 // Gerar domingos ou quintas do mês
 function gerarDiasDoMes(ano: number, mes: number, diaSemana: number): string[] {
   const datas: string[] = []
@@ -91,7 +99,7 @@ export default function ReunioesPublicasPage() {
   const [assistencia, setAssistencia] = useState<AssistenciaReuniao[]>([])
   
   // Estado para navegação de meses
-  const [mesAtualIndex, setMesAtualIndex] = useState(2) // Março 2026
+  const [mesAtualIndex, setMesAtualIndex] = useState(() => calcularIndiceMesAtual())
   const mesAtual = mesesDisponiveis[mesAtualIndex]
 
   // Carregar dados quando mês mudar

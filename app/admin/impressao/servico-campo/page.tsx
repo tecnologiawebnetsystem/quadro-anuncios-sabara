@@ -9,6 +9,8 @@ import "@/app/impressao/print-styles.css"
 // ---------- Tipos ----------
 interface CampoSemana {
   id: string
+  data: string
+  mes: string
   dia_semana: string
   dirigente_nome: string
   periodo: string
@@ -17,6 +19,8 @@ interface CampoSemana {
 
 interface CampoCartas {
   id: string
+  data: string
+  mes: string
   dia_semana: string
   descricao: string
   responsavel_nome: string
@@ -90,18 +94,20 @@ export default function ImpressaoServicoCampoPage() {
   const mes = meses[mesIdx]
 
   const carregarFixos = useCallback(async () => {
-    const { data: semana } = await supabase.from("servico_campo_semana").select("*").eq("ativo", true).not("dia_semana", "is", null).neq("dia_semana", "")
-    const { data: cartas } = await supabase.from("servico_campo_cartas").select("*").eq("ativo", true)
-    if (semana) setCampoSemana(semana)
-    if (cartas) setCampoCartas(cartas)
+    // Não há mais dados fixos - tudo é mensal agora
   }, [supabase])
 
   const carregarMes = useCallback(async () => {
     setLoading(true)
+    // Carregar Durante a Semana do mês
+    const { data: semana } = await supabase.from("servico_campo_semana").select("*").eq("mes", mes.valor).eq("ativo", true).not("dia_semana", "is", null).neq("dia_semana", "")
     const { data: sabado } = await supabase.from("servico_campo_sabado").select("*").eq("mes", mes.valor).order("data")
     const { data: domingo } = await supabase.from("servico_campo_domingo").select("*").eq("mes", mes.valor).order("data")
+    const { data: cartas } = await supabase.from("servico_campo_cartas").select("*").eq("mes", mes.valor).eq("ativo", true).order("data")
+    if (semana) setCampoSemana(semana)
     if (sabado) setCampoSabado(sabado)
     if (domingo) setCampoDomingo(domingo)
+    if (cartas) setCampoCartas(cartas)
     setLoading(false)
   }, [mes.valor, supabase])
 
@@ -239,8 +245,8 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
 
     const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
       border: "1px solid #999",
-      padding: "10px 12px",
-      fontSize: "12px",
+      padding: "4px 10px",
+      fontSize: "14px",
       color: "#111",
       ...extra,
     })
@@ -248,8 +254,8 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
     const headerBar = (bg: string): React.CSSProperties => ({
       backgroundColor: bg,
       color: "#fff",
-      padding: "10px 14px",
-      fontSize: "14px",
+      padding: "6px 12px",
+      fontSize: "15px",
       fontWeight: "bold",
       marginBottom: "0",
       borderRadius: "4px 4px 0 0",
@@ -306,7 +312,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                   {semanaOrdenada.map(item => (
                     <tr key={item.id}>
                       <td style={cell({ fontWeight: "600" })}>{diasSemanaLabel[item.dia_semana]}</td>
-                      <td style={cell({ fontSize: "13px" })}>{item.dirigente_nome || "—"}</td>
+                      <td style={cell({ fontSize: "14px", fontWeight: "500" })}>{item.dirigente_nome || "—"}</td>
                       <td style={cell({ textAlign: "center", fontWeight: "500" })}>{item.periodo === "manha" ? "Manhã" : "Tarde"} {item.horario}</td>
                     </tr>
                   ))}
@@ -318,25 +324,28 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
           {/* ARRANJO DE CARTAS */}
           {campoCartas.length > 0 && (
             <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-              <div style={headerBar("#92400e")}>Arranjo de Cartas</div>
+              <div style={headerBar("#92400e")}>Arranjo de Cartas — Segundas-feiras</div>
               <table style={{ borderCollapse: "collapse", width: "100%", flex: 1 }}>
                 <thead>
                   <tr>
-                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold", width: "20%" })}>Dia</th>
-                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold" })}>Descrição</th>
-                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold", width: "25%" })}>Responsável</th>
-                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold", width: "18%" })}>Horário</th>
+                    {campoCartas.map(c => (
+                      <th key={c.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "15px" })}>
+                        {formatarData(c.data)}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {campoCartas.map(carta => (
-                    <tr key={carta.id}>
-                      <td style={cell({ fontWeight: "600" })}>{diasSemanaLabel[carta.dia_semana]}</td>
-                      <td style={cell()}>{carta.descricao || "—"}</td>
-                      <td style={cell({ fontWeight: "600", fontSize: "13px" })}>{carta.responsavel_nome}</td>
-                      <td style={cell({ textAlign: "center" })}>{carta.periodo === "manha" ? "Manhã" : "Tarde"} {carta.horario}</td>
-                    </tr>
-                  ))}
+                  <tr>
+                    {campoCartas.map(c => (
+                      <td key={c.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "3px 10px" })}>{c.horario}</td>
+                    ))}
+                  </tr>
+                  <tr>
+                    {campoCartas.map(c => (
+                      <td key={c.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>{c.responsavel_nome || "—"}</td>
+                    ))}
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -350,7 +359,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 <thead>
                   <tr>
                     {sabadosManha.map(s => (
-                      <th key={s.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "14px" })}>
+                      <th key={s.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "15px" })}>
                         {formatarData(s.data)}
                       </th>
                     ))}
@@ -359,12 +368,12 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 <tbody>
                   <tr>
                     {sabadosManha.map(s => (
-                      <td key={s.id} style={cell({ textAlign: "center", fontSize: "10px", color: "#555", padding: "6px" })}>{s.horario}</td>
+                      <td key={s.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "3px 10px" })}>{s.horario}</td>
                     ))}
                   </tr>
                   <tr>
                     {sabadosManha.map(s => (
-                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "14px" })}>{s.dirigente_nome || "—"}</td>
+                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>{s.dirigente_nome || "—"}</td>
                     ))}
                   </tr>
                 </tbody>
@@ -380,7 +389,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 <thead>
                   <tr>
                     {sabadosTarde.map(s => (
-                      <th key={s.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "14px" })}>
+                      <th key={s.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "15px" })}>
                         {formatarData(s.data)}
                       </th>
                     ))}
@@ -389,12 +398,12 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 <tbody>
                   <tr>
                     {sabadosTarde.map(s => (
-                      <td key={s.id} style={cell({ textAlign: "center", fontSize: "10px", color: "#555", padding: "6px" })}>{s.horario}</td>
+                      <td key={s.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "3px 10px" })}>{s.horario}</td>
                     ))}
                   </tr>
                   <tr>
                     {sabadosTarde.map(s => (
-                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "14px" })}>{s.dirigente_nome || "—"}</td>
+                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>{s.dirigente_nome || "—"}</td>
                     ))}
                   </tr>
                 </tbody>
@@ -410,7 +419,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 <thead>
                   <tr>
                     {campoDomingo.map(d => (
-                      <th key={d.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "14px" })}>
+                      <th key={d.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "15px" })}>
                         {formatarData(d.data)}{d.data === segundoDomingo ? " (2º)" : ""}
                       </th>
                     ))}
@@ -419,16 +428,16 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 <tbody>
                   <tr>
                     {campoDomingo.map(d => (
-                      <td key={d.id} style={cell({ textAlign: "center", fontSize: "10px", color: "#555", padding: "6px" })}>{d.horario}</td>
+                      <td key={d.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "3px 10px" })}>{d.horario}</td>
                     ))}
                   </tr>
                   <tr>
                     {campoDomingo.map(d => (
-                      <td key={d.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "14px" })}>
+                      <td key={d.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>
                         {d.tipo === "grupo" ? (
                           <span style={{ color: "#166534", fontWeight: "bold" }}>Saída em Grupo</span>
                         ) : d.tipo === "salao" ? (
-                          <span><span style={{ color: "#1e40af", fontWeight: "bold", fontSize: "11px" }}>No Salão</span><br/>{d.dirigente_nome || "—"}</span>
+                          <span><span style={{ color: "#1e40af", fontWeight: "bold", fontSize: "13px" }}>No Salão</span><br/>{d.dirigente_nome || "—"}</span>
                         ) : (
                           d.dirigente_nome || "—"
                         )}
@@ -446,7 +455,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
           paddingTop: "10px", 
           borderTop: "2px solid #e5e7eb",
           textAlign: "center",
-          fontSize: "11px",
+          fontSize: "13px",
           color: "#555",
           flexShrink: 0,
           marginTop: "12px"

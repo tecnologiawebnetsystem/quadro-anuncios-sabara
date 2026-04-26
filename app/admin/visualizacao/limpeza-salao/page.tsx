@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Sparkles, Users, Calendar } from "lucide-react"
@@ -16,14 +17,24 @@ interface LimpezaSalao {
 }
 
 const meses = [
+  { valor: "2026-01", label: "Janeiro 2026" },
+  { valor: "2026-02", label: "Fevereiro 2026" },
   { valor: "2026-03", label: "Março 2026" },
   { valor: "2026-04", label: "Abril 2026" },
   { valor: "2026-05", label: "Maio 2026" },
   { valor: "2026-06", label: "Junho 2026" },
 ]
 
+// Calcular índice do mês atual baseado na data do sistema
+function calcularIndiceMesAtual(): number {
+  const agora = new Date()
+  const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`
+  const indice = meses.findIndex(m => m.valor === mesAtual)
+  return indice >= 0 ? indice : 0
+}
+
 export default function ConsultaLimpezaSalaoPage() {
-  const [mesAtual, setMesAtual] = useState(0)
+  const [mesAtual, setMesAtual] = useState(() => calcularIndiceMesAtual())
   const [designacoes, setDesignacoes] = useState<LimpezaSalao[]>([])
   const [loading, setLoading] = useState(true)
   const { syncTrigger } = useSync()
@@ -62,6 +73,8 @@ export default function ConsultaLimpezaSalaoPage() {
     return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
   }
 
+  if (loading) return <CenteredLoader />
+  
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}

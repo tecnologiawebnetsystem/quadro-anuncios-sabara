@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { ArrowLeft, ArrowRight, Mic, Volume2, Users, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -62,14 +63,24 @@ function formatarData(dataStr: string): string {
 
 // Lista de meses disponíveis
 const mesesDisponiveis = [
+  { value: "2026-01", label: "Janeiro 2026" },
+  { value: "2026-02", label: "Fevereiro 2026" },
   { value: "2026-03", label: "Março 2026" },
   { value: "2026-04", label: "Abril 2026" },
   { value: "2026-05", label: "Maio 2026" },
   { value: "2026-06", label: "Junho 2026" },
 ]
 
+// Calcular índice do mês atual baseado na data do sistema
+function calcularIndiceMesAtual(): number {
+  const agora = new Date()
+  const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`
+  const indice = mesesDisponiveis.findIndex(m => m.value === mesAtual)
+  return indice >= 0 ? indice : 0
+}
+
 export default function EquipeTecnicaPage() {
-  const [mesAtualIndex, setMesAtualIndex] = useState(0)
+  const [mesAtualIndex, setMesAtualIndex] = useState(() => calcularIndiceMesAtual())
   const [designacoes, setDesignacoes] = useState<Record<string, EquipeTecnica>>({})
   const [loading, setLoading] = useState(true)
   const [salvando, setSalvando] = useState<string | null>(null)
@@ -214,6 +225,8 @@ export default function EquipeTecnicaPage() {
       setMesAtualIndex(mesAtualIndex + 1)
     }
   }
+
+  if (loading) return <CenteredLoader />
 
   return (
     <div className="space-y-8 p-6 max-w-4xl mx-auto">

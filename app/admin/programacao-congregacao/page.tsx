@@ -102,9 +102,9 @@ export default function ProgramacaoCongregacaoPage() {
 
     const [{ data: tecnicas }, { data: reuniaoPublica }, { data: discursos }, { data: assist }] =
       await Promise.all([
-        supabase.from("designacoes_tecnicas").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
-        supabase.from("designacoes_reuniao_publica").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
-        supabase.from("arranjo_discursos").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
+        supabase.from("equipe_tecnica").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
+        supabase.from("reuniao_publica_designacoes").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
+        supabase.from("discursos_publicos").select("*").gte("data", primeiroDia).lte("data", ultimoDia).order("data"),
         supabase.from("assistencia_reunioes").select("*").eq("mes", mesAtual).eq("ano", anoAtual).order("data"),
       ])
 
@@ -115,20 +115,20 @@ export default function ProgramacaoCongregacaoPage() {
       datasDoMes.map(({ data, dia_semana }) =>
         tecnicas?.find((t) => t.data === data) || {
           id: `temp-${data}`, data, dia_semana,
-          indicador1: null, indicador2: null,
-          mic_volante1: null, mic_volante2: null,
-          audio_video: null, palco: null,
+          indicador1_nome: null, indicador2_nome: null,
+          microvolante1_nome: null, microvolante2_nome: null,
+          som_nome: null, microvolante_palco: null,
         }
       )
     )
     setDesignacoesReuniaoPublica(
       domingos.map(({ data }) =>
-        reuniaoPublica?.find((r) => r.data === data) || { id: `temp-${data}`, data, presidente: null, leitor_sentinela: null }
+        reuniaoPublica?.find((r) => r.data === data) || { id: `temp-${data}`, data, presidente_nome: null, leitor_sentinela_nome: null }
       )
     )
     setArranjoDiscursos(
       domingos.map(({ data }) =>
-        discursos?.find((d) => d.data === data) || { id: `temp-${data}`, data, tema: null, orador: null }
+        discursos?.find((d) => d.data === data) || { id: `temp-${data}`, data, tema: null, orador_nome: null }
       )
     )
     setAssistencias(
@@ -257,8 +257,8 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
 
     const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
       border: "1px solid #d1d5db",
-      padding: "6px 10px",
-      fontSize: "10px",
+      padding: "8px 12px",
+      fontSize: "13px",
       color: "#111",
       ...extra,
     })
@@ -266,9 +266,9 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
     const headerBar = (color: string): React.CSSProperties => ({
       backgroundColor: color, 
       color: "white",
-      padding: "8px 12px", 
+      padding: "10px 16px", 
       fontWeight: "bold",
-      fontSize: "11px", 
+      fontSize: "14px", 
       marginBottom: "1px",
       textTransform: "uppercase",
       borderRadius: "4px 4px 0 0",
@@ -277,7 +277,7 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
     return (
       <div
         ref={ref}
-        style={{ backgroundColor: "white", padding: "16px", color: "black", fontFamily: "Arial, sans-serif" }}
+        style={{ backgroundColor: "white", padding: "20mm 15mm", color: "black", fontFamily: "Arial, sans-serif" }}
       >
         {/* Cabeçalho */}
         <div style={{ 
@@ -285,38 +285,38 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
           justifyContent: "space-between", 
           alignItems: "center", 
           borderBottom: "2px solid #374151", 
-          paddingBottom: "8px", 
-          marginBottom: "12px" 
+          paddingBottom: "10px", 
+          marginBottom: "16px" 
         }}>
-          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>Parque Sabará — Taubaté SP</div>
-          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>Programação da Congregação</div>
+          <div style={{ fontSize: "18px", fontWeight: "bold", color: "#111827" }}>Parque Sabará — Taubaté SP</div>
+          <div style={{ fontSize: "18px", fontWeight: "bold", color: "#111827" }}>Programação da Congregação</div>
         </div>
 
         {/* Título */}
         <div style={{ 
           backgroundColor: "#1f2937", 
           color: "white", 
-          padding: "10px 14px",
-          marginBottom: "16px",
+          padding: "12px 18px",
+          marginBottom: "20px",
           borderRadius: "4px",
           textAlign: "center"
         }}>
-          <div style={{ fontSize: "13px", fontWeight: "bold", textTransform: "uppercase" }}>
+          <div style={{ fontSize: "16px", fontWeight: "bold", textTransform: "uppercase" }}>
             {mesNome} {ano}
           </div>
         </div>
 
         {/* Designações Técnicas */}
-        <div style={{ marginBottom: "14px" }}>
+        <div style={{ marginBottom: "20px" }}>
           <div style={headerBar("#2a6b77")}>Designações Técnicas</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Data</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Indicadores</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Mic. Volante</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Áudio e Vídeo</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Palco</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Data</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Indicadores</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Mic. Volante</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Áudio e Vídeo</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Palco</th>
               </tr>
             </thead>
             <tbody>
@@ -325,10 +325,10 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                   <td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>
                     {formatarData(d.data)} <span style={{ fontWeight: "normal", color: "#666" }}>{d.dia_semana}</span>
                   </td>
-                  <td style={cell()}>{[d.indicador1, d.indicador2].filter(Boolean).join(" / ") || "—"}</td>
-                  <td style={cell()}>{[d.mic_volante1, d.mic_volante2].filter(Boolean).join(" / ") || "—"}</td>
-                  <td style={cell()}>{d.audio_video || "—"}</td>
-                  <td style={cell()}>{d.palco || "—"}</td>
+                  <td style={cell()}>{[d.indicador1_nome, d.indicador2_nome].filter(Boolean).join(" / ") || "—"}</td>
+                  <td style={cell()}>{[d.microvolante1_nome, d.microvolante2_nome].filter(Boolean).join(" / ") || "—"}</td>
+                  <td style={cell()}>{d.som_nome || "—"}</td>
+                  <td style={cell()}>{d.microvolante_palco ? `Mic. ${d.microvolante_palco}` : "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -336,22 +336,22 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Reunião Pública */}
-        <div style={{ marginBottom: "14px" }}>
+        <div style={{ marginBottom: "20px" }}>
           <div style={headerBar("#c69214")}>Reunião Pública — Presidente e Leitor</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Data</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Presidente de Conferência</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Leitor de A Sentinela</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Data</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Presidente de Conferência</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Leitor de A Sentinela</th>
               </tr>
             </thead>
             <tbody>
               {designacoesReuniaoPublica.map((r) => (
                 <tr key={r.data}>
                   <td style={cell({ fontWeight: "bold" })}>{formatarData(r.data)}</td>
-                  <td style={cell()}>{r.presidente || "—"}</td>
-                  <td style={cell()}>{r.leitor_sentinela || "—"}</td>
+                  <td style={cell()}>{r.presidente_nome || "—"}</td>
+                  <td style={cell()}>{r.leitor_sentinela_nome || "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -359,14 +359,14 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Arranjo de Discursos */}
-        <div style={{ marginBottom: "14px" }}>
+        <div style={{ marginBottom: "20px" }}>
           <div style={headerBar("#8b2332")}>Arranjo de Discursos</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Data</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Tema</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold" })}>Orador</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Data</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Tema</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Orador</th>
               </tr>
             </thead>
             <tbody>
@@ -374,7 +374,7 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                 <tr key={d.data}>
                   <td style={cell({ fontWeight: "bold" })}>{formatarData(d.data)}</td>
                   <td style={cell()}>{d.tema || "—"}</td>
-<td style={cell()}>{d.orador || "—"}</td>
+                  <td style={cell()}>{d.orador_nome || "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -382,7 +382,7 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Assistência às Reuniões */}
-        <div style={{ marginBottom: "14px" }}>
+        <div style={{ marginBottom: "20px" }}>
           <div style={headerBar("#374151")}>Assistência às Reuniões — {mesNome}</div>
           <div style={{ padding: "12px", backgroundColor: "#f9fafb", borderRadius: "0 0 4px 4px", border: "1px solid #d1d5db", borderTop: "none" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -396,11 +396,11 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
 
         {/* Rodapé */}
         <div style={{ 
-          marginTop: "20px", 
-          paddingTop: "10px", 
+          marginTop: "24px", 
+          paddingTop: "12px", 
           borderTop: "1px solid #e5e7eb",
           textAlign: "center",
-          fontSize: "9px",
+          fontSize: "11px",
           color: "#666"
         }}>
           Congregação Pq. Sabará - Programação da Congregação
@@ -426,8 +426,8 @@ function PrintTabelaAssistencia({
 
   const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
     border: "1px solid #c9cdd1", 
-    padding: "4px 8px", 
-    fontSize: "8px", 
+    padding: "6px 10px", 
+    fontSize: "11px", 
     textAlign: "center", 
     ...extra,
   })
@@ -437,9 +437,9 @@ function PrintTabelaAssistencia({
       <table style={{ borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            <th style={cell({ fontWeight: "bold", whiteSpace: "nowrap", backgroundColor: "#e5e7eb", minWidth: "70px" })}>{titulo}</th>
+            <th style={cell({ fontWeight: "bold", whiteSpace: "nowrap", backgroundColor: "#e5e7eb", minWidth: "80px" })}>{titulo}</th>
             {registros.map((a) => (
-              <th key={a.data} style={cell({ fontWeight: "600", whiteSpace: "nowrap", backgroundColor: "#f3f4f6", minWidth: "45px" })}>
+              <th key={a.data} style={cell({ fontWeight: "600", whiteSpace: "nowrap", backgroundColor: "#f3f4f6", minWidth: "50px" })}>
                 {formatarData(a.data)}
               </th>
             ))}

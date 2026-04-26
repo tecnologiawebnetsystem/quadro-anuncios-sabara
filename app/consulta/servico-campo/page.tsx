@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Calendar, Clock, Mail, Sun, MapPin, Users } from "lucide-react"
@@ -52,6 +53,14 @@ const meses = [
   { valor: "2026-06", label: "Junho 2026" },
 ]
 
+// Calcular índice do mês atual baseado na data do sistema
+function calcularIndiceMesAtual(): number {
+  const agora = new Date()
+  const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`
+  const indice = meses.findIndex(m => m.valor === mesAtual)
+  return indice >= 0 ? indice : 0
+}
+
 const diasSemanaLabel: Record<string, string> = {
   segunda: "Segunda",
   terca: "Terça",
@@ -61,7 +70,7 @@ const diasSemanaLabel: Record<string, string> = {
 }
 
 export default function ConsultaServicoCampoPage() {
-  const [mesAtual, setMesAtual] = useState(2) // Março 2026
+  const [mesAtual, setMesAtual] = useState(() => calcularIndiceMesAtual())
   const [campoSemana, setCampoSemana] = useState<CampoSemana[]>([])
   const [campoCartas, setCampoCartas] = useState<CampoCartas[]>([])
   const [campoSabado, setCampoSabado] = useState<CampoSabado[]>([])
@@ -151,9 +160,11 @@ export default function ConsultaServicoCampoPage() {
   // Ordenar dias da semana
   const ordemDias = ["segunda", "terca", "quarta", "quinta", "sexta"]
   const campoSemanaOrdenado = [...campoSemana]
-    .filter((item) => ordemDias.includes(item.dia_semana))
-    .sort((a, b) => ordemDias.indexOf(a.dia_semana) - ordemDias.indexOf(b.dia_semana))
+  .filter((item) => ordemDias.includes(item.dia_semana))
+  .sort((a, b) => ordemDias.indexOf(a.dia_semana) - ordemDias.indexOf(b.dia_semana))
 
+  if (loading) return <CenteredLoader />
+  
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}

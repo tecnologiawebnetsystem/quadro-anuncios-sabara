@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
@@ -199,6 +200,8 @@ export default function ConsultaSentinelaPage() {
     return `${diaInicio}-${diaFim} de ${mesInicio}`
   }
 
+  if (loading) return <CenteredLoader />
+  
   return (
     <div className="space-y-6">
       <div>

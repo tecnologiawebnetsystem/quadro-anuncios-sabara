@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -62,10 +63,12 @@ export default function SentinelaPage() {
   const [gerandoExplicacao, setGerandoExplicacao] = useState<string | null>(null)
   const [gerandoDescricao, setGerandoDescricao] = useState<string | null>(null)
   const [enviandoImagem, setEnviandoImagem] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
   
   const supabase = createClient()
 
   const carregarDados = useCallback(async () => {
+    setLoading(true)
     // Buscar ou criar mês
     const { data: mesExistente } = await supabase
       .from("sentinela_meses")
@@ -109,6 +112,7 @@ export default function SentinelaPage() {
       setEstudoAtivo(null)
       setParagrafos([])
     }
+    setLoading(false)
   }, [mesAtual, anoAtual, supabase, estudoAtivo])
 
   useEffect(() => {
@@ -430,6 +434,8 @@ export default function SentinelaPage() {
   const estudoAtualData = estudos.find(e => e.id === estudoAtivo)
   const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtivo).sort((a, b) => a.ordem - b.ordem)
 
+  if (loading) return <CenteredLoader />
+  
   return (
     <div className="space-y-6">
       {/* Header */}
