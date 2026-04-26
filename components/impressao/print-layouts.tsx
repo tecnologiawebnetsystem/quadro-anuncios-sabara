@@ -502,25 +502,25 @@ export const PrintSentinela = forwardRef<HTMLDivElement, SentinelaProps>(
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", flex: 1 }}>
           <thead>
             <tr style={{ backgroundColor: "#2a6b77" }}>
-              <th style={{ padding: "8px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "22%" }}>Semana</th>
-              <th style={{ padding: "8px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "43%" }}>Tema</th>
-              <th style={{ padding: "8px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "17%" }}>Dirigente</th>
-              <th style={{ padding: "8px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Leitor</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "22%" }}>Semana</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "43%" }}>Tema</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "17%" }}>Dirigente</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Leitor</th>
             </tr>
           </thead>
           <tbody>
             {estudos.map((estudo, i) => (
               <tr key={estudo.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
-                <td style={{ padding: "8px 10px", border: "1px solid #ddd" }}>{formatarPeriodo(estudo.data_inicio, estudo.data_fim)}</td>
-                <td style={{ padding: "8px 10px", border: "1px solid #ddd" }}>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{formatarPeriodo(estudo.data_inicio, estudo.data_fim)}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>
                   {estudo.sem_reuniao ? (
                     <em style={{ color: "#666" }}>Sem reunião</em>
                   ) : (
                     estudo.titulo
                   )}
                 </td>
-                <td style={{ padding: "8px 10px", border: "1px solid #ddd" }}>{estudo.dirigente_nome || "-"}</td>
-                <td style={{ padding: "8px 10px", border: "1px solid #ddd" }}>{estudo.leitor_nome || "-"}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{estudo.dirigente_nome || "-"}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{estudo.leitor_nome || "-"}</td>
               </tr>
             ))}
           </tbody>
@@ -575,19 +575,19 @@ export const PrintReunioesPublicas = forwardRef<HTMLDivElement, ReunioesPublicas
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", flex: 1 }}>
           <thead>
             <tr style={{ backgroundColor: "#8b2332" }}>
-              <th style={{ padding: "8px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "15%" }}>Data</th>
-              <th style={{ padding: "8px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "45%" }}>Tema do Discurso</th>
-              <th style={{ padding: "8px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "20%" }}>Orador</th>
-              <th style={{ padding: "8px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "20%" }}>Presidente</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "15%" }}>Data</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "45%" }}>Tema do Discurso</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "20%" }}>Orador</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "20%" }}>Presidente</th>
             </tr>
           </thead>
           <tbody>
             {reunioes.map((reuniao, i) => (
               <tr key={reuniao.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
-                <td style={{ padding: "8px 10px", border: "1px solid #ddd" }}>{formatarData(reuniao.data)}</td>
-                <td style={{ padding: "8px 10px", border: "1px solid #ddd" }}>{reuniao.tema || "-"}</td>
-                <td style={{ padding: "8px 10px", border: "1px solid #ddd" }}>{reuniao.orador_nome || "-"}</td>
-                <td style={{ padding: "8px 10px", border: "1px solid #ddd" }}>{reuniao.presidente_nome || "-"}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{formatarData(reuniao.data)}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{reuniao.tema || "-"}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{reuniao.orador_nome || "-"}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{reuniao.presidente_nome || "-"}</td>
               </tr>
             ))}
           </tbody>
@@ -650,27 +650,27 @@ export const PrintEquipeTecnica = forwardRef<HTMLDivElement, EquipeTecnicaProps>
         }}>
           <thead>
             <tr style={{ backgroundColor: "#2a6b77" }}>
-              <th style={{ padding: "6px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "10%" }}>Data</th>
-              <th style={{ padding: "6px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "8%" }}>Dia</th>
-              <th style={{ padding: "6px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Indicador 1</th>
-              <th style={{ padding: "6px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Indicador 2</th>
-              <th style={{ padding: "6px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Microfone 1</th>
-              <th style={{ padding: "6px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Microfone 2</th>
-              <th style={{ padding: "6px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "10%" }}>Som</th>
+              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "10%" }}>Data</th>
+              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "8%" }}>Dia</th>
+              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Indicador 1</th>
+              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Indicador 2</th>
+              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Microfone 1</th>
+              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Microfone 2</th>
+              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "10%" }}>Som</th>
             </tr>
           </thead>
           <tbody>
             {designacoes.map((d, i) => (
               <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
-                <td style={{ padding: "6px 8px", border: "1px solid #ddd" }}>{formatarData(d.data)}</td>
-                <td style={{ padding: "6px 8px", border: "1px solid #ddd", fontWeight: "500" }}>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{formatarData(d.data)}</td>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd", fontWeight: "500" }}>
                   {d.dia_semana === "quinta" ? "Qui" : "Dom"}
                 </td>
-                <td style={{ padding: "6px 8px", border: "1px solid #ddd" }}>{d.indicador1_nome || "-"}</td>
-                <td style={{ padding: "6px 8px", border: "1px solid #ddd" }}>{d.indicador2_nome || "-"}</td>
-                <td style={{ padding: "6px 8px", border: "1px solid #ddd" }}>{d.microvolante1_nome || "-"}</td>
-                <td style={{ padding: "6px 8px", border: "1px solid #ddd" }}>{d.microvolante2_nome || "-"}</td>
-                <td style={{ padding: "6px 8px", border: "1px solid #ddd" }}>{d.som_nome || "-"}</td>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{d.indicador1_nome || "-"}</td>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{d.indicador2_nome || "-"}</td>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{d.microvolante1_nome || "-"}</td>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{d.microvolante2_nome || "-"}</td>
+                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{d.som_nome || "-"}</td>
               </tr>
             ))}
           </tbody>
@@ -905,17 +905,17 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
         }}>
           <thead>
             <tr style={{ backgroundColor: "#8b2332" }}>
-              <th style={{ padding: "8px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "20%" }}>Data</th>
-              <th style={{ padding: "8px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "25%" }}>Grupo</th>
-              <th style={{ padding: "8px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "55%" }}>Responsável</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "20%" }}>Data</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "25%" }}>Grupo</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "55%" }}>Responsável</th>
             </tr>
           </thead>
           <tbody>
             {escalas.map((escala, i) => (
               <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
-                <td style={{ padding: "8px 10px", border: "1px solid #ddd", fontWeight: "500" }}>{formatarData(escala.data)}</td>
-                <td style={{ padding: "8px 10px", border: "1px solid #ddd" }}>Grupo {escala.grupo_numero}</td>
-                <td style={{ padding: "8px 10px", border: "1px solid #ddd" }}>{escala.responsavel_nome || "-"}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd", fontWeight: "500" }}>{formatarData(escala.data)}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>Grupo {escala.grupo_numero}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{escala.responsavel_nome || "-"}</td>
               </tr>
             ))}
           </tbody>

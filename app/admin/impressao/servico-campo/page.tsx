@@ -245,7 +245,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
 
     const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
       border: "1px solid #999",
-      padding: "10px 12px",
+      padding: "4px 10px",
       fontSize: "14px",
       color: "#111",
       ...extra,
@@ -254,7 +254,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
     const headerBar = (bg: string): React.CSSProperties => ({
       backgroundColor: bg,
       color: "#fff",
-      padding: "10px 14px",
+      padding: "6px 12px",
       fontSize: "15px",
       fontWeight: "bold",
       marginBottom: "0",
@@ -338,12 +338,12 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 <tbody>
                   <tr>
                     {campoCartas.map(c => (
-                      <td key={c.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "6px" })}>{c.horario}</td>
+                      <td key={c.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "3px 10px" })}>{c.horario}</td>
                     ))}
                   </tr>
                   <tr>
                     {campoCartas.map(c => (
-                      <td key={c.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px" })}>{c.responsavel_nome || "—"}</td>
+                      <td key={c.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>{c.responsavel_nome || "—"}</td>
                     ))}
                   </tr>
                 </tbody>
@@ -368,12 +368,12 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 <tbody>
                   <tr>
                     {sabadosManha.map(s => (
-                      <td key={s.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "6px" })}>{s.horario}</td>
+                      <td key={s.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "3px 10px" })}>{s.horario}</td>
                     ))}
                   </tr>
                   <tr>
                     {sabadosManha.map(s => (
-                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px" })}>{s.dirigente_nome || "—"}</td>
+                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>{s.dirigente_nome || "—"}</td>
                     ))}
                   </tr>
                 </tbody>
@@ -398,12 +398,12 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 <tbody>
                   <tr>
                     {sabadosTarde.map(s => (
-                      <td key={s.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "6px" })}>{s.horario}</td>
+                      <td key={s.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "3px 10px" })}>{s.horario}</td>
                     ))}
                   </tr>
                   <tr>
                     {sabadosTarde.map(s => (
-                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px" })}>{s.dirigente_nome || "—"}</td>
+                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>{s.dirigente_nome || "—"}</td>
                     ))}
                   </tr>
                 </tbody>
@@ -428,12 +428,12 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                 <tbody>
                   <tr>
                     {campoDomingo.map(d => (
-                      <td key={d.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "6px" })}>{d.horario}</td>
+                      <td key={d.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "3px 10px" })}>{d.horario}</td>
                     ))}
                   </tr>
                   <tr>
                     {campoDomingo.map(d => (
-                      <td key={d.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px" })}>
+                      <td key={d.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>
                         {d.tipo === "grupo" ? (
                           <span style={{ color: "#166534", fontWeight: "bold" }}>Saída em Grupo</span>
                         ) : d.tipo === "salao" ? (
