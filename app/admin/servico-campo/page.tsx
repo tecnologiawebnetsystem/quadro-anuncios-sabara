@@ -272,8 +272,10 @@ export default function ServicoCampoPage() {
       }
       
       toast.success("Salvo com sucesso")
-    } catch (error) {
-      console.error("Erro ao salvar:", error)
+    } catch (error: unknown) {
+      console.error("[v0] Erro ao salvar semana:", error)
+      console.error("[v0] Dados enviados:", dados)
+      console.error("[v0] Existente:", existente)
       toast.error("Erro ao salvar")
     }
   }
