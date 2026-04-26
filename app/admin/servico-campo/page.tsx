@@ -15,6 +15,8 @@ import { createClient } from "@/lib/supabase/client"
 // Tipos
 interface CampoSemana {
   id?: string
+  data: string
+  mes: string
   dia_semana: string
   dirigente_id: string | null
   dirigente_nome: string
@@ -110,13 +112,17 @@ export default function ServicoCampoPage() {
   const [campoSabado, setCampoSabado] = useState<CampoSabado[]>([])
   const [campoDomingo, setCampoDomingo] = useState<CampoDomingo[]>([])
   
-  // Estado para navegação de meses
+  // Estado para navegação de meses (Sábados e Domingos)
   const [mesAtualIndex, setMesAtualIndex] = useState(2) // Março 2026
   const mesAtual = mesesDisponiveis[mesAtualIndex]
   
   // Estado para navegação de meses no arranjo de cartas
   const [mesCartasIndex, setMesCartasIndex] = useState(2) // Março 2026
   const mesCartas = mesesDisponiveis[mesCartasIndex]
+  
+  // Estado para navegação de meses no Durante a Semana
+  const [mesSemanaIndex, setMesSemanaIndex] = useState(2) // Março 2026
+  const mesSemana = mesesDisponiveis[mesSemanaIndex]
 
   // Carregar dados
   useEffect(() => {
@@ -249,7 +255,7 @@ export default function ServicoCampoPage() {
     const dados: Partial<CampoCartas> = {
       data,
       mes: mesCartas.value,
-      dia_semana: "sexta", // Fixo para sexta-feira
+      dia_semana: "segunda", // Fixo para segunda-feira
       descricao: "Cartas",
       periodo: "tarde",
       horario: horarioFinal,
@@ -402,10 +408,10 @@ export default function ServicoCampoPage() {
     return gerarDiasDoMes(ano, mes - 1, 0)
   }, [mesAtual.value])
 
-  // Gerar sextas-feiras do mês para arranjo de cartas
-  const sextasDoMes = useMemo(() => {
+  // Gerar segundas-feiras do mês para arranjo de cartas
+  const segundasDoMes = useMemo(() => {
     const [ano, mes] = mesCartas.value.split("-").map(Number)
-    return gerarDiasDoMes(ano, mes - 1, 5) // 5 = sexta-feira
+    return gerarDiasDoMes(ano, mes - 1, 1) // 1 = segunda-feira
   }, [mesCartas.value])
 
   // Segundo domingo do mês (índice 1 no array)
@@ -529,12 +535,12 @@ export default function ServicoCampoPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Mail className="h-5 w-5 text-amber-500" />
-                  Arranjo de Cartas - Sextas-feiras
+                  Arranjo de Cartas - Segundas-feiras
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {sextasDoMes.map((data) => {
+                  {segundasDoMes.map((data) => {
                     const registro = campoCartas.find(c => c.data === data)
                     return (
                       <div key={data} className="p-3 rounded-lg bg-zinc-800/30 space-y-2">
