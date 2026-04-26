@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { ArrowLeft, ArrowRight, Mic, Volume2, Users, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -224,6 +225,8 @@ export default function EquipeTecnicaPage() {
       setMesAtualIndex(mesAtualIndex + 1)
     }
   }
+
+  if (loading) return <CenteredLoader />
 
   return (
     <div className="space-y-8 p-6 max-w-4xl mx-auto">

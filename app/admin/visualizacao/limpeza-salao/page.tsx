@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Sparkles, Users, Calendar } from "lucide-react"
@@ -72,6 +73,8 @@ export default function ConsultaLimpezaSalaoPage() {
     return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
   }
 
+  if (loading) return <CenteredLoader />
+  
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}

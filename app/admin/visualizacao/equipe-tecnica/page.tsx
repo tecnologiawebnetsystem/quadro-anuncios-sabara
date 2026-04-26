@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { CenteredLoader } from "@/components/ui/page-loader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Wrench, Users, Mic, Volume2, Calendar } from "lucide-react"
@@ -81,6 +82,8 @@ export default function ConsultaEquipeTecnicaPage() {
     return dia === "quinta" ? "Quinta-feira 19h30" : "Domingo 9h00"
   }
 
+  if (loading) return <CenteredLoader />
+  
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
