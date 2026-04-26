@@ -37,10 +37,10 @@
     overflow: visible !important;
   }
 
-  /* Página A4 - 210mm x 297mm - SEM MARGENS do navegador */
+  /* Página A4 - 210mm x 297mm - com margens mínimas */
   @page {
     size: 210mm 297mm;
-    margin: 0;
+    margin: 10mm 15mm;
   }
 
   /* Quebra de página */
