@@ -49,6 +49,14 @@ const mesesDisponiveis = [
   { value: "2026-12", label: "Dezembro 2026" },
 ]
 
+// Calcular índice do mês atual baseado na data do sistema
+function calcularIndiceMesAtual(): number {
+  const agora = new Date()
+  const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`
+  const indice = mesesDisponiveis.findIndex(m => m.value === mesAtual)
+  return indice >= 0 ? indice : 0
+}
+
 // Extrai dia/mês diretamente da string "YYYY-MM-DD" para evitar offset UTC
 const MESES_ABREV = ["jan.", "fev.", "mar.", "abr.", "mai.", "jun.", "jul.", "ago.", "set.", "out.", "nov.", "dez."]
 function formatarData(dataStr: string): string {
@@ -73,7 +81,7 @@ export default function ConsultaReunioesPublicasPage() {
   const [assistenciaDomingo, setAssistenciaDomingo] = useState<AssistenciaReuniao[]>([])
   
   // Estado para navegação de meses
-  const [mesAtualIndex, setMesAtualIndex] = useState(2) // Março 2026
+  const [mesAtualIndex, setMesAtualIndex] = useState(() => calcularIndiceMesAtual())
   const mesAtual = mesesDisponiveis[mesAtualIndex]
 
   // Carregar dados quando mês mudar

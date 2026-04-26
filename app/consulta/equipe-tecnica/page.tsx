@@ -21,14 +21,24 @@ interface EquipeTecnica {
 }
 
 const meses = [
+  { valor: "2026-01", label: "Janeiro 2026" },
+  { valor: "2026-02", label: "Fevereiro 2026" },
   { valor: "2026-03", label: "Março 2026" },
   { valor: "2026-04", label: "Abril 2026" },
   { valor: "2026-05", label: "Maio 2026" },
   { valor: "2026-06", label: "Junho 2026" },
 ]
 
+// Calcular índice do mês atual baseado na data do sistema
+function calcularIndiceMesAtual(): number {
+  const agora = new Date()
+  const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`
+  const indice = meses.findIndex(m => m.valor === mesAtual)
+  return indice >= 0 ? indice : 0
+}
+
 export default function ConsultaEquipeTecnicaPage() {
-  const [mesAtual, setMesAtual] = useState(0)
+  const [mesAtual, setMesAtual] = useState(() => calcularIndiceMesAtual())
   const [designacoes, setDesignacoes] = useState<EquipeTecnica[]>([])
   const [loading, setLoading] = useState(true)
   const { syncTrigger } = useSync()

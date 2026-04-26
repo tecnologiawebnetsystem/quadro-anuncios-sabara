@@ -80,6 +80,14 @@ const mesesDisponiveis = [
   { value: "2026-06", label: "Junho 2026" },
 ]
 
+// Calcular índice do mês atual baseado na data do sistema
+function calcularIndiceMesAtual(): number {
+  const agora = new Date()
+  const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`
+  const indice = mesesDisponiveis.findIndex(m => m.value === mesAtual)
+  return indice >= 0 ? indice : 0 // Se não encontrar, retorna o primeiro mês
+}
+
 // Gerar sábados ou domingos do mês
 function gerarDiasDoMes(ano: number, mes: number, diaSemana: number): string[] {
   const datas: string[] = []
@@ -113,15 +121,15 @@ export default function ServicoCampoPage() {
   const [campoDomingo, setCampoDomingo] = useState<CampoDomingo[]>([])
   
   // Estado para navegação de meses (Sábados e Domingos)
-  const [mesAtualIndex, setMesAtualIndex] = useState(2) // Março 2026
+  const [mesAtualIndex, setMesAtualIndex] = useState(() => calcularIndiceMesAtual())
   const mesAtual = mesesDisponiveis[mesAtualIndex]
   
   // Estado para navegação de meses no arranjo de cartas
-  const [mesCartasIndex, setMesCartasIndex] = useState(2) // Março 2026
+  const [mesCartasIndex, setMesCartasIndex] = useState(() => calcularIndiceMesAtual())
   const mesCartas = mesesDisponiveis[mesCartasIndex]
   
   // Estado para navegação de meses no Durante a Semana
-  const [mesSemanaIndex, setMesSemanaIndex] = useState(2) // Março 2026
+  const [mesSemanaIndex, setMesSemanaIndex] = useState(() => calcularIndiceMesAtual())
   const mesSemana = mesesDisponiveis[mesSemanaIndex]
 
   // Carregar dados
@@ -129,20 +137,21 @@ export default function ServicoCampoPage() {
     async function carregarDados() {
       setLoading(true)
       try {
-        // Carregar campo durante a semana (inicial)
+        // Carregar campo durante a semana (inicial - mês atual)
+        const indiceMesAtual = calcularIndiceMesAtual()
         const { data: semanaData } = await supabase
           .from("servico_campo_semana")
           .select("*")
-          .eq("mes", mesesDisponiveis[2].value)
+          .eq("mes", mesesDisponiveis[indiceMesAtual].value)
           .order("dia_semana")
         
         if (semanaData) setCampoSemana(semanaData)
         
-        // Carregar arranjo de cartas (inicial)
+        // Carregar arranjo de cartas (inicial - mês atual)
         const { data: cartasData } = await supabase
           .from("servico_campo_cartas")
           .select("*")
-          .eq("mes", mesesDisponiveis[2].value)
+          .eq("mes", mesesDisponiveis[indiceMesAtual].value)
           .order("data")
         
         if (cartasData) setCampoCartas(cartasData)

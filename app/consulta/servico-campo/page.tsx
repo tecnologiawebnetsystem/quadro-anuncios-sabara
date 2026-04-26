@@ -52,6 +52,14 @@ const meses = [
   { valor: "2026-06", label: "Junho 2026" },
 ]
 
+// Calcular índice do mês atual baseado na data do sistema
+function calcularIndiceMesAtual(): number {
+  const agora = new Date()
+  const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`
+  const indice = meses.findIndex(m => m.valor === mesAtual)
+  return indice >= 0 ? indice : 0
+}
+
 const diasSemanaLabel: Record<string, string> = {
   segunda: "Segunda",
   terca: "Terça",
@@ -61,7 +69,7 @@ const diasSemanaLabel: Record<string, string> = {
 }
 
 export default function ConsultaServicoCampoPage() {
-  const [mesAtual, setMesAtual] = useState(2) // Março 2026
+  const [mesAtual, setMesAtual] = useState(() => calcularIndiceMesAtual())
   const [campoSemana, setCampoSemana] = useState<CampoSemana[]>([])
   const [campoCartas, setCampoCartas] = useState<CampoCartas[]>([])
   const [campoSabado, setCampoSabado] = useState<CampoSabado[]>([])
