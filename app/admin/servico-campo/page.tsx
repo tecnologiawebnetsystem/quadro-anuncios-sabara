@@ -25,6 +25,8 @@ interface CampoSemana {
 
 interface CampoCartas {
   id?: string
+  data: string
+  mes: string
   dia_semana: string
   descricao: string
   responsavel_id: string | null
@@ -111,6 +113,10 @@ export default function ServicoCampoPage() {
   // Estado para navegação de meses
   const [mesAtualIndex, setMesAtualIndex] = useState(2) // Março 2026
   const mesAtual = mesesDisponiveis[mesAtualIndex]
+  
+  // Estado para navegação de meses no arranjo de cartas
+  const [mesCartasIndex, setMesCartasIndex] = useState(2) // Março 2026
+  const mesCartas = mesesDisponiveis[mesCartasIndex]
 
   // Carregar dados
   useEffect(() => {
@@ -125,10 +131,12 @@ export default function ServicoCampoPage() {
         
         if (semanaData) setCampoSemana(semanaData)
         
-        // Carregar arranjo de cartas
+        // Carregar arranjo de cartas (inicial)
         const { data: cartasData } = await supabase
           .from("servico_campo_cartas")
           .select("*")
+          .eq("mes", mesesDisponiveis[2].value)
+          .order("data")
         
         if (cartasData) setCampoCartas(cartasData)
         
@@ -171,6 +179,25 @@ export default function ServicoCampoPage() {
     
     carregarDadosMes()
   }, [mesAtual.value])
+  
+  // Carregar arranjo de cartas quando mês mudar
+  useEffect(() => {
+    async function carregarCartasMes() {
+      try {
+        const { data: cartasData } = await supabase
+          .from("servico_campo_cartas")
+          .select("*")
+          .eq("mes", mesCartas.value)
+          .order("data")
+        
+        if (cartasData) setCampoCartas(cartasData)
+      } catch (error) {
+        console.error("Erro ao carregar cartas:", error)
+      }
+    }
+    
+    carregarCartasMes()
+  }, [mesCartas.value])
 
   // Salvar campo durante a semana
   async function salvarCampoSemana(dia: string, publicador: Publicador | null, periodo: string, horario: string) {
@@ -214,9 +241,22 @@ export default function ServicoCampoPage() {
     }
   }
 
-  // Salvar arranjo de cartas
-  async function salvarCartas(dados: Partial<CampoCartas>) {
-    const existente = campoCartas[0]
+  // Salvar arranjo de cartas por semana
+  async function salvarCartas(data: string, publicador: Publicador | null, horario?: string) {
+    const existente = campoCartas.find(c => c.data === data)
+    const horarioFinal = horario || existente?.horario || "17:00"
+    
+    const dados: Partial<CampoCartas> = {
+      data,
+      mes: mesCartas.value,
+      dia_semana: "sexta", // Fixo para sexta-feira
+      descricao: "Cartas",
+      periodo: "tarde",
+      horario: horarioFinal,
+      responsavel_id: publicador?.id || null,
+      responsavel_nome: publicador?.nome || "",
+      ativo: true,
+    }
     
     try {
       if (existente?.id) {
@@ -229,25 +269,15 @@ export default function ServicoCampoPage() {
         
         setCampoCartas(prev => prev.map(c => c.id === existente.id ? { ...c, ...dados } as CampoCartas : c))
       } else {
-        const novosDados = {
-          dia_semana: dados.dia_semana || "segunda",
-          descricao: dados.descricao || "",
-          responsavel_id: dados.responsavel_id || null,
-          responsavel_nome: dados.responsavel_nome || "",
-          periodo: dados.periodo || "tarde",
-          horario: dados.horario || "17:00",
-          ativo: true,
-        }
-        
-        const { data, error } = await supabase
+        const { data: novoData, error } = await supabase
           .from("servico_campo_cartas")
-          .insert(novosDados)
+          .insert(dados as CampoCartas)
           .select()
           .single()
         
         if (error) throw error
         
-        setCampoCartas([data])
+        setCampoCartas(prev => [...prev, novoData])
       }
       
       toast.success("Salvo com sucesso")
@@ -351,6 +381,15 @@ export default function ServicoCampoPage() {
   const irParaProximoMes = () => {
     if (mesAtualIndex < mesesDisponiveis.length - 1) setMesAtualIndex(mesAtualIndex + 1)
   }
+  
+  // Navegação de meses para cartas
+  const irParaMesAnteriorCartas = () => {
+    if (mesCartasIndex > 0) setMesCartasIndex(mesCartasIndex - 1)
+  }
+  
+  const irParaProximoMesCartas = () => {
+    if (mesCartasIndex < mesesDisponiveis.length - 1) setMesCartasIndex(mesCartasIndex + 1)
+  }
 
   // Gerar sábados e domingos do mês atual
   const sabadosDoMes = useMemo(() => {
@@ -362,6 +401,12 @@ export default function ServicoCampoPage() {
     const [ano, mes] = mesAtual.value.split("-").map(Number)
     return gerarDiasDoMes(ano, mes - 1, 0)
   }, [mesAtual.value])
+
+  // Gerar sextas-feiras do mês para arranjo de cartas
+  const sextasDoMes = useMemo(() => {
+    const [ano, mes] = mesCartas.value.split("-").map(Number)
+    return gerarDiasDoMes(ano, mes - 1, 5) // 5 = sexta-feira
+  }, [mesCartas.value])
 
   // Segundo domingo do mês (índice 1 no array)
   const segundoDomingo = domingosDoMes[1] ?? null
@@ -460,101 +505,73 @@ export default function ServicoCampoPage() {
 
         {/* ARRANJO DE CARTAS */}
         <TabsContent value="cartas" className="mt-6">
-          <Card className="border-0 bg-card/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-amber-500" />
-                Arranjo de Cartas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {(() => {
-                const registro = campoCartas[0]
-                return (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm text-muted-foreground">Dia da Semana</label>
-                        <Select
-                          value={registro?.dia_semana || "segunda"}
-                          onValueChange={(value) => salvarCartas({ dia_semana: value })}
-                        >
-                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {diasSemana.map(d => (
-                              <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm text-muted-foreground">Descrição</label>
-                        <Input
-                          value={registro?.descricao || ""}
-                          onChange={(e) => setCampoCartas(prev => {
-                            if (prev.length > 0) {
-                              return [{ ...prev[0], descricao: e.target.value }]
-                            }
-                            return [{ descricao: e.target.value } as CampoCartas]
-                          })}
-                          onBlur={(e) => salvarCartas({ descricao: e.target.value })}
-                          placeholder="Ex: Cartas e Zoom"
-                          className="bg-zinc-800/50 border-zinc-700"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm text-muted-foreground">Responsável</label>
+          <div className="space-y-6">
+            {/* Navegação de meses */}
+            <div className="flex items-center justify-center gap-8">
+              <button
+                onClick={irParaMesAnteriorCartas}
+                disabled={mesCartasIndex === 0}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-200 bg-amber-50 text-amber-600 transition-all hover:bg-amber-100 disabled:opacity-30 dark:border-amber-800 dark:bg-amber-950 dark:hover:bg-amber-900"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+              <span className="text-lg font-medium min-w-[150px] text-center">{mesCartas.label}</span>
+              <button
+                onClick={irParaProximoMesCartas}
+                disabled={mesCartasIndex === mesesDisponiveis.length - 1}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-200 bg-amber-50 text-amber-600 transition-all hover:bg-amber-100 disabled:opacity-30 dark:border-amber-800 dark:bg-amber-950 dark:hover:bg-amber-900"
+              >
+                <ArrowRight className="h-5 w-5" />
+              </button>
+            </div>
+
+            <Card className="border-0 bg-card/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-amber-500" />
+                  Arranjo de Cartas - Sextas-feiras
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {sextasDoMes.map((data) => {
+                    const registro = campoCartas.find(c => c.data === data)
+                    return (
+                      <div key={data} className="p-3 rounded-lg bg-zinc-800/30 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-foreground">{formatarData(data)}</span>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3 text-muted-foreground" />
+                            <Input
+                              value={registro?.horario || "17:00"}
+                              onChange={(e) => {
+                                setCampoCartas(prev => prev.map(c => 
+                                  c.data === data ? { ...c, horario: e.target.value } : c
+                                ))
+                              }}
+                              onBlur={(e) => {
+                                if (registro) {
+                                  salvarCartas(data, registro.responsavel_id ? { id: registro.responsavel_id, nome: registro.responsavel_nome } as Publicador : null, e.target.value)
+                                }
+                              }}
+                              className="w-16 h-7 text-xs bg-zinc-800/50 border-zinc-700 text-center"
+                            />
+                          </div>
+                        </div>
                         <SeletorPublicador
                           value={registro?.responsavel_id || undefined}
-                          onSelect={(p) => salvarCartas({ 
-                            responsavel_id: p?.id || null, 
-                            responsavel_nome: p?.nome || "" 
-                          })}
+                          onSelect={(p) => salvarCartas(data, p, registro?.horario || "17:00")}
                           filtro="todos"
-                          placeholder="Selecionar responsável..."
+                          placeholder="Responsável..."
                           className="w-full"
                         />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-sm text-muted-foreground">Período</label>
-                        <Select
-                          value={registro?.periodo || "tarde"}
-                          onValueChange={(value) => salvarCartas({ periodo: value })}
-                        >
-                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="manha">Manhã</SelectItem>
-                            <SelectItem value="tarde">Tarde</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm text-muted-foreground">Horário</label>
-                        <Input
-                          value={registro?.horario || "17:00"}
-                          onChange={(e) => setCampoCartas(prev => {
-                            if (prev.length > 0) {
-                              return [{ ...prev[0], horario: e.target.value }]
-                            }
-                            return [{ horario: e.target.value } as CampoCartas]
-                          })}
-                          onBlur={(e) => salvarCartas({ horario: e.target.value })}
-                          placeholder="17:00"
-                          className="bg-zinc-800/50 border-zinc-700"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )
-              })()}
-            </CardContent>
-          </Card>
+                    )
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* DIRIGENTES DE SÁBADO */}

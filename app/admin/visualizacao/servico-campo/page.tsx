@@ -17,6 +17,8 @@ interface CampoSemana {
 
 interface CampoCartas {
   id: string
+  data: string
+  mes: string
   dia_semana: string
   descricao: string
   responsavel_nome: string
@@ -84,12 +86,7 @@ export default function ConsultaServicoCampoPage() {
       
       if (semanaData) setCampoSemana(semanaData)
       
-      const { data: cartasData } = await supabase
-        .from("servico_campo_cartas")
-        .select("*")
-        .eq("ativo", true)
-      
-      if (cartasData) setCampoCartas(cartasData)
+      // Cartas serão carregadas junto com sábados/domingos por mês
     } catch (error) {
       console.error("Erro ao carregar dados:", error)
     }
@@ -114,6 +111,16 @@ export default function ConsultaServicoCampoPage() {
         .order("data")
       
       if (domingoData) setCampoDomingo(domingoData)
+      
+      // Carregar cartas do mês
+      const { data: cartasData } = await supabase
+        .from("servico_campo_cartas")
+        .select("*")
+        .eq("mes", mes.valor)
+        .eq("ativo", true)
+        .order("data")
+      
+      if (cartasData) setCampoCartas(cartasData)
     } catch (error) {
       console.error("Erro ao carregar dados:", error)
     } finally {
@@ -217,30 +224,21 @@ export default function ConsultaServicoCampoPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-medium text-white flex items-center gap-2">
                 <Mail className="h-5 w-5 text-amber-500" />
-                Arranjo de Cartas
+                Arranjo de Cartas - Sextas-feiras
+                {campoCartas.length > 0 && (
+                  <span className="text-sm font-normal text-zinc-400">({campoCartas[0]?.horario || "17:00"}h)</span>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {campoCartas.map((carta) => (
-                <div key={carta.id} className="flex flex-wrap items-center gap-3 text-sm">
-                  <span className="text-zinc-400">{diasSemanaLabel[carta.dia_semana]}</span>
-                  {carta.descricao && (
-                    <>
-                      <span className="text-zinc-600">-</span>
-                      <span className="text-white">{carta.descricao}</span>
-                    </>
-                  )}
-                  <span className="text-zinc-600">-</span>
-                  <span className="text-green-400 font-medium">{carta.responsavel_nome}</span>
-                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${
-                    carta.periodo === "manha" 
-                      ? "bg-amber-600/20 text-amber-400" 
-                      : "bg-purple-600/20 text-purple-400"
-                  }`}>
-                    {carta.periodo === "manha" ? "Manhã" : "Tarde"} {carta.horario}
-                  </span>
-                </div>
-              ))}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {campoCartas.map((carta) => (
+                  <div key={carta.id} className="p-3 rounded-lg bg-zinc-800/50 text-center">
+                    <div className="text-xs text-zinc-400 mb-1">{formatarData(carta.data)} - {carta.horario}</div>
+                    <div className="text-sm font-medium text-white">{carta.responsavel_nome || "-"}</div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}

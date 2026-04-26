@@ -17,6 +17,8 @@ interface CampoSemana {
 
 interface CampoCartas {
   id: string
+  data: string
+  mes: string
   dia_semana: string
   descricao: string
   responsavel_nome: string
@@ -91,17 +93,17 @@ export default function ImpressaoServicoCampoPage() {
 
   const carregarFixos = useCallback(async () => {
     const { data: semana } = await supabase.from("servico_campo_semana").select("*").eq("ativo", true).not("dia_semana", "is", null).neq("dia_semana", "")
-    const { data: cartas } = await supabase.from("servico_campo_cartas").select("*").eq("ativo", true)
     if (semana) setCampoSemana(semana)
-    if (cartas) setCampoCartas(cartas)
   }, [supabase])
 
   const carregarMes = useCallback(async () => {
     setLoading(true)
     const { data: sabado } = await supabase.from("servico_campo_sabado").select("*").eq("mes", mes.valor).order("data")
     const { data: domingo } = await supabase.from("servico_campo_domingo").select("*").eq("mes", mes.valor).order("data")
+    const { data: cartas } = await supabase.from("servico_campo_cartas").select("*").eq("mes", mes.valor).eq("ativo", true).order("data")
     if (sabado) setCampoSabado(sabado)
     if (domingo) setCampoDomingo(domingo)
+    if (cartas) setCampoCartas(cartas)
     setLoading(false)
   }, [mes.valor, supabase])
 
@@ -318,25 +320,28 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
           {/* ARRANJO DE CARTAS */}
           {campoCartas.length > 0 && (
             <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-              <div style={headerBar("#92400e")}>Arranjo de Cartas</div>
+              <div style={headerBar("#92400e")}>Arranjo de Cartas — Sextas-feiras</div>
               <table style={{ borderCollapse: "collapse", width: "100%", flex: 1 }}>
                 <thead>
                   <tr>
-                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold", width: "20%" })}>Dia</th>
-                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold" })}>Descrição</th>
-                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold", width: "25%" })}>Responsável</th>
-                    <th style={cell({ backgroundColor: "#e5e7eb", fontWeight: "bold", width: "18%" })}>Horário</th>
+                    {campoCartas.map(c => (
+                      <th key={c.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "14px" })}>
+                        {formatarData(c.data)}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {campoCartas.map(carta => (
-                    <tr key={carta.id}>
-                      <td style={cell({ fontWeight: "600" })}>{diasSemanaLabel[carta.dia_semana]}</td>
-                      <td style={cell()}>{carta.descricao || "—"}</td>
-                      <td style={cell({ fontWeight: "600", fontSize: "13px" })}>{carta.responsavel_nome}</td>
-                      <td style={cell({ textAlign: "center" })}>{carta.periodo === "manha" ? "Manhã" : "Tarde"} {carta.horario}</td>
-                    </tr>
-                  ))}
+                  <tr>
+                    {campoCartas.map(c => (
+                      <td key={c.id} style={cell({ textAlign: "center", fontSize: "10px", color: "#555", padding: "6px" })}>{c.horario}</td>
+                    ))}
+                  </tr>
+                  <tr>
+                    {campoCartas.map(c => (
+                      <td key={c.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "14px" })}>{c.responsavel_nome || "—"}</td>
+                    ))}
+                  </tr>
                 </tbody>
               </table>
             </div>
