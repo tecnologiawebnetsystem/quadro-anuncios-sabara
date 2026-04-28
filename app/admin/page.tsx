@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { 
-  Users, 
-  UserCheck, 
-  Shield, 
-  Flag, 
-  Loader2, 
-  Wrench, 
-  Mic, 
-  Volume2, 
-  Sparkles, 
+import {
+  Users,
+  UserCheck,
+  Shield,
+  Flag,
+  Loader2,
+  Wrench,
+  Mic,
+  Volume2,
+  Sparkles,
   Calendar,
   MapPin,
   BookOpen,
@@ -129,27 +129,27 @@ export default function AdminDashboard() {
   const [campoSemana, setCampoSemana] = useState<CampoSemana[]>([])
   const [totalGrupos, setTotalGrupos] = useState(0)
   const [alertas, setAlertas] = useState<Alerta[]>([])
-  
+
   const hoje = new Date()
   const inicioSemana = startOfWeek(hoje, { weekStartsOn: 1 })
   const fimSemana = endOfWeek(hoje, { weekStartsOn: 1 })
-  
+
   useEffect(() => {
     async function carregarDados() {
       try {
         const supabase = createClient()
         const alertasTemp: Alerta[] = []
-        
+
         // Carregar publicadores
         const data = await getPublicadores()
         setPublicadores(data)
-        
+
         // Contar grupos
         const { count: gruposCount } = await supabase
           .from("grupos")
           .select("*", { count: "exact", head: true })
         setTotalGrupos(gruposCount || 0)
-        
+
         // Buscar equipe técnica da semana
         const mesAtual = format(hoje, "yyyy-MM")
         const resEquipe = await fetch(`/api/equipe-tecnica?mes=${mesAtual}`)
@@ -160,9 +160,9 @@ export default function AdminDashboard() {
             return dataReuniao >= inicioSemana && dataReuniao <= fimSemana
           })
           setEquipeSemana(reunioesSemana)
-          
+
           // Verificar alertas de equipe técnica incompleta
-          const equipesIncompletas = reunioesSemana.filter((e: EquipeTecnica) => 
+          const equipesIncompletas = reunioesSemana.filter((e: EquipeTecnica) =>
             !e.indicador1_nome || !e.som_nome
           )
           if (equipesIncompletas.length > 0) {
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
             })
           }
         }
-        
+
         // Carregar limpeza da semana
         const resLimpeza = await fetch(`/api/limpeza-salao?mes=${mesAtual}`)
         if (resLimpeza.ok) {
@@ -195,7 +195,7 @@ export default function AdminDashboard() {
             })
           }
         }
-        
+
         // Carregar assistência recente (últimas 8 semanas)
         const { data: assistenciaData } = await supabase
           .from("assistencia_reunioes")
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
           .order("data", { ascending: false })
           .limit(16)
         if (assistenciaData) setAssistencia(assistenciaData.reverse())
-        
+
         // Carregar próximo discurso público
         const { data: discursoData } = await supabase
           .from("discursos_publicos")
@@ -213,7 +213,7 @@ export default function AdminDashboard() {
           .limit(1)
         if (discursoData && discursoData.length > 0) {
           setProximoDiscurso(discursoData[0])
-          
+
           // Verificar se o próximo discurso não tem orador
           if (!discursoData[0].orador_nome && !discursoData[0].tema) {
             alertasTemp.push({
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
             })
           }
         }
-        
+
         // Carregar serviço de campo da semana
         const { data: campoData } = await supabase
           .from("servico_campo_semana")
@@ -232,9 +232,9 @@ export default function AdminDashboard() {
           .eq("ativo", true)
           .order("dia_semana")
         if (campoData) setCampoSemana(campoData)
-        
+
         setAlertas(alertasTemp)
-        
+
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
       } finally {
@@ -248,22 +248,22 @@ export default function AdminDashboard() {
   const totalAnciaos = publicadores.filter((p) => p.anciao && p.ativo).length
   const totalServos = publicadores.filter((p) => p.servo_ministerial && p.ativo).length
   const totalPioneiros = publicadores.filter((p) => p.pioneiro_regular && p.ativo).length
-  
+
   // Cálculos de assistência
-  const mediaPresencial = assistencia.length > 0 
+  const mediaPresencial = assistencia.length > 0
     ? Math.round(assistencia.reduce((acc, a) => acc + (a.presencial || 0), 0) / assistencia.length)
     : 0
-  const mediaZoom = assistencia.length > 0 
+  const mediaZoom = assistencia.length > 0
     ? Math.round(assistencia.reduce((acc, a) => acc + (a.zoom || 0), 0) / assistencia.length)
     : 0
-    
+
   // Calcular tendência (comparar últimas 4 reuniões com as 4 anteriores)
   const ultimas4 = assistencia.slice(-4)
   const anteriores4 = assistencia.slice(-8, -4)
-  const mediaUltimas = ultimas4.length > 0 
+  const mediaUltimas = ultimas4.length > 0
     ? ultimas4.reduce((acc, a) => acc + (a.presencial || 0) + (a.zoom || 0), 0) / ultimas4.length
     : 0
-  const mediaAnteriores = anteriores4.length > 0 
+  const mediaAnteriores = anteriores4.length > 0
     ? anteriores4.reduce((acc, a) => acc + (a.presencial || 0) + (a.zoom || 0), 0) / anteriores4.length
     : 0
   const tendencia = mediaAnteriores > 0 ? Math.round(((mediaUltimas - mediaAnteriores) / mediaAnteriores) * 100) : 0
@@ -502,12 +502,12 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{totalGrupos}</p>
-                <p className="text-xs text-zinc-500">Grupos de Estudo</p>
+                <p className="text-xs text-zinc-500">Grupos de Campo</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="border-zinc-800 bg-zinc-900/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -521,7 +521,7 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="border-zinc-800 bg-zinc-900/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -535,7 +535,7 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="border-zinc-800 bg-zinc-900/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -586,27 +586,27 @@ export default function AdminDashboard() {
                   const maxTotal = Math.max(...assistencia.map(x => (x.presencial || 0) + (x.zoom || 0)))
                   const alturaPercent = maxTotal > 0 ? (total / maxTotal) * 100 : 0
                   const presencialPercent = total > 0 ? ((a.presencial || 0) / total) * 100 : 0
-                  
+
                   const zoomPercent = total > 0 ? ((a.zoom || 0) / total) * 100 : 0
-                  
+
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1">
                       <div className="w-full flex flex-col justify-end" style={{ height: "120px" }}>
-                        <div 
+                        <div
                           className="w-full flex flex-col justify-end rounded-t-sm overflow-hidden"
                           style={{ height: `${alturaPercent}%`, minHeight: total > 0 ? "4px" : "0px" }}
                           title={`Presencial: ${a.presencial || 0}, Zoom: ${a.zoom || 0}`}
                         >
                           {/* Parte do zoom (verde) */}
                           {(a.zoom || 0) > 0 && (
-                            <div 
+                            <div
                               className="w-full bg-green-500 transition-all hover:opacity-80"
                               style={{ height: `${zoomPercent}%`, minHeight: "2px" }}
                             />
                           )}
                           {/* Parte presencial (azul) */}
                           {(a.presencial || 0) > 0 && (
-                            <div 
+                            <div
                               className="w-full bg-gradient-to-t from-blue-600 to-blue-500 transition-all hover:opacity-80"
                               style={{ height: `${presencialPercent}%`, minHeight: "2px" }}
                             />
@@ -620,7 +620,7 @@ export default function AdminDashboard() {
                   )
                 })}
               </div>
-              
+
               {/* Legenda */}
               <div className="flex items-center justify-center gap-6 text-xs">
                 <div className="flex items-center gap-2">
@@ -649,7 +649,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                 <Calendar className="h-5 w-5 text-blue-500" />
-                Reunioes da Semana
+                Reuniões da Semana
               </CardTitle>
               <Link href="/admin/equipe-tecnica" className="text-xs text-blue-400 hover:underline">
                 Ver tudo
@@ -666,8 +666,8 @@ export default function AdminDashboard() {
                   <div className="mb-3 flex items-center gap-2 border-b border-zinc-700/50 pb-2">
                     <span className={cn(
                       "rounded-full px-2 py-0.5 text-xs font-medium",
-                      reuniao.dia_semana === "quinta" 
-                        ? "bg-purple-600/20 text-purple-400" 
+                      reuniao.dia_semana === "quinta"
+                        ? "bg-purple-600/20 text-purple-400"
                         : "bg-blue-600/20 text-blue-400"
                     )}>
                       {reuniao.dia_semana === "quinta" ? "Quinta" : "Domingo"}
@@ -682,7 +682,7 @@ export default function AdminDashboard() {
                       <Badge className="bg-amber-600/20 text-amber-400 text-[10px]">Amanha</Badge>
                     )}
                   </div>
-                  
+
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div>
                       <div className="mb-1 flex items-center gap-1 text-zinc-500">
@@ -692,7 +692,7 @@ export default function AdminDashboard() {
                       <p className="text-zinc-300">{reuniao.indicador1_nome || "-"}</p>
                       <p className="text-zinc-300">{reuniao.indicador2_nome || "-"}</p>
                     </div>
-                    
+
                     <div>
                       <div className="mb-1 flex items-center gap-1 text-zinc-500">
                         <Mic className="h-3 w-3 text-purple-500" />
@@ -711,7 +711,7 @@ export default function AdminDashboard() {
                         )}
                       </p>
                     </div>
-                    
+
                     <div>
                       <div className="mb-1 flex items-center gap-1 text-zinc-500">
                         <Volume2 className="h-3 w-3 text-blue-500" />
@@ -774,7 +774,7 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                   <Mic className="h-5 w-5 text-amber-500" />
-                  Proximo Discurso Publico
+                  Próximo Discurso Publico
                 </CardTitle>
                 <Link href="/admin/reunioes-publicas" className="text-xs text-amber-400 hover:underline">
                   Ver todos
