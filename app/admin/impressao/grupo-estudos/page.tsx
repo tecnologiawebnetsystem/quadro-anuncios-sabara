@@ -202,12 +202,9 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                   flexShrink: 0,
                 }}>
                   <div>
-                    <div style={{ fontSize: "10px", color: pc.headerText, opacity: 0.85, textTransform: "uppercase", letterSpacing: "0.03em" }}>
-                      Grupo {grupo.numero} - {grupo.local}
 
-                    </div>
                     <div style={{ fontSize: "14px", fontWeight: "bold", color: pc.headerText }}>
-                      {grupo.nome}
+                      {grupo.nome} - {grupo.local}
                     </div>
                   </div>
                   <div style={{
@@ -221,9 +218,6 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                     {pubs.length}
                   </div>
                 </div>
-
-
-
                 {/* Publicadores */}
                 <div style={{ padding: "8px 10px", backgroundColor: "white", flex: 1 }}>
                   {pubs.length === 0 ? (
