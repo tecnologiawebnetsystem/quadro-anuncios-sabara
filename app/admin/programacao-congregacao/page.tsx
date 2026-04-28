@@ -184,7 +184,7 @@ export default function ProgramacaoCongregacaoPage() {
             </button>
           </div>
         </div>
-        <PrintActionButtons 
+        <PrintActionButtons
           printRef={printRef}
           documentTitle={`Programação da Congregação - ${mesNome} ${anoAtual}`}
           colorScheme="orange"
@@ -209,7 +209,7 @@ export default function ProgramacaoCongregacaoPage() {
                 designacoesReuniaoPublica={designacoesReuniaoPublica}
                 arranjoDiscursos={arranjoDiscursos}
                 assistencias={assistencias}
-                
+
               />
             </div>
 
@@ -264,11 +264,11 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
     })
 
     const headerBar = (color: string): React.CSSProperties => ({
-      backgroundColor: color, 
+      backgroundColor: color,
       color: "white",
-      padding: "10px 16px", 
+      padding: "10px 16px",
       fontWeight: "bold",
-      fontSize: "14px", 
+      fontSize: "14px",
       marginBottom: "1px",
       textTransform: "uppercase",
       borderRadius: "4px 4px 0 0",
@@ -280,22 +280,22 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         style={{ backgroundColor: "white", padding: "20mm 15mm", color: "black", fontFamily: "Arial, sans-serif" }}
       >
         {/* Cabeçalho */}
-        <div style={{ 
-          display: "flex", 
-          justifyContent: "space-between", 
-          alignItems: "center", 
-          borderBottom: "2px solid #374151", 
-          paddingBottom: "10px", 
-          marginBottom: "16px" 
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderBottom: "2px solid #374151",
+          paddingBottom: "10px",
+          marginBottom: "16px"
         }}>
           <div style={{ fontSize: "18px", fontWeight: "bold", color: "#111827" }}>Parque Sabará — Taubaté SP</div>
           <div style={{ fontSize: "18px", fontWeight: "bold", color: "#111827" }}>Programação da Congregação</div>
         </div>
 
         {/* Título */}
-        <div style={{ 
-          backgroundColor: "#1f2937", 
-          color: "white", 
+        <div style={{
+          backgroundColor: "#1f2937",
+          color: "white",
           padding: "12px 18px",
           marginBottom: "20px",
           borderRadius: "4px",
@@ -323,12 +323,12 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
               {designacoesTecnicas.map((d) => (
                 <tr key={d.data} style={{ backgroundColor: d.dia_semana === "DOMINGO" ? "#f9fafb" : "white" }}>
                   <td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>
-                    {formatarData(d.data)} <span style={{ fontWeight: "normal", color: "#666" }}>{d.dia_semana}</span>
+                    {formatarData(d.data)}
                   </td>
                   <td style={cell()}>{[d.indicador1_nome, d.indicador2_nome].filter(Boolean).join(" / ") || "—"}</td>
                   <td style={cell()}>{[d.microvolante1_nome, d.microvolante2_nome].filter(Boolean).join(" / ") || "—"}</td>
-                  <td style={cell()}>{d.som_nome || "—"}</td>
-                  <td style={cell()}>{d.microvolante_palco ? `Mic. ${d.microvolante_palco}` : "—"}</td>
+                  <td style={cell()}>{d.som_nome}</td>
+                  <td style={cell()}>{d.microvolante_palco}</td>
                 </tr>
               ))}
             </tbody>
@@ -395,9 +395,9 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Rodapé */}
-        <div style={{ 
-          marginTop: "24px", 
-          paddingTop: "12px", 
+        <div style={{
+          marginTop: "24px",
+          paddingTop: "12px",
           borderTop: "1px solid #e5e7eb",
           textAlign: "center",
           fontSize: "11px",
@@ -425,10 +425,10 @@ function PrintTabelaAssistencia({
   if (registros.length === 0) return null
 
   const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
-    border: "1px solid #c9cdd1", 
-    padding: "6px 10px", 
-    fontSize: "11px", 
-    textAlign: "center", 
+    border: "1px solid #c9cdd1",
+    padding: "6px 10px",
+    fontSize: "11px",
+    textAlign: "center",
     ...extra,
   })
 
