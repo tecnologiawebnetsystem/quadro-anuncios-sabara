@@ -174,7 +174,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          gridTemplateRows: "repeat(2, 1fr)",
+          gridTemplateRows: "repeat(3, 1fr)",
           gap: "10px",
           flex: 1,
         }}>
