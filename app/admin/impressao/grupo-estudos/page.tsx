@@ -175,7 +175,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
           gridTemplateRows: "repeat(2, 1fr)",
-          gap: "6px",
+          gap: "9px",
           flex: 1,
         }}>
           {grupos.slice(0, 6).map((grupo, idx) => {
