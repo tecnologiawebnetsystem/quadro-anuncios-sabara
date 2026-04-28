@@ -193,7 +193,7 @@ export function AdminSidebar() {
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
-              Info<span className="text-primary">Flow</span>
+              Parque<span className="text-primary">Sabará</span>
             </span>
             <span className="text-[11px] text-muted-foreground">Quadro de Anúncios</span>
           </div>
