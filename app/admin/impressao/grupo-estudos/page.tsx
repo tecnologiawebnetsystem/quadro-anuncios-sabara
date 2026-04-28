@@ -146,7 +146,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         lineHeight: "1.4",
         width: "210mm",
         height: "297mm",
-        maxHeight: "290mm",
+        maxHeight: "220mm",
         boxSizing: "border-box",
         overflow: "hidden",
         display: "flex",
