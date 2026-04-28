@@ -18,7 +18,7 @@ export default function CadastrarSenhaPage() {
   const [validando, setValidando] = useState(true)
   const [tokenValido, setTokenValido] = useState(false)
   const [publicador, setPublicador] = useState<{ id: string; nome: string } | null>(null)
-  
+
   const [senha, setSenha] = useState("")
   const [confirmarSenha, setConfirmarSenha] = useState("")
   const [mostrarSenha, setMostrarSenha] = useState(false)
@@ -40,7 +40,7 @@ export default function CadastrarSenhaPage() {
         setValidando(false)
       }
     }
-    
+
     validar()
   }, [token])
 
@@ -61,7 +61,7 @@ export default function CadastrarSenhaPage() {
     setSalvando(true)
     try {
       const resultado = await cadastrarSenhaPublicador(token, senha)
-      
+
       if (resultado.sucesso) {
         setSucesso(true)
         // Redirecionar para consulta após 3 segundos
@@ -135,7 +135,7 @@ export default function CadastrarSenhaPage() {
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-sm text-muted-foreground mb-4">
-              Agora você pode acessar suas designações na página de consulta usando seu nome e senha.
+              Agora você pode acessar o quadro de anúncios usando seu nome e senha.
             </p>
             <p className="text-xs text-muted-foreground">
               Redirecionando em 3 segundos...
@@ -156,8 +156,8 @@ export default function CadastrarSenhaPage() {
           </div>
           <CardTitle>Cadastrar Senha</CardTitle>
           <CardDescription>
-            Olá, <span className="font-semibold text-foreground">{publicador?.nome}</span>! 
-            Cadastre sua senha para acessar suas designações.
+            Olá, <span className="font-semibold text-foreground">{publicador?.nome}</span>!
+            Cadastre sua senha para acessar o quadro de anúncios.
           </CardDescription>
         </CardHeader>
         <CardContent>

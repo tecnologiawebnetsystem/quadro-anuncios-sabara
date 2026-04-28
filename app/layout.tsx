@@ -6,21 +6,21 @@ import { NavigationProgress } from '@/components/ui/navigation-progress'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import './globals.css'
 
-const poppins = Poppins({ 
+const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
-  title: 'InfoFlow',
-  description: 'Sistema de informações da congregação',
+  title: 'Parque Sabará',
+  description: 'Sistema de quadro de anúncios da congregação',
   generator: 'v0.app',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'InfoFlow',
+    title: 'Parque Sabará',
   },
   formatDetection: {
     telephone: false,

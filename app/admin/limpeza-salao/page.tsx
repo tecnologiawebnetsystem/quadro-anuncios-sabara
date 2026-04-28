@@ -52,14 +52,14 @@ export default function LimpezaSalaoPage() {
     const inicio = startOfMonth(mesAtual)
     const fim = endOfMonth(mesAtual)
     const semanasDoMes: Semana[] = []
-    
+
     let dataAtual = startOfWeek(inicio, { weekStartsOn: 0 }) // Domingo
     let numeroSemana = 1
-    
+
     while (dataAtual <= fim) {
       const inicioSemana = dataAtual
       const fimSemana = endOfWeek(dataAtual, { weekStartsOn: 0 })
-      
+
       // Só incluir semanas que tenham pelo menos um dia no mês
       if (fimSemana >= inicio && inicioSemana <= fim) {
         semanasDoMes.push({
@@ -69,10 +69,10 @@ export default function LimpezaSalaoPage() {
         })
         numeroSemana++
       }
-      
+
       dataAtual = addDays(fimSemana, 1)
     }
-    
+
     return semanasDoMes
   }, [mesAtual])
 
@@ -112,7 +112,7 @@ export default function LimpezaSalaoPage() {
   }, [mesFormatado])
 
   const navegarMes = (direcao: "anterior" | "proximo") => {
-    setMesAtual(prev => 
+    setMesAtual(prev =>
       direcao === "anterior" ? subMonths(prev, 1) : addMonths(prev, 1)
     )
   }
@@ -123,9 +123,9 @@ export default function LimpezaSalaoPage() {
 
   const salvarDesignacao = async (semana: Semana, grupoId: string) => {
     setSalvando(semana.numero)
-    
+
     const grupo = grupos.find(g => g.id === grupoId)
-    
+
     try {
       const response = await fetch("/api/limpeza-salao", {
         method: "POST",
@@ -139,7 +139,7 @@ export default function LimpezaSalaoPage() {
           grupo_nome: grupo?.nome || null,
         }),
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setDesignacoes(prev => {
@@ -172,7 +172,7 @@ export default function LimpezaSalaoPage() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Limpeza do Salão</h1>
             <p className="text-sm text-muted-foreground">
-              Designar grupos responsaveis pela limpeza semanal
+              Designar grupos responsáveis pela limpeza semanal
             </p>
           </div>
         </div>
@@ -190,14 +190,14 @@ export default function LimpezaSalaoPage() {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            
+
             <div className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-green-500" />
               <span className="text-lg font-semibold capitalize text-foreground">
                 {mesExibicao}
               </span>
             </div>
-            
+
             <Button
               variant="outline"
               size="icon"
@@ -220,7 +220,7 @@ export default function LimpezaSalaoPage() {
           {semanas.map((semana) => {
             const designacao = getDesignacao(semana.numero)
             const isSalvando = salvando === semana.numero
-            
+
             return (
               <Card
                 key={semana.numero}

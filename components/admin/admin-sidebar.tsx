@@ -111,7 +111,7 @@ const orgItems: MenuItem[] = [
 ]
 
 const visualizacaoGroup: MenuGroup = {
-  title: "Visualização",
+  title: "Consultas",
   icon: Monitor,
   color: "text-indigo-400",
   items: [
@@ -127,12 +127,13 @@ const visualizacaoGroup: MenuGroup = {
 const impressaoGroup: MenuGroup = {
   title: "Impressão",
   icon: ClipboardList,
-  color: "text-amber-400",
+  color: "text-emerald-400",
   items: [
     { title: "Vida e Ministério", icon: Gem, href: "/admin/impressao/vida-ministerio", color: "text-amber-400" },
     { title: "Programação", icon: ClipboardList, href: "/admin/programacao-congregacao", color: "text-amber-400" },
     { title: "Grupo de Campo", icon: BookOpen, href: "/admin/impressao/grupo-estudos", color: "text-amber-400" },
     { title: "Serviço de Campo", icon: MapPin, href: "/admin/impressao/servico-campo", color: "text-amber-400" },
+    { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/visualizacao/limpeza-salao", color: "text-cyan-400" },
   ]
 }
 
@@ -192,9 +193,9 @@ export function AdminSidebar() {
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
-              Info<span className="text-primary">Flow</span>
+              Parque<span className="text-primary"> Sabará</span>
             </span>
-            <span className="text-[11px] text-muted-foreground">Administração</span>
+            <span className="text-[11px] text-muted-foreground">Quadro de Anúncios</span>
           </div>
         </Link>
       </SidebarHeader>
@@ -223,7 +224,7 @@ export function AdminSidebar() {
 
         {/* Grupos colapsáveis */}
         <SidebarGroup className="p-0">
-          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-amber-400 -muted-foreground/70">
             Gerenciamento
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -294,7 +295,7 @@ export function AdminSidebar() {
 
         {/* Organização */}
         <SidebarGroup className="p-0">
-          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-amber-400 muted-foreground/70">
             Organização
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -411,7 +412,7 @@ export function AdminSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isItemActive("/admin/configuracoes")} className="h-9 rounded-lg font-medium">
                   <Link href="/admin/configuracoes" className="flex items-center gap-3">
-                    <Settings className="h-4 w-4 flex-shrink-0 text-zinc-400" />
+                    <Settings className="h-4 w-4 flex-shrink-0 text-amber-400" />
                     <span>Configurações</span>
                   </Link>
                 </SidebarMenuButton>

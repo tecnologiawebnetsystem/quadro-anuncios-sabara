@@ -23,6 +23,12 @@ const meses = [
   { valor: "2026-04", label: "Abril 2026" },
   { valor: "2026-05", label: "Maio 2026" },
   { valor: "2026-06", label: "Junho 2026" },
+  { valor: "2026-07", label: "Julho 2026" },
+  { valor: "2026-08", label: "Agosto 2026" },
+  { valor: "2026-09", label: "Setembro 2026" },
+  { valor: "2026-10", label: "Outubro 2026" },
+  { valor: "2026-11", label: "Novembro 2026" },
+  { valor: "2026-12", label: "Dezembro 2026" },
 ]
 
 // Calcular índice do mês atual baseado na data do sistema
@@ -74,7 +80,7 @@ export default function ConsultaLimpezaSalaoPage() {
   }
 
   if (loading) return <CenteredLoader />
-  
+
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
@@ -92,8 +98,8 @@ export default function ConsultaLimpezaSalaoPage() {
       <Card className="bg-zinc-900/50 border-zinc-800 mb-6">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => navegarMes("anterior")}
               disabled={mesAtual === 0}
@@ -105,8 +111,8 @@ export default function ConsultaLimpezaSalaoPage() {
               <Calendar className="h-5 w-5 text-cyan-500" />
               <span className="text-lg font-semibold text-white">{mes.label}</span>
             </div>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => navegarMes("proximo")}
               disabled={mesAtual === meses.length - 1}

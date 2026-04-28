@@ -29,7 +29,7 @@ export default function LoginPage() {
   const [mounted, setMounted] = useState(false)
   const [senhas, setSenhas] = useState<Record<string, string>>(SENHAS_PADRAO)
 
-  useEffect(() => { 
+  useEffect(() => {
     setMounted(true)
     // Carrega as senhas do banco de dados
     fetch("/api/senhas")
@@ -73,7 +73,7 @@ export default function LoginPage() {
   const perfilConfig = {
     anciao: {
       label: "Ancião",
-      descricao: "Acesso às designações da congregação",
+      descricao: "Acesso ao quadro de anúncios da congregação.",
       cor: "text-amber-400",
       bgCor: "bg-amber-600/20",
       borderCor: "border-amber-600/30",
@@ -113,7 +113,7 @@ export default function LoginPage() {
               </div>
               <div>
                 <p className="text-white font-bold text-base leading-none">InfoFlow</p>
-                <p className="text-zinc-500 text-xs mt-0.5">Congregação Sabarà</p>
+                <p className="text-zinc-500 text-xs mt-0.5">Congregação Parque Sabará</p>
               </div>
             </div>
 
@@ -123,7 +123,7 @@ export default function LoginPage() {
                 Quadro de <span className="text-red-500">Anúncios</span>
               </h1>
               <p className="text-zinc-500 text-xs uppercase tracking-widest mt-1">
-                Congregação Sabarà
+                Congregação Parque Sabará
               </p>
             </div>
 
@@ -140,7 +140,7 @@ export default function LoginPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-white text-sm font-semibold">Publicador</p>
-                    <p className="text-zinc-500 text-xs mt-0.5">Consultar designações e grupos</p>
+                    <p className="text-zinc-500 text-xs mt-0.5">Consultar o quadro de anúncios.</p>
                   </div>
                   <svg className="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -157,7 +157,7 @@ export default function LoginPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-white text-sm font-semibold">Ancião</p>
-                    <p className="text-zinc-500 text-xs mt-0.5">Acesso às designações da congregação</p>
+                    <p className="text-zinc-500 text-xs mt-0.5">Acesso ao quadro de anúncios da congregação.</p>
                   </div>
                   <svg className="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -208,8 +208,8 @@ export default function LoginPage() {
                         erro
                           ? "bg-red-500"
                           : i < senha.length
-                          ? "bg-white"
-                          : "bg-zinc-700"
+                            ? "bg-white"
+                            : "bg-zinc-700"
                       )}
                     />
                   ))}

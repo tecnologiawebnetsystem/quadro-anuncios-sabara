@@ -72,12 +72,19 @@ const periodos = [
 ]
 
 const mesesDisponiveis = [
-  { value: "2026-01", label: "Janeiro 2026" },
-  { value: "2026-02", label: "Fevereiro 2026" },
-  { value: "2026-03", label: "Março 2026" },
-  { value: "2026-04", label: "Abril 2026" },
-  { value: "2026-05", label: "Maio 2026" },
-  { value: "2026-06", label: "Junho 2026" },
+
+  { valor: "2026-01", label: "Janeiro 2026" },
+  { valor: "2026-02", label: "Fevereiro 2026" },
+  { valor: "2026-03", label: "Março 2026" },
+  { valor: "2026-04", label: "Abril 2026" },
+  { valor: "2026-05", label: "Maio 2026" },
+  { valor: "2026-06", label: "Junho 2026" },
+  { valor: "2026-07", label: "Julho 2026" },
+  { valor: "2026-08", label: "Agosto 2026" },
+  { valor: "2026-09", label: "Setembro 2026" },
+  { valor: "2026-10", label: "Outubro 2026" },
+  { valor: "2026-11", label: "Novembro 2026" },
+  { valor: "2026-12", label: "Dezembro 2026" },
 ]
 
 // Calcular índice do mês atual baseado na data do sistema
@@ -93,14 +100,14 @@ function gerarDiasDoMes(ano: number, mes: number, diaSemana: number): string[] {
   const datas: string[] = []
   const primeiroDia = new Date(ano, mes, 1)
   const ultimoDia = new Date(ano, mes + 1, 0)
-  
+
   for (let dia = 1; dia <= ultimoDia.getDate(); dia++) {
     const data = new Date(ano, mes, dia)
     if (data.getDay() === diaSemana) {
       datas.push(data.toISOString().split("T")[0])
     }
   }
-  
+
   return datas
 }
 
@@ -113,21 +120,21 @@ export default function ServicoCampoPage() {
   const [activeTab, setActiveTab] = useState("semana")
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
-  
+
   // Estados para cada seção
   const [campoSemana, setCampoSemana] = useState<CampoSemana[]>([])
   const [campoCartas, setCampoCartas] = useState<CampoCartas[]>([])
   const [campoSabado, setCampoSabado] = useState<CampoSabado[]>([])
   const [campoDomingo, setCampoDomingo] = useState<CampoDomingo[]>([])
-  
+
   // Estado para navegação de meses (Sábados e Domingos)
   const [mesAtualIndex, setMesAtualIndex] = useState(() => calcularIndiceMesAtual())
   const mesAtual = mesesDisponiveis[mesAtualIndex]
-  
+
   // Estado para navegação de meses no arranjo de cartas
   const [mesCartasIndex, setMesCartasIndex] = useState(() => calcularIndiceMesAtual())
   const mesCartas = mesesDisponiveis[mesCartasIndex]
-  
+
   // Estado para navegação de meses no Durante a Semana
   const [mesSemanaIndex, setMesSemanaIndex] = useState(() => calcularIndiceMesAtual())
   const mesSemana = mesesDisponiveis[mesSemanaIndex]
@@ -144,28 +151,28 @@ export default function ServicoCampoPage() {
           .select("*")
           .eq("mes", mesesDisponiveis[indiceMesAtual].value)
           .order("dia_semana")
-        
+
         if (semanaData) setCampoSemana(semanaData)
-        
+
         // Carregar arranjo de cartas (inicial - mês atual)
         const { data: cartasData } = await supabase
           .from("servico_campo_cartas")
           .select("*")
           .eq("mes", mesesDisponiveis[indiceMesAtual].value)
           .order("data")
-        
+
         if (cartasData) setCampoCartas(cartasData)
-        
+
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
       } finally {
         setLoading(false)
       }
     }
-    
+
     carregarDados()
   }, [])
-  
+
   // Carregar dados de sábado e domingo quando mês mudar
   useEffect(() => {
     async function carregarDadosMes() {
@@ -176,26 +183,26 @@ export default function ServicoCampoPage() {
           .select("*")
           .eq("mes", mesAtual.value)
           .order("data")
-        
+
         if (sabadoData) setCampoSabado(sabadoData)
-        
+
         // Carregar domingos
         const { data: domingoData } = await supabase
           .from("servico_campo_domingo")
           .select("*")
           .eq("mes", mesAtual.value)
           .order("data")
-        
+
         if (domingoData) setCampoDomingo(domingoData)
-        
+
       } catch (error) {
         console.error("Erro ao carregar dados do mês:", error)
       }
     }
-    
+
     carregarDadosMes()
   }, [mesAtual.value])
-  
+
   // Carregar arranjo de cartas quando mês mudar
   useEffect(() => {
     async function carregarCartasMes() {
@@ -205,16 +212,16 @@ export default function ServicoCampoPage() {
           .select("*")
           .eq("mes", mesCartas.value)
           .order("data")
-        
+
         if (cartasData) setCampoCartas(cartasData)
       } catch (error) {
         console.error("Erro ao carregar cartas:", error)
       }
     }
-    
+
     carregarCartasMes()
   }, [mesCartas.value])
-  
+
   // Carregar Durante a Semana quando mês mudar
   useEffect(() => {
     async function carregarSemanaMes() {
@@ -224,20 +231,20 @@ export default function ServicoCampoPage() {
           .select("*")
           .eq("mes", mesSemana.value)
           .order("dia_semana")
-        
+
         if (semanaData) setCampoSemana(semanaData)
       } catch (error) {
         console.error("Erro ao carregar semana:", error)
       }
     }
-    
+
     carregarSemanaMes()
   }, [mesSemana.value])
 
   // Salvar campo durante a semana
   async function salvarCampoSemana(dia: string, publicador: Publicador | null, periodo: string, horario: string) {
     const existente = campoSemana.find(c => c.dia_semana === dia && c.mes === mesSemana.value)
-    
+
     // Dados para salvar - omitindo 'data' pois não é necessário para Durante a Semana
     const dados = {
       mes: mesSemana.value,
@@ -248,16 +255,16 @@ export default function ServicoCampoPage() {
       horario,
       ativo: true,
     }
-    
+
     try {
       if (existente?.id) {
         const { error } = await supabase
           .from("servico_campo_semana")
           .update(dados)
           .eq("id", existente.id)
-        
+
         if (error) throw error
-        
+
         setCampoSemana(prev => prev.map(c => c.id === existente.id ? { ...c, ...dados } : c))
       } else {
         const { data: novoRegistro, error } = await supabase
@@ -265,12 +272,12 @@ export default function ServicoCampoPage() {
           .insert(dados)
           .select()
           .single()
-        
+
         if (error) throw error
-        
+
         setCampoSemana(prev => [...prev, novoRegistro as CampoSemana])
       }
-      
+
       toast.success("Salvo com sucesso")
     } catch (error) {
       console.error("Erro ao salvar:", error)
@@ -282,7 +289,7 @@ export default function ServicoCampoPage() {
   async function salvarCartas(data: string, publicador: Publicador | null, horario?: string) {
     const existente = campoCartas.find(c => c.data === data)
     const horarioFinal = horario || existente?.horario || "17:00"
-    
+
     const dados: Partial<CampoCartas> = {
       data,
       mes: mesCartas.value,
@@ -294,16 +301,16 @@ export default function ServicoCampoPage() {
       responsavel_nome: publicador?.nome || "",
       ativo: true,
     }
-    
+
     try {
       if (existente?.id) {
         const { error } = await supabase
           .from("servico_campo_cartas")
           .update(dados)
           .eq("id", existente.id)
-        
+
         if (error) throw error
-        
+
         setCampoCartas(prev => prev.map(c => c.id === existente.id ? { ...c, ...dados } as CampoCartas : c))
       } else {
         const { data: novoData, error } = await supabase
@@ -311,12 +318,12 @@ export default function ServicoCampoPage() {
           .insert(dados as CampoCartas)
           .select()
           .single()
-        
+
         if (error) throw error
-        
+
         setCampoCartas(prev => [...prev, novoData])
       }
-      
+
       toast.success("Salvo com sucesso")
     } catch (error) {
       console.error("Erro ao salvar:", error)
@@ -328,7 +335,7 @@ export default function ServicoCampoPage() {
   async function salvarSabado(data: string, periodo: string, publicador: Publicador | null, horario?: string) {
     const existente = campoSabado.find(c => c.data === data && c.periodo === periodo)
     const horarioFinal = horario || existente?.horario || (periodo === "manha" ? "8:45" : "16:45")
-    
+
     const dados: Partial<CampoSabado> = {
       data,
       mes: mesAtual.value,
@@ -337,16 +344,16 @@ export default function ServicoCampoPage() {
       dirigente_id: publicador?.id || null,
       dirigente_nome: publicador?.nome || "",
     }
-    
+
     try {
       if (existente?.id) {
         const { error } = await supabase
           .from("servico_campo_sabado")
           .update(dados)
           .eq("id", existente.id)
-        
+
         if (error) throw error
-        
+
         setCampoSabado(prev => prev.map(c => c.id === existente.id ? { ...c, ...dados } as CampoSabado : c))
       } else {
         const { data: novoData, error } = await supabase
@@ -354,12 +361,12 @@ export default function ServicoCampoPage() {
           .insert(dados as CampoSabado)
           .select()
           .single()
-        
+
         if (error) throw error
-        
+
         setCampoSabado(prev => [...prev, novoData])
       }
-      
+
       toast.success("Salvo com sucesso")
     } catch (error) {
       console.error("Erro ao salvar:", error)
@@ -371,7 +378,7 @@ export default function ServicoCampoPage() {
   async function salvarDomingo(data: string, publicador: Publicador | null, tipo: "individual" | "grupo" | "salao", horario?: string) {
     const existente = campoDomingo.find(c => c.data === data)
     const horarioFinal = horario || existente?.horario || "8:45"
-    
+
     const dados: Partial<CampoDomingo> = {
       data,
       mes: mesAtual.value,
@@ -380,16 +387,16 @@ export default function ServicoCampoPage() {
       dirigente_nome: tipo === "grupo" ? "GRUPO" : (publicador?.nome || null),
       tipo,
     }
-    
+
     try {
       if (existente?.id) {
         const { error } = await supabase
           .from("servico_campo_domingo")
           .update(dados)
           .eq("id", existente.id)
-        
+
         if (error) throw error
-        
+
         setCampoDomingo(prev => prev.map(c => c.id === existente.id ? { ...c, ...dados } as CampoDomingo : c))
       } else {
         const { data: novoData, error } = await supabase
@@ -397,12 +404,12 @@ export default function ServicoCampoPage() {
           .insert(dados as CampoDomingo)
           .select()
           .single()
-        
+
         if (error) throw error
-        
+
         setCampoDomingo(prev => [...prev, novoData])
       }
-      
+
       toast.success("Salvo com sucesso")
     } catch (error) {
       console.error("Erro ao salvar:", error)
@@ -414,25 +421,25 @@ export default function ServicoCampoPage() {
   const irParaMesAnterior = () => {
     if (mesAtualIndex > 0) setMesAtualIndex(mesAtualIndex - 1)
   }
-  
+
   const irParaProximoMes = () => {
     if (mesAtualIndex < mesesDisponiveis.length - 1) setMesAtualIndex(mesAtualIndex + 1)
   }
-  
+
   // Navegação de meses para cartas
   const irParaMesAnteriorCartas = () => {
     if (mesCartasIndex > 0) setMesCartasIndex(mesCartasIndex - 1)
   }
-  
+
   const irParaProximoMesCartas = () => {
     if (mesCartasIndex < mesesDisponiveis.length - 1) setMesCartasIndex(mesCartasIndex + 1)
   }
-  
+
   // Navegação de meses para Durante a Semana
   const irParaMesAnteriorSemana = () => {
     if (mesSemanaIndex > 0) setMesSemanaIndex(mesSemanaIndex - 1)
   }
-  
+
   const irParaProximoMesSemana = () => {
     if (mesSemanaIndex < mesesDisponiveis.length - 1) setMesSemanaIndex(mesSemanaIndex + 1)
   }
@@ -504,68 +511,68 @@ export default function ServicoCampoPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-              <div className="space-y-4">
-                {diasSemana.map((dia) => {
-                  const registro = campoSemana.find(c => c.dia_semana === dia.value)
-                  return (
-                    <div key={dia.value} className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-lg bg-zinc-800/30">
-                      <div className="w-32 font-medium text-foreground">{dia.label}</div>
-                      <div className="flex-1">
-                        <SeletorPublicador
-                          value={registro?.dirigente_id || undefined}
-                          onSelect={(p) => salvarCampoSemana(
-                            dia.value, 
-                            p, 
-                            registro?.periodo || "manha",
-                            registro?.horario || "8:45"
-                          )}
-                          filtro="todos"
-                          placeholder="Selecionar dirigente..."
-                          className="w-full"
-                        />
-                      </div>
-                      <Select
-                        value={registro?.periodo || "manha"}
-                        onValueChange={(value) => salvarCampoSemana(
-                          dia.value,
-                          registro?.dirigente_id ? { id: registro.dirigente_id, nome: registro.dirigente_nome } as Publicador : null,
-                          value,
-                          registro?.horario || "8:45"
-                        )}
-                      >
-                        <SelectTrigger className="w-28 bg-zinc-800/50 border-zinc-700">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="manha">Manhã</SelectItem>
-                          <SelectItem value="tarde">Tarde</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <Input
-                          value={registro?.horario || "8:45"}
-                          onChange={(e) => {
-                            const novoHorario = e.target.value
-                            setCampoSemana(prev => prev.map(c => 
-                              c.dia_semana === dia.value ? { ...c, horario: novoHorario } : c
-                            ))
-                          }}
-                          onBlur={(e) => salvarCampoSemana(
+                <div className="space-y-4">
+                  {diasSemana.map((dia) => {
+                    const registro = campoSemana.find(c => c.dia_semana === dia.value)
+                    return (
+                      <div key={dia.value} className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-lg bg-zinc-800/30">
+                        <div className="w-32 font-medium text-foreground">{dia.label}</div>
+                        <div className="flex-1">
+                          <SeletorPublicador
+                            value={registro?.dirigente_id || undefined}
+                            onSelect={(p) => salvarCampoSemana(
+                              dia.value,
+                              p,
+                              registro?.periodo || "manha",
+                              registro?.horario || "8:45"
+                            )}
+                            filtro="todos"
+                            placeholder="Selecionar dirigente..."
+                            className="w-full"
+                          />
+                        </div>
+                        <Select
+                          value={registro?.periodo || "manha"}
+                          onValueChange={(value) => salvarCampoSemana(
                             dia.value,
                             registro?.dirigente_id ? { id: registro.dirigente_id, nome: registro.dirigente_nome } as Publicador : null,
-                            registro?.periodo || "manha",
-                            e.target.value
+                            value,
+                            registro?.horario || "8:45"
                           )}
-                          placeholder="8:45"
-                          className="w-20 bg-zinc-800/50 border-zinc-700 text-center text-sm"
-                        />
+                        >
+                          <SelectTrigger className="w-28 bg-zinc-800/50 border-zinc-700">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="manha">Manhã</SelectItem>
+                            <SelectItem value="tarde">Tarde</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <Input
+                            value={registro?.horario || "8:45"}
+                            onChange={(e) => {
+                              const novoHorario = e.target.value
+                              setCampoSemana(prev => prev.map(c =>
+                                c.dia_semana === dia.value ? { ...c, horario: novoHorario } : c
+                              ))
+                            }}
+                            onBlur={(e) => salvarCampoSemana(
+                              dia.value,
+                              registro?.dirigente_id ? { id: registro.dirigente_id, nome: registro.dirigente_nome } as Publicador : null,
+                              registro?.periodo || "manha",
+                              e.target.value
+                            )}
+                            placeholder="8:45"
+                            className="w-20 bg-zinc-800/50 border-zinc-700 text-center text-sm"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </CardContent>
+                    )
+                  })}
+                </div>
+              </CardContent>
             </Card>
           </div>
         </TabsContent>
@@ -612,7 +619,7 @@ export default function ServicoCampoPage() {
                             <Input
                               value={registro?.horario || "17:00"}
                               onChange={(e) => {
-                                setCampoCartas(prev => prev.map(c => 
+                                setCampoCartas(prev => prev.map(c =>
                                   c.data === data ? { ...c, horario: e.target.value } : c
                                 ))
                               }}
@@ -684,7 +691,7 @@ export default function ServicoCampoPage() {
                             <Input
                               value={registro?.horario || "8:45"}
                               onChange={(e) => {
-                                setCampoSabado(prev => prev.map(c => 
+                                setCampoSabado(prev => prev.map(c =>
                                   c.data === data && c.periodo === "manha" ? { ...c, horario: e.target.value } : c
                                 ))
                               }}
@@ -732,7 +739,7 @@ export default function ServicoCampoPage() {
                             <Input
                               value={registro?.horario || "16:45"}
                               onChange={(e) => {
-                                setCampoSabado(prev => prev.map(c => 
+                                setCampoSabado(prev => prev.map(c =>
                                   c.data === data && c.periodo === "tarde" ? { ...c, horario: e.target.value } : c
                                 ))
                               }}

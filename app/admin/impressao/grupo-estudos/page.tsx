@@ -175,8 +175,8 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
           gridTemplateRows: "repeat(2, 1fr)",
-          gap: "6px",
-          flex: 1,
+          gap: "9px",
+          flex: 3,
         }}>
           {grupos.slice(0, 6).map((grupo, idx) => {
             const pc = PRINT_COLORS[idx % PRINT_COLORS.length]
@@ -211,7 +211,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                     backgroundColor: "rgba(255,255,255,0.25)",
                     borderRadius: "999px",
                     padding: "3px 8px",
-                    fontSize: "13px",
+                    fontSize: "14px",
                     color: pc.headerText,
                     fontWeight: "700",
                   }}>
@@ -221,7 +221,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                 {/* Publicadores */}
                 <div style={{ padding: "8px 10px", backgroundColor: "white", flex: 1 }}>
                   {pubs.length === 0 ? (
-                    <p style={{ fontSize: "13px", color: "#999", textAlign: "center", margin: "10px 0", fontStyle: "italic" }}>
+                    <p style={{ fontSize: "14px", color: "#999", textAlign: "center", margin: "10px 0", fontStyle: "italic" }}>
                       Sem publicadores
                     </p>
                   ) : (
@@ -235,10 +235,10 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                           backgroundColor: "#666",
                           flexShrink: 0,
                         }} />
-                        <span style={{ fontSize: "13px", color: "#111" }}>
+                        <span style={{ fontSize: "12px", color: "#111" }}>
                           {pub.nome}
-                          {pub.is_lider && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "3px", color: pc.header }}>(D)</span>}
-                          {pub.is_auxiliar && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "3px", color: "#666" }}>(A)</span>}
+                          {pub.is_lider && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "3px", color: pc.header }}>(Dirigente)</span>}
+                          {pub.is_auxiliar && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "3px", color: "#666" }}>(Ajudante)</span>}
                         </span>
                       </div>
                     ))
@@ -252,7 +252,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         {/* Rodapé */}
         <div style={{
           paddingTop: "8px",
-          borderTop: "1px solid #e5e7eb",
+          borderTop: "0px solid #e5e7eb",
           textAlign: "center",
           fontSize: "12px",
           color: "#666",
