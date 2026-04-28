@@ -73,7 +73,7 @@ export default function LoginPage() {
   const perfilConfig = {
     anciao: {
       label: "Ancião",
-      descricao: "Acesso ao quadro de anúncios da congregação",
+      descricao: "Acesso ao quadro de anúncios da congregação.",
       cor: "text-amber-400",
       bgCor: "bg-amber-600/20",
       borderCor: "border-amber-600/30",
