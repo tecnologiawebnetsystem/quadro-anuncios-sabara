@@ -113,7 +113,7 @@ export default function LoginPage() {
               </div>
               <div>
                 <p className="text-white font-bold text-base leading-none">InfoFlow</p>
-                <p className="text-zinc-500 text-xs mt-0.5">Congregação Parque Sabarà</p>
+                <p className="text-zinc-500 text-xs mt-0.5">Congregação Parque Sabará</p>
               </div>
             </div>
 
@@ -123,7 +123,7 @@ export default function LoginPage() {
                 Quadro de <span className="text-red-500">Anúncios</span>
               </h1>
               <p className="text-zinc-500 text-xs uppercase tracking-widest mt-1">
-                Congregação Sabarà
+                Congregação Parque Sabará
               </p>
             </div>
 
