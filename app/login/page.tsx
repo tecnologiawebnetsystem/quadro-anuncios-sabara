@@ -140,7 +140,7 @@ export default function LoginPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-white text-sm font-semibold">Publicador</p>
-                    <p className="text-zinc-500 text-xs mt-0.5">Consultar designações e grupos</p>
+                    <p className="text-zinc-500 text-xs mt-0.5">Consultar o quadro de anúncios.</p>
                   </div>
                   <svg className="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
