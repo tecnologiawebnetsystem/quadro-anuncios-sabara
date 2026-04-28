@@ -76,7 +76,7 @@ export default function ImpressaoGrupoEstudosPage() {
             </div>
           </div>
         </div>
-        <PrintActionButtons 
+        <PrintActionButtons
           printRef={printRef}
           documentTitle="Grupos de Estudos - Congregação Pq. Sabará"
           colorScheme="emerald"
@@ -137,10 +137,10 @@ interface PrintGrupoEstudosProps {
 const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
   ({ grupos, getPublicadoresDoGrupo }, ref) => {
     return (
-      <div ref={ref} style={{ 
-        backgroundColor: "white", 
-        padding: "8mm 10mm", 
-        color: "black", 
+      <div ref={ref} style={{
+        backgroundColor: "white",
+        padding: "8mm 8mm",
+        color: "black",
         fontFamily: "Arial, sans-serif",
         fontSize: "12px",
         lineHeight: "1.4",
@@ -153,7 +153,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         flexDirection: "column",
       }}>
         {/* Cabeçalho */}
-        <div style={{ 
+        <div style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -270,8 +270,8 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         </div>
 
         {/* Rodapé */}
-        <div style={{ 
-          paddingTop: "8px", 
+        <div style={{
+          paddingTop: "8px",
           borderTop: "1px solid #e5e7eb",
           textAlign: "center",
           fontSize: "12px",
