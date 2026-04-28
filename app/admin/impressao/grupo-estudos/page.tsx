@@ -211,7 +211,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                     backgroundColor: "rgba(255,255,255,0.25)",
                     borderRadius: "999px",
                     padding: "3px 8px",
-                    fontSize: "13px",
+                    fontSize: "14px",
                     color: pc.headerText,
                     fontWeight: "700",
                   }}>
