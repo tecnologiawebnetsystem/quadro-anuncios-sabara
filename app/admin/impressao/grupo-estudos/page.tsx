@@ -146,7 +146,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         lineHeight: "1.4",
         width: "210mm",
         height: "297mm",
-        maxHeight: "220mm",
+        maxHeight: "297mm",
         boxSizing: "border-box",
         overflow: "hidden",
         display: "flex",
@@ -173,7 +173,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         {/* Grid de grupos - 3 colunas x 2 linhas */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(3, 1fr)",
           gridTemplateRows: "repeat(2, 1fr)",
           gap: "6px",
           flex: 1,
@@ -203,7 +203,23 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                 }}>
                   <div>
                     <div style={{ fontSize: "10px", color: pc.headerText, opacity: 0.85, textTransform: "uppercase", letterSpacing: "0.03em" }}>
-                      Grupo {grupo.numero}
+                      Grupo {grupo.numero} -
+                      {/* Local */}
+                      {grupo.local && (
+                        <div style={{
+                          fontSize: "11px",
+                          color: "#555",
+                          padding: "4px 10px",
+                          borderBottom: `1px solid ${pc.border}`,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          backgroundColor: "#f9fafb",
+                          flexShrink: 0,
+                        }}>
+                          <MapPin style={{ width: "12px", height: "12px" }} /> {grupo.local}
+                        </div>
+                      )}
                     </div>
                     <div style={{ fontSize: "14px", fontWeight: "bold", color: pc.headerText }}>
                       {grupo.nome}
@@ -221,22 +237,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                   </div>
                 </div>
 
-                {/* Local */}
-                {grupo.local && (
-                  <div style={{
-                    fontSize: "11px",
-                    color: "#555",
-                    padding: "4px 10px",
-                    borderBottom: `1px solid ${pc.border}`,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "4px",
-                    backgroundColor: "#f9fafb",
-                    flexShrink: 0,
-                  }}>
-                    <MapPin style={{ width: "12px", height: "12px" }} /> {grupo.local}
-                  </div>
-                )}
+
 
                 {/* Publicadores */}
                 <div style={{ padding: "8px 10px", backgroundColor: "white", flex: 1 }}>
