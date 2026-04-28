@@ -40,7 +40,7 @@
   /* Página A4 - 210mm x 297mm - com margens mínimas */
   @page {
     size: 210mm 297mm;
-    margin: 10mm 15mm;
+    margin: 5mm 8mm;
   }
 
   /* Quebra de página */
