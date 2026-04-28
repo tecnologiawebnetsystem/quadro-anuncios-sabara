@@ -134,7 +134,7 @@ export function GrupoEstudosManager() {
     setDraggingPublicador(publicador)
     e.dataTransfer.effectAllowed = "move"
     e.dataTransfer.setData("text/plain", publicador.id)
-    
+
     // Adiciona uma pequena opacidade ao elemento sendo arrastado
     const target = e.target as HTMLElement
     setTimeout(() => {
@@ -152,7 +152,7 @@ export function GrupoEstudosManager() {
   function handleDragOver(e: React.DragEvent, grupoId: string) {
     e.preventDefault()
     e.dataTransfer.dropEffect = "move"
-    
+
     if (dragOverGrupoId !== grupoId) {
       setDragOverGrupoId(grupoId)
     }
@@ -170,9 +170,9 @@ export function GrupoEstudosManager() {
   async function handleDrop(e: React.DragEvent, grupoDestinoId: string) {
     e.preventDefault()
     setDragOverGrupoId(null)
-    
+
     if (!draggingPublicador) return
-    
+
     // Não faz nada se soltar no mesmo grupo
     if (draggingPublicador.grupo_id === grupoDestinoId) {
       setDraggingPublicador(null)
@@ -181,21 +181,21 @@ export function GrupoEstudosManager() {
 
     const publicadorNome = draggingPublicador.nome
     const grupoDestino = grupos.find(g => g.id === grupoDestinoId)
-    
+
     setIsMoving(true)
-    
+
     // Atualiza localmente primeiro para feedback instantâneo
-    setPublicadores(prev => 
-      prev.map(p => 
-        p.id === draggingPublicador.id 
+    setPublicadores(prev =>
+      prev.map(p =>
+        p.id === draggingPublicador.id
           ? { ...p, grupo_id: grupoDestinoId }
           : p
       )
     )
-    
+
     // Salva no banco
     const result = await movePublicador(draggingPublicador.id, grupoDestinoId)
-    
+
     if (result.success) {
       toast.success(`${publicadorNome} movido para ${grupoDestino?.nome || "outro grupo"}`)
     } else {
@@ -203,7 +203,7 @@ export function GrupoEstudosManager() {
       toast.error(result.error || "Erro ao mover publicador")
       carregarDados()
     }
-    
+
     setDraggingPublicador(null)
     setIsMoving(false)
   }
@@ -382,28 +382,28 @@ export function GrupoEstudosManager() {
   // Adicionar publicador existente ao grupo
   async function handleAdicionarExistenteAoGrupo(publicadorId: string) {
     if (!grupoParaAdicionarPublicador) return
-    
+
     setIsMoving(true)
     const publicador = publicadores.find(p => p.id === publicadorId)
-    
+
     // Atualiza localmente primeiro para feedback instantâneo
-    setPublicadores(prev => 
-      prev.map(p => 
-        p.id === publicadorId 
+    setPublicadores(prev =>
+      prev.map(p =>
+        p.id === publicadorId
           ? { ...p, grupo_id: grupoParaAdicionarPublicador.id }
           : p
       )
     )
-    
+
     const result = await movePublicador(publicadorId, grupoParaAdicionarPublicador.id)
-    
+
     if (result.success) {
       toast.success(`${publicador?.nome} adicionado ao ${grupoParaAdicionarPublicador.nome}`)
     } else {
       toast.error(result.error || "Erro ao adicionar publicador ao grupo")
       carregarDados()
     }
-    
+
     setIsMoving(false)
   }
 
@@ -420,7 +420,7 @@ export function GrupoEstudosManager() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Grupos de Estudos</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Grupos de Campo</h1>
           <p className="text-muted-foreground">
             Arraste e solte os publicadores para movimentar entre grupos
           </p>
@@ -473,17 +473,15 @@ export function GrupoEstudosManager() {
             const isDragOver = dragOverGrupoId === grupo.id
 
             return (
-              <Card 
-                key={grupo.id} 
-                className={`flex flex-col transition-all duration-200 ${
-                  isDragOver 
-                    ? "ring-2 ring-primary ring-offset-2 bg-primary/5" 
+              <Card
+                key={grupo.id}
+                className={`flex flex-col transition-all duration-200 ${isDragOver
+                    ? "ring-2 ring-primary ring-offset-2 bg-primary/5"
                     : ""
-                } ${
-                  draggingPublicador && draggingPublicador.grupo_id !== grupo.id
+                  } ${draggingPublicador && draggingPublicador.grupo_id !== grupo.id
                     ? "border-dashed"
                     : ""
-                }`}
+                  }`}
                 onDragOver={(e) => handleDragOver(e, grupo.id)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, grupo.id)}
@@ -535,22 +533,20 @@ export function GrupoEstudosManager() {
                           draggable
                           onDragStart={(e) => handleDragStart(e, publicador)}
                           onDragEnd={handleDragEnd}
-                          className={`group flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-all ${
-                            draggingPublicador?.id === publicador.id
+                          className={`group flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-all ${draggingPublicador?.id === publicador.id
                               ? "opacity-50 bg-muted"
                               : ""
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 opacity-50 group-hover:opacity-100" />
                             <span
-                              className={`truncate text-sm select-none ${
-                                publicador.is_lider
+                              className={`truncate text-sm select-none ${publicador.is_lider
                                   ? "font-bold text-destructive"
                                   : publicador.is_auxiliar
-                                  ? "font-semibold text-primary"
-                                  : ""
-                              }`}
+                                    ? "font-semibold text-primary"
+                                    : ""
+                                }`}
                             >
                               {publicador.nome}
                             </span>
@@ -598,26 +594,26 @@ export function GrupoEstudosManager() {
                       )}
                     </div>
                   </ScrollArea>
-<div className="mt-3 pt-3 border-t space-y-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="w-full"
-                                      onClick={() => abrirDialogPublicador(undefined, grupo.id)}
-                                    >
-                                      <UserPlus className="mr-2 h-4 w-4" />
-                                      Novo Publicador
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="w-full"
-                                      onClick={() => abrirDialogAdicionarExistente(grupo)}
-                                    >
-                                      <UserCheck className="mr-2 h-4 w-4" />
-                                      Adicionar Existente
-                                    </Button>
-                                  </div>
+                  <div className="mt-3 pt-3 border-t space-y-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => abrirDialogPublicador(undefined, grupo.id)}
+                    >
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Novo Publicador
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => abrirDialogAdicionarExistente(grupo)}
+                    >
+                      <UserCheck className="mr-2 h-4 w-4" />
+                      Adicionar Existente
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             )
