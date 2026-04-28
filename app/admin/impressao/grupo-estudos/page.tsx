@@ -173,9 +173,9 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         {/* Grid de grupos - 3 colunas x 2 linhas */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
-          gridTemplateRows: "repeat(1, 1fr)",
-          gap: "10px",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateRows: "repeat(2, 1fr)",
+          gap: "6px",
           flex: 1,
         }}>
           {grupos.slice(0, 6).map((grupo, idx) => {
