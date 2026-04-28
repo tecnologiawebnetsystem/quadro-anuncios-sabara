@@ -111,7 +111,7 @@ const orgItems: MenuItem[] = [
 ]
 
 const visualizacaoGroup: MenuGroup = {
-  title: "Visualização",
+  title: "Consultas",
   icon: Monitor,
   color: "text-indigo-400",
   items: [
