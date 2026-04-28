@@ -62,6 +62,7 @@ interface EquipeTecnica {
   indicador2_nome: string | null
   microvolante1_nome: string | null
   microvolante2_nome: string | null
+  microvolante_palco: 1 | 2 | null
   som_nome: string | null
 }
 
@@ -617,7 +618,7 @@ export const PrintEquipeTecnica = forwardRef<HTMLDivElement, EquipeTecnicaProps>
       <div ref={ref} style={{
         backgroundColor: "white",
         color: "black",
-        padding: "8mm 10mm",
+        padding: "5mm 8mm",
         width: "210mm",
         height: "297mm",
         maxHeight: "297mm",
@@ -633,61 +634,87 @@ export const PrintEquipeTecnica = forwardRef<HTMLDivElement, EquipeTecnicaProps>
           justifyContent: "space-between",
           alignItems: "center",
           paddingBottom: "5px",
-          marginBottom: "8px",
+          marginBottom: "6px",
           borderBottom: "2px solid #333",
           flexShrink: 0
         }}>
-          <h1 style={{ fontSize: "16px", fontWeight: "bold", margin: 0, color: "#000" }}>Parque Sabará - Taubaté SP</h1>
-          <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: 0, color: "#000" }}>Equipe Técnica - {mesLabel}</h2>
+          <h1 style={{ fontSize: "13px", fontWeight: "bold", margin: 0, color: "#000" }}>Parque Sabará — Taubaté SP</h1>
+          <h2 style={{ fontSize: "13px", fontWeight: "bold", margin: 0, color: "#000" }}>Programação da Congregação</h2>
+        </div>
+
+        {/* Banner do mês */}
+        <div style={{
+          backgroundColor: "#1f2937",
+          color: "white",
+          padding: "5px 10px",
+          textAlign: "center",
+          fontWeight: "bold",
+          fontSize: "11px",
+          marginBottom: "6px",
+          borderRadius: "3px",
+          flexShrink: 0,
+          textTransform: "uppercase",
+          letterSpacing: "1px"
+        }}>
+          {mesLabel.toUpperCase()}
+        </div>
+
+        {/* Título seção */}
+        <div style={{
+          backgroundColor: "#2a6b77",
+          color: "white",
+          padding: "5px 10px",
+          fontWeight: "bold",
+          fontSize: "10px",
+          marginBottom: "1px",
+          borderRadius: "3px 3px 0 0",
+          flexShrink: 0
+        }}>
+          DESIGNAÇÕES TÉCNICAS
         </div>
 
         {/* Tabela */}
         <table style={{ 
           width: "100%", 
           borderCollapse: "collapse", 
-          fontSize: "12px",
+          fontSize: "9px",
           flex: 1
         }}>
           <thead>
-            <tr style={{ backgroundColor: "#2a6b77" }}>
-              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "10%" }}>Data</th>
-              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "8%" }}>Dia</th>
-              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Indicador 1</th>
-              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Indicador 2</th>
-              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Microfone 1</th>
-              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Microfone 2</th>
-              <th style={{ padding: "4px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "10%" }}>Som</th>
+            <tr style={{ backgroundColor: "#f3f4f6" }}>
+              <th style={{ padding: "4px 6px", border: "1px solid #e5e7eb", color: "#374151", textAlign: "center", width: "10%" }}>Data</th>
+              <th style={{ padding: "4px 6px", border: "1px solid #e5e7eb", color: "#374151", textAlign: "center" }}>Indicadores</th>
+              <th style={{ padding: "4px 6px", border: "1px solid #e5e7eb", color: "#374151", textAlign: "center" }}>Mic. Volante</th>
+              <th style={{ padding: "4px 6px", border: "1px solid #e5e7eb", color: "#374151", textAlign: "center" }}>Áudio e Vídeo</th>
+              <th style={{ padding: "4px 6px", border: "1px solid #e5e7eb", color: "#374151", textAlign: "center" }}>Palco</th>
             </tr>
           </thead>
           <tbody>
             {designacoes.map((d, i) => (
-              <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
-                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{formatarData(d.data)}</td>
-                <td style={{ padding: "4px 8px", border: "1px solid #ddd", fontWeight: "500" }}>
-                  {d.dia_semana === "quinta" ? "Qui" : "Dom"}
+              <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
+                  {formatarData(d.data)}
                 </td>
-                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{d.indicador1_nome || "-"}</td>
-                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{d.indicador2_nome || "-"}</td>
-                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{d.microvolante1_nome || "-"}</td>
-                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{d.microvolante2_nome || "-"}</td>
-                <td style={{ padding: "4px 8px", border: "1px solid #ddd" }}>{d.som_nome || "-"}</td>
+                <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
+                  {d.indicador1_nome || "-"}{d.indicador2_nome ? ` / ${d.indicador2_nome}` : ""}
+                </td>
+                <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
+                  {d.microvolante1_nome || "-"}{d.microvolante2_nome ? ` / ${d.microvolante2_nome}` : ""}
+                </td>
+                <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
+                  {d.som_nome || "-"}
+                </td>
+                <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
+                  {d.microvolante_palco === 1
+                    ? (d.microvolante1_nome || "-")
+                    : d.microvolante_palco === 2
+                    ? (d.microvolante2_nome || "-")
+                    : "-"}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-
-        {/* Rodapé */}
-        <div style={{
-          textAlign: "center",
-          fontSize: "12px",
-          color: "#666",
-          padding: "5px",
-          marginTop: "auto",
-          borderTop: "1px solid #ccc",
-          flexShrink: 0
-        }}>
-          Congregação Pq. Sabará - {mesLabel}
-        </div>
       </div>
     )
   }
