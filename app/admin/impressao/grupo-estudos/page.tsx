@@ -173,7 +173,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         {/* Grid de grupos - 3 colunas x 2 linhas */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
+          gridTemplateColumns: "repeat(6, 1fr)",
           gridTemplateRows: "repeat(3, 1fr)",
           gap: "10px",
           flex: 1,
