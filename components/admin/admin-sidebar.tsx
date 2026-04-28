@@ -127,7 +127,7 @@ const visualizacaoGroup: MenuGroup = {
 const impressaoGroup: MenuGroup = {
   title: "Impressão",
   icon: ClipboardList,
-  color: "text-amber-400",
+  color: "text-emerald-400",
   items: [
     { title: "Vida e Ministério", icon: Gem, href: "/admin/impressao/vida-ministerio", color: "text-amber-400" },
     { title: "Programação", icon: ClipboardList, href: "/admin/programacao-congregacao", color: "text-amber-400" },
