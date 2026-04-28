@@ -176,7 +176,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
           gridTemplateColumns: "repeat(3, 1fr)",
           gridTemplateRows: "repeat(2, 1fr)",
           gap: "9px",
-          flex: 1,
+          flex: 3,
         }}>
           {grupos.slice(0, 6).map((grupo, idx) => {
             const pc = PRINT_COLORS[idx % PRINT_COLORS.length]
