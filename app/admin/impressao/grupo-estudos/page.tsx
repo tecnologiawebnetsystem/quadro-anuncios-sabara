@@ -203,23 +203,8 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                 }}>
                   <div>
                     <div style={{ fontSize: "10px", color: pc.headerText, opacity: 0.85, textTransform: "uppercase", letterSpacing: "0.03em" }}>
-                      Grupo {grupo.numero} -
-                      {/* Local */}
-                      {grupo.local && (
-                        <div style={{
-                          fontSize: "11px",
-                          color: "#555",
-                          padding: "4px 10px",
-                          borderBottom: `1px solid ${pc.border}`,
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          backgroundColor: "#f9fafb",
-                          flexShrink: 0,
-                        }}>
-                          <MapPin style={{ width: "12px", height: "12px" }} /> {grupo.local}
-                        </div>
-                      )}
+                      Grupo {grupo.numero} - {grupo.local}
+
                     </div>
                     <div style={{ fontSize: "14px", fontWeight: "bold", color: pc.headerText }}>
                       {grupo.nome}
