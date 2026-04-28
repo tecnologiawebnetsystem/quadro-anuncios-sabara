@@ -774,7 +774,7 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                   <Mic className="h-5 w-5 text-amber-500" />
-                  Proximo Discurso Publico
+                  Próximo Discurso Publico
                 </CardTitle>
                 <Link href="/admin/reunioes-publicas" className="text-xs text-amber-400 hover:underline">
                   Ver todos
