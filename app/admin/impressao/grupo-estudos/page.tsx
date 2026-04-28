@@ -221,7 +221,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                 {/* Publicadores */}
                 <div style={{ padding: "8px 10px", backgroundColor: "white", flex: 1 }}>
                   {pubs.length === 0 ? (
-                    <p style={{ fontSize: "12.5px", color: "#999", textAlign: "center", margin: "10px 0", fontStyle: "italic" }}>
+                    <p style={{ fontSize: "14px", color: "#999", textAlign: "center", margin: "10px 0", fontStyle: "italic" }}>
                       Sem publicadores
                     </p>
                   ) : (
