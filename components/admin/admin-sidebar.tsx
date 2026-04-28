@@ -195,7 +195,7 @@ export function AdminSidebar() {
             <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
               Info<span className="text-primary">Flow</span>
             </span>
-            <span className="text-[11px] text-muted-foreground">Administração</span>
+            <span className="text-[11px] text-muted-foreground">Quadro de Anúncios</span>
           </div>
         </Link>
       </SidebarHeader>
