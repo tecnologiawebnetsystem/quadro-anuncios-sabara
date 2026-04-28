@@ -224,7 +224,7 @@ export function AdminSidebar() {
 
         {/* Grupos colapsáveis */}
         <SidebarGroup className="p-0">
-          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-amber-400 -muted-foreground/70">
             Gerenciamento
           </SidebarGroupLabel>
           <SidebarGroupContent>
