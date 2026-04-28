@@ -252,7 +252,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         {/* Rodapé */}
         <div style={{
           paddingTop: "8px",
-          borderTop: "1px solid #e5e7eb",
+          borderTop: "0px solid #e5e7eb",
           textAlign: "center",
           fontSize: "12px",
           color: "#666",
