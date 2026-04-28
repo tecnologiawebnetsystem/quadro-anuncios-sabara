@@ -295,7 +295,7 @@ export function AdminSidebar() {
 
         {/* Organização */}
         <SidebarGroup className="p-0">
-          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-amber-400 text-muted-foreground/70">
             Organização
           </SidebarGroupLabel>
           <SidebarGroupContent>
