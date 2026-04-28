@@ -328,7 +328,7 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                   <td style={cell()}>{[d.indicador1_nome, d.indicador2_nome].filter(Boolean).join(" / ") || "—"}</td>
                   <td style={cell()}>{[d.microvolante1_nome, d.microvolante2_nome].filter(Boolean).join(" / ") || "—"}</td>
                   <td style={cell()}>{d.som_nome}</td>
-                  <td style={cell()}>{d.microvolante_palco}</td>
+                  <td style={cell()}>{d.microvolante_palco.nome}</td>
                 </tr>
               ))}
             </tbody>
