@@ -412,7 +412,7 @@ export function AdminSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isItemActive("/admin/configuracoes")} className="h-9 rounded-lg font-medium">
                   <Link href="/admin/configuracoes" className="flex items-center gap-3">
-                    <Settings className="h-4 w-4 flex-shrink-0 text-amberc-400" />
+                    <Settings className="h-4 w-4 flex-shrink-0 text-amber-400" />
                     <span>Configurações</span>
                   </Link>
                 </SidebarMenuButton>
