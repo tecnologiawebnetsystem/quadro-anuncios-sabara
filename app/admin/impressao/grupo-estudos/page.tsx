@@ -185,7 +185,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
               <div
                 key={grupo.id}
                 style={{
-                  border: `2px solid ${pc.border}`,
+                  border: `4px solid ${pc.border}`,
                   borderRadius: "4px",
                   overflow: "hidden",
                   display: "flex",
