@@ -237,8 +237,8 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                         }} />
                         <span style={{ fontSize: "12px", color: "#111" }}>
                           {pub.nome}
-                          {pub.is_lider && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "3px", color: pc.header }}>(D)</span>}
-                          {pub.is_auxiliar && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "3px", color: "#666" }}>(A)</span>}
+                          {pub.is_lider && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "3px", color: pc.header }}>(Dirigente)</span>}
+                          {pub.is_auxiliar && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "3px", color: "#666" }}>(Ajudante)</span>}
                         </span>
                       </div>
                     ))
