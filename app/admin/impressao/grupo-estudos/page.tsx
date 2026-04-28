@@ -166,7 +166,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
             Parque Sabará - Taubaté SP
           </div>
           <div style={{ fontSize: "16px", fontWeight: "bold", color: "#111827", textAlign: "right" }}>
-            Grupos de Estudos
+            Grupos de Serviço de Campo
           </div>
         </div>
 
