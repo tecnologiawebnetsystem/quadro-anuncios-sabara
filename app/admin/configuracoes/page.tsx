@@ -42,7 +42,7 @@ export default function ConfiguracoesPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
   const [saved, setSaved] = useState<string | null>(null)
-  
+
   // Configurações de reuniões
   const [reuniaoMeioSemana, setReuniaoMeioSemana] = useState({
     dia: "quinta",
@@ -51,31 +51,31 @@ export default function ConfiguracoesPage() {
   })
   const [reuniaoFimSemana, setReuniaoFimSemana] = useState({
     dia: "domingo",
-    horario: "09:00",
+    horario: "19:00",
     nome: "Reunião de Fim de Semana"
   })
-  
+
   // Configurações da congregação
   const [congregacao, setCongregacao] = useState({
     nome: "Congregação Pq. Sabará",
     cidade: "Sabará",
-    estado: "MG",
+    estado: "SP",
     circuito: "",
     numero: ""
   })
-  
+
   // Configurações de horários de campo
   const [horariosCampo, setHorariosCampo] = useState({
     manha: "8:45",
     tarde: "16:45"
   })
-  
+
   // Configurações do Zoom
   const [zoom, setZoom] = useState({
     link: "",
     senha: ""
   })
-  
+
   // Configurações de senhas de acesso
   const [senhaAdmin, setSenhaAdmin] = useState({ atual: "", nova: "", confirmar: "" })
   const [senhaAnciao, setSenhaAnciao] = useState({ atual: "", nova: "", confirmar: "" })
@@ -90,13 +90,13 @@ export default function ConfiguracoesPage() {
         const response = await fetch("/api/configuracoes")
         if (response.ok) {
           const data: Configuracao[] = await response.json()
-          
+
           const meioSemana = data.find(c => c.chave === "reuniao_meio_semana")
           const fimSemana = data.find(c => c.chave === "reuniao_fim_semana")
           const congConfig = data.find(c => c.chave === "congregacao")
           const campoConfig = data.find(c => c.chave === "horarios_campo_padrao")
           const zoomConfig = data.find(c => c.chave === "zoom_link")
-          
+
           if (meioSemana?.valor) setReuniaoMeioSemana(meioSemana.valor as typeof reuniaoMeioSemana)
           if (fimSemana?.valor) setReuniaoFimSemana(fimSemana.valor as typeof reuniaoFimSemana)
           if (congConfig?.valor) setCongregacao(congConfig.valor as typeof congregacao)
@@ -109,21 +109,21 @@ export default function ConfiguracoesPage() {
         setLoading(false)
       }
     }
-    
+
     carregarConfiguracoes()
   }, [])
 
   async function salvarConfiguracao(chave: string, valor: Record<string, string>) {
     setSaving(chave)
     setSaved(null)
-    
+
     try {
       const response = await fetch("/api/configuracoes", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ chave, valor })
       })
-      
+
       if (response.ok) {
         setSaved(chave)
         setTimeout(() => setSaved(null), 2000)
@@ -138,28 +138,28 @@ export default function ConfiguracoesPage() {
   async function alterarSenha(perfil: "administrador" | "anciao") {
     const dados = perfil === "administrador" ? senhaAdmin : senhaAnciao
     const setDados = perfil === "administrador" ? setSenhaAdmin : setSenhaAnciao
-    
+
     setErroSenha(null)
     setSucessoSenha(null)
-    
+
     // Validações
     if (!dados.nova) {
       setErroSenha("Digite a nova senha")
       return
     }
-    
+
     if (!/^\d{6}$/.test(dados.nova)) {
       setErroSenha("A senha deve ter exatamente 6 dígitos numéricos")
       return
     }
-    
+
     if (dados.nova !== dados.confirmar) {
       setErroSenha("As senhas não coincidem")
       return
     }
-    
+
     setSaving(`senha_${perfil}`)
-    
+
     try {
       const response = await fetch("/api/senhas", {
         method: "PUT",
@@ -170,14 +170,14 @@ export default function ConfiguracoesPage() {
           senhaAtual: dados.atual || undefined
         })
       })
-      
+
       const result = await response.json()
-      
+
       if (!response.ok) {
         setErroSenha(result.error || "Erro ao alterar senha")
         return
       }
-      
+
       setSucessoSenha(`Senha do ${perfil === "administrador" ? "Administrador" : "Ancião"} alterada com sucesso!`)
       setDados({ atual: "", nova: "", confirmar: "" })
       setTimeout(() => setSucessoSenha(null), 3000)
@@ -190,7 +190,7 @@ export default function ConfiguracoesPage() {
 
   function BotaoSalvar({ chave, valor }: { chave: string; valor: Record<string, string> }) {
     return (
-      <Button 
+      <Button
         onClick={() => salvarConfiguracao(chave, valor)}
         disabled={saving === chave}
         className="w-full"
@@ -370,7 +370,7 @@ export default function ConfiguracoesPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="horario-meio">Horário</Label>
                   <div className="relative">
@@ -384,7 +384,7 @@ export default function ConfiguracoesPage() {
                     />
                   </div>
                 </div>
-                
+
                 <BotaoSalvar chave="reuniao_meio_semana" valor={reuniaoMeioSemana} />
               </CardContent>
             </Card>
@@ -419,7 +419,7 @@ export default function ConfiguracoesPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="horario-fim">Horário</Label>
                   <div className="relative">
@@ -433,7 +433,7 @@ export default function ConfiguracoesPage() {
                     />
                   </div>
                 </div>
-                
+
                 <BotaoSalvar chave="reuniao_fim_semana" valor={reuniaoFimSemana} />
               </CardContent>
             </Card>
@@ -620,7 +620,7 @@ export default function ConfiguracoesPage() {
                       </button>
                     </div>
                   </div>
-                  <Button 
+                  <Button
                     onClick={() => alterarSenha("administrador")}
                     disabled={saving === "senha_administrador"}
                     className="w-full"
@@ -713,7 +713,7 @@ export default function ConfiguracoesPage() {
                       </button>
                     </div>
                   </div>
-                  <Button 
+                  <Button
                     onClick={() => alterarSenha("anciao")}
                     disabled={saving === "senha_anciao"}
                     className="w-full"
