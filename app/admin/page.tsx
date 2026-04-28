@@ -649,7 +649,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                 <Calendar className="h-5 w-5 text-blue-500" />
-                Reunioes da Semana
+                Reuniões da Semana
               </CardTitle>
               <Link href="/admin/equipe-tecnica" className="text-xs text-blue-400 hover:underline">
                 Ver tudo
