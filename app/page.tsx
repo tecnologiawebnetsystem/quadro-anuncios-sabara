@@ -4,7 +4,7 @@ import { SobreContent } from "@/components/sobre/sobre-content"
 
 export const metadata: Metadata = {
   title: "Congregação Pq. Sabará | Testemunhas de Jeová - Quadro de Anúncios",
-  description: "Bem-vindo ao quadro de anúncios oficial da Congregação Pq. Sabará das Testemunhas de Jeová. Informações, eventos e anúncios da congregação.",
+  description: "Bem-vindo ao quadro de anúncios oficial da Congregação Pq. Sabará das Testemunhas de Jeová.",
 }
 
 export const revalidate = 60 // Revalidar a cada 60 segundos
@@ -17,12 +17,12 @@ async function getAnuncios() {
     .eq("ativo", true)
     .order("ordem", { ascending: true })
     .order("created_at", { ascending: false })
-  
+
   return data || []
 }
 
 export default async function HomePage() {
   const anuncios = await getAnuncios()
-  
+
   return <SobreContent anuncios={anuncios} />
 }
