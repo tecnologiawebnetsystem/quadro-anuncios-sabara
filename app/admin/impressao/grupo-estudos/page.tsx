@@ -71,7 +71,7 @@ export default function ImpressaoGrupoEstudosPage() {
               <BookOpen className="h-4 w-4 text-emerald-400" />
             </div>
             <div>
-              <h1 className="text-base font-bold">Grupo de Estudos</h1>
+              <h1 className="text-base font-bold">Grupo de Saídas de Campo</h1>
               <p className="text-xs text-muted-foreground">Visualização para impressão</p>
             </div>
           </div>
@@ -259,7 +259,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
           flexShrink: 0,
           marginTop: "10px",
         }}>
-          Congregação Pq. Sabará - Grupos de Estudos
+          Congregação Pq. Sabará - Grupos de Saídas de Campo
         </div>
       </div>
     )
