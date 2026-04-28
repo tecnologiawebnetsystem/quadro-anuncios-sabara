@@ -99,7 +99,7 @@ const menuGroups: MenuGroup[] = [
       { title: "Sentinela", icon: BookMarked, href: "/admin/sentinela", color: "text-blue-400" },
       { title: "Reuniões Públicas", icon: Mic, href: "/admin/reunioes-publicas", color: "text-blue-400" },
       { title: "Equipe Técnica", icon: Wrench, href: "/admin/equipe-tecnica", color: "text-blue-400" },
-      { title: "Grupo de Estudos", icon: BookOpen, href: "/admin/grupo-estudos", color: "text-emerald-400" },
+      { title: "Grupo de Campo", icon: BookOpen, href: "/admin/grupo-estudos", color: "text-emerald-400" },
       { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/limpeza-salao", color: "text-cyan-400" },
       { title: "Serviço de Campo", icon: MapPin, href: "/admin/servico-campo", color: "text-orange-400" },
     ]
@@ -131,7 +131,7 @@ const impressaoGroup: MenuGroup = {
   items: [
     { title: "Vida e Ministério", icon: Gem, href: "/admin/impressao/vida-ministerio", color: "text-amber-400" },
     { title: "Programação", icon: ClipboardList, href: "/admin/programacao-congregacao", color: "text-amber-400" },
-    { title: "Grupo de Estudos", icon: BookOpen, href: "/admin/impressao/grupo-estudos", color: "text-amber-400" },
+    { title: "Grupo de Campo", icon: BookOpen, href: "/admin/impressao/grupo-estudos", color: "text-amber-400" },
     { title: "Serviço de Campo", icon: MapPin, href: "/admin/impressao/servico-campo", color: "text-amber-400" },
   ]
 }

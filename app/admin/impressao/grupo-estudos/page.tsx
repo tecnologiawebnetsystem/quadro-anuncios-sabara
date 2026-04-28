@@ -71,14 +71,14 @@ export default function ImpressaoGrupoEstudosPage() {
               <BookOpen className="h-4 w-4 text-emerald-400" />
             </div>
             <div>
-              <h1 className="text-base font-bold">Grupo de Estudos</h1>
+              <h1 className="text-base font-bold">Grupos de Serviço de Campo</h1>
               <p className="text-xs text-muted-foreground">Visualização para impressão</p>
             </div>
           </div>
         </div>
-        <PrintActionButtons 
+        <PrintActionButtons
           printRef={printRef}
-          documentTitle="Grupos de Estudos - Congregação Pq. Sabará"
+          documentTitle="Grupos de Serviço de Campo - Congregação Pq. Sabará"
           colorScheme="emerald"
         />
       </div>
@@ -137,10 +137,10 @@ interface PrintGrupoEstudosProps {
 const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
   ({ grupos, getPublicadoresDoGrupo }, ref) => {
     return (
-      <div ref={ref} style={{ 
-        backgroundColor: "white", 
-        padding: "8mm 10mm", 
-        color: "black", 
+      <div ref={ref} style={{
+        backgroundColor: "white",
+        padding: "8mm 8mm",
+        color: "black",
         fontFamily: "Arial, sans-serif",
         fontSize: "12px",
         lineHeight: "1.4",
@@ -153,7 +153,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         flexDirection: "column",
       }}>
         {/* Cabeçalho */}
-        <div style={{ 
+        <div style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -166,7 +166,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
             Parque Sabará - Taubaté SP
           </div>
           <div style={{ fontSize: "16px", fontWeight: "bold", color: "#111827", textAlign: "right" }}>
-            Grupos de Estudos
+            Grupos de Serviço de Campo
           </div>
         </div>
 
@@ -175,7 +175,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
           gridTemplateRows: "repeat(2, 1fr)",
-          gap: "10px",
+          gap: "6px",
           flex: 1,
         }}>
           {grupos.slice(0, 6).map((grupo, idx) => {
@@ -202,11 +202,9 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                   flexShrink: 0,
                 }}>
                   <div>
-                    <div style={{ fontSize: "10px", color: pc.headerText, opacity: 0.85, textTransform: "uppercase", letterSpacing: "0.03em" }}>
-                      Grupo {grupo.numero}
-                    </div>
+
                     <div style={{ fontSize: "14px", fontWeight: "bold", color: pc.headerText }}>
-                      {grupo.nome}
+                      {grupo.nome} - {grupo.local}
                     </div>
                   </div>
                   <div style={{
@@ -220,28 +218,10 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                     {pubs.length}
                   </div>
                 </div>
-
-                {/* Local */}
-                {grupo.local && (
-                  <div style={{
-                    fontSize: "11px",
-                    color: "#555",
-                    padding: "4px 10px",
-                    borderBottom: `1px solid ${pc.border}`,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "4px",
-                    backgroundColor: "#f9fafb",
-                    flexShrink: 0,
-                  }}>
-                    <MapPin style={{ width: "12px", height: "12px" }} /> {grupo.local}
-                  </div>
-                )}
-
                 {/* Publicadores */}
                 <div style={{ padding: "8px 10px", backgroundColor: "white", flex: 1 }}>
                   {pubs.length === 0 ? (
-                    <p style={{ fontSize: "12px", color: "#999", textAlign: "center", margin: "10px 0", fontStyle: "italic" }}>
+                    <p style={{ fontSize: "13px", color: "#999", textAlign: "center", margin: "10px 0", fontStyle: "italic" }}>
                       Sem publicadores
                     </p>
                   ) : (
@@ -255,7 +235,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
                           backgroundColor: "#666",
                           flexShrink: 0,
                         }} />
-                        <span style={{ fontSize: "12px", color: "#111" }}>
+                        <span style={{ fontSize: "13px", color: "#111" }}>
                           {pub.nome}
                           {pub.is_lider && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "3px", color: pc.header }}>(D)</span>}
                           {pub.is_auxiliar && <span style={{ fontWeight: 700, fontSize: "11px", marginLeft: "3px", color: "#666" }}>(A)</span>}
@@ -270,8 +250,8 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
         </div>
 
         {/* Rodapé */}
-        <div style={{ 
-          paddingTop: "8px", 
+        <div style={{
+          paddingTop: "8px",
           borderTop: "1px solid #e5e7eb",
           textAlign: "center",
           fontSize: "12px",
@@ -279,7 +259,7 @@ const PrintGrupoEstudos = forwardRef<HTMLDivElement, PrintGrupoEstudosProps>(
           flexShrink: 0,
           marginTop: "10px",
         }}>
-          Congregação Pq. Sabará - Grupos de Estudos
+          Congregação Pq. Sabará - Grupos de Serviço de Campo
         </div>
       </div>
     )
