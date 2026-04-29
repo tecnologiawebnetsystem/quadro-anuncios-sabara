@@ -14,6 +14,7 @@ interface LimpezaSalao {
   data_inicio: string
   data_fim: string
   grupo_nome: string | null
+  limpeza_semanal_grupo_nome: string | null
 }
 
 const meses = [
@@ -140,9 +141,9 @@ export default function ConsultaLimpezaSalaoPage() {
           {designacoes.map((d) => (
             <Card key={d.id} className="bg-zinc-900/50 border-zinc-800 hover:border-cyan-800/50 transition-colors">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-cyan-600/20 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-cyan-600/20 flex items-center justify-center shrink-0">
                       <span className="text-cyan-400 font-bold">{d.semana}ª</span>
                     </div>
                     <div>
@@ -152,11 +153,25 @@ export default function ConsultaLimpezaSalaoPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Users className="h-5 w-5 text-cyan-500" />
-                    <span className="text-lg font-semibold text-white">
-                      {d.grupo_nome || "Não designado"}
-                    </span>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-zinc-500">Limpeza do Salão</span>
+                      <div className="flex items-center gap-1">
+                        <Users className="h-4 w-4 text-cyan-500" />
+                        <span className="text-sm font-semibold text-white">
+                          {d.grupo_nome || "Não designado"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-zinc-500">Limpeza Semanal</span>
+                      <div className="flex items-center gap-1">
+                        <Users className="h-4 w-4 text-green-500" />
+                        <span className="text-sm font-semibold text-white">
+                          {d.limpeza_semanal_grupo_nome || "Não designado"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
