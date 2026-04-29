@@ -91,7 +91,7 @@ const mesesDisponiveis = [
 function calcularIndiceMesAtual(): number {
   const agora = new Date()
   const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`
-  const indice = mesesDisponiveis.findIndex(m => m.value === mesAtual)
+  const indice = mesesDisponiveis.findIndex(m => m.valor === mesAtual)
   return indice >= 0 ? indice : 0 // Se não encontrar, retorna o primeiro mês
 }
 
@@ -149,7 +149,7 @@ export default function ServicoCampoPage() {
         const { data: semanaData } = await supabase
           .from("servico_campo_semana")
           .select("*")
-          .eq("mes", mesesDisponiveis[indiceMesAtual].value)
+          .eq("mes", mesesDisponiveis[indiceMesAtual].valor)
           .order("dia_semana")
 
         if (semanaData) setCampoSemana(semanaData)
@@ -158,7 +158,7 @@ export default function ServicoCampoPage() {
         const { data: cartasData } = await supabase
           .from("servico_campo_cartas")
           .select("*")
-          .eq("mes", mesesDisponiveis[indiceMesAtual].value)
+          .eq("mes", mesesDisponiveis[indiceMesAtual].valor)
           .order("data")
 
         if (cartasData) setCampoCartas(cartasData)
@@ -181,7 +181,7 @@ export default function ServicoCampoPage() {
         const { data: sabadoData } = await supabase
           .from("servico_campo_sabado")
           .select("*")
-          .eq("mes", mesAtual.value)
+          .eq("mes", mesAtual.valor)
           .order("data")
 
         if (sabadoData) setCampoSabado(sabadoData)
@@ -190,7 +190,7 @@ export default function ServicoCampoPage() {
         const { data: domingoData } = await supabase
           .from("servico_campo_domingo")
           .select("*")
-          .eq("mes", mesAtual.value)
+          .eq("mes", mesAtual.valor)
           .order("data")
 
         if (domingoData) setCampoDomingo(domingoData)
@@ -201,7 +201,7 @@ export default function ServicoCampoPage() {
     }
 
     carregarDadosMes()
-  }, [mesAtual.value])
+  }, [mesAtual.valor])
 
   // Carregar arranjo de cartas quando mês mudar
   useEffect(() => {
@@ -210,7 +210,7 @@ export default function ServicoCampoPage() {
         const { data: cartasData } = await supabase
           .from("servico_campo_cartas")
           .select("*")
-          .eq("mes", mesCartas.value)
+          .eq("mes", mesCartas.valor)
           .order("data")
 
         if (cartasData) setCampoCartas(cartasData)
@@ -220,7 +220,7 @@ export default function ServicoCampoPage() {
     }
 
     carregarCartasMes()
-  }, [mesCartas.value])
+  }, [mesCartas.valor])
 
   // Carregar Durante a Semana quando mês mudar
   useEffect(() => {
@@ -229,7 +229,7 @@ export default function ServicoCampoPage() {
         const { data: semanaData } = await supabase
           .from("servico_campo_semana")
           .select("*")
-          .eq("mes", mesSemana.value)
+          .eq("mes", mesSemana.valor)
           .order("dia_semana")
 
         if (semanaData) setCampoSemana(semanaData)
@@ -239,15 +239,15 @@ export default function ServicoCampoPage() {
     }
 
     carregarSemanaMes()
-  }, [mesSemana.value])
+  }, [mesSemana.valor])
 
   // Salvar campo durante a semana
   async function salvarCampoSemana(dia: string, publicador: Publicador | null, periodo: string, horario: string) {
-    const existente = campoSemana.find(c => c.dia_semana === dia && c.mes === mesSemana.value)
+    const existente = campoSemana.find(c => c.dia_semana === dia && c.mes === mesSemana.valor)
 
     // Dados para salvar - omitindo 'data' pois não é necessário para Durante a Semana
     const dados = {
-      mes: mesSemana.value,
+      mes: mesSemana.valor,
       dia_semana: dia,
       dirigente_id: publicador?.id || null,
       dirigente_nome: publicador?.nome || "",
@@ -292,7 +292,7 @@ export default function ServicoCampoPage() {
 
     const dados: Partial<CampoCartas> = {
       data,
-      mes: mesCartas.value,
+      mes: mesCartas.valor,
       dia_semana: "segunda", // Fixo para segunda-feira
       descricao: "Cartas",
       periodo: "tarde",
@@ -338,7 +338,7 @@ export default function ServicoCampoPage() {
 
     const dados: Partial<CampoSabado> = {
       data,
-      mes: mesAtual.value,
+      mes: mesAtual.valor,
       periodo,
       horario: horarioFinal,
       dirigente_id: publicador?.id || null,
@@ -381,7 +381,7 @@ export default function ServicoCampoPage() {
 
     const dados: Partial<CampoDomingo> = {
       data,
-      mes: mesAtual.value,
+      mes: mesAtual.valor,
       horario: horarioFinal,
       dirigente_id: tipo === "grupo" ? null : (publicador?.id || null),
       dirigente_nome: tipo === "grupo" ? "GRUPO" : (publicador?.nome || null),
@@ -446,20 +446,20 @@ export default function ServicoCampoPage() {
 
   // Gerar sábados e domingos do mês atual
   const sabadosDoMes = useMemo(() => {
-    const [ano, mes] = mesAtual.value.split("-").map(Number)
+    const [ano, mes] = mesAtual.valor.split("-").map(Number)
     return gerarDiasDoMes(ano, mes - 1, 6)
-  }, [mesAtual.value])
+  }, [mesAtual.valor])
 
   const domingosDoMes = useMemo(() => {
-    const [ano, mes] = mesAtual.value.split("-").map(Number)
+    const [ano, mes] = mesAtual.valor.split("-").map(Number)
     return gerarDiasDoMes(ano, mes - 1, 0)
-  }, [mesAtual.value])
+  }, [mesAtual.valor])
 
   // Gerar segundas-feiras do mês para arranjo de cartas
   const segundasDoMes = useMemo(() => {
-    const [ano, mes] = mesCartas.value.split("-").map(Number)
+    const [ano, mes] = mesCartas.valor.split("-").map(Number)
     return gerarDiasDoMes(ano, mes - 1, 1) // 1 = segunda-feira
-  }, [mesCartas.value])
+  }, [mesCartas.valor])
 
   // Segundo domingo do mês (índice 1 no array)
   const segundoDomingo = domingosDoMes[1] ?? null
