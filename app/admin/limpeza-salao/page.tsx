@@ -29,6 +29,8 @@ interface LimpezaDesignacao {
   data_fim: string
   grupo_id: string | null
   grupo_nome: string | null
+  limpeza_semanal_grupo_id: string | null
+  limpeza_semanal_grupo_nome: string | null
 }
 
 interface Semana {
@@ -43,6 +45,7 @@ export default function LimpezaSalaoPage() {
   const [designacoes, setDesignacoes] = useState<LimpezaDesignacao[]>([])
   const [loading, setLoading] = useState(true)
   const [salvando, setSalvando] = useState<number | null>(null)
+  const [salvandoSemanal, setSalvandoSemanal] = useState<number | null>(null)
 
   const mesFormatado = format(mesAtual, "yyyy-MM")
   const mesExibicao = format(mesAtual, "MMMM 'de' yyyy", { locale: ptBR })
@@ -125,6 +128,7 @@ export default function LimpezaSalaoPage() {
     setSalvando(semana.numero)
 
     const grupo = grupos.find(g => g.id === grupoId)
+    const designacaoAtual = getDesignacao(semana.numero)
 
     try {
       const response = await fetch("/api/limpeza-salao", {
@@ -137,6 +141,8 @@ export default function LimpezaSalaoPage() {
           data_fim: format(semana.fim, "yyyy-MM-dd"),
           grupo_id: grupoId,
           grupo_nome: grupo?.nome || null,
+          limpeza_semanal_grupo_id: designacaoAtual?.limpeza_semanal_grupo_id ?? null,
+          limpeza_semanal_grupo_nome: designacaoAtual?.limpeza_semanal_grupo_nome ?? null,
         }),
       })
 
@@ -156,6 +162,49 @@ export default function LimpezaSalaoPage() {
       console.error("Erro ao salvar designação:", error)
     } finally {
       setSalvando(null)
+    }
+  }
+
+  const salvarDesignacaoSemanal = async (semana: Semana, grupoId: string) => {
+    setSalvandoSemanal(semana.numero)
+
+    const grupo = grupos.find(g => g.id === grupoId)
+    const designacaoAtual = getDesignacao(semana.numero)
+
+    try {
+      const response = await fetch("/api/limpeza-salao", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mes: mesFormatado,
+          semana: semana.numero,
+          data_inicio: format(semana.inicio, "yyyy-MM-dd"),
+          data_fim: format(semana.fim, "yyyy-MM-dd"),
+          grupo_id: designacaoAtual?.grupo_id ?? null,
+          grupo_nome: designacaoAtual?.grupo_nome ?? null,
+          limpeza_semanal_grupo_id: grupoId,
+          limpeza_semanal_grupo_nome: grupo?.nome || null,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setDesignacoes(prev => {
+          const index = prev.findIndex(d => d.semana === semana.numero)
+          if (index >= 0) {
+            const updated = [...prev]
+            updated[index] = data
+            return updated
+          }
+          return [...prev, data]
+        })
+        toast.success("Limpeza semanal salva com sucesso!")
+      }
+    } catch (error) {
+      console.error("Erro ao salvar limpeza semanal:", error)
+      toast.error("Erro ao salvar limpeza semanal.")
+    } finally {
+      setSalvandoSemanal(null)
     }
   }
 
@@ -243,28 +292,59 @@ export default function LimpezaSalaoPage() {
                     </div>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center gap-3">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <Select
-                      value={designacao?.grupo_id || ""}
-                      onValueChange={(value) => salvarDesignacao(semana, value)}
-                      disabled={isSalvando}
-                    >
-                      <SelectTrigger className="flex-1 bg-background/50">
-                        <SelectValue placeholder="Selecionar grupo responsável..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {grupos.map((grupo) => (
-                          <SelectItem key={grupo.id} value={grupo.id}>
-                            {grupo.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {isSalvando && (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500"></div>
-                    )}
+                <CardContent className="pt-0 space-y-3">
+                  {/* Limpeza do Salão */}
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Limpeza do Salão</p>
+                    <div className="flex items-center gap-3">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <Select
+                        value={designacao?.grupo_id || ""}
+                        onValueChange={(value) => salvarDesignacao(semana, value)}
+                        disabled={isSalvando}
+                      >
+                        <SelectTrigger className="flex-1 bg-background/50">
+                          <SelectValue placeholder="Selecionar grupo responsável..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {grupos.map((grupo) => (
+                            <SelectItem key={grupo.id} value={grupo.id}>
+                              {grupo.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {isSalvando && (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500"></div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Limpeza Semanal */}
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Limpeza Semanal</p>
+                    <div className="flex items-center gap-3">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <Select
+                        value={designacao?.limpeza_semanal_grupo_id || ""}
+                        onValueChange={(value) => salvarDesignacaoSemanal(semana, value)}
+                        disabled={salvandoSemanal === semana.numero}
+                      >
+                        <SelectTrigger className="flex-1 bg-background/50">
+                          <SelectValue placeholder="Selecionar grupo para limpeza semanal..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {grupos.map((grupo) => (
+                            <SelectItem key={grupo.id} value={grupo.id}>
+                              {grupo.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {salvandoSemanal === semana.numero && (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500"></div>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

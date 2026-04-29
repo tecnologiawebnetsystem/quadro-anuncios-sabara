@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
     const body = await request.json()
     
-    const { mes, semana, data_inicio, data_fim, grupo_id, grupo_nome } = body
+    const { mes, semana, data_inicio, data_fim, grupo_id, grupo_nome, limpeza_semanal_grupo_id, limpeza_semanal_grupo_nome } = body
     
     // Verificar se já existe uma designação para esta semana
     const { data: existing } = await supabase
@@ -54,6 +54,8 @@ export async function POST(request: NextRequest) {
           grupo_nome,
           data_inicio,
           data_fim,
+          limpeza_semanal_grupo_id: limpeza_semanal_grupo_id ?? null,
+          limpeza_semanal_grupo_nome: limpeza_semanal_grupo_nome ?? null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", existing.id)
@@ -77,6 +79,8 @@ export async function POST(request: NextRequest) {
           data_fim,
           grupo_id,
           grupo_nome,
+          limpeza_semanal_grupo_id: limpeza_semanal_grupo_id ?? null,
+          limpeza_semanal_grupo_nome: limpeza_semanal_grupo_nome ?? null,
         })
         .select()
         .single()
