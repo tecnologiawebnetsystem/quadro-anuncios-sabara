@@ -917,7 +917,7 @@ const formatarPeriodoSemana = (inicio: string, fim: string) => {
 
 export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
   ({ mes, ano, escalas, meses }, ref) => {
-    // Se vier com array de meses (modo 4 meses), usa esse modo
+    // Modo 4 meses: exibe cada mês como bloco de tabela separado na mesma página A4
     if (meses && meses.length > 0) {
       return (
         <div ref={ref} style={{
@@ -939,83 +939,66 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
             justifyContent: "space-between",
             alignItems: "center",
             paddingBottom: "5px",
-            marginBottom: "8px",
+            marginBottom: "10px",
             borderBottom: "2px solid #333",
             flexShrink: 0
           }}>
-            <h1 style={{ fontSize: "14px", fontWeight: "bold", margin: 0, color: "#000" }}>Parque Sabará - Taubaté SP</h1>
-            <h2 style={{ fontSize: "14px", fontWeight: "bold", margin: 0, color: "#000" }}>
+            <h1 style={{ fontSize: "15px", fontWeight: "bold", margin: 0, color: "#000" }}>Parque Sabará - Taubaté SP</h1>
+            <h2 style={{ fontSize: "15px", fontWeight: "bold", margin: 0, color: "#000" }}>
               Escala de Limpeza — {getMesAno(meses[0].mes, meses[0].ano)} a {getMesAno(meses[meses.length - 1].mes, meses[meses.length - 1].ano)}
             </h2>
           </div>
 
-          {/* Grid 2x2 dos 4 meses */}
+          {/* 4 blocos de mês empilhados */}
           <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gridTemplateRows: "1fr 1fr",
-            gap: "6px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
             flex: 1,
             overflow: "hidden"
           }}>
             {meses.map((mesData) => (
-              <div key={`${mesData.ano}-${mesData.mes}`} style={{
-                display: "flex",
-                flexDirection: "column",
-                border: "1px solid #d1d5db",
-                borderRadius: "4px",
-                overflow: "hidden"
-              }}>
-                {/* Cabeçalho do mês */}
+              <div key={`${mesData.ano}-${mesData.mes}`} style={{ flexShrink: 0 }}>
+                {/* Cabeçalho do mês — mesmo padrão dos outros prints */}
                 <div style={{
                   backgroundColor: "#8b2332",
                   color: "white",
-                  padding: "4px 8px",
+                  padding: "5px 10px",
                   fontWeight: "bold",
-                  fontSize: "11px",
-                  textAlign: "center",
-                  flexShrink: 0
+                  fontSize: "13px",
                 }}>
                   {getMesAno(mesData.mes, mesData.ano).toUpperCase()}
                 </div>
 
-                {/* Tabela do mês */}
                 {mesData.escalas.length === 0 ? (
                   <div style={{
-                    flex: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "10px",
+                    padding: "8px 10px",
+                    fontSize: "11px",
                     color: "#9ca3af",
-                    padding: "8px"
+                    border: "1px solid #ddd",
+                    borderTop: "none"
                   }}>
-                    Nenhuma designação cadastrada
+                    Nenhuma designação cadastrada para este mês.
                   </div>
                 ) : (
-                  <table style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                    fontSize: "9px",
-                    flex: 1
-                  }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
                     <thead>
                       <tr style={{ backgroundColor: "#f3f4f6" }}>
-                        <th style={{ padding: "3px 5px", border: "1px solid #e5e7eb", textAlign: "left", fontSize: "8px", width: "32%" }}>Período</th>
-                        <th style={{ padding: "3px 5px", border: "1px solid #e5e7eb", textAlign: "left", fontSize: "8px", width: "34%" }}>Limpeza Salão</th>
-                        <th style={{ padding: "3px 5px", border: "1px solid #e5e7eb", textAlign: "left", fontSize: "8px", width: "34%" }}>Limpeza Semanal</th>
+                        <th style={{ padding: "4px 10px", border: "1px solid #ddd", textAlign: "left", width: "28%", fontWeight: "600", color: "#374151" }}>Período</th>
+                        <th style={{ padding: "4px 10px", border: "1px solid #ddd", textAlign: "left", width: "36%", fontWeight: "600", color: "#374151" }}>Limpeza do Salão</th>
+                        <th style={{ padding: "4px 10px", border: "1px solid #ddd", textAlign: "left", width: "36%", fontWeight: "600", color: "#374151" }}>Limpeza Semanal</th>
                       </tr>
                     </thead>
                     <tbody>
                       {mesData.escalas.map((escala, i) => (
-                        <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
-                          <td style={{ padding: "3px 5px", border: "1px solid #e5e7eb", fontWeight: "600", fontSize: "8px" }}>
+                        <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
+                          <td style={{ padding: "4px 10px", border: "1px solid #ddd", fontWeight: "500" }}>
                             {formatarPeriodoSemana(escala.data_inicio, escala.data_fim)}
                           </td>
-                          <td style={{ padding: "3px 5px", border: "1px solid #e5e7eb", fontSize: "8px" }}>
+                          <td style={{ padding: "4px 10px", border: "1px solid #ddd" }}>
                             {escala.grupo_nome || "-"}
                           </td>
-                          <td style={{ padding: "3px 5px", border: "1px solid #e5e7eb", fontSize: "8px" }}>
+                          <td style={{ padding: "4px 10px", border: "1px solid #ddd" }}>
                             {escala.limpeza_semanal_grupo_nome || "-"}
                           </td>
                         </tr>
@@ -1030,10 +1013,10 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
           {/* Rodapé */}
           <div style={{
             textAlign: "center",
-            fontSize: "10px",
+            fontSize: "12px",
             color: "#666",
-            padding: "4px",
-            marginTop: "6px",
+            padding: "5px",
+            marginTop: "auto",
             borderTop: "1px solid #ccc",
             flexShrink: 0
           }}>
@@ -1043,7 +1026,7 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
       )
     }
 
-    // Modo legado (1 mês)
+    // Modo legado (1 mês) — mantido para compatibilidade
     return (
       <div ref={ref} style={{
         backgroundColor: "white",
@@ -1058,7 +1041,6 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
         flexDirection: "column",
         overflow: "hidden"
       }}>
-        {/* Header */}
         <div style={{
           display: "flex",
           justifyContent: "space-between",
@@ -1072,32 +1054,25 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
           <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: 0, color: "#000" }}>Escala de Limpeza - {getMesAno(mes, ano)}</h2>
         </div>
 
-        {/* Tabela */}
-        <table style={{ 
-          width: "100%", 
-          borderCollapse: "collapse", 
-          fontSize: "13px",
-          flex: 1
-        }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", flex: 1 }}>
           <thead>
             <tr style={{ backgroundColor: "#8b2332" }}>
-              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "20%" }}>Data</th>
-              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "25%" }}>Grupo</th>
-              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "55%" }}>Responsável</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "28%" }}>Período</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "36%" }}>Limpeza do Salão</th>
+              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "36%" }}>Limpeza Semanal</th>
             </tr>
           </thead>
           <tbody>
             {escalas.map((escala, i) => (
               <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
                 <td style={{ padding: "5px 10px", border: "1px solid #ddd", fontWeight: "500" }}>{formatarData(escala.data)}</td>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>Grupo {escala.grupo_numero}</td>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{escala.responsavel_nome || "-"}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{(escala as any).grupo_nome || "-"}</td>
+                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{(escala as any).limpeza_semanal_grupo_nome || "-"}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* Rodapé */}
         <div style={{
           textAlign: "center",
           fontSize: "12px",
