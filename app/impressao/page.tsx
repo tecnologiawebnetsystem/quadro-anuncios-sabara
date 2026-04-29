@@ -75,6 +75,7 @@ export default function ImpressaoPage() {
   const [reunioesPublicas, setReunioesPublicas] = useState<any[]>([])
   const [equipeTecnica, setEquipeTecnica] = useState<any[]>([])
   const [limpezaSalao, setLimpezaSalao] = useState<any[]>([])
+  const [limpezaSalao4Meses, setLimpezaSalao4Meses] = useState<any[]>([])
   const [servicoCampo, setServicoCampo] = useState<any[]>([])
 
   // Hook de publicadores para grupos
@@ -163,16 +164,27 @@ export default function ImpressaoPage() {
         }
 
         case "limpeza-salao": {
-          const ultimoDia = new Date(Number(anoAtual), Number(mesAtual), 0).getDate()
-          const dataFim = `${mesStr}-${String(ultimoDia).padStart(2, "0")}`
-          const { data } = await supabase
-            .from("limpeza_salao")
-            .select("*")
-            .gte("data", `${mesStr}-01`)
-            .lte("data", dataFim)
-            .order("data", { ascending: true })
+          // Buscar os 4 meses a partir do mês selecionado
+          const meses4: any[] = []
+          for (let i = 0; i < 4; i++) {
+            const totalMeses = (mesAtual - 1) + i
+            const mesLoop = (totalMeses % 12) + 1
+            const anoLoop = anoAtual + Math.floor(totalMeses / 12)
+            const mesLoopStr = `${anoLoop}-${String(mesLoop).padStart(2, "0")}`
 
-          setLimpezaSalao(data || [])
+            const { data: escalasLoop } = await supabase
+              .from("limpeza_salao")
+              .select("*")
+              .eq("mes", mesLoopStr)
+              .order("semana", { ascending: true })
+
+            meses4.push({
+              mes: mesLoop,
+              ano: anoLoop,
+              escalas: escalasLoop || [],
+            })
+          }
+          setLimpezaSalao4Meses(meses4)
           break
         }
 
@@ -296,6 +308,7 @@ export default function ImpressaoPage() {
             mes={mesAtual}
             ano={anoAtual}
             escalas={limpezaSalao}
+            meses={limpezaSalao4Meses}
           />
         )
       case "servico-campo":
@@ -339,7 +352,16 @@ export default function ImpressaoPage() {
             </Button>
             <div className="text-center">
               <h2 className="text-xl font-bold text-white">{mesLabel}</h2>
-              <p className="text-xs text-zinc-500">Selecione o que deseja imprimir</p>
+              <p className="text-xs text-zinc-500">
+                {tipoSelecionado === "limpeza-salao"
+                  ? (() => {
+                      const total = (mesAtual - 1) + 3
+                      const mesFinal = (total % 12) + 1
+                      const anoFinal = anoAtual + Math.floor(total / 12)
+                      return `Imprimindo 4 meses: ${mesLabel} até ${meses[mesFinal - 1].nome} ${anoFinal}`
+                    })()
+                  : "Selecione o que deseja imprimir"}
+              </p>
             </div>
             <Button variant="ghost" size="icon" onClick={mesProximo}>
               <ChevronRight className="w-5 h-5" />
@@ -385,7 +407,16 @@ export default function ImpressaoPage() {
             </CardTitle>
             <PrintActionButtons 
               printRef={printRef}
-              documentTitle={`${tiposImpressao.find(t => t.id === tipoSelecionado)?.nome || 'Documento'} - ${meses[mesAtual - 1].nome} ${anoAtual}`}
+              documentTitle={
+                tipoSelecionado === "limpeza-salao" && limpezaSalao4Meses.length === 4
+                  ? (() => {
+                      const total = (mesAtual - 1) + 3
+                      const mesFinal = (total % 12) + 1
+                      const anoFinal = anoAtual + Math.floor(total / 12)
+                      return `Escala de Limpeza - ${meses[mesAtual - 1].nome} a ${meses[mesFinal - 1].nome} ${anoFinal}`
+                    })()
+                  : `${tiposImpressao.find(t => t.id === tipoSelecionado)?.nome || 'Documento'} - ${meses[mesAtual - 1].nome} ${anoAtual}`
+              }
               colorScheme="blue"
             />
           </CardHeader>
