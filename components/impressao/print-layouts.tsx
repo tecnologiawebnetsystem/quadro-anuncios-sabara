@@ -979,7 +979,7 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
         </div>
 
         {/* ── Blocos de meses ── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "7px", flex: 1, overflow: "hidden" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "14px", flex: 1, overflow: "hidden" }}>
           {mesesParaImprimir.map((mesData, idx) => {
             const cor = CORES_MES[idx % CORES_MES.length]
             return (
