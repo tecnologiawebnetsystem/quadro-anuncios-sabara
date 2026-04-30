@@ -257,8 +257,8 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
 
     const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
       border: "1px solid #d1d5db",
-      padding: "4px 8px",
-      fontSize: "11px",
+      padding: "5px 9px",
+      fontSize: "12px",
       color: "#111",
       ...extra,
     })
@@ -266,9 +266,9 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
     const headerBar = (color: string): React.CSSProperties => ({
       backgroundColor: color,
       color: "white",
-      padding: "6px 12px",
+      padding: "7px 13px",
       fontWeight: "bold",
-      fontSize: "11px",
+      fontSize: "12px",
       marginBottom: "1px",
       textTransform: "uppercase",
       borderRadius: "4px 4px 0 0",
@@ -288,8 +288,8 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
           paddingBottom: "6px",
           marginBottom: "10px"
         }}>
-          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>Parque Sabará — Taubaté SP</div>
-          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>Programação da Congregação</div>
+          <div style={{ fontSize: "15px", fontWeight: "bold", color: "#111827" }}>Parque Sabará — Taubaté SP</div>
+          <div style={{ fontSize: "15px", fontWeight: "bold", color: "#111827" }}>Programação da Congregação</div>
         </div>
 
         {/* Título */}
@@ -301,7 +301,7 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
           borderRadius: "4px",
           textAlign: "center"
         }}>
-          <div style={{ fontSize: "13px", fontWeight: "bold", textTransform: "uppercase" }}>
+          <div style={{ fontSize: "14px", fontWeight: "bold", textTransform: "uppercase" }}>
             {mesNome} {ano}
           </div>
         </div>
@@ -312,11 +312,11 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "10px" })}>Data</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "10px" })}>Indicadores</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "10px" })}>Mic. Volante</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "10px" })}>Áudio e Vídeo</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "10px" })}>Palco</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Data</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Indicadores</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Mic. Volante</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Áudio e Vídeo</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Palco</th>
               </tr>
             </thead>
             <tbody>
@@ -341,9 +341,9 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Data</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Presidente de Conferência</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Leitor de A Sentinela</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Data</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Presidente de Conferência</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Leitor de A Sentinela</th>
               </tr>
             </thead>
             <tbody>
@@ -364,9 +364,9 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Data</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Tema</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Orador</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Data</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Tema</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Orador</th>
               </tr>
             </thead>
             <tbody>
@@ -400,7 +400,7 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
           paddingTop: "8px",
           borderTop: "1px solid #e5e7eb",
           textAlign: "center",
-          fontSize: "9px",
+          fontSize: "10px",
           color: "#666"
         }}>
           Congregação Pq. Sabará - Programação da Congregação
@@ -426,8 +426,8 @@ function PrintTabelaAssistencia({
 
   const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
     border: "1px solid #c9cdd1",
-    padding: "4px 8px",
-    fontSize: "10px",
+    padding: "5px 9px",
+    fontSize: "11px",
     textAlign: "center",
     ...extra,
   })
