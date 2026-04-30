@@ -184,19 +184,9 @@ export default function LimpezaSalaoPage() {
     const dataFimStr = format(semana.fim, "yyyy-MM-dd")
 
     try {
-      // Buscar o registro mais atualizado direto da API para não depender do estado local
-      // Isso resolve o caso de semanas transbordadas que podem ter sido salvas com outro mês
-      let designacaoAtual = getDesignacao(semana)
-
-      if (!designacaoAtual) {
-        // Tentar buscar da API por data_inicio explicitamente
-        const checkRes = await fetch(`/api/limpeza-salao/by-data?data_inicio=${dataInicioStr}`)
-        if (checkRes.ok) {
-          const checkData = await checkRes.json()
-          if (checkData) designacaoAtual = checkData
-        }
-      }
-
+      // Envia apenas os campos de limpeza semanal.
+      // A API faz o merge no servidor, preservando grupo_id/grupo_nome existentes.
+      // grupo_id=undefined sinaliza à API que não deve sobrescrever o campo.
       const response = await fetch("/api/limpeza-salao", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -205,8 +195,8 @@ export default function LimpezaSalaoPage() {
           semana: semana.numero,
           data_inicio: dataInicioStr,
           data_fim: dataFimStr,
-          grupo_id: designacaoAtual?.grupo_id ?? null,
-          grupo_nome: designacaoAtual?.grupo_nome ?? null,
+          grupo_id: null,          // null = usar o que já está no banco (merge no servidor)
+          grupo_nome: null,
           limpeza_semanal_grupo_id: grupoId,
           limpeza_semanal_grupo_nome: grupo?.nome || null,
         }),
@@ -225,6 +215,8 @@ export default function LimpezaSalaoPage() {
         })
         toast.success("Limpeza semanal salva com sucesso!")
       } else {
+        const err = await response.json().catch(() => ({}))
+        console.error("Erro ao salvar limpeza semanal:", err)
         toast.error("Erro ao salvar limpeza semanal.")
       }
     } catch (error) {

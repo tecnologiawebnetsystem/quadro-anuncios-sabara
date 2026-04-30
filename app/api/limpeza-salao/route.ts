@@ -83,16 +83,28 @@ export async function POST(request: NextRequest) {
     }
     
     if (existing) {
-      // Atualizar
+      // Buscar dados completos do registro existente para fazer merge correto
+      const { data: registroAtual } = await supabase
+        .from("limpeza_salao")
+        .select("*")
+        .eq("id", existing.id)
+        .single()
+
+      // Merge: só atualiza o campo que veio preenchido; preserva o que já está no banco
+      const novoGrupoId = grupo_id !== null ? grupo_id : (registroAtual?.grupo_id ?? null)
+      const novoGrupoNome = grupo_id !== null ? grupo_nome : (registroAtual?.grupo_nome ?? null)
+      const novaLimpezaSemanalId = limpeza_semanal_grupo_id !== undefined ? limpeza_semanal_grupo_id : (registroAtual?.limpeza_semanal_grupo_id ?? null)
+      const novaLimpezaSemanalNome = limpeza_semanal_grupo_id !== undefined ? limpeza_semanal_grupo_nome : (registroAtual?.limpeza_semanal_grupo_nome ?? null)
+
       const { data, error } = await supabase
         .from("limpeza_salao")
         .update({
-          grupo_id,
-          grupo_nome,
+          grupo_id: novoGrupoId,
+          grupo_nome: novoGrupoNome,
           data_inicio,
           data_fim,
-          limpeza_semanal_grupo_id: limpeza_semanal_grupo_id ?? null,
-          limpeza_semanal_grupo_nome: limpeza_semanal_grupo_nome ?? null,
+          limpeza_semanal_grupo_id: novaLimpezaSemanalId,
+          limpeza_semanal_grupo_nome: novaLimpezaSemanalNome,
           updated_at: new Date().toISOString(),
         })
         .eq("id", existing.id)

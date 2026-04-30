@@ -961,18 +961,18 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
           flexShrink: 0,
         }}>
           <div>
-            <div style={{ fontSize: "14px", fontWeight: "800", color: "#111", letterSpacing: "0.3px" }}>
+            <div style={{ fontSize: "15px", fontWeight: "800", color: "#111", letterSpacing: "0.3px" }}>
               Parque Sabará — Taubaté SP
             </div>
-            <div style={{ fontSize: "10px", color: "#555", marginTop: "1px" }}>
+            <div style={{ fontSize: "11px", color: "#555", marginTop: "1px" }}>
               Congregação das Testemunhas de Jeová
             </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: "13px", fontWeight: "700", color: "#111" }}>
+            <div style={{ fontSize: "14px", fontWeight: "700", color: "#111" }}>
               Escala de Limpeza do Salão
             </div>
-            <div style={{ fontSize: "10px", color: "#555", marginTop: "1px" }}>
+            <div style={{ fontSize: "11px", color: "#555", marginTop: "1px" }}>
               {nomeMesInicio}{nomeMesFim !== nomeMesInicio ? ` a ${nomeMesFim}` : ""}
             </div>
           </div>
@@ -994,19 +994,19 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
                 <div style={{
                   backgroundColor: cor.bg,
                   color: "white",
-                  padding: "5px 10px",
+                  padding: "6px 12px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                 }}>
-                  <span style={{ fontWeight: "700", fontSize: "11px", letterSpacing: "0.8px", textTransform: "uppercase" }}>
+                  <span style={{ fontWeight: "700", fontSize: "12.5px", letterSpacing: "0.8px", textTransform: "uppercase" }}>
                     {getMesAno(mesData.mes, mesData.ano)}
                   </span>
                   <span style={{
-                    fontSize: "9px",
+                    fontSize: "10px",
                     fontWeight: "500",
                     backgroundColor: "rgba(255,255,255,0.18)",
-                    padding: "1px 7px",
+                    padding: "2px 8px",
                     borderRadius: "10px",
                     letterSpacing: "0.3px",
                   }}>
@@ -1017,7 +1017,7 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
                 {mesData.escalas.length === 0 ? (
                   <div style={{
                     padding: "8px 10px",
-                    fontSize: "10px",
+                    fontSize: "11px",
                     color: "#9ca3af",
                     textAlign: "center",
                     fontStyle: "italic",
@@ -1026,28 +1026,28 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
                     Nenhuma designação cadastrada.
                   </div>
                 ) : (
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10.5px" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
                     <thead>
                       <tr style={{ backgroundColor: cor.light }}>
                         <th style={{
-                          padding: "4px 8px", textAlign: "left", width: "24%",
+                          padding: "5px 9px", textAlign: "left", width: "24%",
                           fontWeight: "700", color: cor.bg,
                           borderBottom: `1px solid ${cor.border}`,
-                          fontSize: "9.5px", letterSpacing: "0.3px", textTransform: "uppercase",
+                          fontSize: "11px", letterSpacing: "0.3px", textTransform: "uppercase",
                         }}>Período</th>
                         <th style={{
-                          padding: "4px 8px", textAlign: "left", width: "38%",
+                          padding: "5px 9px", textAlign: "left", width: "38%",
                           fontWeight: "700", color: cor.bg,
                           borderBottom: `1px solid ${cor.border}`,
                           borderLeft: `1px solid ${cor.border}`,
-                          fontSize: "9.5px", letterSpacing: "0.3px", textTransform: "uppercase",
+                          fontSize: "11px", letterSpacing: "0.3px", textTransform: "uppercase",
                         }}>Limpeza do Salão</th>
                         <th style={{
-                          padding: "4px 8px", textAlign: "left", width: "38%",
+                          padding: "5px 9px", textAlign: "left", width: "38%",
                           fontWeight: "700", color: cor.bg,
                           borderBottom: `1px solid ${cor.border}`,
                           borderLeft: `1px solid ${cor.border}`,
-                          fontSize: "9.5px", letterSpacing: "0.3px", textTransform: "uppercase",
+                          fontSize: "11px", letterSpacing: "0.3px", textTransform: "uppercase",
                         }}>Limpeza Semanal</th>
                       </tr>
                     </thead>
@@ -1055,7 +1055,7 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
                       {mesData.escalas.map((escala, i) => (
                         <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : cor.stripe }}>
                           <td style={{
-                            padding: "4px 8px",
+                            padding: "5px 9px",
                             borderBottom: `1px solid ${cor.border}`,
                             fontWeight: "600",
                             color: "#1f2937",
@@ -1064,7 +1064,7 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
                             {formatarPeriodoSemana(escala.data_inicio, escala.data_fim)}
                           </td>
                           <td style={{
-                            padding: "4px 8px",
+                            padding: "5px 9px",
                             borderBottom: `1px solid ${cor.border}`,
                             borderLeft: `1px solid ${cor.border}`,
                             color: escala.grupo_nome ? "#111" : "#9ca3af",
@@ -1073,7 +1073,7 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
                             {escala.grupo_nome || "—"}
                           </td>
                           <td style={{
-                            padding: "4px 8px",
+                            padding: "5px 9px",
                             borderBottom: `1px solid ${cor.border}`,
                             borderLeft: `1px solid ${cor.border}`,
                             color: escala.limpeza_semanal_grupo_nome ? "#111" : "#9ca3af",
