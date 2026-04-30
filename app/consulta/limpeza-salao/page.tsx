@@ -59,8 +59,21 @@ export default function ConsultaLimpezaSalaoPage() {
     try {
       const response = await fetch(`/api/limpeza-salao?mes=${mes.valor}`)
       if (response.ok) {
-        const data = await response.json()
-        setDesignacoes(data)
+        const data: LimpezaSalao[] = await response.json()
+        // Deduplicar por data_inicio para evitar exibição de semanas duplicadas
+        const vistos = new Map<string, LimpezaSalao>()
+        for (const item of data) {
+          const chave = item.data_inicio
+          if (!vistos.has(chave)) {
+            vistos.set(chave, item)
+          } else {
+            const existente = vistos.get(chave)!
+            if (!existente.grupo_nome && item.grupo_nome) {
+              vistos.set(chave, item)
+            }
+          }
+        }
+        setDesignacoes(Array.from(vistos.values()).sort((a, b) => a.data_inicio.localeCompare(b.data_inicio)))
       }
     } catch (error) {
       console.error("Erro ao carregar designações:", error)

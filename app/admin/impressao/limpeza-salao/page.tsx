@@ -59,7 +59,23 @@ export default function ImpressaoLimpezaSalaoPage() {
           .eq("mes", mesLoopStr)
           .order("semana", { ascending: true })
 
-        resultado.push({ mes: mesLoop, ano: anoLoop, escalas: data || [] })
+        // Deduplicar por data_inicio: manter apenas um registro por semana,
+        // preferindo o que tem grupo_nome preenchido
+        const vistos = new Map<string, typeof data[0]>()
+        for (const item of (data || [])) {
+          const chave = item.data_inicio
+          if (!vistos.has(chave)) {
+            vistos.set(chave, item)
+          } else {
+            const existente = vistos.get(chave)!
+            if (!existente.grupo_nome && item.grupo_nome) {
+              vistos.set(chave, item)
+            }
+          }
+        }
+        const escalasDedup = Array.from(vistos.values()).sort((a, b) => a.data_inicio.localeCompare(b.data_inicio))
+
+        resultado.push({ mes: mesLoop, ano: anoLoop, escalas: escalasDedup })
       }
       setMeses4(resultado)
     } catch (error) {
