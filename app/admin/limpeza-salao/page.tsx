@@ -56,15 +56,21 @@ export default function LimpezaSalaoPage() {
     const fim = endOfMonth(mesAtual)
     const semanasDoMes: Semana[] = []
 
-    let dataAtual = startOfWeek(inicio, { weekStartsOn: 0 }) // Domingo
+    let dataAtual = inicio
+    // Começa sempre no domingo da semana do primeiro dia do mês
+    // mas só conta a semana se o início (domingo) pertencer ao mês atual
+    // para evitar duplicação com o mês anterior
     let numeroSemana = 1
 
     while (dataAtual <= fim) {
-      const inicioSemana = dataAtual
+      const inicioSemana = startOfWeek(dataAtual, { weekStartsOn: 0 }) // Domingo
       const fimSemana = endOfWeek(dataAtual, { weekStartsOn: 0 })
 
-      // Só incluir semanas que tenham pelo menos um dia no mês
-      if (fimSemana >= inicio && inicioSemana <= fim) {
+      // A semana pertence a este mês apenas se o domingo de início está dentro do mês.
+      // Isso evita que semanas "transbordadas" apareçam em dois meses ao mesmo tempo.
+      const domingoNoMes = inicioSemana >= inicio
+
+      if (domingoNoMes) {
         semanasDoMes.push({
           numero: numeroSemana,
           inicio: inicioSemana,
@@ -73,6 +79,7 @@ export default function LimpezaSalaoPage() {
         numeroSemana++
       }
 
+      // Avança para o próximo domingo após o fim desta semana
       dataAtual = addDays(fimSemana, 1)
     }
 
@@ -120,15 +127,18 @@ export default function LimpezaSalaoPage() {
     )
   }
 
-  const getDesignacao = (semana: number): LimpezaDesignacao | undefined => {
-    return designacoes.find(d => d.semana === semana)
+  const getDesignacao = (semana: Semana): LimpezaDesignacao | undefined => {
+    const dataInicio = format(semana.inicio, "yyyy-MM-dd")
+    // Busca por data_inicio para garantir que encontra o registro correto
+    // mesmo que o número de semana no banco seja diferente (ex: semanas que transbordam meses)
+    return designacoes.find(d => d.data_inicio === dataInicio)
   }
 
   const salvarDesignacao = async (semana: Semana, grupoId: string) => {
     setSalvando(semana.numero)
 
     const grupo = grupos.find(g => g.id === grupoId)
-    const designacaoAtual = getDesignacao(semana.numero)
+    const designacaoAtual = getDesignacao(semana)
 
     try {
       const response = await fetch("/api/limpeza-salao", {
@@ -148,8 +158,9 @@ export default function LimpezaSalaoPage() {
 
       if (response.ok) {
         const data = await response.json()
+        const dataInicio = format(semana.inicio, "yyyy-MM-dd")
         setDesignacoes(prev => {
-          const index = prev.findIndex(d => d.semana === semana.numero)
+          const index = prev.findIndex(d => d.data_inicio === dataInicio)
           if (index >= 0) {
             const updated = [...prev]
             updated[index] = data
@@ -169,19 +180,23 @@ export default function LimpezaSalaoPage() {
     setSalvandoSemanal(semana.numero)
 
     const grupo = grupos.find(g => g.id === grupoId)
-    const designacaoAtual = getDesignacao(semana.numero)
+    const dataInicioStr = format(semana.inicio, "yyyy-MM-dd")
+    const dataFimStr = format(semana.fim, "yyyy-MM-dd")
 
     try {
+      // Envia apenas os campos de limpeza semanal.
+      // A API faz o merge no servidor, preservando grupo_id/grupo_nome existentes.
+      // grupo_id=undefined sinaliza à API que não deve sobrescrever o campo.
       const response = await fetch("/api/limpeza-salao", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mes: mesFormatado,
           semana: semana.numero,
-          data_inicio: format(semana.inicio, "yyyy-MM-dd"),
-          data_fim: format(semana.fim, "yyyy-MM-dd"),
-          grupo_id: designacaoAtual?.grupo_id ?? null,
-          grupo_nome: designacaoAtual?.grupo_nome ?? null,
+          data_inicio: dataInicioStr,
+          data_fim: dataFimStr,
+          grupo_id: null,          // null = usar o que já está no banco (merge no servidor)
+          grupo_nome: null,
           limpeza_semanal_grupo_id: grupoId,
           limpeza_semanal_grupo_nome: grupo?.nome || null,
         }),
@@ -190,7 +205,7 @@ export default function LimpezaSalaoPage() {
       if (response.ok) {
         const data = await response.json()
         setDesignacoes(prev => {
-          const index = prev.findIndex(d => d.semana === semana.numero)
+          const index = prev.findIndex(d => d.data_inicio === dataInicioStr)
           if (index >= 0) {
             const updated = [...prev]
             updated[index] = data
@@ -199,6 +214,10 @@ export default function LimpezaSalaoPage() {
           return [...prev, data]
         })
         toast.success("Limpeza semanal salva com sucesso!")
+      } else {
+        const err = await response.json().catch(() => ({}))
+        console.error("Erro ao salvar limpeza semanal:", err)
+        toast.error("Erro ao salvar limpeza semanal.")
       }
     } catch (error) {
       console.error("Erro ao salvar limpeza semanal:", error)
@@ -267,7 +286,7 @@ export default function LimpezaSalaoPage() {
       ) : (
         <div className="space-y-4">
           {semanas.map((semana) => {
-            const designacao = getDesignacao(semana.numero)
+            const designacao = getDesignacao(semana)
             const isSalvando = salvando === semana.numero
 
             return (
