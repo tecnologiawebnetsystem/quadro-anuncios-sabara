@@ -257,8 +257,8 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
 
     const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
       border: "1px solid #d1d5db",
-      padding: "8px 12px",
-      fontSize: "13px",
+      padding: "4px 8px",
+      fontSize: "11px",
       color: "#111",
       ...extra,
     })
@@ -266,9 +266,9 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
     const headerBar = (color: string): React.CSSProperties => ({
       backgroundColor: color,
       color: "white",
-      padding: "10px 16px",
+      padding: "6px 12px",
       fontWeight: "bold",
-      fontSize: "14px",
+      fontSize: "11px",
       marginBottom: "1px",
       textTransform: "uppercase",
       borderRadius: "4px 4px 0 0",
@@ -277,7 +277,7 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
     return (
       <div
         ref={ref}
-        style={{ backgroundColor: "white", padding: "20mm 15mm", color: "black", fontFamily: "Arial, sans-serif" }}
+        style={{ backgroundColor: "white", padding: "12mm 10mm", color: "black", fontFamily: "Arial, sans-serif" }}
       >
         {/* Cabeçalho */}
         <div style={{
@@ -285,38 +285,38 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
           justifyContent: "space-between",
           alignItems: "center",
           borderBottom: "2px solid #374151",
-          paddingBottom: "10px",
-          marginBottom: "16px"
+          paddingBottom: "6px",
+          marginBottom: "10px"
         }}>
-          <div style={{ fontSize: "18px", fontWeight: "bold", color: "#111827" }}>Parque Sabará — Taubaté SP</div>
-          <div style={{ fontSize: "18px", fontWeight: "bold", color: "#111827" }}>Programação da Congregação</div>
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>Parque Sabará — Taubaté SP</div>
+          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#111827" }}>Programação da Congregação</div>
         </div>
 
         {/* Título */}
         <div style={{
           backgroundColor: "#1f2937",
           color: "white",
-          padding: "12px 18px",
-          marginBottom: "20px",
+          padding: "8px 14px",
+          marginBottom: "12px",
           borderRadius: "4px",
           textAlign: "center"
         }}>
-          <div style={{ fontSize: "16px", fontWeight: "bold", textTransform: "uppercase" }}>
+          <div style={{ fontSize: "13px", fontWeight: "bold", textTransform: "uppercase" }}>
             {mesNome} {ano}
           </div>
         </div>
 
         {/* Designações Técnicas */}
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "12px" }}>
           <div style={headerBar("#2a6b77")}>Designações Técnicas</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Data</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Indicadores</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Mic. Volante</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Áudio e Vídeo</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "12px" })}>Palco</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "10px" })}>Data</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "10px" })}>Indicadores</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "10px" })}>Mic. Volante</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "10px" })}>Áudio e Vídeo</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "10px" })}>Palco</th>
               </tr>
             </thead>
             <tbody>
@@ -336,7 +336,7 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Reunião Pública */}
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "12px" }}>
           <div style={headerBar("#c69214")}>Reunião Pública — Presidente e Leitor</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
@@ -359,7 +359,7 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Arranjo de Discursos */}
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "12px" }}>
           <div style={headerBar("#8b2332")}>Arranjo de Discursos</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
@@ -382,9 +382,9 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
         </div>
 
         {/* Assistência às Reuniões */}
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "12px" }}>
           <div style={headerBar("#374151")}>Assistência às Reuniões — {mesNome}</div>
-          <div style={{ padding: "12px", backgroundColor: "#f9fafb", borderRadius: "0 0 4px 4px", border: "1px solid #d1d5db", borderTop: "none" }}>
+          <div style={{ padding: "8px", backgroundColor: "#f9fafb", borderRadius: "0 0 4px 4px", border: "1px solid #d1d5db", borderTop: "none" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               {/* Quinta */}
               <PrintTabelaAssistencia titulo="QUINTA" registros={assistenciasQuintas} formatarData={formatarData} />
@@ -396,11 +396,11 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
 
         {/* Rodapé */}
         <div style={{
-          marginTop: "24px",
-          paddingTop: "12px",
+          marginTop: "12px",
+          paddingTop: "8px",
           borderTop: "1px solid #e5e7eb",
           textAlign: "center",
-          fontSize: "11px",
+          fontSize: "9px",
           color: "#666"
         }}>
           Congregação Pq. Sabará - Programação da Congregação
@@ -426,8 +426,8 @@ function PrintTabelaAssistencia({
 
   const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
     border: "1px solid #c9cdd1",
-    padding: "6px 10px",
-    fontSize: "11px",
+    padding: "4px 8px",
+    fontSize: "10px",
     textAlign: "center",
     ...extra,
   })
