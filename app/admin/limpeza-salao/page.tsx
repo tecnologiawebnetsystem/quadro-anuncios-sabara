@@ -180,17 +180,31 @@ export default function LimpezaSalaoPage() {
     setSalvandoSemanal(semana.numero)
 
     const grupo = grupos.find(g => g.id === grupoId)
-    const designacaoAtual = getDesignacao(semana)
+    const dataInicioStr = format(semana.inicio, "yyyy-MM-dd")
+    const dataFimStr = format(semana.fim, "yyyy-MM-dd")
 
     try {
+      // Buscar o registro mais atualizado direto da API para não depender do estado local
+      // Isso resolve o caso de semanas transbordadas que podem ter sido salvas com outro mês
+      let designacaoAtual = getDesignacao(semana)
+
+      if (!designacaoAtual) {
+        // Tentar buscar da API por data_inicio explicitamente
+        const checkRes = await fetch(`/api/limpeza-salao/by-data?data_inicio=${dataInicioStr}`)
+        if (checkRes.ok) {
+          const checkData = await checkRes.json()
+          if (checkData) designacaoAtual = checkData
+        }
+      }
+
       const response = await fetch("/api/limpeza-salao", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mes: mesFormatado,
           semana: semana.numero,
-          data_inicio: format(semana.inicio, "yyyy-MM-dd"),
-          data_fim: format(semana.fim, "yyyy-MM-dd"),
+          data_inicio: dataInicioStr,
+          data_fim: dataFimStr,
           grupo_id: designacaoAtual?.grupo_id ?? null,
           grupo_nome: designacaoAtual?.grupo_nome ?? null,
           limpeza_semanal_grupo_id: grupoId,
@@ -200,9 +214,8 @@ export default function LimpezaSalaoPage() {
 
       if (response.ok) {
         const data = await response.json()
-        const dataInicio = format(semana.inicio, "yyyy-MM-dd")
         setDesignacoes(prev => {
-          const index = prev.findIndex(d => d.data_inicio === dataInicio)
+          const index = prev.findIndex(d => d.data_inicio === dataInicioStr)
           if (index >= 0) {
             const updated = [...prev]
             updated[index] = data
@@ -211,6 +224,8 @@ export default function LimpezaSalaoPage() {
           return [...prev, data]
         })
         toast.success("Limpeza semanal salva com sucesso!")
+      } else {
+        toast.error("Erro ao salvar limpeza semanal.")
       }
     } catch (error) {
       console.error("Erro ao salvar limpeza semanal:", error)
