@@ -108,6 +108,7 @@ const impressaoGroup: MenuGroup = {
     { title: "Programação", icon: ClipboardList, href: "/anciao/programacao-congregacao", color: "text-amber-400" },
     { title: "Grupo de Estudos", icon: BookOpen, href: "/anciao/impressao/grupo-estudos", color: "text-amber-400" },
     { title: "Serviço de Campo", icon: MapPin, href: "/anciao/impressao/servico-campo", color: "text-amber-400" },
+    { title: "Limpeza do Salão", icon: Sparkles, href: "/anciao/impressao/limpeza-salao", color: "text-cyan-400" },
   ]
 }
 

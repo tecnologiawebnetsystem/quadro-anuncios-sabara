@@ -17,16 +17,28 @@ interface LimpezaSalao {
   limpeza_semanal_grupo_nome: string | null
 }
 
-const meses = [
-  { valor: "2026-01", label: "Janeiro 2026" },
-  { valor: "2026-02", label: "Fevereiro 2026" },
-  { valor: "2026-03", label: "Março 2026" },
-  { valor: "2026-04", label: "Abril 2026" },
-  { valor: "2026-05", label: "Maio 2026" },
-  { valor: "2026-06", label: "Junho 2026" },
+const NOMES_MESES = [
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ]
 
-// Calcular índice do mês atual baseado na data do sistema
+function gerarMeses() {
+  const agora = new Date()
+  const anoAtual = agora.getFullYear()
+  const resultado = []
+  // 6 meses anteriores + mês atual + 12 meses à frente
+  for (let offset = -6; offset <= 12; offset++) {
+    const data = new Date(anoAtual, agora.getMonth() + offset, 1)
+    const ano = data.getFullYear()
+    const mes = data.getMonth() + 1
+    const valor = `${ano}-${String(mes).padStart(2, "0")}`
+    resultado.push({ valor, label: `${NOMES_MESES[mes - 1]} ${ano}` })
+  }
+  return resultado
+}
+
+const meses = gerarMeses()
+
 function calcularIndiceMesAtual(): number {
   const agora = new Date()
   const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`

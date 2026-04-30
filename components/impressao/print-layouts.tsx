@@ -885,16 +885,44 @@ export const PrintGruposEstudo = forwardRef<HTMLDivElement, GruposEstudoProps>(
 PrintGruposEstudo.displayName = "PrintGruposEstudo"
 
 // =====================================
-// LIMPEZA DO SALÃO
+// LIMPEZA DO SALÃO (4 MESES)
 // =====================================
+interface LimpezaSalaoMes {
+  mes: number
+  ano: number
+  escalas: LimpezaSalaoEscala[]
+}
+
+interface LimpezaSalaoEscala {
+  id: string
+  semana: number
+  data_inicio: string
+  data_fim: string
+  grupo_nome: string | null
+  limpeza_semanal_grupo_nome: string | null
+}
+
 interface LimpezaSalaoProps {
   mes: number
   ano: number
   escalas: LimpezaSalao[]
+  meses?: LimpezaSalaoMes[]
+}
+
+const formatarPeriodoSemana = (inicio: string, fim: string) => {
+  const dInicio = new Date(inicio + "T12:00:00")
+  const dFim = new Date(fim + "T12:00:00")
+  return `${dInicio.getDate().toString().padStart(2, "0")}/${(dInicio.getMonth() + 1).toString().padStart(2, "0")} a ${dFim.getDate().toString().padStart(2, "0")}/${(dFim.getMonth() + 1).toString().padStart(2, "0")}`
 }
 
 export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
-  ({ mes, ano, escalas }, ref) => {
+  ({ mes, ano, escalas, meses }, ref) => {
+    // Modo principal: 4 meses numa única folha A4
+    const mesesParaImprimir = meses && meses.length > 0 ? meses : []
+    const tituloMeses = mesesParaImprimir.length > 0
+      ? `Limpeza do Salão — ${getMesAno(mesesParaImprimir[0].mes, mesesParaImprimir[0].ano)} a ${getMesAno(mesesParaImprimir[mesesParaImprimir.length - 1].mes, mesesParaImprimir[mesesParaImprimir.length - 1].ano)}`
+      : `Limpeza do Salão — ${getMesAno(mes, ano)}`
+
     return (
       <div ref={ref} style={{
         backgroundColor: "white",
@@ -909,7 +937,7 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
         flexDirection: "column",
         overflow: "hidden"
       }}>
-        {/* Header */}
+        {/* Header — idêntico ao de todos os outros prints */}
         <div style={{
           display: "flex",
           justifyContent: "space-between",
@@ -919,46 +947,79 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
           borderBottom: "2px solid #333",
           flexShrink: 0
         }}>
-          <h1 style={{ fontSize: "16px", fontWeight: "bold", margin: 0, color: "#000" }}>Parque Sabará - Taubaté SP</h1>
-          <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: 0, color: "#000" }}>Escala de Limpeza - {getMesAno(mes, ano)}</h2>
+          <h1 style={{ fontSize: "13px", fontWeight: "bold", margin: 0, color: "#000" }}>Parque Sabará - Taubaté SP</h1>
+          <h2 style={{ fontSize: "13px", fontWeight: "bold", margin: 0, color: "#000" }}>{tituloMeses}</h2>
         </div>
 
-        {/* Tabela */}
-        <table style={{ 
-          width: "100%", 
-          borderCollapse: "collapse", 
-          fontSize: "13px",
-          flex: 1
-        }}>
-          <thead>
-            <tr style={{ backgroundColor: "#8b2332" }}>
-              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "20%" }}>Data</th>
-              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "25%" }}>Grupo</th>
-              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "55%" }}>Responsável</th>
-            </tr>
-          </thead>
-          <tbody>
-            {escalas.map((escala, i) => (
-              <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd", fontWeight: "500" }}>{formatarData(escala.data)}</td>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>Grupo {escala.grupo_numero}</td>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{escala.responsavel_nome || "-"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* 4 blocos de mês empilhados */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1, overflow: "hidden" }}>
+          {mesesParaImprimir.map((mesData) => (
+            <div key={`${mesData.ano}-${mesData.mes}`} style={{ flexShrink: 0 }}>
+              {/* Cabeçalho do mês — cor #8b2332 igual ao padrão de limpeza */}
+              <div style={{
+                backgroundColor: "#8b2332",
+                color: "white",
+                padding: "5px 10px",
+                fontWeight: "bold",
+                fontSize: "11px",
+                letterSpacing: "0.5px"
+              }}>
+                {getMesAno(mesData.mes, mesData.ano).toUpperCase()}
+              </div>
 
-        {/* Rodapé */}
+              {mesData.escalas.length === 0 ? (
+                <div style={{
+                  padding: "8px 10px",
+                  fontSize: "11px",
+                  color: "#6b7280",
+                  border: "1px solid #e5e7eb",
+                  borderTop: "none",
+                  textAlign: "center",
+                  fontStyle: "italic"
+                }}>
+                  Nenhuma designação cadastrada para este mês.
+                </div>
+              ) : (
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
+                  <thead>
+                    <tr style={{ backgroundColor: "#f3f4f6" }}>
+                      <th style={{ padding: "4px 8px", border: "1px solid #e5e7eb", textAlign: "left", width: "26%", fontWeight: "700", color: "#374151" }}>Período</th>
+                      <th style={{ padding: "4px 8px", border: "1px solid #e5e7eb", textAlign: "left", width: "37%", fontWeight: "700", color: "#374151" }}>Limpeza do Salão</th>
+                      <th style={{ padding: "4px 8px", border: "1px solid #e5e7eb", textAlign: "left", width: "37%", fontWeight: "700", color: "#374151" }}>Limpeza Semanal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mesData.escalas.map((escala, i) => (
+                      <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                        <td style={{ padding: "4px 8px", border: "1px solid #e5e7eb", fontWeight: "600" }}>
+                          {formatarPeriodoSemana(escala.data_inicio, escala.data_fim)}
+                        </td>
+                        <td style={{ padding: "4px 8px", border: "1px solid #e5e7eb" }}>
+                          {escala.grupo_nome || "-"}
+                        </td>
+                        <td style={{ padding: "4px 8px", border: "1px solid #e5e7eb" }}>
+                          {escala.limpeza_semanal_grupo_nome || "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Rodapé — idêntico ao dos outros prints */}
         <div style={{
           textAlign: "center",
-          fontSize: "12px",
+          fontSize: "11px",
           color: "#666",
           padding: "5px",
           marginTop: "auto",
           borderTop: "1px solid #ccc",
           flexShrink: 0
         }}>
-          Congregação Pq. Sabará - {getMesAno(mes, ano)}
+          Congregação Pq. Sabará — Escala de Limpeza do Salão
         </div>
       </div>
     )
