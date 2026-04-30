@@ -7,15 +7,26 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const mes = searchParams.get("mes")
     
+    // Busca por intervalo de datas do mês para capturar semanas transbordadas
+    // (ex: 28/06–04/07 salva com mes=julho mas exibida em junho)
     let query = supabase
       .from("limpeza_salao")
       .select("*")
-      .order("semana", { ascending: true })
-    
+      .order("data_inicio", { ascending: true })
+
     if (mes) {
-      query = query.eq("mes", mes)
+      // Calcular primeiro e último dia do mês solicitado
+      const [ano, mesNum] = mes.split("-").map(Number)
+      const ultimoDia = new Date(ano, mesNum, 0)
+      const primeiroDiaStr = `${ano}-${String(mesNum).padStart(2, "0")}-01`
+      const ultimoDiaStr = `${ano}-${String(mesNum).padStart(2, "0")}-${String(ultimoDia.getDate()).padStart(2, "0")}`
+
+      // Inclui qualquer semana cujo domingo de início está dentro do mês
+      query = query
+        .gte("data_inicio", primeiroDiaStr)
+        .lte("data_inicio", ultimoDiaStr)
     }
-    
+
     const { data, error } = await query
     
     if (error) {

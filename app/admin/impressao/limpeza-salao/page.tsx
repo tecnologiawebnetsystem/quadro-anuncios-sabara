@@ -53,11 +53,17 @@ export default function ImpressaoLimpezaSalaoPage() {
         const anoLoop = anoAtual + Math.floor(total / 12)
         const mesLoopStr = `${anoLoop}-${String(mesLoop).padStart(2, "0")}`
 
+        // Buscar semanas cujo domingo de início está dentro do mês
+        const ultimoDia = new Date(anoLoop, mesLoop, 0).getDate()
+        const primeiroDiaStr = `${anoLoop}-${String(mesLoop).padStart(2, "0")}-01`
+        const ultimoDiaStr = `${anoLoop}-${String(mesLoop).padStart(2, "0")}-${String(ultimoDia).padStart(2, "0")}`
+
         const { data } = await supabase
           .from("limpeza_salao")
           .select("id, semana, data_inicio, data_fim, grupo_nome, limpeza_semanal_grupo_nome")
-          .eq("mes", mesLoopStr)
-          .order("semana", { ascending: true })
+          .gte("data_inicio", primeiroDiaStr)
+          .lte("data_inicio", ultimoDiaStr)
+          .order("data_inicio", { ascending: true })
 
         // Deduplicar por data_inicio: manter apenas um registro por semana,
         // preferindo o que tem grupo_nome preenchido
