@@ -127,15 +127,18 @@ export default function LimpezaSalaoPage() {
     )
   }
 
-  const getDesignacao = (semana: number): LimpezaDesignacao | undefined => {
-    return designacoes.find(d => d.semana === semana)
+  const getDesignacao = (semana: Semana): LimpezaDesignacao | undefined => {
+    const dataInicio = format(semana.inicio, "yyyy-MM-dd")
+    // Busca por data_inicio para garantir que encontra o registro correto
+    // mesmo que o número de semana no banco seja diferente (ex: semanas que transbordam meses)
+    return designacoes.find(d => d.data_inicio === dataInicio)
   }
 
   const salvarDesignacao = async (semana: Semana, grupoId: string) => {
     setSalvando(semana.numero)
 
     const grupo = grupos.find(g => g.id === grupoId)
-    const designacaoAtual = getDesignacao(semana.numero)
+    const designacaoAtual = getDesignacao(semana)
 
     try {
       const response = await fetch("/api/limpeza-salao", {
@@ -155,8 +158,9 @@ export default function LimpezaSalaoPage() {
 
       if (response.ok) {
         const data = await response.json()
+        const dataInicio = format(semana.inicio, "yyyy-MM-dd")
         setDesignacoes(prev => {
-          const index = prev.findIndex(d => d.semana === semana.numero)
+          const index = prev.findIndex(d => d.data_inicio === dataInicio)
           if (index >= 0) {
             const updated = [...prev]
             updated[index] = data
@@ -176,7 +180,7 @@ export default function LimpezaSalaoPage() {
     setSalvandoSemanal(semana.numero)
 
     const grupo = grupos.find(g => g.id === grupoId)
-    const designacaoAtual = getDesignacao(semana.numero)
+    const designacaoAtual = getDesignacao(semana)
 
     try {
       const response = await fetch("/api/limpeza-salao", {
@@ -196,8 +200,9 @@ export default function LimpezaSalaoPage() {
 
       if (response.ok) {
         const data = await response.json()
+        const dataInicio = format(semana.inicio, "yyyy-MM-dd")
         setDesignacoes(prev => {
-          const index = prev.findIndex(d => d.semana === semana.numero)
+          const index = prev.findIndex(d => d.data_inicio === dataInicio)
           if (index >= 0) {
             const updated = [...prev]
             updated[index] = data
@@ -274,7 +279,7 @@ export default function LimpezaSalaoPage() {
       ) : (
         <div className="space-y-4">
           {semanas.map((semana) => {
-            const designacao = getDesignacao(semana.numero)
+            const designacao = getDesignacao(semana)
             const isSalvando = salvando === semana.numero
 
             return (
