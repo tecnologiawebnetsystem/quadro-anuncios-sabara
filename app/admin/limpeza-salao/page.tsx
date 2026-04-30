@@ -56,15 +56,21 @@ export default function LimpezaSalaoPage() {
     const fim = endOfMonth(mesAtual)
     const semanasDoMes: Semana[] = []
 
-    let dataAtual = startOfWeek(inicio, { weekStartsOn: 0 }) // Domingo
+    let dataAtual = inicio
+    // Começa sempre no domingo da semana do primeiro dia do mês
+    // mas só conta a semana se o início (domingo) pertencer ao mês atual
+    // para evitar duplicação com o mês anterior
     let numeroSemana = 1
 
     while (dataAtual <= fim) {
-      const inicioSemana = dataAtual
+      const inicioSemana = startOfWeek(dataAtual, { weekStartsOn: 0 }) // Domingo
       const fimSemana = endOfWeek(dataAtual, { weekStartsOn: 0 })
 
-      // Só incluir semanas que tenham pelo menos um dia no mês
-      if (fimSemana >= inicio && inicioSemana <= fim) {
+      // A semana pertence a este mês apenas se o domingo de início está dentro do mês.
+      // Isso evita que semanas "transbordadas" apareçam em dois meses ao mesmo tempo.
+      const domingoNoMes = inicioSemana >= inicio
+
+      if (domingoNoMes) {
         semanasDoMes.push({
           numero: numeroSemana,
           inicio: inicioSemana,
@@ -73,6 +79,7 @@ export default function LimpezaSalaoPage() {
         numeroSemana++
       }
 
+      // Avança para o próximo domingo após o fim desta semana
       dataAtual = addDays(fimSemana, 1)
     }
 
