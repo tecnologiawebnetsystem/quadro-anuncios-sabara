@@ -915,18 +915,29 @@ const formatarPeriodoSemana = (inicio: string, fim: string) => {
   return `${dInicio.getDate().toString().padStart(2, "0")}/${(dInicio.getMonth() + 1).toString().padStart(2, "0")} a ${dFim.getDate().toString().padStart(2, "0")}/${(dFim.getMonth() + 1).toString().padStart(2, "0")}`
 }
 
+// Paleta de cores distinta para cada mês (4 cores distintas — uma por bloco)
+const CORES_MES = [
+  { bg: "#1e3a5f", light: "#dbeafe", border: "#93c5fd", stripe: "#eff6ff" }, // Azul marinho
+  { bg: "#7c3d12", light: "#fef3c7", border: "#fcd34d", stripe: "#fffbeb" }, // Âmbar escuro
+  { bg: "#14532d", light: "#dcfce7", border: "#86efac", stripe: "#f0fdf4" }, // Verde escuro
+  { bg: "#4a1d96", light: "#ede9fe", border: "#c4b5fd", stripe: "#f5f3ff" }, // Violeta escuro
+]
+
 export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
   ({ mes, ano, escalas, meses }, ref) => {
-    // Modo principal: 4 meses numa única folha A4
     const mesesParaImprimir = meses && meses.length > 0 ? meses : []
-    const tituloMeses = mesesParaImprimir.length > 0
-      ? `Limpeza do Salão — ${getMesAno(mesesParaImprimir[0].mes, mesesParaImprimir[0].ano)} a ${getMesAno(mesesParaImprimir[mesesParaImprimir.length - 1].mes, mesesParaImprimir[mesesParaImprimir.length - 1].ano)}`
-      : `Limpeza do Salão — ${getMesAno(mes, ano)}`
+
+    const nomeMesInicio = mesesParaImprimir.length > 0
+      ? getMesAno(mesesParaImprimir[0].mes, mesesParaImprimir[0].ano)
+      : getMesAno(mes, ano)
+    const nomeMesFim = mesesParaImprimir.length > 1
+      ? getMesAno(mesesParaImprimir[mesesParaImprimir.length - 1].mes, mesesParaImprimir[mesesParaImprimir.length - 1].ano)
+      : nomeMesInicio
 
     return (
       <div ref={ref} style={{
         backgroundColor: "white",
-        color: "black",
+        color: "#111",
         padding: "8mm 10mm",
         width: "210mm",
         height: "297mm",
@@ -935,91 +946,167 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
         boxSizing: "border-box",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden"
+        overflow: "hidden",
+        fontFamily: "Arial, Helvetica, sans-serif",
       }}>
-        {/* Header — idêntico ao de todos os outros prints */}
+
+        {/* ── Cabeçalho ── */}
         <div style={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: "flex-end",
+          borderBottom: "2.5px solid #111",
           paddingBottom: "5px",
-          marginBottom: "8px",
-          borderBottom: "2px solid #333",
-          flexShrink: 0
+          marginBottom: "6px",
+          flexShrink: 0,
         }}>
-          <h1 style={{ fontSize: "13px", fontWeight: "bold", margin: 0, color: "#000" }}>Parque Sabará - Taubaté SP</h1>
-          <h2 style={{ fontSize: "13px", fontWeight: "bold", margin: 0, color: "#000" }}>{tituloMeses}</h2>
-        </div>
-
-        {/* 4 blocos de mês empilhados */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1, overflow: "hidden" }}>
-          {mesesParaImprimir.map((mesData) => (
-            <div key={`${mesData.ano}-${mesData.mes}`} style={{ flexShrink: 0 }}>
-              {/* Cabeçalho do mês — cor #8b2332 igual ao padrão de limpeza */}
-              <div style={{
-                backgroundColor: "#8b2332",
-                color: "white",
-                padding: "5px 10px",
-                fontWeight: "bold",
-                fontSize: "11px",
-                letterSpacing: "0.5px"
-              }}>
-                {getMesAno(mesData.mes, mesData.ano).toUpperCase()}
-              </div>
-
-              {mesData.escalas.length === 0 ? (
-                <div style={{
-                  padding: "8px 10px",
-                  fontSize: "11px",
-                  color: "#6b7280",
-                  border: "1px solid #e5e7eb",
-                  borderTop: "none",
-                  textAlign: "center",
-                  fontStyle: "italic"
-                }}>
-                  Nenhuma designação cadastrada para este mês.
-                </div>
-              ) : (
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
-                  <thead>
-                    <tr style={{ backgroundColor: "#f3f4f6" }}>
-                      <th style={{ padding: "4px 8px", border: "1px solid #e5e7eb", textAlign: "left", width: "26%", fontWeight: "700", color: "#374151" }}>Período</th>
-                      <th style={{ padding: "4px 8px", border: "1px solid #e5e7eb", textAlign: "left", width: "37%", fontWeight: "700", color: "#374151" }}>Limpeza do Salão</th>
-                      <th style={{ padding: "4px 8px", border: "1px solid #e5e7eb", textAlign: "left", width: "37%", fontWeight: "700", color: "#374151" }}>Limpeza Semanal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mesData.escalas.map((escala, i) => (
-                      <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
-                        <td style={{ padding: "4px 8px", border: "1px solid #e5e7eb", fontWeight: "600" }}>
-                          {formatarPeriodoSemana(escala.data_inicio, escala.data_fim)}
-                        </td>
-                        <td style={{ padding: "4px 8px", border: "1px solid #e5e7eb" }}>
-                          {escala.grupo_nome || "-"}
-                        </td>
-                        <td style={{ padding: "4px 8px", border: "1px solid #e5e7eb" }}>
-                          {escala.limpeza_semanal_grupo_nome || "-"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+          <div>
+            <div style={{ fontSize: "14px", fontWeight: "800", color: "#111", letterSpacing: "0.3px" }}>
+              Parque Sabará — Taubaté SP
             </div>
-          ))}
+            <div style={{ fontSize: "10px", color: "#555", marginTop: "1px" }}>
+              Congregação das Testemunhas de Jeová
+            </div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#111" }}>
+              Escala de Limpeza do Salão
+            </div>
+            <div style={{ fontSize: "10px", color: "#555", marginTop: "1px" }}>
+              {nomeMesInicio}{nomeMesFim !== nomeMesInicio ? ` a ${nomeMesFim}` : ""}
+            </div>
+          </div>
         </div>
 
-        {/* Rodapé — idêntico ao dos outros prints */}
+        {/* ── Blocos de meses ── */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "7px", flex: 1, overflow: "hidden" }}>
+          {mesesParaImprimir.map((mesData, idx) => {
+            const cor = CORES_MES[idx % CORES_MES.length]
+            return (
+              <div key={`${mesData.ano}-${mesData.mes}`} style={{
+                flexShrink: 0,
+                borderRadius: "5px",
+                overflow: "hidden",
+                border: `1px solid ${cor.border}`,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+              }}>
+                {/* Título do mês */}
+                <div style={{
+                  backgroundColor: cor.bg,
+                  color: "white",
+                  padding: "5px 10px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}>
+                  <span style={{ fontWeight: "700", fontSize: "11px", letterSpacing: "0.8px", textTransform: "uppercase" }}>
+                    {getMesAno(mesData.mes, mesData.ano)}
+                  </span>
+                  <span style={{
+                    fontSize: "9px",
+                    fontWeight: "500",
+                    backgroundColor: "rgba(255,255,255,0.18)",
+                    padding: "1px 7px",
+                    borderRadius: "10px",
+                    letterSpacing: "0.3px",
+                  }}>
+                    {mesData.escalas.length} {mesData.escalas.length === 1 ? "semana" : "semanas"}
+                  </span>
+                </div>
+
+                {mesData.escalas.length === 0 ? (
+                  <div style={{
+                    padding: "8px 10px",
+                    fontSize: "10px",
+                    color: "#9ca3af",
+                    textAlign: "center",
+                    fontStyle: "italic",
+                    backgroundColor: "#fafafa",
+                  }}>
+                    Nenhuma designação cadastrada.
+                  </div>
+                ) : (
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10.5px" }}>
+                    <thead>
+                      <tr style={{ backgroundColor: cor.light }}>
+                        <th style={{
+                          padding: "4px 8px", textAlign: "left", width: "24%",
+                          fontWeight: "700", color: cor.bg,
+                          borderBottom: `1px solid ${cor.border}`,
+                          fontSize: "9.5px", letterSpacing: "0.3px", textTransform: "uppercase",
+                        }}>Período</th>
+                        <th style={{
+                          padding: "4px 8px", textAlign: "left", width: "38%",
+                          fontWeight: "700", color: cor.bg,
+                          borderBottom: `1px solid ${cor.border}`,
+                          borderLeft: `1px solid ${cor.border}`,
+                          fontSize: "9.5px", letterSpacing: "0.3px", textTransform: "uppercase",
+                        }}>Limpeza do Salão</th>
+                        <th style={{
+                          padding: "4px 8px", textAlign: "left", width: "38%",
+                          fontWeight: "700", color: cor.bg,
+                          borderBottom: `1px solid ${cor.border}`,
+                          borderLeft: `1px solid ${cor.border}`,
+                          fontSize: "9.5px", letterSpacing: "0.3px", textTransform: "uppercase",
+                        }}>Limpeza Semanal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mesData.escalas.map((escala, i) => (
+                        <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : cor.stripe }}>
+                          <td style={{
+                            padding: "4px 8px",
+                            borderBottom: `1px solid ${cor.border}`,
+                            fontWeight: "600",
+                            color: "#1f2937",
+                            fontVariantNumeric: "tabular-nums",
+                          }}>
+                            {formatarPeriodoSemana(escala.data_inicio, escala.data_fim)}
+                          </td>
+                          <td style={{
+                            padding: "4px 8px",
+                            borderBottom: `1px solid ${cor.border}`,
+                            borderLeft: `1px solid ${cor.border}`,
+                            color: escala.grupo_nome ? "#111" : "#9ca3af",
+                            fontStyle: escala.grupo_nome ? "normal" : "italic",
+                          }}>
+                            {escala.grupo_nome || "—"}
+                          </td>
+                          <td style={{
+                            padding: "4px 8px",
+                            borderBottom: `1px solid ${cor.border}`,
+                            borderLeft: `1px solid ${cor.border}`,
+                            color: escala.limpeza_semanal_grupo_nome ? "#111" : "#9ca3af",
+                            fontStyle: escala.limpeza_semanal_grupo_nome ? "normal" : "italic",
+                          }}>
+                            {escala.limpeza_semanal_grupo_nome || "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* ── Rodapé ── */}
         <div style={{
-          textAlign: "center",
-          fontSize: "11px",
-          color: "#666",
-          padding: "5px",
-          marginTop: "auto",
-          borderTop: "1px solid #ccc",
-          flexShrink: 0
+          marginTop: "6px",
+          paddingTop: "5px",
+          borderTop: "1px solid #d1d5db",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexShrink: 0,
         }}>
-          Congregação Pq. Sabará — Escala de Limpeza do Salão
+          <span style={{ fontSize: "9px", color: "#9ca3af" }}>
+            Congregação Pq. Sabará — Escala de Limpeza do Salão
+          </span>
+          <span style={{ fontSize: "9px", color: "#9ca3af" }}>
+            Impresso em {new Date().toLocaleDateString("pt-BR")}
+          </span>
         </div>
       </div>
     )
