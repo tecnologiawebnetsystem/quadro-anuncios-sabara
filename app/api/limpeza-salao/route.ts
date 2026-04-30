@@ -65,31 +65,26 @@ export async function POST(request: NextRequest) {
     
     const { mes, semana, data_inicio, data_fim, grupo_id, grupo_nome, limpeza_semanal_grupo_id, limpeza_semanal_grupo_nome } = body
     
-    // Verificar se já existe uma designação para esta data de início
-    // Usar data_inicio como chave de deduplicação para evitar duplicatas entre meses
-    const { data: existing } = await supabase
+    // Buscar todos os registros com essa data de início (pode haver duplicatas antigas)
+    const { data: existingList } = await supabase
       .from("limpeza_salao")
-      .select("id")
+      .select("*")
       .eq("data_inicio", data_inicio)
-      .maybeSingle()
-    
-    // Também apagar outros registros duplicados com a mesma data_inicio, se houver
-    if (existing) {
+      .order("updated_at", { ascending: false })
+
+    const registroAtual = existingList?.[0] ?? null
+    const existing = registroAtual ? { id: registroAtual.id } : null
+
+    // Apagar duplicatas — manter apenas o primeiro (mais recente)
+    if (existingList && existingList.length > 1) {
+      const idsParaApagar = existingList.slice(1).map((r: { id: string }) => r.id)
       await supabase
         .from("limpeza_salao")
         .delete()
-        .eq("data_inicio", data_inicio)
-        .neq("id", existing.id)
+        .in("id", idsParaApagar)
     }
-    
-    if (existing) {
-      // Buscar dados completos do registro existente para fazer merge correto
-      const { data: registroAtual } = await supabase
-        .from("limpeza_salao")
-        .select("*")
-        .eq("id", existing.id)
-        .single()
 
+    if (existing) {
       // Merge: só atualiza o campo que veio preenchido; preserva o que já está no banco
       const novoGrupoId = grupo_id !== null ? grupo_id : (registroAtual?.grupo_id ?? null)
       const novoGrupoNome = grupo_id !== null ? grupo_nome : (registroAtual?.grupo_nome ?? null)
