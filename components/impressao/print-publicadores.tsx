@@ -8,7 +8,6 @@ export interface PublicadorImpressao {
   anciao: boolean
   servo_ministerial: boolean
   pioneiro_regular: boolean
-  pioneiro_auxiliar: boolean
   ativo: boolean
 }
 
@@ -16,176 +15,166 @@ interface PrintPublicadoresProps {
   publicadores: PublicadorImpressao[]
 }
 
-// SVG simples para cada cargo (funciona em print sem dependência de lucide)
+// Ícone: Ancião (coroa / chapéu de ancião)
 function IconeAnciao() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline", verticalAlign: "middle", color: "#1e3a8a" }}>
-      <circle cx="12" cy="8" r="4"/>
-      <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
-      <path d="M9 11l-4 9h14l-4-9"/>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline", verticalAlign: "middle", color: "#1e40af" }}>
+      <path d="M5 16l-2-8 5 4 4-7 4 7 5-4-2 8H5zm0 2h14v2H5v-2z"/>
     </svg>
   )
 }
 
+// Ícone: Servo Ministerial (escudo)
 function IconeServo() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline", verticalAlign: "middle", color: "#065f46" }}>
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline", verticalAlign: "middle", color: "#065f46" }}>
+      <path d="M12 2L4 5v6c0 5.25 3.5 10.15 8 11.5C17.5 21.15 21 16.25 21 11V5l-9-3z"/>
     </svg>
   )
 }
 
-function IconePioneiroRegular() {
+// Ícone: Pioneiro Regular (bandeira)
+function IconePioneiro() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline", verticalAlign: "middle", color: "#92400e" }}>
-      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-      <line x1="4" y1="22" x2="4" y2="15"/>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline", verticalAlign: "middle", color: "#92400e" }}>
+      <path d="M4 3h16l-4 7 4 7H4V3z"/>
     </svg>
   )
 }
 
-function IconePioneiroAuxiliar() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline", verticalAlign: "middle", color: "#9a3412" }}>
-      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-      <line x1="4" y1="22" x2="4" y2="15"/>
-      <circle cx="19" cy="20" r="3" fill="#9a3412" stroke="none"/>
-      <path d="M19 18v4M17 20h4" stroke="white" strokeWidth="1.5"/>
-    </svg>
-  )
-}
+type Cargo = { label: string; cor: string; bg: string; Icone: () => JSX.Element }
 
-function obterCargoPrincipal(p: PublicadorImpressao): string {
-  if (p.anciao) return "Ancião"
-  if (p.servo_ministerial) return "Servo Min."
-  if (p.pioneiro_regular) return "Pio. Regular"
-  if (p.pioneiro_auxiliar) return "Pio. Auxiliar"
-  return "Publicador"
+function getCargos(p: PublicadorImpressao): Cargo[] {
+  const cargos: Cargo[] = []
+  if (p.anciao)
+    cargos.push({ label: "Ancião", cor: "#1e40af", bg: "#dbeafe", Icone: IconeAnciao })
+  if (p.servo_ministerial)
+    cargos.push({ label: "Servo Min.", cor: "#065f46", bg: "#d1fae5", Icone: IconeServo })
+  if (p.pioneiro_regular)
+    cargos.push({ label: "Pio. Regular", cor: "#92400e", bg: "#fef3c7", Icone: IconePioneiro })
+  return cargos
 }
 
 export const PrintPublicadores = forwardRef<HTMLDivElement, PrintPublicadoresProps>(
   ({ publicadores }, ref) => {
-    const anciaos = publicadores.filter(p => p.anciao)
-    const servos = publicadores.filter(p => !p.anciao && p.servo_ministerial)
-    const pioneirosRegulares = publicadores.filter(p => !p.anciao && !p.servo_ministerial && p.pioneiro_regular)
-    const pioneirosAuxiliares = publicadores.filter(p => !p.anciao && !p.servo_ministerial && !p.pioneiro_regular && p.pioneiro_auxiliar)
-    const somentePub = publicadores.filter(p => !p.anciao && !p.servo_ministerial && !p.pioneiro_regular && !p.pioneiro_auxiliar)
+    const hoje = new Date().toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    })
 
-    const hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
+    // Ordena alfabeticamente
+    const lista = [...publicadores].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))
 
     return (
       <div ref={ref} className="print-preview" style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
 
         {/* Cabeçalho */}
-        <div className="print-header" style={{ textAlign: "center", paddingBottom: "12px", marginBottom: "16px", borderBottom: "2px solid #1e3a8a" }}>
-          <h1 style={{ fontSize: "18px", fontWeight: "bold", margin: "0 0 4px 0", color: "#1e3a8a", letterSpacing: "0.5px" }}>
+        <div style={{
+          textAlign: "center",
+          paddingBottom: "10px",
+          marginBottom: "14px",
+          borderBottom: "2px solid #1e40af",
+        }}>
+          <h1 style={{ fontSize: "17px", fontWeight: "bold", margin: "0 0 3px 0", color: "#1e40af", letterSpacing: "0.5px" }}>
             LISTA DE PUBLICADORES
           </h1>
-          <p style={{ margin: 0, fontSize: "11px", color: "#555" }}>
-            Congregação Parque Sabará &nbsp;|&nbsp; Gerado em {hoje}
-          </p>
-          <p style={{ margin: "4px 0 0", fontSize: "11px", color: "#555" }}>
-            Total de publicadores ativos: <strong>{publicadores.length}</strong>
+          <p style={{ margin: 0, fontSize: "10.5px", color: "#555" }}>
+            Congregação Parque Sabará &nbsp;|&nbsp; {hoje}
           </p>
         </div>
 
-        {/* Grid de 3 colunas por cargo */}
-        {[
-          { titulo: "ANCIÃOS", lista: anciaos, cor: "#1e3a8a", bgCor: "#dbeafe", Icone: IconeAnciao },
-          { titulo: "SERVOS MINISTERIAIS", lista: servos, cor: "#065f46", bgCor: "#d1fae5", Icone: IconeServo },
-          { titulo: "PIONEIROS REGULARES", lista: pioneirosRegulares, cor: "#92400e", bgCor: "#fef3c7", Icone: IconePioneiroRegular },
-          { titulo: "PIONEIROS AUXILIARES", lista: pioneirosAuxiliares, cor: "#9a3412", bgCor: "#ffedd5", Icone: IconePioneiroAuxiliar },
-        ].map(({ titulo, lista, cor, bgCor, Icone }) =>
-          lista.length > 0 ? (
-            <div key={titulo} style={{ marginBottom: "14px", breakInside: "avoid" }}>
-              <div style={{
-                backgroundColor: bgCor,
-                borderLeft: `4px solid ${cor}`,
-                padding: "5px 10px",
-                marginBottom: "6px",
+        {/* Grade de publicadores: 3 colunas */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "2px 10px",
+        }}>
+          {lista.map((p, i) => {
+            const cargos = getCargos(p)
+            return (
+              <div key={p.id} style={{
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "space-between",
+                padding: "4px 2px",
+                borderBottom: "1px dotted #d1d5db",
                 gap: "6px",
               }}>
-                <Icone />
-                <span style={{ fontSize: "11px", fontWeight: "bold", color: cor, letterSpacing: "0.8px" }}>
-                  {titulo} ({lista.length})
-                </span>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "3px 12px", paddingLeft: "4px" }}>
-                {lista.map((p, i) => (
-                  <div key={p.id} style={{
+                {/* Número e nome */}
+                <div style={{ display: "flex", alignItems: "center", gap: "4px", minWidth: 0 }}>
+                  <span style={{ fontSize: "9px", color: "#9ca3af", minWidth: "16px", flexShrink: 0 }}>
+                    {i + 1}.
+                  </span>
+                  <span style={{
                     fontSize: "11px",
-                    padding: "3px 0",
-                    borderBottom: "1px dotted #ccc",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "5px",
-                    color: "#111",
+                    color: "#111827",
+                    fontWeight: cargos.length > 0 ? "600" : "400",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                   }}>
-                    <span style={{ color: "#888", fontSize: "9px", minWidth: "16px" }}>{i + 1}.</span>
-                    <span>{p.nome}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null
-        )}
-
-        {/* Publicadores sem cargo especial */}
-        {somentePub.length > 0 && (
-          <div style={{ marginBottom: "14px" }}>
-            <div style={{
-              backgroundColor: "#f3f4f6",
-              borderLeft: "4px solid #6b7280",
-              padding: "5px 10px",
-              marginBottom: "6px",
-            }}>
-              <span style={{ fontSize: "11px", fontWeight: "bold", color: "#374151", letterSpacing: "0.8px" }}>
-                PUBLICADORES ({somentePub.length})
-              </span>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "3px 12px", paddingLeft: "4px" }}>
-              {somentePub.map((p, i) => (
-                <div key={p.id} style={{
-                  fontSize: "11px",
-                  padding: "3px 0",
-                  borderBottom: "1px dotted #ccc",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                  color: "#111",
-                }}>
-                  <span style={{ color: "#888", fontSize: "9px", minWidth: "16px" }}>{i + 1}.</span>
-                  <span>{p.nome}</span>
+                    {p.nome}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+
+                {/* Badges de cargo — pode ter mais de um */}
+                <div style={{ display: "flex", alignItems: "center", gap: "3px", flexShrink: 0 }}>
+                  {cargos.map(({ label, cor, bg, Icone }) => (
+                    <span
+                      key={label}
+                      title={label}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "2px",
+                        backgroundColor: bg,
+                        color: cor,
+                        fontSize: "8.5px",
+                        fontWeight: "700",
+                        padding: "1px 4px",
+                        borderRadius: "3px",
+                        border: `1px solid ${cor}30`,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <Icone />
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
 
         {/* Legenda */}
         <div style={{
-          marginTop: "20px",
-          borderTop: "1px solid #ccc",
-          paddingTop: "10px",
+          marginTop: "18px",
+          paddingTop: "8px",
+          borderTop: "1px solid #d1d5db",
           display: "flex",
+          alignItems: "center",
           flexWrap: "wrap",
-          gap: "16px",
+          gap: "14px",
           justifyContent: "center",
         }}>
-          <span style={{ fontSize: "10px", color: "#555", fontWeight: "bold", marginRight: "4px" }}>LEGENDA:</span>
+          <span style={{ fontSize: "9px", fontWeight: "700", color: "#6b7280", letterSpacing: "0.5px" }}>
+            LEGENDA:
+          </span>
           {[
-            { Icone: IconeAnciao, label: "Ancião", cor: "#1e3a8a" },
+            { Icone: IconeAnciao, label: "Ancião", cor: "#1e40af" },
             { Icone: IconeServo, label: "Servo Ministerial", cor: "#065f46" },
-            { Icone: IconePioneiroRegular, label: "Pioneiro Regular", cor: "#92400e" },
-            { Icone: IconePioneiroAuxiliar, label: "Pioneiro Auxiliar", cor: "#9a3412" },
+            { Icone: IconePioneiro, label: "Pioneiro Regular", cor: "#92400e" },
           ].map(({ Icone, label, cor }) => (
-            <div key={label} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <div key={label} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
               <Icone />
-              <span style={{ fontSize: "10px", color: cor }}>{label}</span>
+              <span style={{ fontSize: "9px", color: cor, fontWeight: "600" }}>{label}</span>
             </div>
           ))}
+          <span style={{ fontSize: "9px", color: "#6b7280" }}>
+            — Sem badge: Publicador
+          </span>
         </div>
       </div>
     )

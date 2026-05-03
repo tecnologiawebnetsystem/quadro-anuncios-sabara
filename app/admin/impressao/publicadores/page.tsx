@@ -13,7 +13,6 @@ export interface PublicadorImpressao {
   anciao: boolean
   servo_ministerial: boolean
   pioneiro_regular: boolean
-  pioneiro_auxiliar: boolean
   ativo: boolean
 }
 
@@ -28,7 +27,7 @@ export default function ImpressaoPublicadoresPage() {
     try {
       const { data } = await supabase
         .from("publicadores")
-        .select("id, nome, anciao, servo_ministerial, pioneiro_regular, pioneiro_auxiliar, ativo")
+        .select("id, nome, anciao, servo_ministerial, pioneiro_regular, ativo")
         .eq("ativo", true)
         .order("nome", { ascending: true })
 
