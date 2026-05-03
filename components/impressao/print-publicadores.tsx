@@ -60,26 +60,47 @@ export const PrintPublicadores = forwardRef<HTMLDivElement, PrintPublicadoresPro
 
     const lista = [...publicadores].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))
 
+    // Distribui a lista em 4 colunas, preenchendo de cima para baixo em cada coluna
+    const NUM_COLUNAS = 4
+    const linhasPorColuna = Math.ceil(lista.length / NUM_COLUNAS)
+    const colunas: PublicadorImpressao[][] = Array.from({ length: NUM_COLUNAS }, (_, ci) =>
+      lista.slice(ci * linhasPorColuna, (ci + 1) * linhasPorColuna)
+    )
+
+    // Altura útil disponível para as linhas: 297mm - 8mm*2 padding - ~28mm (header+legenda) ≈ 253mm
+    // Convertendo para px a 96dpi: 253mm * 3.7795 ≈ 956px — dividimos pelas linhas
+    const ALTURA_UTIL_PX = 930
+    const alturaPorLinha = Math.floor(ALTURA_UTIL_PX / linhasPorColuna)
+    // Clamp entre 14px e 30px para não ficar nem minúsculo nem gigante
+    const rowH = Math.min(30, Math.max(14, alturaPorLinha))
+    const fontSize = Math.min(13, Math.max(9, Math.floor(rowH * 0.58)))
+    const numSize = Math.max(7, fontSize - 2)
+    const iconSize = Math.min(13, Math.max(9, Math.floor(rowH * 0.52)))
+
     return (
       <div
         ref={ref}
         className="print-preview publicadores-preview"
         style={{
           fontFamily: "Arial, Helvetica, sans-serif",
-          fontSize: "10px",
+          fontSize: `${fontSize}px`,
           width: "100%",
+          minHeight: "277mm",
           boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {/* Cabeçalho */}
         <div style={{
           textAlign: "center",
-          paddingBottom: "8px",
-          marginBottom: "10px",
+          paddingBottom: "6px",
+          marginBottom: "8px",
           borderBottom: "2px solid #1e40af",
+          flexShrink: 0,
         }}>
           <h1 style={{
-            fontSize: "15px",
+            fontSize: "16px",
             fontWeight: "bold",
             margin: "0 0 2px 0",
             color: "#1e40af",
@@ -87,94 +108,101 @@ export const PrintPublicadores = forwardRef<HTMLDivElement, PrintPublicadoresPro
           }}>
             LISTA DE PUBLICADORES
           </h1>
-          <p style={{ margin: 0, fontSize: "9.5px", color: "#555" }}>
+          <p style={{ margin: 0, fontSize: "10px", color: "#555" }}>
             Congregação Parque Sabará &nbsp;|&nbsp; {hoje} &nbsp;|&nbsp; {lista.length} publicadores
           </p>
         </div>
 
-        {/* Grade 4 colunas */}
+        {/* Grade 4 colunas — distribui de cima para baixo em cada coluna */}
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          columnGap: "8px",
-          rowGap: "0px",
+          columnGap: "10px",
+          flex: 1,
+          alignContent: "start",
         }}>
-          {lista.map((p, i) => {
-            const cargos = getCargos(p)
-            return (
-              <div
-                key={p.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "3px 2px",
-                  borderBottom: "1px dotted #e5e7eb",
-                  gap: "4px",
-                  overflow: "hidden",
-                }}
-              >
-                {/* Número + Nome */}
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "3px",
-                  minWidth: 0,
-                  flex: 1,
-                }}>
-                  <span style={{
-                    fontSize: "8px",
-                    color: "#9ca3af",
-                    minWidth: "14px",
-                    flexShrink: 0,
-                    textAlign: "right",
-                  }}>
-                    {i + 1}.
-                  </span>
-                  <span style={{
-                    fontSize: "10px",
-                    color: "#111827",
-                    fontWeight: cargos.length > 0 ? "700" : "400",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}>
-                    {p.nome}
-                  </span>
-                </div>
-
-                {/* Ícones de cargo — somente ícones, sem texto */}
-                {cargos.length > 0 && (
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "2px",
-                    flexShrink: 0,
-                  }}>
-                    {cargos.map(({ key, Icone, title }) => (
-                      <span key={key} title={title} style={{ lineHeight: 0 }}>
-                        <Icone size={10} />
+          {colunas.map((coluna, ci) => (
+            <div key={ci} style={{ display: "flex", flexDirection: "column" }}>
+              {coluna.map((p, i) => {
+                const cargos = getCargos(p)
+                const numGlobal = ci * linhasPorColuna + i + 1
+                return (
+                  <div
+                    key={p.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      height: `${rowH}px`,
+                      borderBottom: "1px dotted #e5e7eb",
+                      gap: "3px",
+                      overflow: "hidden",
+                      padding: "0 2px",
+                    }}
+                  >
+                    {/* Número + Nome */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "3px",
+                      minWidth: 0,
+                      flex: 1,
+                    }}>
+                      <span style={{
+                        fontSize: `${numSize}px`,
+                        color: "#9ca3af",
+                        minWidth: "16px",
+                        flexShrink: 0,
+                        textAlign: "right",
+                      }}>
+                        {numGlobal}.
                       </span>
-                    ))}
+                      <span style={{
+                        fontSize: `${fontSize}px`,
+                        color: "#111827",
+                        fontWeight: cargos.length > 0 ? "700" : "400",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}>
+                        {p.nome}
+                      </span>
+                    </div>
+
+                    {/* Ícones de cargo */}
+                    {cargos.length > 0 && (
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "2px",
+                        flexShrink: 0,
+                      }}>
+                        {cargos.map(({ key, Icone, title }) => (
+                          <span key={key} title={title} style={{ lineHeight: 0 }}>
+                            <Icone size={iconSize} />
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            )
-          })}
+                )
+              })}
+            </div>
+          ))}
         </div>
 
         {/* Legenda */}
         <div style={{
-          marginTop: "14px",
-          paddingTop: "7px",
+          marginTop: "10px",
+          paddingTop: "6px",
           borderTop: "1.5px solid #d1d5db",
           display: "flex",
           alignItems: "center",
-          gap: "16px",
+          gap: "18px",
           justifyContent: "center",
-          flexWrap: "wrap",
+          flexShrink: 0,
         }}>
-          <span style={{ fontSize: "8.5px", fontWeight: "700", color: "#6b7280", letterSpacing: "0.5px" }}>
+          <span style={{ fontSize: "9px", fontWeight: "700", color: "#6b7280", letterSpacing: "0.5px" }}>
             LEGENDA:
           </span>
           {[
@@ -183,8 +211,8 @@ export const PrintPublicadores = forwardRef<HTMLDivElement, PrintPublicadoresPro
             { Icone: IconePioneiro, label: "Pioneiro Regular",   cor: "#b45309" },
           ].map(({ Icone, label, cor }) => (
             <div key={label} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <Icone size={11} />
-              <span style={{ fontSize: "8.5px", color: cor, fontWeight: "600" }}>{label}</span>
+              <Icone size={12} />
+              <span style={{ fontSize: "9px", color: cor, fontWeight: "600" }}>{label}</span>
             </div>
           ))}
         </div>
