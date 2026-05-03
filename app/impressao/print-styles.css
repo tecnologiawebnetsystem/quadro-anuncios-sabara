@@ -250,12 +250,18 @@
 .print-preview {
   background: white;
   color: black;
-  padding: 10mm;
+  padding: 8mm;
   width: 210mm;
   min-height: 297mm;
   margin: 0 auto;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
+}
+
+/* Publicadores: conteúdo compacto, não precisa forçar altura mínima A4 */
+.print-preview.publicadores-preview {
+  min-height: auto;
+  padding: 7mm 8mm;
 }
 
 .print-preview .print-header {
