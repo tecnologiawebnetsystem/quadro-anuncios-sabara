@@ -39,6 +39,15 @@ interface Semana {
   fim: Date
 }
 
+// Retorna a quinta-feira e o domingo da semana que começa no domingo dado
+function getDiasLimpeza(domingoSemana: Date): { quinta: Date; domingo: Date } {
+  // quinta = domingo + 4 dias
+  const quinta = addDays(domingoSemana, 4)
+  // domingo = domingo + 7 dias (próximo domingo, fim da semana)
+  const domingo = addDays(domingoSemana, 7)
+  return { quinta, domingo }
+}
+
 export default function LimpezaSalaoPage() {
   const [mesAtual, setMesAtual] = useState(new Date())
   const [grupos, setGrupos] = useState<Grupo[]>([])
@@ -288,6 +297,7 @@ export default function LimpezaSalaoPage() {
           {semanas.map((semana) => {
             const designacao = getDesignacao(semana)
             const isSalvando = salvando === semana.numero
+            const { quinta, domingo } = getDiasLimpeza(semana.inicio)
 
             return (
               <Card
@@ -305,7 +315,7 @@ export default function LimpezaSalaoPage() {
                           Semana {semana.numero}
                         </span>
                         <p className="text-sm text-muted-foreground font-normal">
-                          {format(semana.inicio, "dd/MM", { locale: ptBR })} a {format(semana.fim, "dd/MM", { locale: ptBR })}
+                          Qui {format(quinta, "dd/MM", { locale: ptBR })} &amp; Dom {format(domingo, "dd/MM", { locale: ptBR })}
                         </p>
                       </div>
                     </div>
