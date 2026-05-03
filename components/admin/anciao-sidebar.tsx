@@ -63,7 +63,7 @@ interface MenuGroup {
 }
 
 const mainItems: MenuItem[] = [
-  { title: "Dashboard", icon: LayoutDashboard, href: "/anciao", color: "text-blue-400" },
+  { title: "Dashboard", icon: LayoutDashboard, href: "/anciao", color: "text-sky-400" },
   { title: "Quadro de Anúncios", icon: Megaphone, href: "/anciao/anuncios", color: "text-amber-400" },
 ]
 
@@ -71,12 +71,12 @@ const menuGroups: MenuGroup[] = [
   {
     title: "Publicadores",
     icon: Users,
-    color: "text-violet-400",
+    color: "text-sky-400",
     items: [
-      { title: "Todos", icon: Users, href: "/anciao/publicadores", color: "text-violet-400" },
-      { title: "Anciãos", icon: UserCheck, href: "/anciao/publicadores/anciaos", color: "text-violet-400" },
-      { title: "Servos", icon: Shield, href: "/anciao/publicadores/servos-ministeriais", color: "text-violet-400" },
-      { title: "Pioneiros", icon: Flag, href: "/anciao/publicadores/pioneiros-regulares", color: "text-violet-400" },
+      { title: "Todos", icon: Users, href: "/anciao/publicadores", color: "text-sky-400" },
+      { title: "Anciãos", icon: UserCheck, href: "/anciao/publicadores/anciaos", color: "text-sky-400" },
+      { title: "Servos", icon: Shield, href: "/anciao/publicadores/servos-ministeriais", color: "text-sky-400" },
+      { title: "Pioneiros", icon: Flag, href: "/anciao/publicadores/pioneiros-regulares", color: "text-sky-400" },
     ]
   },
   {
@@ -96,7 +96,7 @@ const menuGroups: MenuGroup[] = [
 ]
 
 const orgItems: MenuItem[] = [
-  { title: "Cânticos", icon: Music, href: "/anciao/canticos", color: "text-purple-400" },
+  { title: "Cânticos", icon: Music, href: "/anciao/canticos", color: "text-amber-400" },
 ]
 
 const impressaoGroup: MenuGroup = {
@@ -162,14 +162,14 @@ export function AnciaoSidebar() {
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
         <Link href="/anciao" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-600/80 shadow-lg shadow-amber-600/20">
-            <ClipboardList className="h-5 w-5 text-white" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar-primary/20 shadow-lg shadow-sidebar-primary/10">
+            <ClipboardList className="h-5 w-5 text-sidebar-primary" />
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
-              Info<span className="text-amber-500">Flow</span>
+              Info<span className="text-sidebar-primary">Flow</span>
             </span>
-            <span className="text-[11px] text-muted-foreground">Ancião</span>
+            <span className="text-[11px] text-sidebar-foreground/50">Ancião</span>
           </div>
         </Link>
       </SidebarHeader>
@@ -197,7 +197,7 @@ export function AnciaoSidebar() {
 
         {/* Grupos colapsáveis */}
         <SidebarGroup className="p-0">
-          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-sidebar-primary">
             Gerenciamento
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -245,7 +245,7 @@ export function AnciaoSidebar() {
                                   {badge !== undefined && badge > 0 && (
                                     <Badge
                                       variant="secondary"
-                                      className="h-4 min-w-[1.1rem] px-1 text-[9px] bg-zinc-700/80 text-zinc-300 rounded-full"
+                                      className="h-4 min-w-[1.1rem] px-1 text-[9px] bg-sidebar-primary/20 text-sidebar-primary rounded-full"
                                     >
                                       {badge}
                                     </Badge>
@@ -268,7 +268,7 @@ export function AnciaoSidebar() {
 
         {/* Organização */}
         <SidebarGroup className="p-0">
-          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-sidebar-primary">
             Organização
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -340,7 +340,7 @@ export function AnciaoSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isItemActive("/anciao/configuracoes")} className="h-9 rounded-lg font-medium">
                   <Link href="/anciao/configuracoes" className="flex items-center gap-3">
-                    <Settings className="h-4 w-4 flex-shrink-0 text-zinc-400" />
+                    <Settings className="h-4 w-4 flex-shrink-0 text-sidebar-foreground/60" />
                     <span>Configurações</span>
                   </Link>
                 </SidebarMenuButton>

@@ -15,7 +15,6 @@ import {
 import { cn } from "@/lib/utils"
 import { SyncProvider, useSync } from "@/lib/contexts/sync-context"
 
-// Itens do bottom navigation (mobile) - apenas os mais importantes
 const bottomNavItems = [
   { title: "Início", href: "/consulta", icon: Home },
   { title: "Reuniões", href: "/consulta/reunioes/vida-ministerio", icon: Calendar },
@@ -44,8 +43,8 @@ function SyncButton({ compact = false }: { compact?: boolean }) {
         className={cn(
           "p-2 rounded-lg transition-all",
           isSyncing 
-            ? "bg-blue-600/20 text-blue-400" 
-            : "text-zinc-400 hover:text-blue-400 hover:bg-zinc-800/50"
+            ? "bg-sky-600/20 text-sky-400" 
+            : "text-sky-300/70 hover:text-sky-200 hover:bg-sky-600/20"
         )}
         title="Atualizar dados"
       >
@@ -61,8 +60,8 @@ function SyncButton({ compact = false }: { compact?: boolean }) {
       className={cn(
         "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all",
         isSyncing 
-          ? "bg-blue-600/20 text-blue-400" 
-          : "text-zinc-400 hover:text-blue-400 hover:bg-zinc-800/50"
+          ? "bg-sky-600/20 text-sky-400" 
+          : "text-sky-300/70 hover:text-sky-200 hover:bg-sky-600/20"
       )}
       title="Atualizar dados"
     >
@@ -71,7 +70,7 @@ function SyncButton({ compact = false }: { compact?: boolean }) {
         {isSyncing ? "Atualizando..." : "Atualizar"}
       </span>
       {lastSync && !isSyncing && (
-        <span className="text-xs text-zinc-600">
+        <span className="text-xs text-sky-400/50">
           ({formatLastSync()})
         </span>
       )}
@@ -89,39 +88,37 @@ function ConsultaLayoutContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950">
-      {/* Header - Fixo no topo */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800">
+    <div className="min-h-screen" style={{ background: "linear-gradient(180deg, #0f2550 0%, #1a3a6e 40%, #1e4080 100%)" }}>
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0f2550]/95 backdrop-blur-sm border-b border-sky-700/40">
         <div className="flex items-center justify-between px-4 py-3 max-w-5xl mx-auto">
-          {/* Logo / Voltar */}
           <div className="flex items-center gap-2">
             {!isHomePage && (
               <Link 
                 href="/consulta" 
-                className="p-2 -ml-2 text-zinc-400 hover:text-white transition-colors"
+                className="p-2 -ml-2 text-sky-300/70 hover:text-white transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </Link>
             )}
             <Link href="/consulta" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-red-600/50 flex items-center justify-center">
-                <span className="text-xs font-bold text-white">I<span className="text-red-500">F</span></span>
+              <div className="w-8 h-8 rounded-lg bg-[#1c3d77] border border-sky-500/40 flex items-center justify-center">
+                <span className="text-xs font-bold text-white">I<span className="text-amber-400">F</span></span>
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-sm font-semibold text-white leading-tight">
-                  Quadro de <span className="text-red-500">Anúncios</span>
+                  Quadro de <span className="text-amber-400">Anúncios</span>
                 </h1>
-                <p className="text-[10px] text-zinc-500 leading-tight">Congregação Pq. Sabará</p>
+                <p className="text-[10px] text-sky-300/50 leading-tight">Congregação Pq. Sabará</p>
               </div>
             </Link>
           </div>
           
-          {/* Ações */}
           <div className="flex items-center gap-1">
             <SyncButton compact />
             <Link 
               href="/" 
-              className="p-2 text-zinc-500 hover:text-red-400 transition-colors"
+              className="p-2 text-sky-300/60 hover:text-amber-400 transition-colors"
               title="Sair"
             >
               <LogOut className="w-5 h-5" />
@@ -130,15 +127,15 @@ function ConsultaLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Main Content - Com padding para header e bottom nav */}
+      {/* Main Content */}
       <main className="pt-16 pb-20 md:pb-8">
         <div className="p-4 md:p-6 lg:p-8 max-w-5xl mx-auto">
           {children}
         </div>
       </main>
 
-      {/* Bottom Navigation - Apenas mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-sm border-t border-zinc-800">
+      {/* Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0f2550]/95 backdrop-blur-sm border-t border-sky-700/40">
         <div className="flex items-center justify-around py-2 px-2">
           {bottomNavItems.map((item) => {
             const active = isActive(item.href)
@@ -149,11 +146,11 @@ function ConsultaLayoutContent({ children }: { children: React.ReactNode }) {
                 className={cn(
                   "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all min-w-[60px]",
                   active 
-                    ? "text-blue-400 bg-blue-600/10" 
-                    : "text-zinc-500 hover:text-zinc-300"
+                    ? "text-amber-400 bg-amber-500/10" 
+                    : "text-sky-300/60 hover:text-sky-200"
                 )}
               >
-                <item.icon className={cn("w-5 h-5", active && "text-blue-400")} />
+                <item.icon className={cn("w-5 h-5", active && "text-amber-400")} />
                 <span className="text-[10px] font-medium">{item.title}</span>
               </Link>
             )

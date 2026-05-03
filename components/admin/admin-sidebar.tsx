@@ -82,12 +82,12 @@ const menuGroups: MenuGroup[] = [
   {
     title: "Publicadores",
     icon: Users,
-    color: "text-violet-400",
+    color: "text-sky-400",
     items: [
-      { title: "Todos", icon: Users, href: "/admin/publicadores", color: "text-violet-400" },
-      { title: "Anciãos", icon: UserCheck, href: "/admin/publicadores/anciaos", color: "text-violet-400" },
-      { title: "Servos", icon: Shield, href: "/admin/publicadores/servos-ministeriais", color: "text-violet-400" },
-      { title: "Pioneiros", icon: Flag, href: "/admin/publicadores/pioneiros-regulares", color: "text-violet-400" },
+      { title: "Todos", icon: Users, href: "/admin/publicadores", color: "text-sky-400" },
+      { title: "Anciãos", icon: UserCheck, href: "/admin/publicadores/anciaos", color: "text-sky-400" },
+      { title: "Servos", icon: Shield, href: "/admin/publicadores/servos-ministeriais", color: "text-sky-400" },
+      { title: "Pioneiros", icon: Flag, href: "/admin/publicadores/pioneiros-regulares", color: "text-sky-400" },
     ]
   },
   {
@@ -107,13 +107,13 @@ const menuGroups: MenuGroup[] = [
 ]
 
 const orgItems: MenuItem[] = [
-  { title: "Cânticos", icon: Music, href: "/admin/canticos", color: "text-purple-400" },
+  { title: "Cânticos", icon: Music, href: "/admin/canticos", color: "text-amber-400" },
 ]
 
 const visualizacaoGroup: MenuGroup = {
   title: "Consultas",
   icon: Monitor,
-  color: "text-indigo-400",
+  color: "text-sky-400",
   items: [
     { title: "Vida e Ministério", icon: Gem, href: "/admin/visualizacao/vida-ministerio", color: "text-blue-400" },
     { title: "Estudo Sentinela", icon: BookMarked, href: "/admin/visualizacao/sentinela", color: "text-red-400" },
@@ -193,9 +193,9 @@ export function AdminSidebar() {
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
-              Parque<span className="text-primary"> Sabará</span>
+              Parque<span className="text-sidebar-primary"> Sabará</span>
             </span>
-            <span className="text-[11px] text-muted-foreground">Quadro de Anúncios</span>
+            <span className="text-[11px] text-sidebar-foreground/50">Quadro de Anúncios</span>
           </div>
         </Link>
       </SidebarHeader>
@@ -224,7 +224,7 @@ export function AdminSidebar() {
 
         {/* Grupos colapsáveis */}
         <SidebarGroup className="p-0">
-          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-amber-400 -muted-foreground/70">
+          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-sidebar-primary">
             Gerenciamento
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -272,7 +272,7 @@ export function AdminSidebar() {
                                   {badge !== undefined && badge > 0 && (
                                     <Badge
                                       variant="secondary"
-                                      className="h-4 min-w-[1.1rem] px-1 text-[9px] bg-zinc-700/80 text-zinc-300 rounded-full"
+                                      className="h-4 min-w-[1.1rem] px-1 text-[9px] bg-sidebar-primary/20 text-sidebar-primary rounded-full"
                                     >
                                       {badge}
                                     </Badge>
@@ -295,7 +295,7 @@ export function AdminSidebar() {
 
         {/* Organização */}
         <SidebarGroup className="p-0">
-          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-amber-400 muted-foreground/70">
+          <SidebarGroupLabel className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-sidebar-primary">
             Organização
           </SidebarGroupLabel>
           <SidebarGroupContent>
