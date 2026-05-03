@@ -53,17 +53,38 @@ export default function ImpressaoLimpezaSalaoPage() {
         const anoLoop = anoAtual + Math.floor(total / 12)
         const mesLoopStr = `${anoLoop}-${String(mesLoop).padStart(2, "0")}`
 
-        // Buscar semanas cujo domingo de início está dentro do mês
+        // Buscar semanas cujo dia de limpeza (quinta = inicio+4, ou domingo = inicio+7)
+        // cai dentro do mês. Para isso, o domingo de início pode começar até 7 dias
+        // antes do primeiro dia do mês (semana que "vaza" do mês anterior).
+        // Limite superior: semanas cujo domingo de início é até o último dia do mês
+        // (a quinta dessa semana cai no mês seguinte, mas filtramos abaixo).
         const ultimoDia = new Date(anoLoop, mesLoop, 0).getDate()
-        const primeiroDiaStr = `${anoLoop}-${String(mesLoop).padStart(2, "0")}-01`
-        const ultimoDiaStr = `${anoLoop}-${String(mesLoop).padStart(2, "0")}-${String(ultimoDia).padStart(2, "0")}`
+        const primeiroDiaDate = new Date(anoLoop, mesLoop - 1, 1)
+        const ultimoDiaDate  = new Date(anoLoop, mesLoop - 1, ultimoDia)
 
-        const { data } = await supabase
+        // Recua 7 dias para capturar semanas que começam no mês anterior mas têm
+        // a quinta ou o domingo dentro deste mês.
+        const inicioRangeDate = new Date(primeiroDiaDate)
+        inicioRangeDate.setDate(inicioRangeDate.getDate() - 7)
+        const inicioRangeStr = inicioRangeDate.toISOString().slice(0, 10)
+        const ultimoDiaStr   = `${anoLoop}-${String(mesLoop).padStart(2, "0")}-${String(ultimoDia).padStart(2, "0")}`
+
+        const { data: rawData } = await supabase
           .from("limpeza_salao")
           .select("id, semana, data_inicio, data_fim, grupo_nome, limpeza_semanal_grupo_nome")
-          .gte("data_inicio", primeiroDiaStr)
+          .gte("data_inicio", inicioRangeStr)
           .lte("data_inicio", ultimoDiaStr)
           .order("data_inicio", { ascending: true })
+
+        // Filtrar: manter somente semanas que tenham quinta (inicio+4) OU domingo (inicio+7)
+        // dentro do mês corrente.
+        const data = (rawData || []).filter((item) => {
+          const dom = new Date(item.data_inicio + "T12:00:00")
+          const quinta   = new Date(dom); quinta.setDate(dom.getDate() + 4)
+          const domLimp  = new Date(dom); domLimp.setDate(dom.getDate() + 7)
+          return (quinta >= primeiroDiaDate && quinta <= ultimoDiaDate) ||
+                 (domLimp >= primeiroDiaDate && domLimp <= ultimoDiaDate)
+        })
 
         // Deduplicar por data_inicio: manter apenas um registro por semana,
         // preferindo o que tem grupo_nome preenchido
