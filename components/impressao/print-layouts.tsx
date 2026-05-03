@@ -909,10 +909,16 @@ interface LimpezaSalaoProps {
   meses?: LimpezaSalaoMes[]
 }
 
-const formatarPeriodoSemana = (inicio: string, fim: string) => {
-  const dInicio = new Date(inicio + "T12:00:00")
-  const dFim = new Date(fim + "T12:00:00")
-  return `${dInicio.getDate().toString().padStart(2, "0")}/${(dInicio.getMonth() + 1).toString().padStart(2, "0")} a ${dFim.getDate().toString().padStart(2, "0")}/${(dFim.getMonth() + 1).toString().padStart(2, "0")}`
+// Retorna "Qui DD/MM & Dom DD/MM" com base no domingo de início da semana
+const formatarPeriodoSemana = (inicio: string, _fim: string) => {
+  const domInicio = new Date(inicio + "T12:00:00")
+  const quinta = new Date(domInicio)
+  quinta.setDate(domInicio.getDate() + 4)
+  const domingo = new Date(domInicio)
+  domingo.setDate(domInicio.getDate() + 7)
+  const fmt = (d: Date) =>
+    `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}`
+  return `Qui ${fmt(quinta)} / Dom ${fmt(domingo)}`
 }
 
 // Paleta de cores distinta para cada mês (4 cores distintas — uma por bloco)

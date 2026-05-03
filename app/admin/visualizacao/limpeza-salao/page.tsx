@@ -80,6 +80,19 @@ export default function ConsultaLimpezaSalaoPage() {
     return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
   }
 
+  // Calcula quinta (domingo + 4 dias) e domingo seguinte (domingo + 7 dias)
+  const getDiasLimpeza = (dataInicio: string) => {
+    const domInicio = new Date(dataInicio + "T12:00:00")
+    const quinta = new Date(domInicio)
+    quinta.setDate(domInicio.getDate() + 4)
+    const domingo = new Date(domInicio)
+    domingo.setDate(domInicio.getDate() + 7)
+    return {
+      quinta: quinta.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+      domingo: domingo.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+    }
+  }
+
   if (loading) return <CenteredLoader />
 
   return (
@@ -138,7 +151,9 @@ export default function ConsultaLimpezaSalaoPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {designacoes.map((d) => (
+          {designacoes.map((d) => {
+            const { quinta, domingo } = getDiasLimpeza(d.data_inicio)
+            return (
             <Card key={d.id} className="bg-zinc-900/50 border-zinc-800 hover:border-cyan-800/50 transition-colors">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between gap-4">
@@ -149,7 +164,7 @@ export default function ConsultaLimpezaSalaoPage() {
                     <div>
                       <p className="text-sm text-zinc-400">Semana {d.semana}</p>
                       <p className="text-white font-medium">
-                        {formatarData(d.data_inicio)} a {formatarData(d.data_fim)}
+                        Qui {quinta} &amp; Dom {domingo}
                       </p>
                     </div>
                   </div>
@@ -176,7 +191,7 @@ export default function ConsultaLimpezaSalaoPage() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )})}
         </div>
       )}
     </div>

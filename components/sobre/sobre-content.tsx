@@ -101,7 +101,7 @@ export function SobreContent({ anuncios }: SobreContentProps) {
                   className={cn(
                     "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200",
                     item.highlight 
-                      ? "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
+                      ? "text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
                       : activeSection === item.id
                         ? "text-primary bg-primary/10"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -114,8 +114,8 @@ export function SobreContent({ anuncios }: SobreContentProps) {
 
             {/* CTA Button */}
             <div className="hidden md:flex items-center gap-3">
-              <Link href="/login">
-                <Button size="sm" className="gap-2 bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+                <Link href="/login">
+                <Button size="sm" className="gap-2 bg-amber-500 hover:bg-amber-400 text-[#0f2550] font-semibold shadow-md hover:shadow-amber-400/30 transition-all">
                   Acessar Sistema
                 </Button>
               </Link>
@@ -142,7 +142,7 @@ export function SobreContent({ anuncios }: SobreContentProps) {
                   className={cn(
                     "w-full px-4 py-3 text-left text-sm font-medium rounded-lg transition-colors",
                     item.highlight
-                      ? "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
+                      ? "text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
                       : activeSection === item.id
                         ? "text-primary bg-primary/10"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -153,7 +153,7 @@ export function SobreContent({ anuncios }: SobreContentProps) {
               ))}
               <div className="pt-2 border-t border-border mt-2">
                 <Link href="/login">
-                  <Button className="w-full gap-2 bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+                  <Button className="w-full gap-2 bg-amber-500 hover:bg-amber-400 text-[#0f2550] font-semibold shadow-md hover:shadow-amber-400/30 transition-all">
                     Acessar Sistema
                   </Button>
                 </Link>

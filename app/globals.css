@@ -3,79 +3,110 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Tema Claro */
+/* Tema Claro - Paleta JW Library */
 :root {
-  --background: oklch(0.98 0 0);
-  --foreground: oklch(0.15 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.50 0.20 29);
+  /* Fundo: branco levemente azulado */
+  --background: oklch(0.97 0.008 248);
+  --foreground: oklch(0.18 0.05 248);
+
+  --card: oklch(0.99 0.004 248);
+  --card-foreground: oklch(0.18 0.05 248);
+
+  --popover: oklch(0.99 0.004 248);
+  --popover-foreground: oklch(0.18 0.05 248);
+
+  /* Primário: azul-marinho JW Library */
+  --primary: oklch(0.36 0.13 248);
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.92 0 0);
-  --secondary-foreground: oklch(0.15 0 0);
-  --muted: oklch(0.92 0 0);
-  --muted-foreground: oklch(0.45 0 0);
-  --accent: oklch(0.50 0.15 255);
-  --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.50 0.20 29);
+
+  /* Secundário: azul muito claro */
+  --secondary: oklch(0.91 0.025 248);
+  --secondary-foreground: oklch(0.26 0.09 248);
+
+  --muted: oklch(0.93 0.015 248);
+  --muted-foreground: oklch(0.50 0.04 248);
+
+  /* Acento: dourado âmbar */
+  --accent: oklch(0.68 0.14 75);
+  --accent-foreground: oklch(0.15 0.04 248);
+
+  --destructive: oklch(0.52 0.22 28);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.88 0 0);
-  --input: oklch(0.92 0 0);
-  --ring: oklch(0.50 0.15 255);
-  --chart-1: oklch(0.50 0.20 29);
-  --chart-2: oklch(0.50 0.15 255);
+
+  --border: oklch(0.87 0.025 248);
+  --input: oklch(0.91 0.015 248);
+  --ring: oklch(0.45 0.13 248);
+
+  --chart-1: oklch(0.36 0.13 248);
+  --chart-2: oklch(0.68 0.14 75);
   --chart-3: oklch(0.55 0.15 145);
-  --chart-4: oklch(0.65 0.18 80);
-  --chart-5: oklch(0.55 0.2 320);
+  --chart-4: oklch(0.60 0.18 320);
+  --chart-5: oklch(0.52 0.22 28);
+
   --radius: 0.5rem;
-  --sidebar: oklch(0.96 0 0);
-  --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0.50 0.20 29);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.92 0 0);
-  --sidebar-accent-foreground: oklch(0.15 0 0);
-  --sidebar-border: oklch(0.88 0 0);
-  --sidebar-ring: oklch(0.50 0.15 255);
+
+  /* Sidebar: azul-marinho escuro no claro também */
+  --sidebar: oklch(0.32 0.11 248);
+  --sidebar-foreground: oklch(0.95 0.01 240);
+  --sidebar-primary: oklch(0.72 0.15 75);
+  --sidebar-primary-foreground: oklch(0.15 0.04 248);
+  --sidebar-accent: oklch(0.40 0.10 248);
+  --sidebar-accent-foreground: oklch(0.95 0.01 240);
+  --sidebar-border: oklch(0.42 0.09 248);
+  --sidebar-ring: oklch(0.72 0.15 75);
 }
 
-/* Tema Escuro - Padrao para dark mode */
+/* Tema Escuro - Paleta JW Library adaptada (azul-marinho, não preto) */
 .dark {
-  /* Igreja Simão de Jová - Tema Escuro */
-  --background: oklch(0.13 0 0);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.16 0 0);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.16 0 0);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.58 0.22 29);
+  /* Fundo: azul-marinho profundo */
+  --background: oklch(0.21 0.06 248);
+  --foreground: oklch(0.95 0.008 240);
+
+  --card: oklch(0.26 0.07 248);
+  --card-foreground: oklch(0.95 0.008 240);
+
+  --popover: oklch(0.26 0.07 248);
+  --popover-foreground: oklch(0.95 0.008 240);
+
+  /* Primário: azul-royal claro e vibrante */
+  --primary: oklch(0.62 0.18 248);
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.22 0 0);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.22 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.55 0.18 255);
-  --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.58 0.22 29);
+
+  /* Secundário: azul-marinho médio */
+  --secondary: oklch(0.30 0.08 248);
+  --secondary-foreground: oklch(0.92 0.01 240);
+
+  --muted: oklch(0.30 0.07 248);
+  --muted-foreground: oklch(0.68 0.04 240);
+
+  /* Acento: dourado âmbar brilhante */
+  --accent: oklch(0.76 0.16 75);
+  --accent-foreground: oklch(0.15 0.05 248);
+
+  --destructive: oklch(0.58 0.22 28);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.28 0 0);
-  --input: oklch(0.22 0 0);
-  --ring: oklch(0.55 0.18 255);
-  --chart-1: oklch(0.58 0.22 29);
-  --chart-2: oklch(0.55 0.18 255);
-  --chart-3: oklch(0.7 0.15 145);
-  --chart-4: oklch(0.75 0.18 80);
-  --chart-5: oklch(0.65 0.2 320);
+
+  --border: oklch(0.34 0.08 248);
+  --input: oklch(0.30 0.07 248);
+  --ring: oklch(0.62 0.18 248);
+
+  --chart-1: oklch(0.62 0.18 248);
+  --chart-2: oklch(0.76 0.16 75);
+  --chart-3: oklch(0.70 0.15 145);
+  --chart-4: oklch(0.72 0.18 320);
+  --chart-5: oklch(0.58 0.22 28);
+
   --radius: 0.5rem;
-  --sidebar: oklch(0.1 0 0);
-  --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.58 0.22 29);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.18 0 0);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.25 0 0);
-  --sidebar-ring: oklch(0.55 0.18 255);
+
+  /* Sidebar: azul-marinho ainda mais escuro */
+  --sidebar: oklch(0.17 0.055 248);
+  --sidebar-foreground: oklch(0.95 0.008 240);
+  --sidebar-primary: oklch(0.76 0.16 75);
+  --sidebar-primary-foreground: oklch(0.15 0.05 248);
+  --sidebar-accent: oklch(0.27 0.08 248);
+  --sidebar-accent-foreground: oklch(0.92 0.01 240);
+  --sidebar-border: oklch(0.29 0.07 248);
+  --sidebar-ring: oklch(0.76 0.16 75);
 }
 
 @theme inline {
@@ -135,7 +166,7 @@
 }
 
 .scrollbar-thin:hover {
-  scrollbar-color: rgba(63, 63, 70, 0.5) transparent;
+  scrollbar-color: rgba(59, 97, 185, 0.5) transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -155,11 +186,11 @@
 }
 
 .scrollbar-thin:hover::-webkit-scrollbar-thumb {
-  background: rgba(63, 63, 70, 0.5);
+  background: rgba(59, 97, 185, 0.5);
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(82, 82, 91, 0.7);
+  background: rgba(88, 130, 220, 0.7);
 }
 
 /* Animation utilities */
@@ -197,7 +228,7 @@ html {
 }
 
 .modal-scrollbar::-webkit-scrollbar-track {
-  background: rgba(39, 39, 42, 0.5) !important;
+  background: rgba(30, 50, 100, 0.5) !important;
   border-radius: 10px !important;
 }
 
@@ -215,7 +246,7 @@ html {
 }
 
 [data-slot="dialog-content"].modal-scrollbar::-webkit-scrollbar-track {
-  background: rgba(39, 39, 42, 0.5) !important;
+  background: rgba(30, 50, 100, 0.5) !important;
   border-radius: 10px !important;
 }
 

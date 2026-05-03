@@ -39,6 +39,15 @@ interface Semana {
   fim: Date
 }
 
+// Retorna a quinta-feira e o domingo da semana que começa no domingo dado
+function getDiasLimpeza(domingoSemana: Date): { quinta: Date; domingo: Date } {
+  // quinta = domingo + 4 dias
+  const quinta = addDays(domingoSemana, 4)
+  // domingo = domingo + 7 dias (próximo domingo, fim da semana)
+  const domingo = addDays(domingoSemana, 7)
+  return { quinta, domingo }
+}
+
 export default function LimpezaSalaoPage() {
   const [mesAtual, setMesAtual] = useState(new Date())
   const [grupos, setGrupos] = useState<Grupo[]>([])
@@ -56,21 +65,22 @@ export default function LimpezaSalaoPage() {
     const fim = endOfMonth(mesAtual)
     const semanasDoMes: Semana[] = []
 
-    let dataAtual = inicio
-    // Começa sempre no domingo da semana do primeiro dia do mês
-    // mas só conta a semana se o início (domingo) pertencer ao mês atual
-    // para evitar duplicação com o mês anterior
+    // Começa pela semana que contém o 1º dia do mês (pode ser do mês anterior)
+    let dataAtual = startOfWeek(inicio, { weekStartsOn: 0 })
     let numeroSemana = 1
 
     while (dataAtual <= fim) {
-      const inicioSemana = startOfWeek(dataAtual, { weekStartsOn: 0 }) // Domingo
+      const inicioSemana = dataAtual
       const fimSemana = endOfWeek(dataAtual, { weekStartsOn: 0 })
 
-      // A semana pertence a este mês apenas se o domingo de início está dentro do mês.
-      // Isso evita que semanas "transbordadas" apareçam em dois meses ao mesmo tempo.
-      const domingoNoMes = inicioSemana >= inicio
+      // A limpeza do salão ocorre na quinta (inicio+4) e no domingo (inicio+7) da semana.
+      // A semana pertence a este mês se PELO MENOS UM dos dias de limpeza cai no mês.
+      const quinta = addDays(inicioSemana, 4)
+      const domingoLimpeza = addDays(inicioSemana, 7)
+      const quintaNoMes = quinta >= inicio && quinta <= fim
+      const domingoNoMes = domingoLimpeza >= inicio && domingoLimpeza <= fim
 
-      if (domingoNoMes) {
+      if (quintaNoMes || domingoNoMes) {
         semanasDoMes.push({
           numero: numeroSemana,
           inicio: inicioSemana,
@@ -79,7 +89,7 @@ export default function LimpezaSalaoPage() {
         numeroSemana++
       }
 
-      // Avança para o próximo domingo após o fim desta semana
+      // Avança para o próximo domingo
       dataAtual = addDays(fimSemana, 1)
     }
 
@@ -288,6 +298,7 @@ export default function LimpezaSalaoPage() {
           {semanas.map((semana) => {
             const designacao = getDesignacao(semana)
             const isSalvando = salvando === semana.numero
+            const { quinta, domingo } = getDiasLimpeza(semana.inicio)
 
             return (
               <Card
@@ -305,7 +316,7 @@ export default function LimpezaSalaoPage() {
                           Semana {semana.numero}
                         </span>
                         <p className="text-sm text-muted-foreground font-normal">
-                          {format(semana.inicio, "dd/MM", { locale: ptBR })} a {format(semana.fim, "dd/MM", { locale: ptBR })}
+                          Qui {format(quinta, "dd/MM", { locale: ptBR })} &amp; Dom {format(domingo, "dd/MM", { locale: ptBR })}
                         </p>
                       </div>
                     </div>
