@@ -322,21 +322,25 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
               </tr>
             </thead>
             <tbody>
-              {designacoesTecnicas.map((d) => (
-                <tr key={d.data} style={{ backgroundColor: d.dia_semana === "DOMINGO" ? "#f9fafb" : "white" }}>
+              {designacoesTecnicas.map((d) => {
+                const diaSem = new Date(d.data + "T12:00:00").getDay()
+                const isQui = diaSem === 4
+                const isDom = diaSem === 0
+                return (
+                <tr key={d.data} style={{ backgroundColor: isDom ? "#f9fafb" : "white" }}>
                   <td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>
                     <span style={{
                       display: "inline-block",
-                      backgroundColor: d.dia_semana === "QUINTA" ? "#2563eb" : d.dia_semana === "DOMINGO" ? "#16a34a" : "#6b7280",
+                      backgroundColor: isQui ? "#2563eb" : isDom ? "#16a34a" : "#6b7280",
                       color: "white",
                       borderRadius: "3px",
-                      padding: "0px 3px",
-                      fontSize: "7px",
+                      padding: "1px 4px",
+                      fontSize: "8px",
                       fontWeight: "800",
-                      marginRight: "4px",
+                      marginRight: "5px",
                       verticalAlign: "middle",
                     }}>
-                      {d.dia_semana === "QUINTA" ? "QUI" : d.dia_semana === "DOMINGO" ? "DOM" : "—"}
+                      {isQui ? "QUI" : isDom ? "DOM" : "—"}
                     </span>
                     {formatarData(d.data)}
                   </td>
@@ -345,7 +349,8 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                   <td style={cell()}>{d.som_nome}</td>
                   <td style={cell()}>{d.microvolante1_nome}</td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>
