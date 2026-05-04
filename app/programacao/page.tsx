@@ -379,14 +379,14 @@ function BlocoVidaMinisterio({ semana, partes }: { semana: VidaSemana; partes: P
 
 function BlocoReuniaoDomingo({ reuniao }: { reuniao: ReuniaoPublica }) {
   const { designacao, discurso } = reuniao
-  if (!designacao && !discurso) return <Empty mensagem="Nenhuma informação cadastrada" />
   return (
     <div>
-      {designacao?.presidente_nome && <InfoRow label="Presidente" value={designacao.presidente_nome} Icon={UserCheck} />}
+      <InfoRow label="Presidente" value={designacao?.presidente_nome || "—"} Icon={UserCheck} />
       {discurso?.tema              && <InfoRow label="Tema do Discurso" value={discurso.tema} Icon={BookOpen} />}
       {discurso?.orador_nome       && <InfoRow label="Orador" value={discurso.orador_nome} Icon={UserCheck} />}
       {discurso?.orador_congregacao && <InfoRow label="Congregação" value={discurso.orador_congregacao} Icon={Church} />}
-      {designacao?.leitor_sentinela_nome && <InfoRow label="Leitor — A Sentinela" value={designacao.leitor_sentinela_nome} Icon={BookOpen} />}
+      <InfoRow label="Dirigente — A Sentinela" value="Júnior Silva" Icon={UserCheck} />
+      <InfoRow label="Leitor — A Sentinela" value={designacao?.leitor_sentinela_nome || "—"} Icon={BookOpen} />
     </div>
   )
 }
@@ -661,7 +661,7 @@ export default function ProgramacaoPage() {
                   corTexto="#fffbeb"
                   Icon={Church}
                 >
-                  <BlocoReuniaoDomingo reuniao={programacao.reuniaoPublica} />
+                  <BlocoReuniaoDomingo reuniao={programacao.reuniaoPublica ?? { designacao: null, discurso: null }} />
                 </Card>
 
                 {programacao.equipe && (
