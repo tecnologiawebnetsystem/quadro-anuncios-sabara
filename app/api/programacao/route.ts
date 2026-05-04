@@ -19,16 +19,18 @@ export async function GET(request: NextRequest) {
   const nomeDia = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sabado"][diaSemana]
   const mes = data.substring(0, 7) // YYYY-MM
 
-  // Calcular data_inicio (domingo anterior da semana) para buscar limpeza.
-  // A semana de limpeza começa no domingo. Para quinta (dia 4) e domingo (dia 0):
-  //   quinta: retrocede 4 dias → domingo anterior
-  //   domingo: o próprio dia é o domingo de início da semana
+  // Calcular data_inicio (domingo de início da semana) para buscar limpeza.
+  // A semana de limpeza começa sempre no domingo anterior à quinta.
+  //   quinta (dia 4): retrocede 4 dias → domingo de início
+  //   domingo (dia 0): retrocede 7 dias → domingo de início da semana
+  //   Ex: Qui 07/05 → data_inicio 03/05; Dom 10/05 → data_inicio 03/05
   let dataInicioLimpeza: string | null = null
   if (diaSemana === 4) {
     const d = new Date(dataObj); d.setDate(d.getDate() - 4)
     dataInicioLimpeza = d.toISOString().slice(0, 10)
   } else if (diaSemana === 0) {
-    dataInicioLimpeza = data // o próprio domingo é o data_inicio
+    const d = new Date(dataObj); d.setDate(d.getDate() - 7)
+    dataInicioLimpeza = d.toISOString().slice(0, 10)
   }
 
   // Executa todas as queries em paralelo
