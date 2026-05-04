@@ -498,7 +498,7 @@ export default function AdminDashboard() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-cyan-600/20 p-2.5">
-                <TrendingUp className="h-5 w-5 text-cyan-400" />
+                <BarChart3 className="h-5 w-5 text-cyan-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{mediaPresencial}</p>
