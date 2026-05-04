@@ -234,44 +234,14 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                 marginBottom: "15px",
                 borderRadius: "6px",
                 flexShrink: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "12px",
               }}>
-                {/* Período + Livro */}
-                <div style={{ fontSize: "15px", fontWeight: "bold", flex: 1 }}>
+                <div style={{ fontSize: "15px", fontWeight: "bold" }}>
                   {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)}
                   {semana.livro_biblia && (
                     <span style={{ marginLeft: "10px", color: "#9ca3af", fontSize: "13px", fontWeight: "normal" }}>
                       | {(semana.livro_biblia || "").toUpperCase()}
                     </span>
                   )}
-                </div>
-                {/* Badges de dia */}
-                <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
-                  <span style={{
-                    backgroundColor: "#2563eb",
-                    color: "white",
-                    padding: "4px 10px",
-                    borderRadius: "20px",
-                    fontSize: "12px",
-                    fontWeight: "800",
-                    letterSpacing: "0.5px",
-                  }}>
-                    Qui {fmtDia(quintaDate)}
-                  </span>
-                  <span style={{
-                    backgroundColor: "#16a34a",
-                    color: "white",
-                    padding: "4px 10px",
-                    borderRadius: "20px",
-                    fontSize: "12px",
-                    fontWeight: "800",
-                    letterSpacing: "0.5px",
-                  }}>
-                    Dom {fmtDia(domingoDate)}
-                  </span>
                 </div>
               </div>
 
