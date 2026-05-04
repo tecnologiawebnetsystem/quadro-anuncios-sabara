@@ -738,22 +738,21 @@ export const PrintEquipeTecnica = forwardRef<HTMLDivElement, EquipeTecnicaProps>
               const isDomingo = diaSemana === 0
               return (
               <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
-                <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-                    <span style={{
-                      display: "inline-block",
-                      backgroundColor: isQuinta ? "#2563eb" : isDomingo ? "#16a34a" : "#6b7280",
-                      color: "white",
-                      borderRadius: "4px",
-                      padding: "0px 4px",
-                      fontSize: "7px",
-                      fontWeight: "800",
-                      letterSpacing: "0.3px",
-                    }}>
-                      {isQuinta ? "QUI" : isDomingo ? "DOM" : "—"}
-                    </span>
-                    {formatarData(d.data)}
-                  </div>
+                <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold", whiteSpace: "nowrap" }}>
+                  <span style={{
+                    display: "inline-block",
+                    backgroundColor: isQuinta ? "#2563eb" : isDomingo ? "#16a34a" : "#6b7280",
+                    color: "white",
+                    borderRadius: "3px",
+                    padding: "0px 3px",
+                    fontSize: "6.5px",
+                    fontWeight: "800",
+                    marginRight: "4px",
+                    verticalAlign: "middle",
+                  }}>
+                    {isQuinta ? "QUI" : isDomingo ? "DOM" : "—"}
+                  </span>
+                  {formatarData(d.data)}
                 </td>
                 <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
                   {d.indicador1_nome || "-"}{d.indicador2_nome ? ` / ${d.indicador2_nome}` : ""}

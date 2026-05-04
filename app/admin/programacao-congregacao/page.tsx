@@ -377,12 +377,7 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                 <tr key={d.data}>
                   <td style={cell({ fontWeight: "bold" })}>{formatarData(d.data)}</td>
                   <td style={cell()}>{d.tema || "—"}</td>
-                  <td style={cell()}>
-                    {d.orador_nome || "—"}
-                    {d.orador_congregacao && (
-                      <div style={{ fontSize: "9px", color: "#6b7280", marginTop: "1px" }}>{d.orador_congregacao}</div>
-                    )}
-                  </td>
+                  <td style={cell()}>{d.orador_nome || "—"}</td>
                   <td style={cell({ color: d.orador_salao ? "#1e3a5f" : "#9ca3af", fontStyle: d.orador_salao ? "normal" : "italic" })}>
                     {d.orador_salao || "—"}
                   </td>
