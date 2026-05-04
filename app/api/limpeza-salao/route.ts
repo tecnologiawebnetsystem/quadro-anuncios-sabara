@@ -16,15 +16,26 @@ export async function GET(request: NextRequest) {
 
     if (mes) {
       // Calcular primeiro e último dia do mês solicitado
-      const [ano, mesNum] = mes.split("-").map(Number)
-      const ultimoDia = new Date(ano, mesNum, 0)
-      const primeiroDiaStr = `${ano}-${String(mesNum).padStart(2, "0")}-01`
-      const ultimoDiaStr = `${ano}-${String(mesNum).padStart(2, "0")}-${String(ultimoDia.getDate()).padStart(2, "0")}`
+      // Inclui 7 dias antes do início para capturar semanas que começam no mês anterior
+      // Ex: Semana 1 de maio pode ter data_inicio em 26/04 (domingo)
+      const [mesNome, anoStr] = mes.split("-")
+      const mesesPt: Record<string, number> = {
+        janeiro: 0, fevereiro: 1, março: 2, abril: 3, maio: 4, junho: 5,
+        julho: 6, agosto: 7, setembro: 8, outubro: 9, novembro: 10, dezembro: 11
+      }
+      const ano = parseInt(anoStr)
+      const mesIdx = mesesPt[mesNome.toLowerCase()] ?? 0
+      
+      // Range: 7 dias antes do início do mês até o último dia do mês
+      const inicioRange = new Date(ano, mesIdx, -6) // 25 do mês anterior
+      const fimRange = new Date(ano, mesIdx + 1, 0)  // último dia do mês
 
-      // Inclui qualquer semana cujo domingo de início está dentro do mês
+      const toStr = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+
       query = query
-        .gte("data_inicio", primeiroDiaStr)
-        .lte("data_inicio", ultimoDiaStr)
+        .gte("data_inicio", toStr(inicioRange))
+        .lte("data_inicio", toStr(fimRange))
     }
 
     const { data, error } = await query

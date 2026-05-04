@@ -19,16 +19,16 @@ export async function GET(request: NextRequest) {
   const nomeDia = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sabado"][diaSemana]
   const mes = data.substring(0, 7) // YYYY-MM
 
-  // Calcular data_inicio (domingo da semana) para buscar limpeza:
-  // quinta = domingo + 4 dias → domingo = quinta - 4 dias
-  // domingo = domingo + 7 dias (próximo) → data_inicio = domingo - 7 dias
+  // Calcular data_inicio (domingo anterior da semana) para buscar limpeza.
+  // A semana de limpeza começa no domingo. Para quinta (dia 4) e domingo (dia 0):
+  //   quinta: retrocede 4 dias → domingo anterior
+  //   domingo: o próprio dia é o domingo de início da semana
   let dataInicioLimpeza: string | null = null
   if (diaSemana === 4) {
     const d = new Date(dataObj); d.setDate(d.getDate() - 4)
     dataInicioLimpeza = d.toISOString().slice(0, 10)
   } else if (diaSemana === 0) {
-    const d = new Date(dataObj); d.setDate(d.getDate() - 7)
-    dataInicioLimpeza = d.toISOString().slice(0, 10)
+    dataInicioLimpeza = data // o próprio domingo é o data_inicio
   }
 
   // Executa todas as queries em paralelo
@@ -120,11 +120,11 @@ export async function GET(request: NextRequest) {
           .maybeSingle()
       : Promise.resolve({ data: null }),
 
-    // Limpeza do salão — quinta e domingo
+    // Limpeza do salão — quinta e domingo (com join no local do grupo)
     dataInicioLimpeza
       ? supabase
           .from("limpeza_salao")
-          .select("id, grupo_nome, limpeza_semanal_grupo_nome, semana")
+          .select("id, grupo_nome, limpeza_semanal_grupo_nome, semana, grupo_id, grupos:grupo_id(local)")
           .eq("data_inicio", dataInicioLimpeza)
           .maybeSingle()
       : Promise.resolve({ data: null }),

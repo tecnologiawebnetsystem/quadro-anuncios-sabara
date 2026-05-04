@@ -104,6 +104,7 @@ interface LimpezaSalao {
   grupo_nome: string | null
   limpeza_semanal_grupo_nome: string | null
   semana: number
+  grupos?: { local: string | null } | null
 }
 
 interface ProgramacaoDia {
@@ -245,13 +246,21 @@ function BlocoCampoSabado({ campo }: { campo: CampoSabado[] }) {
 
 function BlocoLimpeza({ limpeza }: { limpeza: LimpezaSalao }) {
   const grupo = limpeza.grupo_nome || limpeza.limpeza_semanal_grupo_nome
+  const local = limpeza.grupos?.local
   return (
     <div>
       <InfoRow
-        label={`Semana ${limpeza.semana}`}
+        label={`Semana ${limpeza.semana} — Grupo Responsável`}
         value={grupo || "Grupo não definido"}
         Icon={Users}
       />
+      {local && (
+        <InfoRow
+          label="Local"
+          value={local}
+          Icon={Map}
+        />
+      )}
     </div>
   )
 }
