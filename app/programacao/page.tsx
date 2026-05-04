@@ -233,8 +233,13 @@ function BlocoCampoDomingo({ campo }: { campo: CampoDomingo[] }) {
     <div className="flex flex-col gap-2">
       {campo.map((c, i) => (
         <div key={i} className="py-2 border-b border-white/10 last:border-0">
-          <p className="text-[11px] opacity-60 uppercase tracking-wider font-semibold">{tipoLabel[c.tipo] ?? c.tipo} — {c.horario}</p>
-          <p className="text-[15px] font-medium">{c.dirigente_nome || "—"}</p>
+          <p className="text-[11px] opacity-60 uppercase tracking-wider font-semibold">
+            {c.horario && `${c.horario} — `}{tipoLabel[c.tipo] ?? c.tipo}
+          </p>
+          {/* Mostra dirigente apenas quando for no salão */}
+          {c.tipo === "salao" && c.dirigente_nome && (
+            <p className="text-[15px] font-medium">{c.dirigente_nome}</p>
+          )}
         </div>
       ))}
     </div>
@@ -242,19 +247,41 @@ function BlocoCampoDomingo({ campo }: { campo: CampoDomingo[] }) {
 }
 
 function BlocoEquipe({ equipe }: { equipe: EquipeTecnica }) {
-  const volante =
-    equipe.microvolante_palco === 1
-      ? equipe.microvolante1_nome
-      : equipe.microvolante_palco === 2
-      ? equipe.microvolante2_nome
-      : null
+  // Identifica qual microvolante está no palco
+  const mv1NoPalco = equipe.microvolante_palco === 1
+  const mv2NoPalco = equipe.microvolante_palco === 2
+
   return (
     <div>
       <InfoRow label="Som" value={equipe.som_nome} Icon={Volume2} />
-      <InfoRow label="Indicador" value={[equipe.indicador1_nome, equipe.indicador2_nome].filter(Boolean).join(" / ")} Icon={Users} />
-      <InfoRow label="Microvolante (palco)" value={volante} Icon={Mic} />
-      {equipe.microvolante1_nome && <InfoRow label="Microvolante 1" value={equipe.microvolante1_nome} Icon={Mic} />}
-      {equipe.microvolante2_nome && <InfoRow label="Microvolante 2" value={equipe.microvolante2_nome} Icon={Mic} />}
+      <InfoRow
+        label="Indicadores"
+        value={[equipe.indicador1_nome, equipe.indicador2_nome].filter(Boolean).join(" / ")}
+        Icon={Users}
+      />
+      {/* Microvolantes: mostra ambos com label indicando quem está no palco */}
+      {equipe.microvolante1_nome && (
+        <div className="flex items-start gap-3 py-2.5 border-b border-white/10 last:border-0">
+          <Mic size={15} className={`mt-0.5 shrink-0 ${mv1NoPalco ? "opacity-100" : "opacity-40"}`} />
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="text-[11px] uppercase tracking-wider opacity-60 font-semibold">
+              Microvolante{mv1NoPalco ? " · Palco" : ""}
+            </span>
+            <span className="text-[15px] font-medium leading-snug">{equipe.microvolante1_nome}</span>
+          </div>
+        </div>
+      )}
+      {equipe.microvolante2_nome && (
+        <div className="flex items-start gap-3 py-2.5 border-b border-white/10 last:border-0">
+          <Mic size={15} className={`mt-0.5 shrink-0 ${mv2NoPalco ? "opacity-100" : "opacity-40"}`} />
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="text-[11px] uppercase tracking-wider opacity-60 font-semibold">
+              Microvolante{mv2NoPalco ? " · Palco" : ""}
+            </span>
+            <span className="text-[15px] font-medium leading-snug">{equipe.microvolante2_nome}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -319,18 +346,20 @@ function BlocoReuniaoDomingo({ reuniao }: { reuniao: ReuniaoPublica }) {
   if (!designacao && !discurso) return <EmptyBloco mensagem="Nenhuma informação cadastrada" />
   return (
     <div>
+      {designacao?.presidente_nome && (
+        <InfoRow label="Presidente" value={designacao.presidente_nome} Icon={UserCheck} />
+      )}
       {discurso && (
         <>
-          <InfoRow label="Tema do discurso" value={discurso.tema} Icon={BookOpen} />
+          <InfoRow label="Tema do Discurso" value={discurso.tema} Icon={BookOpen} />
           <InfoRow label="Orador" value={discurso.orador_nome} Icon={UserCheck} />
-          <InfoRow label="Congregação" value={discurso.orador_congregacao} Icon={Church} />
+          {discurso.orador_congregacao && (
+            <InfoRow label="Congregação do Orador" value={discurso.orador_congregacao} Icon={Church} />
+          )}
         </>
       )}
-      {designacao && (
-        <>
-          <InfoRow label="Presidente" value={designacao.presidente_nome} Icon={UserCheck} />
-          <InfoRow label="Leitor A Sentinela" value={designacao.leitor_sentinela_nome} Icon={BookOpen} />
-        </>
+      {designacao?.leitor_sentinela_nome && (
+        <InfoRow label="Leitor — A Sentinela" value={designacao.leitor_sentinela_nome} Icon={BookOpen} />
       )}
     </div>
   )
@@ -376,16 +405,13 @@ export default function ProgramacaoPage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--background)", color: "var(--foreground)" }}>
 
-      {/* Header fixo */}
-      <header
-        className="sticky top-0 z-30 shadow-md"
-        style={{ background: "var(--primary)" }}
-      >
+      {/* Header fixo — usa cores do sistema (azul-marinho) */}
+      <header className="sticky top-0 z-30 shadow-lg bg-sidebar">
         <div className="max-w-lg mx-auto px-4 py-4 flex flex-col gap-1">
-          <p className="text-[11px] uppercase tracking-widest opacity-70 font-semibold text-white text-center">
+          <p className="text-[11px] uppercase tracking-widest font-semibold text-sidebar-foreground/60 text-center">
             Congregação Parque Sabará
           </p>
-          <h1 className="text-white text-xl font-bold text-center leading-tight tracking-tight">
+          <h1 className="text-sidebar-foreground text-xl font-bold text-center leading-tight tracking-tight">
             Quadro de Programação
           </h1>
 
@@ -393,25 +419,25 @@ export default function ProgramacaoPage() {
           <div className="flex items-center justify-between mt-3 gap-2">
             <button
               onClick={() => irParaDia(-1)}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/15 active:bg-white/30 transition-colors"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-sidebar-accent active:bg-sidebar-accent/80 transition-colors"
               aria-label="Dia anterior"
             >
-              <ChevronLeft size={22} className="text-white" />
+              <ChevronLeft size={22} className="text-sidebar-foreground" />
             </button>
 
             <div className="flex-1 text-center">
-              <p className="text-white font-bold text-[17px] capitalize leading-tight">
+              <p className="text-sidebar-primary font-bold text-[18px] capitalize leading-tight">
                 {DIAS_SEMANA[dSemana]}
               </p>
-              <p className="text-white/70 text-[13px]">{formatarData(dataAtual)}</p>
+              <p className="text-sidebar-foreground/60 text-[13px]">{formatarData(dataAtual)}</p>
             </div>
 
             <button
               onClick={() => irParaDia(1)}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/15 active:bg-white/30 transition-colors"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-sidebar-accent active:bg-sidebar-accent/80 transition-colors"
               aria-label="Próximo dia"
             >
-              <ChevronRight size={22} className="text-white" />
+              <ChevronRight size={22} className="text-sidebar-foreground" />
             </button>
           </div>
 
@@ -429,11 +455,11 @@ export default function ProgramacaoPage() {
                   onClick={() => setDataAtual(dStr)}
                   className="flex-1 flex flex-col items-center rounded-xl py-1.5 transition-colors"
                   style={{
-                    background: isAtivo ? "rgba(255,255,255,0.25)" : "transparent",
+                    background: isAtivo ? "rgba(255,255,255,0.18)" : "transparent",
                   }}
                 >
-                  <span className="text-[10px] text-white/60 font-medium uppercase">{DIAS_CURTO[i]}</span>
-                  <span className="text-white text-[14px] font-bold">{inicio.getDate()}</span>
+                  <span className="text-[10px] text-sidebar-foreground/50 font-medium uppercase">{DIAS_CURTO[i]}</span>
+                  <span className="text-sidebar-foreground text-[15px] font-bold">{inicio.getDate()}</span>
                 </button>
               )
             })}

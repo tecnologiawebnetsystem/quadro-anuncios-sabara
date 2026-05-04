@@ -65,7 +65,6 @@ export async function GET(request: NextRequest) {
           .from("equipe_tecnica")
           .select("*")
           .eq("data", data)
-          .eq("dia_semana", nomeDia)
           .maybeSingle()
       : Promise.resolve({ data: null }),
 
@@ -91,7 +90,7 @@ export async function GET(request: NextRequest) {
     // Reunião pública — discurso (domingo)
     diaSemana === 0
       ? supabase
-          .from("reunioes_publicas_discursos")
+          .from("discursos_publicos")
           .select("*")
           .eq("data", data)
           .maybeSingle()
