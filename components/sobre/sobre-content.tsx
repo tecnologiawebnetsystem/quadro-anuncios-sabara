@@ -217,15 +217,15 @@ export function SobreContent({ anuncios }: SobreContentProps) {
                 >
                   {/* Imagem de destaque */}
                   {anuncio.imagem_url && (
-                    <div className="relative w-full h-72 sm:h-96">
+                    <div className="relative w-full h-72 sm:h-96 overflow-hidden">
                       <Image
                         src={anuncio.imagem_url}
                         alt={anuncio.titulo}
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 672px"
+                        unoptimized
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
                     </div>
                   )}
 
