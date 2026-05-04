@@ -21,7 +21,9 @@ interface LimpezaSalaoMes {
     data_inicio: string
     data_fim: string
     grupo_nome: string | null
+    grupo_local: string | null
     limpeza_semanal_grupo_nome: string | null
+    limpeza_semanal_grupo_local: string | null
   }[]
 }
 
@@ -71,7 +73,7 @@ export default function ImpressaoLimpezaSalaoPage() {
 
         const { data: rawData } = await supabase
           .from("limpeza_salao")
-          .select("id, semana, data_inicio, data_fim, grupo_nome, limpeza_semanal_grupo_nome")
+          .select("id, semana, data_inicio, data_fim, grupo_nome, limpeza_semanal_grupo_nome, grupos:grupo_id(local), limpeza_semanal_grupos:limpeza_semanal_grupo_id(local)")
           .gte("data_inicio", inicioRangeStr)
           .lte("data_inicio", ultimoDiaStr)
           .order("data_inicio", { ascending: true })
@@ -100,7 +102,14 @@ export default function ImpressaoLimpezaSalaoPage() {
             }
           }
         }
-        const escalasDedup = Array.from(vistos.values()).sort((a, b) => a.data_inicio.localeCompare(b.data_inicio))
+        const escalasDedup = Array.from(vistos.values())
+          .sort((a, b) => a.data_inicio.localeCompare(b.data_inicio))
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((item: any) => ({
+            ...item,
+            grupo_local: item.grupos?.local ?? null,
+            limpeza_semanal_grupo_local: item.limpeza_semanal_grupos?.local ?? null,
+          }))
 
         resultado.push({ mes: mesLoop, ano: anoLoop, escalas: escalasDedup })
       }
