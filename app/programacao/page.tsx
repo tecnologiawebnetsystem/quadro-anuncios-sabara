@@ -285,10 +285,10 @@ function BlocoCampoDomingo({ campo }: { campo: CampoDomingo[] }) {
 function BlocoLimpeza({ limpeza }: { limpeza: LimpezaSalao }) {
   const grupo = limpeza.grupo_nome || limpeza.limpeza_semanal_grupo_nome
   const local = limpeza.grupos?.local
+  const valor = local ? `${grupo || "Grupo não definido"} — ${local}` : (grupo || "Grupo não definido")
   return (
     <div>
-      <InfoRow label={`Semana ${limpeza.semana} — Grupo`} value={grupo || "Grupo não definido"} Icon={Users} />
-      {local && <InfoRow label="Local" value={local} Icon={MapPin} />}
+      <InfoRow label={`Semana ${limpeza.semana}`} value={valor} Icon={Users} />
     </div>
   )
 }
