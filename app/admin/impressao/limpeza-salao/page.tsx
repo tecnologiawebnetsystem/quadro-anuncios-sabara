@@ -78,15 +78,30 @@ export default function ImpressaoLimpezaSalaoPage() {
           .lte("data_inicio", ultimoDiaStr)
           .order("data_inicio", { ascending: true })
 
-        // Critério de pertencimento na IMPRESSÃO: a semana pertence ao mês
-        // pelo DOMINGO de limpeza (data_inicio + 7 dias).
-        // Ex: Qui 30/07 & Dom 02/08 → aparece somente em agosto.
-        // Ex: Qui 29/05 & Dom 01/06 → aparece somente em junho.
+        // Critério híbrido para evitar duplicidade E perda de semanas:
+        // - Regra geral: usa a QUINTA (data_inicio + 4) para determinar o mês
+        // - Exceção: se a quinta cai nos ÚLTIMOS 2 DIAS do mês e o domingo
+        //   (data_inicio + 7) cai no mês seguinte, usa o DOMINGO.
+        //
+        // Resultado:
+        //   Qui 29/05 / Dom 01/06 → diff = 31-29 = 2 (não <= 1) → usa quinta → MAIO ✓
+        //   Qui 30/07 / Dom 02/08 → diff = 31-30 = 1 (<=  1) → usa domingo → AGOSTO ✓
         const data = (rawData || []).filter((item) => {
           const dom = new Date(item.data_inicio + "T12:00:00")
-          const domingoLimpeza = new Date(dom)
-          domingoLimpeza.setDate(dom.getDate() + 7)
-          return domingoLimpeza >= primeiroDiaDate && domingoLimpeza <= ultimoDiaDate
+          const quinta = new Date(dom); quinta.setDate(dom.getDate() + 4)
+          const domingoLimpeza = new Date(dom); domingoLimpeza.setDate(dom.getDate() + 7)
+
+          const quintaNoMes = quinta >= primeiroDiaDate && quinta <= ultimoDiaDate
+          const domingoNoMes = domingoLimpeza >= primeiroDiaDate && domingoLimpeza <= ultimoDiaDate
+
+          // Verifica se a quinta está nos últimos 2 dias do mês
+          const ultimoDiaMes = ultimoDiaDate.getDate()
+          const quintaDia = quinta.getDate()
+          const quintaNosUltimos2Dias = quintaNoMes && (ultimoDiaMes - quintaDia <= 1)
+
+          // Se quinta nos últimos 2 dias e domingo no mês seguinte → usa domingo
+          // Senão → usa quinta
+          return quintaNosUltimos2Dias ? domingoNoMes : quintaNoMes
         })
 
         // Deduplicar por data_inicio: manter apenas um registro por semana,
