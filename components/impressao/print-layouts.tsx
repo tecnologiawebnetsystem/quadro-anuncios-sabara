@@ -732,10 +732,28 @@ export const PrintEquipeTecnica = forwardRef<HTMLDivElement, EquipeTecnicaProps>
             </tr>
           </thead>
           <tbody>
-            {designacoes.map((d, i) => (
+            {designacoes.map((d, i) => {
+              const diaSemana = new Date(d.data + "T12:00:00").getDay()
+              const isQuinta = diaSemana === 4
+              const isDomingo = diaSemana === 0
+              return (
               <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
                 <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
-                  {formatarData(d.data)}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                    <span style={{
+                      display: "inline-block",
+                      backgroundColor: isQuinta ? "#2563eb" : isDomingo ? "#16a34a" : "#6b7280",
+                      color: "white",
+                      borderRadius: "4px",
+                      padding: "0px 4px",
+                      fontSize: "7px",
+                      fontWeight: "800",
+                      letterSpacing: "0.3px",
+                    }}>
+                      {isQuinta ? "QUI" : isDomingo ? "DOM" : "—"}
+                    </span>
+                    {formatarData(d.data)}
+                  </div>
                 </td>
                 <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
                   {d.indicador1_nome || "-"}{d.indicador2_nome ? ` / ${d.indicador2_nome}` : ""}
@@ -754,7 +772,8 @@ export const PrintEquipeTecnica = forwardRef<HTMLDivElement, EquipeTecnicaProps>
                     : "-"}
                 </td>
               </tr>
-            ))}
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -1440,10 +1459,28 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
               </tr>
             </thead>
             <tbody>
-              {designacoesTecnicas.map((d, i) => (
+              {designacoesTecnicas.map((d, i) => {
+                const diaSemana = new Date(d.data + "T12:00:00").getDay()
+                const isQuinta = diaSemana === 4
+                const isDomingo = diaSemana === 0
+                return (
                 <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
-                    {formatarDataCurta(d.data)}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                      <span style={{
+                        display: "inline-block",
+                        backgroundColor: isQuinta ? "#2563eb" : isDomingo ? "#16a34a" : "#6b7280",
+                        color: "white",
+                        borderRadius: "4px",
+                        padding: "0px 4px",
+                        fontSize: "7px",
+                        fontWeight: "800",
+                        letterSpacing: "0.3px",
+                      }}>
+                        {isQuinta ? "QUI" : isDomingo ? "DOM" : "—"}
+                      </span>
+                      {formatarDataCurta(d.data)}
+                    </div>
                   </td>
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
                     {d.indicador1}{d.indicador2 ? ` / ${d.indicador2}` : ""}
@@ -1454,7 +1491,8 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{d.audio_video || "-"}</td>
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{d.palco || "-"}</td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>
