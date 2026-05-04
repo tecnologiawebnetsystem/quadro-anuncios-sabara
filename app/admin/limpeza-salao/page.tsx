@@ -205,8 +205,7 @@ export default function LimpezaSalaoPage() {
           semana: semana.numero,
           data_inicio: dataInicioStr,
           data_fim: dataFimStr,
-          grupo_id: null,          // null = usar o que já está no banco (merge no servidor)
-          grupo_nome: null,
+          // NÃO enviar grupo_id/grupo_nome para a API não sobrescrever o que já está salvo
           limpeza_semanal_grupo_id: grupoId,
           limpeza_semanal_grupo_nome: grupo?.nome || null,
         }),
