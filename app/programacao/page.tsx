@@ -12,12 +12,13 @@ import {
   Heart,
   MessageSquare,
   Gem,
-  Map,
+  MapPin,
   Sun,
   Church,
   UserCheck,
   Headphones,
   CalendarDays,
+  Sparkles,
 } from "lucide-react"
 
 // ─── Tipos ──────────────────────────────────────────────────────────────────
@@ -128,10 +129,10 @@ interface ProgramacaoDia {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const DIAS_SEMANA = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"]
-const DIAS_CURTO = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]
+const DIAS_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]
+const DIAS_CURTO  = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]
 
-function formatarData(dataStr: string): string {
+function formatarDataLonga(dataStr: string): string {
   const d = new Date(dataStr + "T12:00:00")
   return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
 }
@@ -146,84 +147,92 @@ function adicionarDias(dataStr: string, n: number): string {
   return toDateStr(d)
 }
 
-const periodoLabel: Record<string, string> = {
-  manha: "Manhã",
-  tarde: "Tarde",
+const periodoLabel: Record<string, string> = { manha: "Manhã", tarde: "Tarde" }
+const tipoLabel: Record<string, string>    = { individual: "Individual", grupo: "Grupo", salao: "No Salão" }
+
+const SECOES: Record<string, { label: string; cor: string; Icon: React.ElementType }> = {
+  tesouros:  { label: "Tesouros da Palavra de Deus",    cor: "#b45309", Icon: Gem },
+  ministerio:{ label: "Faça Seu Melhor no Ministério",  cor: "#d97706", Icon: MessageSquare },
+  vida:      { label: "Nossa Vida Cristã",               cor: "#3b82f6", Icon: Heart },
 }
 
-const tipoLabel: Record<string, string> = {
-  individual: "Individual",
-  grupo: "Grupo",
-  salao: "No Salão",
-}
-
-const secaoLabel: Record<string, { label: string; cor: string; Icon: React.ElementType }> = {
-  tesouros: { label: "Tesouros da Palavra de Deus", cor: "#b45309", Icon: Gem },
-  ministerio: { label: "Faça Seu Melhor no Ministério", cor: "#d97706", Icon: MessageSquare },
-  vida: { label: "Nossa Vida Cristã", cor: "#3b82f6", Icon: Heart },
-}
-
-// ─── Componentes auxiliares ───────────────────────────────────────────────────
+// ─── Componentes base ─────────────────────────────────────────────────────────
 
 function InfoRow({ label, value, Icon }: { label: string; value: string | null | undefined; Icon?: React.ElementType }) {
   if (!value) return null
   return (
     <div className="flex items-start gap-3 py-2.5 border-b border-white/10 last:border-0">
-      {Icon && <Icon size={15} className="mt-0.5 shrink-0 opacity-70" />}
-      <div className="flex flex-col gap-0.5 min-w-0">
-        <span className="text-[11px] uppercase tracking-wider opacity-60 font-semibold">{label}</span>
-        <span className="text-[15px] font-medium leading-snug">{value}</span>
+      {Icon && <Icon size={14} className="mt-0.5 shrink-0 opacity-60" />}
+      <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+        <span className="text-[10px] uppercase tracking-wider opacity-50 font-bold">{label}</span>
+        <span className="text-[14px] font-medium leading-snug">{value}</span>
       </div>
     </div>
   )
 }
 
-function Bloco({
-  titulo,
+// Card com borda lateral colorida
+function Card({
+  corBorda,
   corFundo,
   corTexto,
+  titulo,
+  badge,
+  badgeCor,
   Icon,
   children,
 }: {
-  titulo: string
+  corBorda: string
   corFundo: string
   corTexto: string
+  titulo: string
+  badge?: string
+  badgeCor?: string
   Icon: React.ElementType
   children: React.ReactNode
 }) {
   return (
     <div
-      className="rounded-2xl overflow-hidden shadow-lg"
-      style={{ background: corFundo, color: corTexto }}
+      className="rounded-2xl overflow-hidden shadow-md"
+      style={{ background: corFundo, color: corTexto, borderLeft: `4px solid ${corBorda}` }}
     >
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/15">
-        <Icon size={18} className="shrink-0" />
-        <span className="font-bold text-[14px] uppercase tracking-wide">{titulo}</span>
+      {/* Header do card */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+        <div className="flex items-center gap-2">
+          <Icon size={16} className="shrink-0 opacity-80" />
+          <span className="font-bold text-[13px] uppercase tracking-wide">{titulo}</span>
+        </div>
+        {badge && (
+          <span
+            className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full"
+            style={{ background: badgeCor ?? corBorda, color: "white" }}
+          >
+            {badge}
+          </span>
+        )}
       </div>
       <div className="px-4 py-3">{children}</div>
     </div>
   )
 }
 
-function EmptyBloco({ mensagem }: { mensagem: string }) {
-  return (
-    <p className="text-[13px] opacity-50 py-1 text-center italic">{mensagem}</p>
-  )
+function Empty({ mensagem }: { mensagem: string }) {
+  return <p className="text-[13px] opacity-40 py-1 text-center italic">{mensagem}</p>
 }
 
-// ─── Blocos por tipo de dia ───────────────────────────────────────────────────
+// ─── Blocos de conteúdo ───────────────────────────────────────────────────────
 
 function BlocoCampoSemana({ campo }: { campo: CampoSemana[] }) {
-  if (campo.length === 0) return <EmptyBloco mensagem="Nenhuma saída cadastrada" />
+  if (campo.length === 0) return <Empty mensagem="Nenhuma saída cadastrada" />
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col">
       {campo.map((c, i) => (
-        <div key={i} className="flex items-center justify-between gap-2 py-2 border-b border-white/10 last:border-0">
+        <div key={i} className="flex items-center justify-between gap-2 py-2.5 border-b border-white/10 last:border-0">
           <div>
-            <p className="text-[11px] opacity-60 uppercase tracking-wider font-semibold">{periodoLabel[c.periodo] ?? c.periodo} — {c.horario}</p>
-            <p className="text-[15px] font-medium">{c.dirigente_nome || "—"}</p>
+            <p className="text-[10px] opacity-50 uppercase tracking-wider font-bold">{periodoLabel[c.periodo] ?? c.periodo}{c.horario ? ` · ${c.horario}` : ""}</p>
+            <p className="text-[14px] font-semibold">{c.dirigente_nome || "—"}</p>
           </div>
-          <Sun size={16} className="opacity-50 shrink-0" />
+          <Sun size={15} className="opacity-30 shrink-0" />
         </div>
       ))}
     </div>
@@ -231,13 +240,42 @@ function BlocoCampoSemana({ campo }: { campo: CampoSemana[] }) {
 }
 
 function BlocoCampoSabado({ campo }: { campo: CampoSabado[] }) {
-  if (campo.length === 0) return <EmptyBloco mensagem="Nenhuma saída cadastrada" />
+  if (campo.length === 0) return <Empty mensagem="Nenhuma saída cadastrada" />
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col">
       {campo.map((c, i) => (
-        <div key={i} className="py-2 border-b border-white/10 last:border-0">
-          <p className="text-[11px] opacity-60 uppercase tracking-wider font-semibold">{periodoLabel[c.periodo] ?? c.periodo} — {c.horario}</p>
-          <p className="text-[15px] font-medium">{c.dirigente_nome || "—"}</p>
+        <div key={i} className="py-2.5 border-b border-white/10 last:border-0">
+          <p className="text-[10px] opacity-50 uppercase tracking-wider font-bold">{periodoLabel[c.periodo] ?? c.periodo}{c.horario ? ` · ${c.horario}` : ""}</p>
+          <p className="text-[14px] font-semibold">{c.dirigente_nome || "—"}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function BlocoCampoCartas({ cartas }: { cartas: CampoCartas[] }) {
+  if (cartas.length === 0) return <Empty mensagem="Nenhuma carta cadastrada" />
+  return (
+    <div className="flex flex-col">
+      {cartas.map((c, i) => (
+        <div key={i} className="py-2.5 border-b border-white/10 last:border-0">
+          <p className="text-[10px] opacity-50 uppercase tracking-wider font-bold">{periodoLabel[c.periodo] ?? c.periodo}{c.horario ? ` · ${c.horario}` : ""}</p>
+          {c.descricao && <p className="text-[12px] opacity-60 mb-0.5">{c.descricao}</p>}
+          <p className="text-[14px] font-semibold">{c.responsavel_nome || "—"}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function BlocoCampoDomingo({ campo }: { campo: CampoDomingo[] }) {
+  if (campo.length === 0) return <Empty mensagem="Nenhuma saída cadastrada" />
+  return (
+    <div className="flex flex-col">
+      {campo.map((c, i) => (
+        <div key={i} className="py-2.5 border-b border-white/10 last:border-0">
+          <p className="text-[10px] opacity-50 uppercase tracking-wider font-bold">{c.horario ? `${c.horario} · ` : ""}{tipoLabel[c.tipo] ?? c.tipo}</p>
+          {c.tipo === "salao" && c.dirigente_nome && <p className="text-[14px] font-semibold">{c.dirigente_nome}</p>}
         </div>
       ))}
     </div>
@@ -249,91 +287,34 @@ function BlocoLimpeza({ limpeza }: { limpeza: LimpezaSalao }) {
   const local = limpeza.grupos?.local
   return (
     <div>
-      <InfoRow
-        label={`Semana ${limpeza.semana} — Grupo Responsável`}
-        value={grupo || "Grupo não definido"}
-        Icon={Users}
-      />
-      {local && (
-        <InfoRow
-          label="Local"
-          value={local}
-          Icon={Map}
-        />
-      )}
-    </div>
-  )
-}
-
-function BlocoCampoCartas({ cartas }: { cartas: CampoCartas[] }) {
-  if (cartas.length === 0) return <EmptyBloco mensagem="Nenhuma carta cadastrada" />
-  return (
-    <div className="flex flex-col gap-2">
-      {cartas.map((c, i) => (
-        <div key={i} className="py-2 border-b border-white/10 last:border-0">
-          <p className="text-[11px] opacity-60 uppercase tracking-wider font-semibold">
-            {periodoLabel[c.periodo] ?? c.periodo}{c.horario ? ` — ${c.horario}` : ""}
-          </p>
-          {c.descricao && <p className="text-[13px] opacity-70 mb-0.5">{c.descricao}</p>}
-          <p className="text-[15px] font-medium">{c.responsavel_nome || "—"}</p>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function BlocoCampoDomingo({ campo }: { campo: CampoDomingo[] }) {
-  if (campo.length === 0) return <EmptyBloco mensagem="Nenhuma saída cadastrada" />
-  return (
-    <div className="flex flex-col gap-2">
-      {campo.map((c, i) => (
-        <div key={i} className="py-2 border-b border-white/10 last:border-0">
-          <p className="text-[11px] opacity-60 uppercase tracking-wider font-semibold">
-            {c.horario && `${c.horario} — `}{tipoLabel[c.tipo] ?? c.tipo}
-          </p>
-          {/* Mostra dirigente apenas quando for no salão */}
-          {c.tipo === "salao" && c.dirigente_nome && (
-            <p className="text-[15px] font-medium">{c.dirigente_nome}</p>
-          )}
-        </div>
-      ))}
+      <InfoRow label={`Semana ${limpeza.semana} — Grupo`} value={grupo || "Grupo não definido"} Icon={Users} />
+      {local && <InfoRow label="Local" value={local} Icon={MapPin} />}
     </div>
   )
 }
 
 function BlocoEquipe({ equipe }: { equipe: EquipeTecnica }) {
-  // Identifica qual microvolante está no palco
   const mv1NoPalco = equipe.microvolante_palco === 1
   const mv2NoPalco = equipe.microvolante_palco === 2
-
   return (
     <div>
-      <InfoRow label="Som" value={equipe.som_nome} Icon={Volume2} />
-      <InfoRow
-        label="Indicadores"
-        value={[equipe.indicador1_nome, equipe.indicador2_nome].filter(Boolean).join(" / ")}
-        Icon={Users}
-      />
-      {/* Microvolantes: mostra ambos com label indicando quem está no palco */}
+      <InfoRow label="Áudio e Vídeo" value={equipe.som_nome} Icon={Volume2} />
+      <InfoRow label="Indicadores" value={[equipe.indicador1_nome, equipe.indicador2_nome].filter(Boolean).join(" / ")} Icon={Users} />
       {equipe.microvolante1_nome && (
         <div className="flex items-start gap-3 py-2.5 border-b border-white/10 last:border-0">
-          <Mic size={15} className={`mt-0.5 shrink-0 ${mv1NoPalco ? "opacity-100" : "opacity-40"}`} />
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-[11px] uppercase tracking-wider opacity-60 font-semibold">
-              Microvolante{mv1NoPalco ? " · Palco" : ""}
-            </span>
-            <span className="text-[15px] font-medium leading-snug">{equipe.microvolante1_nome}</span>
+          <Mic size={14} className={`mt-0.5 shrink-0 ${mv1NoPalco ? "opacity-80" : "opacity-30"}`} />
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] uppercase tracking-wider opacity-50 font-bold">Microvolante{mv1NoPalco ? " · Palco" : ""}</span>
+            <span className="text-[14px] font-medium">{equipe.microvolante1_nome}</span>
           </div>
         </div>
       )}
       {equipe.microvolante2_nome && (
         <div className="flex items-start gap-3 py-2.5 border-b border-white/10 last:border-0">
-          <Mic size={15} className={`mt-0.5 shrink-0 ${mv2NoPalco ? "opacity-100" : "opacity-40"}`} />
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-[11px] uppercase tracking-wider opacity-60 font-semibold">
-              Microvolante{mv2NoPalco ? " · Palco" : ""}
-            </span>
-            <span className="text-[15px] font-medium leading-snug">{equipe.microvolante2_nome}</span>
+          <Mic size={14} className={`mt-0.5 shrink-0 ${mv2NoPalco ? "opacity-80" : "opacity-30"}`} />
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] uppercase tracking-wider opacity-50 font-bold">Microvolante{mv2NoPalco ? " · Palco" : ""}</span>
+            <span className="text-[14px] font-medium">{equipe.microvolante2_nome}</span>
           </div>
         </div>
       )}
@@ -344,16 +325,14 @@ function BlocoEquipe({ equipe }: { equipe: EquipeTecnica }) {
 function BlocoVidaMinisterio({ semana, partes }: { semana: VidaSemana; partes: Parte[] }) {
   if (semana.sem_reuniao) {
     return (
-      <p className="text-[14px] text-center py-2 font-semibold opacity-80">
+      <p className="text-[14px] text-center py-3 font-semibold opacity-70">
         Sem reunião{semana.motivo_sem_reuniao ? ` — ${semana.motivo_sem_reuniao}` : ""}
       </p>
     )
   }
 
-  const grupos = Object.entries(secaoLabel).map(([key, meta]) => ({
-    key,
-    meta,
-    partes: partes.filter((p) => p.secao === key),
+  const grupos = Object.entries(SECOES).map(([key, meta]) => ({
+    key, meta, partes: partes.filter((p) => p.secao === key),
   }))
 
   return (
@@ -361,29 +340,27 @@ function BlocoVidaMinisterio({ semana, partes }: { semana: VidaSemana; partes: P
       <InfoRow label="Presidente" value={semana.presidente} Icon={UserCheck} />
       <InfoRow label="Oração inicial" value={semana.oracao_inicial} Icon={BookOpen} />
       {semana.cantico_inicial && (
-        <InfoRow
-          label="Cântico"
-          value={`${semana.cantico_inicial}${semana.cantico_inicial_nome ? ` — ${semana.cantico_inicial_nome}` : ""}`}
-          Icon={Music}
-        />
+        <InfoRow label={`Cântico ${semana.cantico_inicial}`} value={semana.cantico_inicial_nome ?? `Cântico ${semana.cantico_inicial}`} Icon={Music} />
       )}
 
       {grupos.map(({ key, meta, partes: ps }) =>
         ps.length === 0 ? null : (
-          <div key={key} className="mt-1">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <meta.Icon size={13} style={{ color: meta.cor }} />
-              <span className="text-[11px] font-bold uppercase tracking-wider opacity-70" style={{ color: meta.cor }}>
-                {meta.label}
-              </span>
+          <div key={key}>
+            <div className="flex items-center gap-1.5 mb-2 mt-1">
+              <div className="h-px flex-1 opacity-20" style={{ background: meta.cor }} />
+              <div className="flex items-center gap-1">
+                <meta.Icon size={11} style={{ color: meta.cor }} />
+                <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: meta.cor }}>{meta.label}</span>
+              </div>
+              <div className="h-px flex-1 opacity-20" style={{ background: meta.cor }} />
             </div>
             {ps.map((p) => (
-              <div key={p.id} className="py-2 border-b border-white/10 last:border-0 pl-1">
-                <p className="text-[11px] opacity-50 uppercase tracking-wider font-semibold">{p.titulo}{p.tempo ? ` · ${p.tempo}` : ""}</p>
-                <p className="text-[15px] font-medium">{p.participante_nome || "—"}</p>
-                {p.ajudante_nome && <p className="text-[12px] opacity-60">Ajudante: {p.ajudante_nome}</p>}
-                {p.leitor_nome && <p className="text-[12px] opacity-60">Leitor: {p.leitor_nome}</p>}
-                {p.oracao_final_nome && <p className="text-[12px] opacity-60">Oração final: {p.oracao_final_nome}</p>}
+              <div key={p.id} className="py-2 border-b border-white/10 last:border-0">
+                <p className="text-[10px] opacity-45 uppercase tracking-wider font-bold">{p.titulo}{p.tempo ? ` · ${p.tempo}` : ""}</p>
+                <p className="text-[14px] font-semibold">{p.participante_nome || "—"}</p>
+                {p.ajudante_nome  && <p className="text-[12px] opacity-55 mt-0.5">Ajudante: {p.ajudante_nome}</p>}
+                {p.leitor_nome    && <p className="text-[12px] opacity-55 mt-0.5">Leitor: {p.leitor_nome}</p>}
+                {p.oracao_final_nome && <p className="text-[12px] opacity-55 mt-0.5">Oração final: {p.oracao_final_nome}</p>}
               </div>
             ))}
           </div>
@@ -391,18 +368,10 @@ function BlocoVidaMinisterio({ semana, partes }: { semana: VidaSemana; partes: P
       )}
 
       {semana.cantico_meio && (
-        <InfoRow
-          label="Cântico"
-          value={`${semana.cantico_meio}${semana.cantico_meio_nome ? ` — ${semana.cantico_meio_nome}` : ""}`}
-          Icon={Music}
-        />
+        <InfoRow label={`Cântico ${semana.cantico_meio}`} value={semana.cantico_meio_nome ?? `Cântico ${semana.cantico_meio}`} Icon={Music} />
       )}
       {semana.cantico_final && (
-        <InfoRow
-          label="Cântico"
-          value={`${semana.cantico_final}${semana.cantico_final_nome ? ` — ${semana.cantico_final_nome}` : ""}`}
-          Icon={Music}
-        />
+        <InfoRow label={`Cântico ${semana.cantico_final}`} value={semana.cantico_final_nome ?? `Cântico ${semana.cantico_final}`} Icon={Music} />
       )}
     </div>
   )
@@ -410,24 +379,53 @@ function BlocoVidaMinisterio({ semana, partes }: { semana: VidaSemana; partes: P
 
 function BlocoReuniaoDomingo({ reuniao }: { reuniao: ReuniaoPublica }) {
   const { designacao, discurso } = reuniao
-  if (!designacao && !discurso) return <EmptyBloco mensagem="Nenhuma informação cadastrada" />
+  if (!designacao && !discurso) return <Empty mensagem="Nenhuma informação cadastrada" />
   return (
     <div>
-      {designacao?.presidente_nome && (
-        <InfoRow label="Presidente" value={designacao.presidente_nome} Icon={UserCheck} />
-      )}
-      {discurso && (
-        <>
-          <InfoRow label="Tema do Discurso" value={discurso.tema} Icon={BookOpen} />
-          <InfoRow label="Orador" value={discurso.orador_nome} Icon={UserCheck} />
-          {discurso.orador_congregacao && (
-            <InfoRow label="Congregação do Orador" value={discurso.orador_congregacao} Icon={Church} />
-          )}
-        </>
-      )}
-      {designacao?.leitor_sentinela_nome && (
-        <InfoRow label="Leitor — A Sentinela" value={designacao.leitor_sentinela_nome} Icon={BookOpen} />
-      )}
+      {designacao?.presidente_nome && <InfoRow label="Presidente" value={designacao.presidente_nome} Icon={UserCheck} />}
+      {discurso?.tema              && <InfoRow label="Tema do Discurso" value={discurso.tema} Icon={BookOpen} />}
+      {discurso?.orador_nome       && <InfoRow label="Orador" value={discurso.orador_nome} Icon={UserCheck} />}
+      {discurso?.orador_congregacao && <InfoRow label="Congregação" value={discurso.orador_congregacao} Icon={Church} />}
+      {designacao?.leitor_sentinela_nome && <InfoRow label="Leitor — A Sentinela" value={designacao.leitor_sentinela_nome} Icon={BookOpen} />}
+    </div>
+  )
+}
+
+// ─── Pílulas de resumo do dia ─────────────────────────────────────────────────
+
+function PilulasDia({ programacao, isQuinta, isDomingo, isSabado, isSegSex }: {
+  programacao: ProgramacaoDia
+  isQuinta: boolean
+  isDomingo: boolean
+  isSabado: boolean
+  isSegSex: boolean
+}) {
+  const pilulas: { label: string; cor: string }[] = []
+
+  if (isQuinta && programacao.vidaMinisterio.semana && !programacao.vidaMinisterio.semana.sem_reuniao)
+    pilulas.push({ label: "Reunião", cor: "#1d4ed8" })
+  if (isDomingo && (programacao.reuniaoPublica.designacao || programacao.reuniaoPublica.discurso))
+    pilulas.push({ label: "Reunião", cor: "#b45309" })
+  if ((isSegSex && programacao.campo.semana.length > 0) || (isSabado && programacao.campo.sabado.length > 0) || (isDomingo && programacao.campo.domingo.length > 0))
+    pilulas.push({ label: "Campo", cor: "#15803d" })
+  if ((isQuinta || isDomingo) && programacao.equipe)
+    pilulas.push({ label: "Equipe Técnica", cor: "#6d28d9" })
+  if ((isQuinta || isDomingo) && programacao.limpezaSalao)
+    pilulas.push({ label: "Limpeza", cor: "#0f766e" })
+
+  if (pilulas.length === 0) return null
+
+  return (
+    <div className="flex flex-wrap gap-1.5 mb-4">
+      {pilulas.map((p, i) => (
+        <span
+          key={i}
+          className="text-[11px] font-bold px-2.5 py-0.5 rounded-full text-white"
+          style={{ background: p.cor }}
+        >
+          {p.label}
+        </span>
+      ))}
     </div>
   )
 }
@@ -446,8 +444,7 @@ export default function ProgramacaoPage() {
     try {
       const res = await fetch(`/api/programacao?data=${data}`)
       if (!res.ok) throw new Error("Erro ao buscar programação")
-      const json = await res.json()
-      setProgramacao(json)
+      setProgramacao(await res.json())
     } catch {
       setErro("Não foi possível carregar a programação.")
     } finally {
@@ -455,87 +452,107 @@ export default function ProgramacaoPage() {
     }
   }, [])
 
-  useEffect(() => {
-    buscarProgramacao(dataAtual)
-  }, [dataAtual, buscarProgramacao])
+  useEffect(() => { buscarProgramacao(dataAtual) }, [dataAtual, buscarProgramacao])
 
-  const irParaDia = (n: number) => {
-    setDataAtual((prev) => adicionarDias(prev, n))
-  }
+  const irParaDia = (n: number) => setDataAtual((prev) => adicionarDias(prev, n))
 
-  const dSemana = programacao?.diaSemana ?? new Date(dataAtual + "T12:00:00").getDay()
-  const isQuinta = dSemana === 4
+  const dSemana  = programacao?.diaSemana ?? new Date(dataAtual + "T12:00:00").getDay()
+  const isQuinta  = dSemana === 4
   const isDomingo = dSemana === 0
-  const isSabado = dSemana === 6
-  const isSegSex = dSemana >= 1 && dSemana <= 5
+  const isSabado  = dSemana === 6
+  const isSegSex  = dSemana >= 1 && dSemana <= 5
+
+  // Badge do tipo de reunião no dia
+  const badgeReuniao = isQuinta ? { label: "QUINTA-FEIRA", cor: "#2563eb" }
+    : isDomingo ? { label: "DOMINGO", cor: "#b45309" }
+    : null
 
   return (
     <div className="min-h-screen" style={{ background: "var(--background)", color: "var(--foreground)" }}>
 
-      {/* Header fixo — usa cores do sistema (azul-marinho) */}
-      <header className="sticky top-0 z-30 shadow-lg bg-sidebar">
-        <div className="max-w-lg mx-auto px-4 pt-3 pb-4 flex flex-col gap-1">
-          {/* Logo InfoFlow + nome congregação */}
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sidebar-primary/20">
-              <CalendarDays size={15} className="text-sidebar-primary" />
+      {/* ── Header fixo ── */}
+      <header className="sticky top-0 z-30 bg-sidebar shadow-xl">
+        <div className="max-w-lg mx-auto px-4 pt-4 pb-3 flex flex-col gap-1">
+
+          {/* Identidade */}
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-sidebar-primary/20">
+              <CalendarDays size={13} className="text-sidebar-primary" />
             </div>
-            <span className="text-[15px] font-bold tracking-tight text-sidebar-foreground">
+            <span className="text-[14px] font-black tracking-tight text-sidebar-foreground">
               Info<span className="text-sidebar-primary">Flow</span>
             </span>
           </div>
-          <p className="text-[11px] uppercase tracking-widest font-semibold text-sidebar-foreground/60 text-center">
-            Congregação Parque Sabará
+          <p className="text-[10px] uppercase tracking-widest font-bold text-sidebar-foreground/40 text-center">
+            Congregação Parque Sabará — Taubaté SP
           </p>
-          <h1 className="text-sidebar-foreground text-lg font-bold text-center leading-tight tracking-tight">
-            Quadro de Programação
-          </h1>
 
           {/* Navegação por dia */}
-          <div className="flex items-center justify-between mt-3 gap-2">
+          <div className="flex items-center gap-2 mt-2">
             <button
               onClick={() => irParaDia(-1)}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-sidebar-accent active:bg-sidebar-accent/80 transition-colors"
+              className="flex items-center justify-center w-9 h-9 rounded-full bg-sidebar-accent/60 active:scale-95 transition-transform"
               aria-label="Dia anterior"
             >
-              <ChevronLeft size={22} className="text-sidebar-foreground" />
+              <ChevronLeft size={20} className="text-sidebar-foreground" />
             </button>
 
             <div className="flex-1 text-center">
-              <p className="text-sidebar-primary font-bold text-[18px] capitalize leading-tight">
+              {/* Badge do dia de reunião */}
+              {badgeReuniao && (
+                <div className="flex justify-center mb-0.5">
+                  <span
+                    className="text-[10px] font-black uppercase tracking-widest px-3 py-0.5 rounded-full text-white"
+                    style={{ background: badgeReuniao.cor }}
+                  >
+                    {badgeReuniao.label}
+                  </span>
+                </div>
+              )}
+              <p className="text-sidebar-primary font-black text-[19px] capitalize leading-tight">
                 {DIAS_SEMANA[dSemana]}
               </p>
-              <p className="text-sidebar-foreground/60 text-[13px]">{formatarData(dataAtual)}</p>
+              <p className="text-sidebar-foreground/50 text-[12px]">{formatarDataLonga(dataAtual)}</p>
             </div>
 
             <button
               onClick={() => irParaDia(1)}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-sidebar-accent active:bg-sidebar-accent/80 transition-colors"
+              className="flex items-center justify-center w-9 h-9 rounded-full bg-sidebar-accent/60 active:scale-95 transition-transform"
               aria-label="Próximo dia"
             >
-              <ChevronRight size={22} className="text-sidebar-foreground" />
+              <ChevronRight size={20} className="text-sidebar-foreground" />
             </button>
           </div>
 
           {/* Mini-calendário semanal */}
-          <div className="flex justify-between mt-3 gap-1">
+          <div className="flex justify-between mt-2.5 gap-1">
             {Array.from({ length: 7 }).map((_, i) => {
               const base = new Date(dataAtual + "T12:00:00")
               const inicio = new Date(base)
               inicio.setDate(base.getDate() - base.getDay() + i)
               const dStr = toDateStr(inicio)
               const isAtivo = dStr === dataAtual
+              // destaca Qui (4) e Dom (0) como dias de reunião
+              const isReuniaoDay = i === 4 || i === 0
               return (
                 <button
                   key={i}
                   onClick={() => setDataAtual(dStr)}
-                  className="flex-1 flex flex-col items-center rounded-xl py-1.5 transition-colors"
+                  className="flex-1 flex flex-col items-center rounded-xl py-1.5 gap-0.5 transition-all active:scale-95"
                   style={{
-                    background: isAtivo ? "rgba(255,255,255,0.18)" : "transparent",
+                    background: isAtivo
+                      ? "rgba(255,255,255,0.20)"
+                      : "transparent",
                   }}
                 >
-                  <span className="text-[10px] text-sidebar-foreground/50 font-medium uppercase">{DIAS_CURTO[i]}</span>
-                  <span className="text-sidebar-foreground text-[15px] font-bold">{inicio.getDate()}</span>
+                  <span className={`text-[9px] font-bold uppercase ${isAtivo ? "text-sidebar-foreground" : "text-sidebar-foreground/40"}`}>
+                    {DIAS_CURTO[i]}
+                  </span>
+                  <span className={`text-[15px] font-black ${isAtivo ? "text-sidebar-foreground" : isReuniaoDay ? "text-sidebar-primary/70" : "text-sidebar-foreground/50"}`}>
+                    {inicio.getDate()}
+                  </span>
+                  {/* ponto indicador de dia de reunião */}
+                  <span className={`w-1 h-1 rounded-full ${isReuniaoDay ? (isAtivo ? "bg-sidebar-primary" : "bg-sidebar-primary/40") : "bg-transparent"}`} />
                 </button>
               )
             })}
@@ -543,103 +560,132 @@ export default function ProgramacaoPage() {
         </div>
       </header>
 
-      {/* Conteúdo */}
-      <main className="max-w-lg mx-auto px-4 pt-6 pb-10">
+      {/* ── Conteúdo ── */}
+      <main className="max-w-lg mx-auto px-4 pt-5 pb-12">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
-            <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-            <p className="text-sm opacity-50">Carregando programação...</p>
+            <div className="w-7 h-7 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            <p className="text-sm opacity-40">Carregando...</p>
           </div>
         ) : erro ? (
           <div className="text-center py-16">
-            <p className="text-red-400 font-semibold">{erro}</p>
+            <p className="text-red-400 font-semibold text-sm">{erro}</p>
           </div>
         ) : programacao ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3.5">
 
-            {/* ── Campo de serviço ── */}
+            {/* Pílulas resumo */}
+            <PilulasDia
+              programacao={programacao}
+              isQuinta={isQuinta}
+              isDomingo={isDomingo}
+              isSabado={isSabado}
+              isSegSex={isSegSex}
+            />
+
+            {/* ── Campo de serviço (Seg–Sex) ── */}
             {isSegSex && programacao.campo.semana.length > 0 && (
-              <Bloco titulo="Serviço de Campo" corFundo="#15803d" corTexto="#f0fdf4" Icon={Map}>
+              <Card titulo="Serviço de Campo" corBorda="#16a34a" corFundo="#14532d" corTexto="#f0fdf4" Icon={MapPin}>
                 <BlocoCampoSemana campo={programacao.campo.semana} />
-              </Bloco>
+              </Card>
             )}
 
             {/* ── Cartas (segunda-feira) ── */}
             {dSemana === 1 && programacao.campo.cartas.length > 0 && (
-              <Bloco titulo="Serviço de Cartas" corFundo="#0e7490" corTexto="#ecfeff" Icon={Map}>
+              <Card titulo="Serviço de Cartas" corBorda="#0891b2" corFundo="#0e7490" corTexto="#ecfeff" Icon={MapPin}>
                 <BlocoCampoCartas cartas={programacao.campo.cartas} />
-              </Bloco>
+              </Card>
             )}
 
+            {/* ── Campo Sábado ── */}
             {isSabado && (
-              <Bloco titulo="Serviço de Campo — Sábado" corFundo="#15803d" corTexto="#f0fdf4" Icon={Map}>
+              <Card titulo="Serviço de Campo — Sábado" corBorda="#16a34a" corFundo="#14532d" corTexto="#f0fdf4" Icon={MapPin}>
                 <BlocoCampoSabado campo={programacao.campo.sabado} />
-              </Bloco>
+              </Card>
             )}
 
+            {/* ── Campo Domingo ── */}
             {isDomingo && programacao.campo.domingo.length > 0 && (
-              <Bloco titulo="Serviço de Campo" corFundo="#15803d" corTexto="#f0fdf4" Icon={Map}>
+              <Card titulo="Serviço de Campo" corBorda="#16a34a" corFundo="#14532d" corTexto="#f0fdf4" Icon={MapPin}>
                 <BlocoCampoDomingo campo={programacao.campo.domingo} />
-              </Bloco>
+              </Card>
             )}
 
-            {/* ── Reunião de Quinta ── */}
+            {/* ── Reunião Quinta ── */}
             {isQuinta && (
               <>
                 {programacao.vidaMinisterio.semana ? (
-                  <Bloco titulo="Reunião — Vida e Ministério" corFundo="#1d4ed8" corTexto="#eff6ff" Icon={BookOpen}>
+                  <Card
+                    titulo="Reunião — Vida e Ministério"
+                    badge="Quinta-feira"
+                    badgeCor="#1d4ed8"
+                    corBorda="#3b82f6"
+                    corFundo="#1e3a8a"
+                    corTexto="#eff6ff"
+                    Icon={BookOpen}
+                  >
                     <BlocoVidaMinisterio
                       semana={programacao.vidaMinisterio.semana}
                       partes={programacao.vidaMinisterio.partes as Parte[]}
                     />
-                  </Bloco>
+                  </Card>
                 ) : (
-                  <Bloco titulo="Reunião — Vida e Ministério" corFundo="#1d4ed8" corTexto="#eff6ff" Icon={BookOpen}>
-                    <EmptyBloco mensagem="Nenhuma informação cadastrada para esta semana" />
-                  </Bloco>
+                  <Card titulo="Reunião — Vida e Ministério" badge="Quinta-feira" badgeCor="#1d4ed8" corBorda="#3b82f6" corFundo="#1e3a8a" corTexto="#eff6ff" Icon={BookOpen}>
+                    <Empty mensagem="Nenhuma informação cadastrada para esta semana" />
+                  </Card>
                 )}
 
                 {programacao.equipe && (
-                  <Bloco titulo="Equipe Técnica" corFundo="#6d28d9" corTexto="#f5f3ff" Icon={Headphones}>
+                  <Card titulo="Equipe Técnica" corBorda="#7c3aed" corFundo="#4c1d95" corTexto="#f5f3ff" Icon={Headphones}>
                     <BlocoEquipe equipe={programacao.equipe} />
-                  </Bloco>
+                  </Card>
                 )}
 
                 {programacao.limpezaSalao && (
-                  <Bloco titulo="Limpeza do Salão" corFundo="#0f766e" corTexto="#f0fdfa" Icon={Sun}>
+                  <Card titulo="Limpeza do Salão" corBorda="#14b8a6" corFundo="#134e4a" corTexto="#f0fdfa" Icon={Sparkles}>
                     <BlocoLimpeza limpeza={programacao.limpezaSalao} />
-                  </Bloco>
+                  </Card>
                 )}
               </>
             )}
 
-            {/* ── Reunião de Domingo ── */}
+            {/* ── Reunião Domingo ── */}
             {isDomingo && (
               <>
-                <Bloco titulo="Reunião — Discurso Público" corFundo="#b45309" corTexto="#fffbeb" Icon={Church}>
+                <Card
+                  titulo="Reunião — Discurso Público"
+                  badge="Domingo"
+                  badgeCor="#b45309"
+                  corBorda="#f59e0b"
+                  corFundo="#78350f"
+                  corTexto="#fffbeb"
+                  Icon={Church}
+                >
                   <BlocoReuniaoDomingo reuniao={programacao.reuniaoPublica} />
-                </Bloco>
+                </Card>
 
                 {programacao.equipe && (
-                  <Bloco titulo="Equipe Técnica" corFundo="#6d28d9" corTexto="#f5f3ff" Icon={Headphones}>
+                  <Card titulo="Equipe Técnica" corBorda="#7c3aed" corFundo="#4c1d95" corTexto="#f5f3ff" Icon={Headphones}>
                     <BlocoEquipe equipe={programacao.equipe} />
-                  </Bloco>
+                  </Card>
                 )}
 
                 {programacao.limpezaSalao && (
-                  <Bloco titulo="Limpeza do Salão" corFundo="#0f766e" corTexto="#f0fdfa" Icon={Sun}>
+                  <Card titulo="Limpeza do Salão" corBorda="#14b8a6" corFundo="#134e4a" corTexto="#f0fdfa" Icon={Sparkles}>
                     <BlocoLimpeza limpeza={programacao.limpezaSalao} />
-                  </Bloco>
+                  </Card>
                 )}
               </>
             )}
 
-            {/* Fallback: dia sem informações */}
-            {!isQuinta && !isDomingo && !isSabado &&
-              programacao.campo.semana.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
-                <CalendarDays size={40} className="opacity-20" />
-                <p className="opacity-40 text-[15px]">Nenhuma atividade registrada para este dia.</p>
+            {/* Fallback: sem informações */}
+            {!isQuinta && !isDomingo && !isSabado && programacao.campo.semana.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
+                <CalendarDays size={36} className="opacity-15" />
+                <div>
+                  <p className="font-semibold opacity-30 text-[15px]">Nenhuma atividade registrada</p>
+                  <p className="opacity-20 text-[13px] mt-1">Use as setas para navegar para um dia com programação</p>
+                </div>
               </div>
             )}
 
