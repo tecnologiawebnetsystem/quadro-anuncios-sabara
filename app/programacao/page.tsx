@@ -37,6 +37,14 @@ interface CampoSabado {
   dirigente_nome: string
 }
 
+interface CampoCartas {
+  id: string
+  descricao: string
+  responsavel_nome: string
+  periodo: string
+  horario: string
+}
+
 interface CampoDomingo {
   id: string
   horario: string
@@ -98,6 +106,7 @@ interface ProgramacaoDia {
   nomeDia: string
   campo: {
     semana: CampoSemana[]
+    cartas: CampoCartas[]
     sabado: CampoSabado[]
     domingo: CampoDomingo[]
   }
@@ -143,7 +152,7 @@ const tipoLabel: Record<string, string> = {
 const secaoLabel: Record<string, { label: string; cor: string; Icon: React.ElementType }> = {
   tesouros: { label: "Tesouros da Palavra de Deus", cor: "#b45309", Icon: Gem },
   ministerio: { label: "Faça Seu Melhor no Ministério", cor: "#d97706", Icon: MessageSquare },
-  vida: { label: "Nossa Vida Cristã", cor: "#dc2626", Icon: Heart },
+  vida: { label: "Nossa Vida Cristã", cor: "#3b82f6", Icon: Heart },
 }
 
 // ─── Componentes auxiliares ───────────────────────────────────────────────────
@@ -221,6 +230,23 @@ function BlocoCampoSabado({ campo }: { campo: CampoSabado[] }) {
         <div key={i} className="py-2 border-b border-white/10 last:border-0">
           <p className="text-[11px] opacity-60 uppercase tracking-wider font-semibold">{periodoLabel[c.periodo] ?? c.periodo} — {c.horario}</p>
           <p className="text-[15px] font-medium">{c.dirigente_nome || "—"}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function BlocoCampoCartas({ cartas }: { cartas: CampoCartas[] }) {
+  if (cartas.length === 0) return <EmptyBloco mensagem="Nenhuma carta cadastrada" />
+  return (
+    <div className="flex flex-col gap-2">
+      {cartas.map((c, i) => (
+        <div key={i} className="py-2 border-b border-white/10 last:border-0">
+          <p className="text-[11px] opacity-60 uppercase tracking-wider font-semibold">
+            {periodoLabel[c.periodo] ?? c.periodo}{c.horario ? ` — ${c.horario}` : ""}
+          </p>
+          {c.descricao && <p className="text-[13px] opacity-70 mb-0.5">{c.descricao}</p>}
+          <p className="text-[15px] font-medium">{c.responsavel_nome || "—"}</p>
         </div>
       ))}
     </div>
@@ -484,6 +510,13 @@ export default function ProgramacaoPage() {
             {isSegSex && programacao.campo.semana.length > 0 && (
               <Bloco titulo="Serviço de Campo" corFundo="#166534" corTexto="#f0fdf4" Icon={Map}>
                 <BlocoCampoSemana campo={programacao.campo.semana} />
+              </Bloco>
+            )}
+
+            {/* ── Cartas (segunda-feira) ── */}
+            {dSemana === 1 && programacao.campo.cartas.length > 0 && (
+              <Bloco titulo="Serviço de Cartas" corFundo="#065f46" corTexto="#ecfdf5" Icon={Map}>
+                <BlocoCampoCartas cartas={programacao.campo.cartas} />
               </Bloco>
             )}
 

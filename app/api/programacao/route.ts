@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
   // Executa todas as queries em paralelo
   const [
     campoSemana,
+    campoCartas,
     campoSabado,
     campoDomingo,
     equipe,
@@ -29,13 +30,23 @@ export async function GET(request: NextRequest) {
     reuniaoPublicaDesig,
     reuniaoPublicaDiscurso,
   ] = await Promise.all([
-    // Campo seg-sex
+    // Campo seg-sex (dirigente por dia/período)
     diaSemana >= 1 && diaSemana <= 5
       ? supabase
           .from("servico_campo_semana")
           .select("*")
           .eq("mes", mes)
           .ilike("dia_semana", nomeDia)
+          .eq("ativo", true)
+          .order("horario", { ascending: true })
+      : Promise.resolve({ data: [] }),
+
+    // Campo cartas — segunda-feira à tarde
+    diaSemana === 1
+      ? supabase
+          .from("servico_campo_cartas")
+          .select("*")
+          .eq("mes", mes)
           .eq("ativo", true)
           .order("horario", { ascending: true })
       : Promise.resolve({ data: [] }),
@@ -115,6 +126,7 @@ export async function GET(request: NextRequest) {
     nomeDia,
     campo: {
       semana: campoSemana.data || [],
+      cartas: campoCartas.data || [],
       sabado: campoSabado.data || [],
       domingo: campoDomingo.data || [],
     },
