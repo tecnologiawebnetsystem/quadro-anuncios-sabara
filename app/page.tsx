@@ -37,12 +37,11 @@ async function getProximasReunioes() {
     d.setDate(d.getDate() + 1)
   }
 
-  // Buscar equipe técnica dessas datas
+  // Buscar equipe técnica dessas datas (datas já calculadas a partir de hoje)
   const { data: equipes } = await supabase
     .from("equipe_tecnica")
     .select("data, indicador_1, indicador_2, mic_volante_1, mic_volante_2, audio_video, palco")
     .in("data", datas)
-    .gte("data", hojeStr)
     .order("data", { ascending: true })
 
   return { datas, equipes: equipes || [] }
