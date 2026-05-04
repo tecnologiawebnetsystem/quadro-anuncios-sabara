@@ -636,8 +636,8 @@ export default function ProgramacaoPage() {
               </div>
             )}
 
-            </div>{/* fim flex gap-3 */}
-          </div>{/* fim moldura principal */}
+            </div>
+          </div>
         ) : null}
       </main>
     </div>
