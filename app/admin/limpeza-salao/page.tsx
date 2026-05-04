@@ -73,13 +73,13 @@ export default function LimpezaSalaoPage() {
       const inicioSemana = dataAtual
       const fimSemana = endOfWeek(dataAtual, { weekStartsOn: 0 })
 
-      // A semana pertence ao mês pelo domingo de limpeza (inicio+7).
-      // Isso garante que semanas que cruzam dois meses apareçam apenas no mês
-      // onde cai o domingo — ex: Qui 30/07 & Dom 02/08 aparece só em agosto.
-      const domingoLimpeza = addDays(inicioSemana, 7)
-      const domingoNoMes = domingoLimpeza >= inicio && domingoLimpeza <= fim
+      // A semana pertence ao mês pela QUINTA-FEIRA de limpeza (inicio+4).
+      // Isso garante que a semana 5 de maio (Qui 29/05) aparece em maio,
+      // mesmo que o domingo de limpeza (01/06) caia em junho.
+      const quintaLimpeza = addDays(inicioSemana, 4)
+      const quintaNoMes = quintaLimpeza >= inicio && quintaLimpeza <= fim
 
-      if (domingoNoMes) {
+      if (quintaNoMes) {
         semanasDoMes.push({
           numero: numeroSemana,
           inicio: inicioSemana,
