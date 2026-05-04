@@ -15,19 +15,14 @@ export async function GET(request: NextRequest) {
       .order("data_inicio", { ascending: true })
 
     if (mes) {
-      // Calcular primeiro e último dia do mês solicitado
-      // Inclui 7 dias antes do início para capturar semanas que começam no mês anterior
-      // Ex: Semana 1 de maio pode ter data_inicio em 26/04 (domingo)
-      const [mesNome, anoStr] = mes.split("-")
-      const mesesPt: Record<string, number> = {
-        janeiro: 0, fevereiro: 1, março: 2, abril: 3, maio: 4, junho: 5,
-        julho: 6, agosto: 7, setembro: 8, outubro: 9, novembro: 10, dezembro: 11
-      }
+      // mes vem como "yyyy-MM" (ex: "2026-05")
+      const [anoStr, mesStr] = mes.split("-")
       const ano = parseInt(anoStr)
-      const mesIdx = mesesPt[mesNome.toLowerCase()] ?? 0
-      
+      const mesIdx = parseInt(mesStr) - 1 // 0-based
+
       // Range: 7 dias antes do início do mês até o último dia do mês
-      const inicioRange = new Date(ano, mesIdx, -6) // 25 do mês anterior
+      // para capturar semanas que começam no domingo do mês anterior
+      const inicioRange = new Date(ano, mesIdx, -6) // ~25 do mês anterior
       const fimRange = new Date(ano, mesIdx + 1, 0)  // último dia do mês
 
       const toStr = (d: Date) =>
@@ -100,15 +95,16 @@ export async function POST(request: NextRequest) {
     }
 
     if (registroAtual) {
-      // UPDATE — merge: preserva o que já está no banco se o novo valor for undefined/null
-      const novoGrupoId = grupo_id !== undefined ? grupo_id : registroAtual.grupo_id
-      const novoGrupoNome = grupo_id !== undefined ? grupo_nome : registroAtual.grupo_nome
-      const novaLimpSemId = limpeza_semanal_grupo_id !== undefined
-        ? limpeza_semanal_grupo_id
-        : registroAtual.limpeza_semanal_grupo_id
-      const novaLimpSemNome = limpeza_semanal_grupo_id !== undefined
-        ? limpeza_semanal_grupo_nome
-        : registroAtual.limpeza_semanal_grupo_nome
+      // UPDATE — merge: só sobrescreve o campo se ele veio explicitamente no body
+      // "grupo_id" in body → veio na requisição → sobrescreve
+      // campo ausente do body → preserva o que está no banco
+      const temGrupo = "grupo_id" in body
+      const temLimpSem = "limpeza_semanal_grupo_id" in body
+
+      const novoGrupoId = temGrupo ? grupo_id : registroAtual.grupo_id
+      const novoGrupoNome = temGrupo ? grupo_nome : registroAtual.grupo_nome
+      const novaLimpSemId = temLimpSem ? limpeza_semanal_grupo_id : registroAtual.limpeza_semanal_grupo_id
+      const novaLimpSemNome = temLimpSem ? limpeza_semanal_grupo_nome : registroAtual.limpeza_semanal_grupo_nome
 
       const { data, error } = await supabase
         .from("limpeza_salao")
