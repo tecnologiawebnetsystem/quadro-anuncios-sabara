@@ -465,11 +465,20 @@ export default function ProgramacaoPage() {
 
       {/* Header fixo — usa cores do sistema (azul-marinho) */}
       <header className="sticky top-0 z-30 shadow-lg bg-sidebar">
-        <div className="max-w-lg mx-auto px-4 py-4 flex flex-col gap-1">
+        <div className="max-w-lg mx-auto px-4 pt-3 pb-4 flex flex-col gap-1">
+          {/* Logo InfoFlow + nome congregação */}
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sidebar-primary/20">
+              <CalendarDays size={15} className="text-sidebar-primary" />
+            </div>
+            <span className="text-[15px] font-bold tracking-tight text-sidebar-foreground">
+              Info<span className="text-sidebar-primary">Flow</span>
+            </span>
+          </div>
           <p className="text-[11px] uppercase tracking-widest font-semibold text-sidebar-foreground/60 text-center">
             Congregação Parque Sabará
           </p>
-          <h1 className="text-sidebar-foreground text-xl font-bold text-center leading-tight tracking-tight">
+          <h1 className="text-sidebar-foreground text-lg font-bold text-center leading-tight tracking-tight">
             Quadro de Programação
           </h1>
 
@@ -526,7 +535,7 @@ export default function ProgramacaoPage() {
       </header>
 
       {/* Conteúdo */}
-      <main className="max-w-lg mx-auto px-4 py-5 flex flex-col gap-4 pb-10">
+      <main className="max-w-lg mx-auto px-4 py-5 pb-10">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
@@ -537,29 +546,32 @@ export default function ProgramacaoPage() {
             <p className="text-red-400 font-semibold">{erro}</p>
           </div>
         ) : programacao ? (
-          <>
+          /* Moldura principal que envolve todos os blocos do dia */
+          <div className="rounded-3xl border border-border bg-card shadow-xl shadow-primary/5 overflow-hidden">
+            <div className="flex flex-col gap-3 p-3">
+
             {/* ── Campo de serviço ── */}
             {isSegSex && programacao.campo.semana.length > 0 && (
-              <Bloco titulo="Serviço de Campo" corFundo="#166534" corTexto="#f0fdf4" Icon={Map}>
+              <Bloco titulo="Serviço de Campo" corFundo="#15803d" corTexto="#f0fdf4" Icon={Map}>
                 <BlocoCampoSemana campo={programacao.campo.semana} />
               </Bloco>
             )}
 
             {/* ── Cartas (segunda-feira) ── */}
             {dSemana === 1 && programacao.campo.cartas.length > 0 && (
-              <Bloco titulo="Serviço de Cartas" corFundo="#065f46" corTexto="#ecfdf5" Icon={Map}>
+              <Bloco titulo="Serviço de Cartas" corFundo="#0e7490" corTexto="#ecfeff" Icon={Map}>
                 <BlocoCampoCartas cartas={programacao.campo.cartas} />
               </Bloco>
             )}
 
             {isSabado && (
-              <Bloco titulo="Serviço de Campo — Sábado" corFundo="#166534" corTexto="#f0fdf4" Icon={Map}>
+              <Bloco titulo="Serviço de Campo — Sábado" corFundo="#15803d" corTexto="#f0fdf4" Icon={Map}>
                 <BlocoCampoSabado campo={programacao.campo.sabado} />
               </Bloco>
             )}
 
             {isDomingo && programacao.campo.domingo.length > 0 && (
-              <Bloco titulo="Serviço de Campo" corFundo="#166534" corTexto="#f0fdf4" Icon={Map}>
+              <Bloco titulo="Serviço de Campo" corFundo="#15803d" corTexto="#f0fdf4" Icon={Map}>
                 <BlocoCampoDomingo campo={programacao.campo.domingo} />
               </Bloco>
             )}
@@ -568,20 +580,20 @@ export default function ProgramacaoPage() {
             {isQuinta && (
               <>
                 {programacao.vidaMinisterio.semana ? (
-                  <Bloco titulo="Reunião — Vida e Ministério" corFundo="#1e3a6e" corTexto="#e8f0fe" Icon={BookOpen}>
+                  <Bloco titulo="Reunião — Vida e Ministério" corFundo="#1d4ed8" corTexto="#eff6ff" Icon={BookOpen}>
                     <BlocoVidaMinisterio
                       semana={programacao.vidaMinisterio.semana}
                       partes={programacao.vidaMinisterio.partes as Parte[]}
                     />
                   </Bloco>
                 ) : (
-                  <Bloco titulo="Reunião — Vida e Ministério" corFundo="#1e3a6e" corTexto="#e8f0fe" Icon={BookOpen}>
+                  <Bloco titulo="Reunião — Vida e Ministério" corFundo="#1d4ed8" corTexto="#eff6ff" Icon={BookOpen}>
                     <EmptyBloco mensagem="Nenhuma informação cadastrada para esta semana" />
                   </Bloco>
                 )}
 
                 {programacao.equipe && (
-                  <Bloco titulo="Equipe Técnica" corFundo="#4c1d95" corTexto="#f5f3ff" Icon={Headphones}>
+                  <Bloco titulo="Equipe Técnica" corFundo="#6d28d9" corTexto="#f5f3ff" Icon={Headphones}>
                     <BlocoEquipe equipe={programacao.equipe} />
                   </Bloco>
                 )}
@@ -597,12 +609,12 @@ export default function ProgramacaoPage() {
             {/* ── Reunião de Domingo ── */}
             {isDomingo && (
               <>
-                <Bloco titulo="Reunião — Discurso Público" corFundo="#7c2d12" corTexto="#fff7ed" Icon={Church}>
+                <Bloco titulo="Reunião — Discurso Público" corFundo="#b45309" corTexto="#fffbeb" Icon={Church}>
                   <BlocoReuniaoDomingo reuniao={programacao.reuniaoPublica} />
                 </Bloco>
 
                 {programacao.equipe && (
-                  <Bloco titulo="Equipe Técnica" corFundo="#4c1d95" corTexto="#f5f3ff" Icon={Headphones}>
+                  <Bloco titulo="Equipe Técnica" corFundo="#6d28d9" corTexto="#f5f3ff" Icon={Headphones}>
                     <BlocoEquipe equipe={programacao.equipe} />
                   </Bloco>
                 )}
@@ -623,7 +635,9 @@ export default function ProgramacaoPage() {
                 <p className="opacity-40 text-[15px]">Nenhuma atividade registrada para este dia.</p>
               </div>
             )}
-          </>
+
+            </div>{/* fim flex gap-3 */}
+          </div>{/* fim moldura principal */}
         ) : null}
       </main>
     </div>
