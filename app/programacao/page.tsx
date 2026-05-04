@@ -546,9 +546,7 @@ export default function ProgramacaoPage() {
             <p className="text-red-400 font-semibold">{erro}</p>
           </div>
         ) : programacao ? (
-          /* Moldura principal que envolve todos os blocos do dia */
-          <div className="rounded-3xl border border-border bg-card shadow-xl shadow-primary/5 overflow-hidden">
-            <div className="flex flex-col gap-3 p-3">
+          <div className="flex flex-col gap-4">
 
             {/* ── Campo de serviço ── */}
             {isSegSex && programacao.campo.semana.length > 0 && (
@@ -636,7 +634,6 @@ export default function ProgramacaoPage() {
               </div>
             )}
 
-            </div>
           </div>
         ) : null}
       </main>
