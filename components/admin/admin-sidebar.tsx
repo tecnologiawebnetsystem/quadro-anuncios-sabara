@@ -138,6 +138,7 @@ const impressaoGroup: MenuGroup = {
     { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/impressao/limpeza-salao", color: "text-cyan-400" },
     { title: "Territórios", icon: Map, href: "/admin/impressao/territorios", color: "text-orange-300" },
     { title: "Publicadores", icon: Users, href: "/admin/impressao/publicadores", color: "text-sky-400" },
+    { title: "Pioneiros Regulares", icon: Flag, href: "/admin/impressao/pioneiros", color: "text-amber-500" },
   ]
 }
 
