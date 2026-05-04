@@ -78,14 +78,15 @@ export default function ImpressaoLimpezaSalaoPage() {
           .lte("data_inicio", ultimoDiaStr)
           .order("data_inicio", { ascending: true })
 
-        // Critério de pertencimento: a semana pertence ao mês pela QUINTA-FEIRA
-        // (data_inicio + 4 dias). Isso garante que:
-        // - Semana 5 de maio (Qui 29/05) aparece em maio mesmo que Dom 01/06 seja junho
-        // - Semana que começa no domingo anterior não duplica em dois meses
+        // Critério de pertencimento na IMPRESSÃO: a semana pertence ao mês
+        // pelo DOMINGO de limpeza (data_inicio + 7 dias).
+        // Ex: Qui 30/07 & Dom 02/08 → aparece somente em agosto.
+        // Ex: Qui 29/05 & Dom 01/06 → aparece somente em junho.
         const data = (rawData || []).filter((item) => {
           const dom = new Date(item.data_inicio + "T12:00:00")
-          const quinta = new Date(dom); quinta.setDate(dom.getDate() + 4)
-          return quinta >= primeiroDiaDate && quinta <= ultimoDiaDate
+          const domingoLimpeza = new Date(dom)
+          domingoLimpeza.setDate(dom.getDate() + 7)
+          return domingoLimpeza >= primeiroDiaDate && domingoLimpeza <= ultimoDiaDate
         })
 
         // Deduplicar por data_inicio: manter apenas um registro por semana,
