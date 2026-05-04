@@ -33,7 +33,9 @@ interface ArranjoDiscurso {
   id: string
   data: string
   tema: string | null
-  orador: string | null
+  orador_nome: string | null
+  orador_congregacao: string | null
+  orador_salao: string | null
 }
 
 interface AssistenciaReuniao {
@@ -128,7 +130,7 @@ export default function ProgramacaoCongregacaoPage() {
     )
     setArranjoDiscursos(
       domingos.map(({ data }) =>
-        discursos?.find((d) => d.data === data) || { id: `temp-${data}`, data, tema: null, orador_nome: null }
+        discursos?.find((d) => d.data === data) || { id: `temp-${data}`, data, tema: null, orador_nome: null, orador_congregacao: null, orador_salao: null }
       )
     )
     setAssistencias(
@@ -320,9 +322,26 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
               </tr>
             </thead>
             <tbody>
-              {designacoesTecnicas.map((d) => (
-                <tr key={d.data} style={{ backgroundColor: d.dia_semana === "DOMINGO" ? "#f9fafb" : "white" }}>
+              {designacoesTecnicas.map((d) => {
+                const diaSem = new Date(d.data + "T12:00:00").getDay()
+                const isQui = diaSem === 4
+                const isDom = diaSem === 0
+                return (
+                <tr key={d.data} style={{ backgroundColor: isDom ? "#f9fafb" : "white" }}>
                   <td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>
+                    <span style={{
+                      display: "inline-block",
+                      backgroundColor: isQui ? "#2563eb" : isDom ? "#16a34a" : "#6b7280",
+                      color: "white",
+                      borderRadius: "3px",
+                      padding: "1px 4px",
+                      fontSize: "8px",
+                      fontWeight: "800",
+                      marginRight: "5px",
+                      verticalAlign: "middle",
+                    }}>
+                      {isQui ? "QUI" : isDom ? "DOM" : "—"}
+                    </span>
                     {formatarData(d.data)}
                   </td>
                   <td style={cell()}>{[d.indicador1_nome, d.indicador2_nome].filter(Boolean).join(" / ") || "—"}</td>
@@ -330,7 +349,8 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                   <td style={cell()}>{d.som_nome}</td>
                   <td style={cell()}>{d.microvolante1_nome}</td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -364,9 +384,10 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Data</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Tema</th>
-                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px" })}>Orador</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px", width: "12%" })}>Data</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px", width: "42%" })}>Tema</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px", width: "23%" })}>Orador</th>
+                <th style={cell({ backgroundColor: "#f3f4f6", fontWeight: "bold", fontSize: "11px", width: "23%" })}>Salão</th>
               </tr>
             </thead>
             <tbody>
@@ -375,6 +396,9 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                   <td style={cell({ fontWeight: "bold" })}>{formatarData(d.data)}</td>
                   <td style={cell()}>{d.tema || "—"}</td>
                   <td style={cell()}>{d.orador_nome || "—"}</td>
+                  <td style={cell({ color: d.orador_congregacao ? "#1e3a5f" : "#9ca3af", fontStyle: d.orador_congregacao ? "normal" : "italic" })}>
+                    {d.orador_congregacao || "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>

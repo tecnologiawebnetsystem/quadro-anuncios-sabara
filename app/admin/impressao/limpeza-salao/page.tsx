@@ -78,12 +78,33 @@ export default function ImpressaoLimpezaSalaoPage() {
           .lte("data_inicio", ultimoDiaStr)
           .order("data_inicio", { ascending: true })
 
-        // Filtrar: a semana pertence ao mês pelo domingo de limpeza (inicio+7).
-        // Igual ao critério do admin — evita duplicidade em meses que cruzam.
+        // Regra definitiva de pertencimento (impressão):
+        //
+        // Quando a quinta e o domingo caem no MESMO mês → usa qualquer um (quinta).
+        //
+        // Quando a quinta e o domingo caem em MESES DIFERENTES (semana cruzada):
+        //   → a semana vai para o mês do DOMINGO.
+        //
+        // Exemplos:
+        //   Qui 29/05 / Dom 01/06 → meses diferentes → mês do domingo = JUNHO
+        //   Qui 30/07 / Dom 02/08 → meses diferentes → mês do domingo = AGOSTO ✓
+        //   Qui 28/05 / Dom 31/05 → mesmo mês maio → MAIO ✓
+        //
+        // ATENÇÃO: para maio aparecer com 5 semanas, o cadastro da semana
+        // "Qui 29/05 / Dom 01/06" deve estar em JUNHO no banco.
+        // Se estiver em maio no banco, esta regra o moverá para junho na impressão.
         const data = (rawData || []).filter((item) => {
           const dom = new Date(item.data_inicio + "T12:00:00")
-          const domLimp = new Date(dom); domLimp.setDate(dom.getDate() + 7)
-          return domLimp >= primeiroDiaDate && domLimp <= ultimoDiaDate
+          const quinta = new Date(dom); quinta.setDate(dom.getDate() + 4)
+          const domingoLimpeza = new Date(dom); domingoLimpeza.setDate(dom.getDate() + 7)
+
+          // Verifica se quinta e domingo estão em meses diferentes
+          const cruzaMes = quinta.getMonth() !== domingoLimpeza.getMonth()
+            || quinta.getFullYear() !== domingoLimpeza.getFullYear()
+
+          // Se cruza mês → pertence ao mês do domingo; senão → mês da quinta
+          const dataReferencia = cruzaMes ? domingoLimpeza : quinta
+          return dataReferencia >= primeiroDiaDate && dataReferencia <= ultimoDiaDate
         })
 
         // Deduplicar por data_inicio: manter apenas um registro por semana,

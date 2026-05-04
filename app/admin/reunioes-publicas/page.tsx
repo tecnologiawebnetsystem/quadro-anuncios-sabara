@@ -28,6 +28,7 @@ interface DiscursoPublico {
   tema: string
   orador_nome: string | null
   orador_congregacao: string | null
+  orador_salao: string | null
   observacoes: string | null
 }
 
@@ -234,6 +235,7 @@ export default function ReunioesPublicasPage() {
         if (campo === "tema") dadosUpdate.tema = valor
         else if (campo === "orador_nome") dadosUpdate.orador_nome = valor
         else if (campo === "orador_congregacao") dadosUpdate.orador_congregacao = valor
+        else if (campo === "orador_salao") dadosUpdate.orador_salao = valor
 
         const { error } = await supabase
           .from("discursos_publicos")
@@ -488,7 +490,7 @@ export default function ReunioesPublicasPage() {
                           className="bg-zinc-800/50 border-zinc-700"
                         />
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="space-y-1">
                           <label className="text-xs text-muted-foreground">Nome do Orador</label>
                           <Input
@@ -518,6 +520,22 @@ export default function ReunioesPublicasPage() {
                             })}
                             onBlur={(e) => salvarDiscurso(data, "orador_congregacao", e.target.value)}
                             placeholder="Congregação..."
+                            className="bg-zinc-800/50 border-zinc-700"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-muted-foreground">Salão</label>
+                          <Input
+                            value={registro?.orador_salao || ""}
+                            onChange={(e) => setDiscursos(prev => {
+                              const existe = prev.find(d => d.data === data)
+                              if (existe) {
+                                return prev.map(d => d.data === data ? { ...d, orador_salao: e.target.value } : d)
+                              }
+                              return [...prev, { data, orador_salao: e.target.value, tema: "" } as DiscursoPublico]
+                            })}
+                            onBlur={(e) => salvarDiscurso(data, "orador_salao", e.target.value)}
+                            placeholder="Ex: Salão do Reino, Salão Central..."
                             className="bg-zinc-800/50 border-zinc-700"
                           />
                         </div>
