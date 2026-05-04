@@ -178,6 +178,13 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
           const oracaoFinal = vida.find(p => p.oracao_final_nome)
           const isLastPage = idx === semanasComReuniao.length - 1
 
+          // Calcular datas reais da quinta e do domingo de reunião
+          // data_inicio é o domingo anterior à quinta
+          const domInicio = new Date(semana.data_inicio + "T12:00:00")
+          const quintaDate = new Date(domInicio); quintaDate.setDate(domInicio.getDate() + 4)
+          const domingoDate = new Date(domInicio); domingoDate.setDate(domInicio.getDate() + 7)
+          const fmtDia = (d: Date) => d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+
           return (
             <div 
               key={semana.id}
@@ -223,13 +230,48 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               <div style={{ 
                 backgroundColor: "#1f2937", 
                 color: "white", 
-                padding: "14px 18px",
+                padding: "12px 18px",
                 marginBottom: "15px",
                 borderRadius: "6px",
-                flexShrink: 0
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "12px",
               }}>
-                <div style={{ fontSize: "15px", fontWeight: "bold" }}>
-                  {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)} | {(semana.livro_biblia || "").toUpperCase()}
+                {/* Período + Livro */}
+                <div style={{ fontSize: "15px", fontWeight: "bold", flex: 1 }}>
+                  {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)}
+                  {semana.livro_biblia && (
+                    <span style={{ marginLeft: "10px", color: "#9ca3af", fontSize: "13px", fontWeight: "normal" }}>
+                      | {(semana.livro_biblia || "").toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                {/* Badges de dia */}
+                <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+                  <span style={{
+                    backgroundColor: "#2563eb",
+                    color: "white",
+                    padding: "4px 10px",
+                    borderRadius: "20px",
+                    fontSize: "12px",
+                    fontWeight: "800",
+                    letterSpacing: "0.5px",
+                  }}>
+                    Qui {fmtDia(quintaDate)}
+                  </span>
+                  <span style={{
+                    backgroundColor: "#16a34a",
+                    color: "white",
+                    padding: "4px 10px",
+                    borderRadius: "20px",
+                    fontSize: "12px",
+                    fontWeight: "800",
+                    letterSpacing: "0.5px",
+                  }}>
+                    Dom {fmtDia(domingoDate)}
+                  </span>
                 </div>
               </div>
 
@@ -690,10 +732,28 @@ export const PrintEquipeTecnica = forwardRef<HTMLDivElement, EquipeTecnicaProps>
             </tr>
           </thead>
           <tbody>
-            {designacoes.map((d, i) => (
+            {designacoes.map((d, i) => {
+              const diaSemana = new Date(d.data + "T12:00:00").getDay()
+              const isQuinta = diaSemana === 4
+              const isDomingo = diaSemana === 0
+              return (
               <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
                 <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
-                  {formatarData(d.data)}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                    <span style={{
+                      display: "inline-block",
+                      backgroundColor: isQuinta ? "#2563eb" : isDomingo ? "#16a34a" : "#6b7280",
+                      color: "white",
+                      borderRadius: "4px",
+                      padding: "0px 4px",
+                      fontSize: "7px",
+                      fontWeight: "800",
+                      letterSpacing: "0.3px",
+                    }}>
+                      {isQuinta ? "QUI" : isDomingo ? "DOM" : "—"}
+                    </span>
+                    {formatarData(d.data)}
+                  </div>
                 </td>
                 <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
                   {d.indicador1_nome || "-"}{d.indicador2_nome ? ` / ${d.indicador2_nome}` : ""}
@@ -712,7 +772,8 @@ export const PrintEquipeTecnica = forwardRef<HTMLDivElement, EquipeTecnicaProps>
                     : "-"}
                 </td>
               </tr>
-            ))}
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -1398,10 +1459,28 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
               </tr>
             </thead>
             <tbody>
-              {designacoesTecnicas.map((d, i) => (
+              {designacoesTecnicas.map((d, i) => {
+                const diaSemana = new Date(d.data + "T12:00:00").getDay()
+                const isQuinta = diaSemana === 4
+                const isDomingo = diaSemana === 0
+                return (
                 <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
-                    {formatarDataCurta(d.data)}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                      <span style={{
+                        display: "inline-block",
+                        backgroundColor: isQuinta ? "#2563eb" : isDomingo ? "#16a34a" : "#6b7280",
+                        color: "white",
+                        borderRadius: "4px",
+                        padding: "0px 4px",
+                        fontSize: "7px",
+                        fontWeight: "800",
+                        letterSpacing: "0.3px",
+                      }}>
+                        {isQuinta ? "QUI" : isDomingo ? "DOM" : "—"}
+                      </span>
+                      {formatarDataCurta(d.data)}
+                    </div>
                   </td>
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
                     {d.indicador1}{d.indicador2 ? ` / ${d.indicador2}` : ""}
@@ -1412,7 +1491,8 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{d.audio_video || "-"}</td>
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{d.palco || "-"}</td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>
