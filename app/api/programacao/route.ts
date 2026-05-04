@@ -41,12 +41,12 @@ export async function GET(request: NextRequest) {
           .order("horario", { ascending: true })
       : Promise.resolve({ data: [] }),
 
-    // Campo cartas — segunda-feira à tarde
+    // Campo cartas — segunda-feira, somente o registro da data exata
     diaSemana === 1
       ? supabase
           .from("servico_campo_cartas")
           .select("*")
-          .eq("mes", mes)
+          .eq("data", data)
           .eq("ativo", true)
           .order("horario", { ascending: true })
       : Promise.resolve({ data: [] }),
