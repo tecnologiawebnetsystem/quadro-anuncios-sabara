@@ -213,17 +213,36 @@ export function PublicadorModal({
             />
           </div>
 
-          <div className="flex items-center space-x-2">
+          {/* Status ativo/inativo — destaque visual */}
+          <div
+            className={`flex items-center justify-between rounded-lg border px-4 py-3 cursor-pointer transition-colors ${
+              formData.ativo
+                ? "border-green-500/40 bg-green-500/10"
+                : "border-red-500/40 bg-red-500/10"
+            }`}
+            onClick={() => setFormData({ ...formData, ativo: !formData.ativo })}
+          >
+            <div className="flex items-center gap-3">
+              <span className={`inline-flex h-2.5 w-2.5 rounded-full flex-shrink-0 ${formData.ativo ? "bg-green-500" : "bg-red-500"}`} />
+              <div>
+                <p className={`text-sm font-semibold ${formData.ativo ? "text-green-400" : "text-red-400"}`}>
+                  {formData.ativo ? "Publicador Ativo" : "Publicador Inativo"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formData.ativo
+                    ? "Aparece em designações, grupos e impressões"
+                    : "Não aparece em designações — continua nos grupos"}
+                </p>
+              </div>
+            </div>
             <Checkbox
               id="ativo"
               checked={formData.ativo}
               onCheckedChange={(checked) =>
                 setFormData({ ...formData, ativo: checked as boolean })
               }
+              onClick={(e) => e.stopPropagation()}
             />
-            <Label htmlFor="ativo" className="text-sm font-normal cursor-pointer">
-              Publicador Ativo
-            </Label>
           </div>
 
           <div className="flex justify-end gap-3 pt-4">

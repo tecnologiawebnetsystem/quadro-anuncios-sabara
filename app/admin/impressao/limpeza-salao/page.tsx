@@ -21,7 +21,9 @@ interface LimpezaSalaoMes {
     data_inicio: string
     data_fim: string
     grupo_nome: string | null
+    grupo_local: string | null
     limpeza_semanal_grupo_nome: string | null
+    limpeza_semanal_grupo_local: string | null
   }[]
 }
 
@@ -71,19 +73,17 @@ export default function ImpressaoLimpezaSalaoPage() {
 
         const { data: rawData } = await supabase
           .from("limpeza_salao")
-          .select("id, semana, data_inicio, data_fim, grupo_nome, limpeza_semanal_grupo_nome")
+          .select("id, semana, data_inicio, data_fim, grupo_nome, limpeza_semanal_grupo_nome, grupos:grupo_id(local), limpeza_semanal_grupos:limpeza_semanal_grupo_id(local)")
           .gte("data_inicio", inicioRangeStr)
           .lte("data_inicio", ultimoDiaStr)
           .order("data_inicio", { ascending: true })
 
-        // Filtrar: manter somente semanas que tenham quinta (inicio+4) OU domingo (inicio+7)
-        // dentro do mês corrente.
+        // Filtrar: a semana pertence ao mês pelo domingo de limpeza (inicio+7).
+        // Igual ao critério do admin — evita duplicidade em meses que cruzam.
         const data = (rawData || []).filter((item) => {
           const dom = new Date(item.data_inicio + "T12:00:00")
-          const quinta   = new Date(dom); quinta.setDate(dom.getDate() + 4)
-          const domLimp  = new Date(dom); domLimp.setDate(dom.getDate() + 7)
-          return (quinta >= primeiroDiaDate && quinta <= ultimoDiaDate) ||
-                 (domLimp >= primeiroDiaDate && domLimp <= ultimoDiaDate)
+          const domLimp = new Date(dom); domLimp.setDate(dom.getDate() + 7)
+          return domLimp >= primeiroDiaDate && domLimp <= ultimoDiaDate
         })
 
         // Deduplicar por data_inicio: manter apenas um registro por semana,
@@ -100,7 +100,14 @@ export default function ImpressaoLimpezaSalaoPage() {
             }
           }
         }
-        const escalasDedup = Array.from(vistos.values()).sort((a, b) => a.data_inicio.localeCompare(b.data_inicio))
+        const escalasDedup = Array.from(vistos.values())
+          .sort((a, b) => a.data_inicio.localeCompare(b.data_inicio))
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((item: any) => ({
+            ...item,
+            grupo_local: item.grupos?.local ?? null,
+            limpeza_semanal_grupo_local: item.limpeza_semanal_grupos?.local ?? null,
+          }))
 
         resultado.push({ mes: mesLoop, ano: anoLoop, escalas: escalasDedup })
       }

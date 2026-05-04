@@ -23,6 +23,7 @@ import {
   Settings,
   Music,
   Monitor,
+  Map,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -102,6 +103,7 @@ const menuGroups: MenuGroup[] = [
       { title: "Grupo de Campo", icon: BookOpen, href: "/admin/grupo-estudos", color: "text-emerald-400" },
       { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/limpeza-salao", color: "text-cyan-400" },
       { title: "Serviço de Campo", icon: MapPin, href: "/admin/servico-campo", color: "text-orange-400" },
+      { title: "Territórios", icon: Map, href: "/admin/territorios", color: "text-orange-300" },
     ]
   },
 ]
@@ -134,7 +136,9 @@ const impressaoGroup: MenuGroup = {
     { title: "Grupo de Campo", icon: BookOpen, href: "/admin/impressao/grupo-estudos", color: "text-amber-400" },
     { title: "Serviço de Campo", icon: MapPin, href: "/admin/impressao/servico-campo", color: "text-amber-400" },
     { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/impressao/limpeza-salao", color: "text-cyan-400" },
+    { title: "Territórios", icon: Map, href: "/admin/impressao/territorios", color: "text-orange-300" },
     { title: "Publicadores", icon: Users, href: "/admin/impressao/publicadores", color: "text-sky-400" },
+    { title: "Pioneiros Regulares", icon: Flag, href: "/admin/impressao/pioneiros", color: "text-amber-500" },
   ]
 }
 

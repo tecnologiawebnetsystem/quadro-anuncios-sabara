@@ -61,6 +61,7 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
   const [loading, setLoading] = useState(true)
   const [isPending, startTransition] = useTransition()
   const [busca, setBusca] = useState("")
+  const [mostrarInativos, setMostrarInativos] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingPublicador, setEditingPublicador] = useState<Publicador | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -103,12 +104,18 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
 
   // Filtrar publicadores
   let filteredPublicadores = publicadores
+
+  // Esconder inativos se a opção estiver desligada
+  if (!mostrarInativos) {
+    filteredPublicadores = filteredPublicadores.filter((p) => p.ativo !== false)
+  }
+
   if (filtro === "anciaos") {
-    filteredPublicadores = publicadores.filter((p) => p.anciao)
+    filteredPublicadores = filteredPublicadores.filter((p) => p.anciao)
   } else if (filtro === "servos") {
-    filteredPublicadores = publicadores.filter((p) => p.servoMinisterial)
+    filteredPublicadores = filteredPublicadores.filter((p) => p.servoMinisterial)
   } else if (filtro === "pioneiros-regulares") {
-    filteredPublicadores = publicadores.filter((p) => p.pioneiroRegular)
+    filteredPublicadores = filteredPublicadores.filter((p) => p.pioneiroRegular)
   }
 
   // Busca por nome (sem acento)
@@ -118,6 +125,8 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
       normalizar(p.nome).includes(buscaNormalizada)
     )
   }
+
+  const totalInativos = publicadores.filter((p) => p.ativo === false).length
 
   const handleSave = async (data: Omit<Publicador, "id" | "criado_em" | "atualizado_em">) => {
     startTransition(async () => {
@@ -237,15 +246,33 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
         </Button>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Buscar por nome..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          className="pl-9 bg-background"
-        />
+      {/* Search + filtro ativo */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nome..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="pl-9 bg-background"
+          />
+        </div>
+        {totalInativos > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setMostrarInativos((v) => !v)}
+            className={mostrarInativos
+              ? "border-red-500/40 text-red-400 hover:bg-red-500/10"
+              : "border-border text-muted-foreground"
+            }
+          >
+            <Power className="mr-2 h-3.5 w-3.5" />
+            {mostrarInativos
+              ? `Ocultar inativos (${totalInativos})`
+              : `Mostrar inativos (${totalInativos})`}
+          </Button>
+        )}
       </div>
 
       {/* Table */}
@@ -268,9 +295,17 @@ export function PublicadoresList({ filtro, titulo }: PublicadoresListProps) {
               </TableRow>
             ) : (
               filteredPublicadores.map((publicador) => (
-                <TableRow key={publicador.id} className="border-border">
+                <TableRow
+                  key={publicador.id}
+                  className={`border-border transition-opacity ${publicador.ativo === false ? "opacity-50" : ""}`}
+                >
                   <TableCell className="font-medium text-foreground">
-                    {publicador.nome}
+                    <div className="flex items-center gap-2">
+                      {publicador.ativo === false && (
+                        <span className="inline-flex h-2 w-2 rounded-full bg-red-500 flex-shrink-0" title="Inativo" />
+                      )}
+                      {publicador.nome}
+                    </div>
                     {/* Mobile badges */}
                     <div className="flex flex-wrap gap-1 mt-1 sm:hidden">
                       {publicador.anciao && (
