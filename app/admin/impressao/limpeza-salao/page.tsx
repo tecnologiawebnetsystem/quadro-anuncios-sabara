@@ -78,14 +78,12 @@ export default function ImpressaoLimpezaSalaoPage() {
           .lte("data_inicio", ultimoDiaStr)
           .order("data_inicio", { ascending: true })
 
-        // Filtrar: manter somente semanas que tenham quinta (inicio+4) OU domingo (inicio+7)
-        // dentro do mês corrente.
+        // Filtrar: a semana pertence ao mês pelo domingo de limpeza (inicio+7).
+        // Igual ao critério do admin — evita duplicidade em meses que cruzam.
         const data = (rawData || []).filter((item) => {
           const dom = new Date(item.data_inicio + "T12:00:00")
-          const quinta   = new Date(dom); quinta.setDate(dom.getDate() + 4)
-          const domLimp  = new Date(dom); domLimp.setDate(dom.getDate() + 7)
-          return (quinta >= primeiroDiaDate && quinta <= ultimoDiaDate) ||
-                 (domLimp >= primeiroDiaDate && domLimp <= ultimoDiaDate)
+          const domLimp = new Date(dom); domLimp.setDate(dom.getDate() + 7)
+          return domLimp >= primeiroDiaDate && domLimp <= ultimoDiaDate
         })
 
         // Deduplicar por data_inicio: manter apenas um registro por semana,
