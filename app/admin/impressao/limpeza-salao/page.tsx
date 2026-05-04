@@ -78,30 +78,33 @@ export default function ImpressaoLimpezaSalaoPage() {
           .lte("data_inicio", ultimoDiaStr)
           .order("data_inicio", { ascending: true })
 
-        // Critério híbrido para evitar duplicidade E perda de semanas:
-        // - Regra geral: usa a QUINTA (data_inicio + 4) para determinar o mês
-        // - Exceção: se a quinta cai nos ÚLTIMOS 2 DIAS do mês e o domingo
-        //   (data_inicio + 7) cai no mês seguinte, usa o DOMINGO.
+        // Regra definitiva de pertencimento (impressão):
         //
-        // Resultado:
-        //   Qui 29/05 / Dom 01/06 → diff = 31-29 = 2 (não <= 1) → usa quinta → MAIO ✓
-        //   Qui 30/07 / Dom 02/08 → diff = 31-30 = 1 (<=  1) → usa domingo → AGOSTO ✓
+        // Quando a quinta e o domingo caem no MESMO mês → usa qualquer um (quinta).
+        //
+        // Quando a quinta e o domingo caem em MESES DIFERENTES (semana cruzada):
+        //   → a semana vai para o mês do DOMINGO.
+        //
+        // Exemplos:
+        //   Qui 29/05 / Dom 01/06 → meses diferentes → mês do domingo = JUNHO
+        //   Qui 30/07 / Dom 02/08 → meses diferentes → mês do domingo = AGOSTO ✓
+        //   Qui 28/05 / Dom 31/05 → mesmo mês maio → MAIO ✓
+        //
+        // ATENÇÃO: para maio aparecer com 5 semanas, o cadastro da semana
+        // "Qui 29/05 / Dom 01/06" deve estar em JUNHO no banco.
+        // Se estiver em maio no banco, esta regra o moverá para junho na impressão.
         const data = (rawData || []).filter((item) => {
           const dom = new Date(item.data_inicio + "T12:00:00")
           const quinta = new Date(dom); quinta.setDate(dom.getDate() + 4)
           const domingoLimpeza = new Date(dom); domingoLimpeza.setDate(dom.getDate() + 7)
 
-          const quintaNoMes = quinta >= primeiroDiaDate && quinta <= ultimoDiaDate
-          const domingoNoMes = domingoLimpeza >= primeiroDiaDate && domingoLimpeza <= ultimoDiaDate
+          // Verifica se quinta e domingo estão em meses diferentes
+          const cruzaMes = quinta.getMonth() !== domingoLimpeza.getMonth()
+            || quinta.getFullYear() !== domingoLimpeza.getFullYear()
 
-          // Verifica se a quinta está nos últimos 2 dias do mês
-          const ultimoDiaMes = ultimoDiaDate.getDate()
-          const quintaDia = quinta.getDate()
-          const quintaNosUltimos2Dias = quintaNoMes && (ultimoDiaMes - quintaDia <= 1)
-
-          // Se quinta nos últimos 2 dias e domingo no mês seguinte → usa domingo
-          // Senão → usa quinta
-          return quintaNosUltimos2Dias ? domingoNoMes : quintaNoMes
+          // Se cruza mês → pertence ao mês do domingo; senão → mês da quinta
+          const dataReferencia = cruzaMes ? domingoLimpeza : quinta
+          return dataReferencia >= primeiroDiaDate && dataReferencia <= ultimoDiaDate
         })
 
         // Deduplicar por data_inicio: manter apenas um registro por semana,
