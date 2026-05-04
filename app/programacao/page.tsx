@@ -352,7 +352,11 @@ function BlocoVidaMinisterio({ semana, partes }: { semana: VidaSemana; partes: P
       <InfoRow label="Presidente" value={semana.presidente} Icon={UserCheck} />
       <InfoRow label="Oração inicial" value={semana.oracao_inicial} Icon={BookOpen} />
       {semana.cantico_inicial && (
-        <InfoRow label={`Cântico ${semana.cantico_inicial}`} value={semana.cantico_inicial_nome ?? "—"} Icon={Music} />
+        <InfoRow
+          label="Cântico"
+          value={`${semana.cantico_inicial}${semana.cantico_inicial_nome ? ` — ${semana.cantico_inicial_nome}` : ""}`}
+          Icon={Music}
+        />
       )}
 
       {grupos.map(({ key, meta, partes: ps }) =>
@@ -378,10 +382,18 @@ function BlocoVidaMinisterio({ semana, partes }: { semana: VidaSemana; partes: P
       )}
 
       {semana.cantico_meio && (
-        <InfoRow label={`Cântico ${semana.cantico_meio}`} value={semana.cantico_meio_nome ?? "—"} Icon={Music} />
+        <InfoRow
+          label="Cântico"
+          value={`${semana.cantico_meio}${semana.cantico_meio_nome ? ` — ${semana.cantico_meio_nome}` : ""}`}
+          Icon={Music}
+        />
       )}
       {semana.cantico_final && (
-        <InfoRow label={`Cântico ${semana.cantico_final}`} value={semana.cantico_final_nome ?? "—"} Icon={Music} />
+        <InfoRow
+          label="Cântico"
+          value={`${semana.cantico_final}${semana.cantico_final_nome ? ` — ${semana.cantico_final_nome}` : ""}`}
+          Icon={Music}
+        />
       )}
     </div>
   )
