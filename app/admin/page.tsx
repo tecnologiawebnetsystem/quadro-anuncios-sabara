@@ -15,7 +15,6 @@ import {
   Calendar,
   MapPin,
   BookOpen,
-  TrendingUp,
   Clock,
   ChevronRight,
   BarChart3,
@@ -24,8 +23,7 @@ import {
   AlertCircle,
   Bell,
   ClipboardList,
-  Video,
-  Zap
+  Video
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -33,7 +31,6 @@ import { Badge } from "@/components/ui/badge"
 import { getPublicadores, type PublicadorGrupo } from "@/lib/actions/grupos"
 import { createClient } from "@/lib/supabase/client"
 import { AlertaConflitos } from "@/components/admin/alerta-conflitos"
-import { LogAtividades, AtividadesStats } from "@/components/admin/log-atividades"
 import { format, startOfWeek, endOfWeek, subWeeks, isToday, isTomorrow, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
@@ -256,17 +253,6 @@ export default function AdminDashboard() {
   const mediaZoom = assistencia.length > 0
     ? Math.round(assistencia.reduce((acc, a) => acc + (a.zoom || 0), 0) / assistencia.length)
     : 0
-
-  // Calcular tendência (comparar últimas 4 reuniões com as 4 anteriores)
-  const ultimas4 = assistencia.slice(-4)
-  const anteriores4 = assistencia.slice(-8, -4)
-  const mediaUltimas = ultimas4.length > 0
-    ? ultimas4.reduce((acc, a) => acc + (a.presencial || 0) + (a.zoom || 0), 0) / ultimas4.length
-    : 0
-  const mediaAnteriores = anteriores4.length > 0
-    ? anteriores4.reduce((acc, a) => acc + (a.presencial || 0) + (a.zoom || 0), 0) / anteriores4.length
-    : 0
-  const tendencia = mediaAnteriores > 0 ? Math.round(((mediaUltimas - mediaAnteriores) / mediaAnteriores) * 100) : 0
 
   // Skeleton Loading
   if (loading) {
@@ -536,30 +522,6 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-800 bg-zinc-900/50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className={cn(
-                "rounded-lg p-2.5",
-                tendencia >= 0 ? "bg-green-600/20" : "bg-red-600/20"
-              )}>
-                <Zap className={cn(
-                  "h-5 w-5",
-                  tendencia >= 0 ? "text-green-400" : "text-red-400"
-                )} />
-              </div>
-              <div>
-                <p className={cn(
-                  "text-2xl font-bold",
-                  tendencia >= 0 ? "text-green-400" : "text-red-400"
-                )}>
-                  {tendencia >= 0 ? "+" : ""}{tendencia}%
-                </p>
-                <p className="text-xs text-zinc-500">Tendencia</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Gráfico de Assistência */}
@@ -837,11 +799,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Log de Atividades e Estatísticas */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <LogAtividades limite={10} />
-        <AtividadesStats />
-      </div>
     </div>
   )
 }

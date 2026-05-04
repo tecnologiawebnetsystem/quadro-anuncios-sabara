@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect, useRef } from "react"
+import { Card, CardContent } from "@/components/ui/card"
 import { CenteredLoader } from "@/components/ui/page-loader"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog"
 import {
@@ -28,17 +27,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { 
-  Plus, 
-  Pencil, 
-  Trash2, 
-  Calendar, 
-  Image as ImageIcon,
-  GripVertical,
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ImageIcon,
   Eye,
   EyeOff,
-  ExternalLink,
-  Megaphone
+  Megaphone,
+  Upload,
+  X,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
@@ -52,7 +52,6 @@ interface Anuncio {
   imagem_url: string | null
   ativo: boolean
   ordem: number
-  data_evento: string | null
   created_at: string
   updated_at: string
 }
@@ -60,16 +59,12 @@ interface Anuncio {
 interface AnuncioForm {
   titulo: string
   texto: string
-  imagem_url: string
-  data_evento: string
   ativo: boolean
 }
 
 const initialForm: AnuncioForm = {
   titulo: "",
   texto: "",
-  imagem_url: "",
-  data_evento: "",
   ativo: true,
 }
 
@@ -81,6 +76,14 @@ export default function AnunciosAdminPage() {
   const [deleteAnuncio, setDeleteAnuncio] = useState<Anuncio | null>(null)
   const [form, setForm] = useState<AnuncioForm>(initialForm)
   const [saving, setSaving] = useState(false)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
+
+  // Upload de imagem
+  const [imagemFile, setImagemFile] = useState<File | null>(null)
+  const [imagemPreview, setImagemPreview] = useState<string | null>(null)
+  const [imagemAtualUrl, setImagemAtualUrl] = useState<string | null>(null)
+  const [uploadando, setUploadando] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const supabase = createClient()
 
@@ -98,7 +101,6 @@ export default function AnunciosAdminPage() {
 
     if (error) {
       toast.error("Erro ao carregar anúncios")
-      console.error(error)
     } else {
       setAnuncios(data || [])
     }
@@ -108,6 +110,9 @@ export default function AnunciosAdminPage() {
   function openCreateDialog() {
     setEditingAnuncio(null)
     setForm(initialForm)
+    setImagemFile(null)
+    setImagemPreview(null)
+    setImagemAtualUrl(null)
     setIsDialogOpen(true)
   }
 
@@ -116,18 +121,61 @@ export default function AnunciosAdminPage() {
     setForm({
       titulo: anuncio.titulo,
       texto: anuncio.texto,
-      imagem_url: anuncio.imagem_url || "",
-      data_evento: anuncio.data_evento 
-        ? new Date(anuncio.data_evento).toISOString().slice(0, 16) 
-        : "",
       ativo: anuncio.ativo,
     })
+    setImagemFile(null)
+    setImagemPreview(null)
+    setImagemAtualUrl(anuncio.imagem_url)
     setIsDialogOpen(true)
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecione apenas arquivos de imagem")
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 5MB")
+      return
+    }
+
+    setImagemFile(file)
+    const reader = new FileReader()
+    reader.onloadend = () => setImagemPreview(reader.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  function removerImagem() {
+    setImagemFile(null)
+    setImagemPreview(null)
+    setImagemAtualUrl(null)
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
+
+  async function uploadImagem(): Promise<string | null> {
+    if (!imagemFile) return imagemAtualUrl
+
+    setUploadando(true)
+    const fd = new FormData()
+    fd.append("file", imagemFile)
+
+    const res = await fetch("/api/upload/anuncios", { method: "POST", body: fd })
+    const json = await res.json()
+    setUploadando(false)
+
+    if (!res.ok) {
+      toast.error(json.error || "Falha no upload da imagem")
+      return null
+    }
+    return json.url as string
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    
+
     if (!form.titulo.trim() || !form.texto.trim()) {
       toast.error("Título e texto são obrigatórios")
       return
@@ -135,17 +183,22 @@ export default function AnunciosAdminPage() {
 
     setSaving(true)
 
+    const imagemUrl = await uploadImagem()
+    if (imagemFile && imagemUrl === null) {
+      // upload falhou
+      setSaving(false)
+      return
+    }
+
     const payload = {
       titulo: form.titulo.trim(),
       texto: form.texto.trim(),
-      imagem_url: form.imagem_url.trim() || null,
-      data_evento: form.data_evento ? new Date(form.data_evento).toISOString() : null,
+      imagem_url: imagemUrl,
       ativo: form.ativo,
       updated_at: new Date().toISOString(),
     }
 
     if (editingAnuncio) {
-      // Atualizar
       const { error } = await supabase
         .from("anuncios")
         .update(payload)
@@ -153,21 +206,18 @@ export default function AnunciosAdminPage() {
 
       if (error) {
         toast.error("Erro ao atualizar anúncio")
-        console.error(error)
       } else {
         toast.success("Anúncio atualizado com sucesso")
         setIsDialogOpen(false)
         loadAnuncios()
       }
     } else {
-      // Criar
       const { error } = await supabase
         .from("anuncios")
         .insert({ ...payload, ordem: anuncios.length })
 
       if (error) {
         toast.error("Erro ao criar anúncio")
-        console.error(error)
       } else {
         toast.success("Anúncio criado com sucesso")
         setIsDialogOpen(false)
@@ -180,23 +230,18 @@ export default function AnunciosAdminPage() {
 
   async function handleDelete() {
     if (!deleteAnuncio) return
-
-    const { error } = await supabase
-      .from("anuncios")
-      .delete()
-      .eq("id", deleteAnuncio.id)
-
+    const { error } = await supabase.from("anuncios").delete().eq("id", deleteAnuncio.id)
     if (error) {
       toast.error("Erro ao excluir anúncio")
-      console.error(error)
     } else {
-      toast.success("Anúncio excluído com sucesso")
+      toast.success("Anúncio excluído")
       loadAnuncios()
     }
     setDeleteAnuncio(null)
   }
 
   async function toggleAtivo(anuncio: Anuncio) {
+    setTogglingId(anuncio.id)
     const { error } = await supabase
       .from("anuncios")
       .update({ ativo: !anuncio.ativo, updated_at: new Date().toISOString() })
@@ -204,23 +249,16 @@ export default function AnunciosAdminPage() {
 
     if (error) {
       toast.error("Erro ao atualizar status")
-      console.error(error)
     } else {
+      setAnuncios((prev) =>
+        prev.map((a) => (a.id === anuncio.id ? { ...a, ativo: !a.ativo } : a))
+      )
       toast.success(anuncio.ativo ? "Anúncio desativado" : "Anúncio ativado")
-      loadAnuncios()
     }
+    setTogglingId(null)
   }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
+  const imagemExibida = imagemPreview || imagemAtualUrl
 
   if (loading) return <CenteredLoader />
 
@@ -234,138 +272,28 @@ export default function AnunciosAdminPage() {
             Quadro de Anúncios
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Gerencie os anúncios e eventos da congregação
+            {anuncios.length} anúncio{anuncios.length !== 1 ? "s" : ""} cadastrado{anuncios.length !== 1 ? "s" : ""}
+            {" · "}
+            {anuncios.filter((a) => a.ativo).length} ativo{anuncios.filter((a) => a.ativo).length !== 1 ? "s" : ""}
           </p>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <Button variant="outline" asChild>
-            <a href="/" target="_blank" className="gap-2">
-              <ExternalLink className="h-4 w-4" />
-              Ver Página
-            </a>
-          </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={openCreateDialog} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Novo Anúncio
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingAnuncio ? "Editar Anúncio" : "Novo Anúncio"}
-                </DialogTitle>
-                <DialogDescription>
-                  {editingAnuncio 
-                    ? "Atualize as informações do anúncio" 
-                    : "Preencha os campos para criar um novo anúncio"}
-                </DialogDescription>
-              </DialogHeader>
-              
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="titulo">Título *</Label>
-                  <Input
-                    id="titulo"
-                    value={form.titulo}
-                    onChange={(e) => setForm({ ...form, titulo: e.target.value })}
-                    placeholder="Ex: Reunião Especial"
-                    required
-                  />
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="texto">Texto *</Label>
-                  <Textarea
-                    id="texto"
-                    value={form.texto}
-                    onChange={(e) => setForm({ ...form, texto: e.target.value })}
-                    placeholder="Descreva o anúncio ou evento..."
-                    rows={4}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="imagem_url">URL da Imagem (opcional)</Label>
-                  <Input
-                    id="imagem_url"
-                    type="url"
-                    value={form.imagem_url}
-                    onChange={(e) => setForm({ ...form, imagem_url: e.target.value })}
-                    placeholder="https://exemplo.com/imagem.jpg"
-                  />
-                  {form.imagem_url && (
-                    <div className="relative w-full h-32 rounded-lg overflow-hidden bg-muted mt-2">
-                      <Image
-                        src={form.imagem_url}
-                        alt="Preview"
-                        fill
-                        className="object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = ""
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="data_evento">Data e Hora do Evento (opcional)</Label>
-                  <Input
-                    id="data_evento"
-                    type="datetime-local"
-                    value={form.data_evento}
-                    onChange={(e) => setForm({ ...form, data_evento: e.target.value })}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="ativo" className="cursor-pointer">Anúncio ativo</Label>
-                  <Switch
-                    id="ativo"
-                    checked={form.ativo}
-                    onCheckedChange={(checked) => setForm({ ...form, ativo: checked })}
-                  />
-                </div>
-
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={saving}>
-                    {saving ? "Salvando..." : editingAnuncio ? "Atualizar" : "Criar"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+        <Button onClick={openCreateDialog} className="gap-2 shrink-0">
+          <Plus className="h-4 w-4" />
+          Novo Anúncio
+        </Button>
       </div>
 
-      {/* Lista de Anúncios */}
-      {loading ? (
-        <div className="grid gap-4">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-4">
-                <div className="h-6 bg-muted rounded w-1/3 mb-2" />
-                <div className="h-4 bg-muted rounded w-2/3" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : anuncios.length === 0 ? (
+      {/* Lista */}
+      {anuncios.length === 0 ? (
         <Card>
-          <CardContent className="p-8 text-center">
-            <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mx-auto mb-3">
-              <Megaphone className="h-6 w-6 text-muted-foreground" />
+          <CardContent className="p-10 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+              <Megaphone className="h-7 w-7 text-muted-foreground" />
             </div>
-            <h3 className="font-semibold text-foreground mb-1">Nenhum anúncio</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Crie seu primeiro anúncio para começar
+            <h3 className="font-semibold text-foreground mb-1">Nenhum anúncio cadastrado</h3>
+            <p className="text-sm text-muted-foreground mb-5">
+              Crie o primeiro anúncio para exibir no quadro
             </p>
             <Button onClick={openCreateDialog} variant="outline" className="gap-2">
               <Plus className="h-4 w-4" />
@@ -374,25 +302,30 @@ export default function AnunciosAdminPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           {anuncios.map((anuncio) => (
-            <Card 
-              key={anuncio.id} 
+            <Card
+              key={anuncio.id}
               className={cn(
-                "transition-all",
-                !anuncio.ativo && "opacity-60"
+                "border transition-all duration-200",
+                anuncio.ativo
+                  ? "border-border/60 bg-card"
+                  : "border-border/30 bg-muted/30 opacity-60"
               )}
             >
               <CardContent className="p-0">
-                <div className="flex">
-                  {/* Drag Handle */}
-                  <div className="flex items-center justify-center w-10 border-r border-border bg-muted/30 cursor-grab">
-                    <GripVertical className="h-4 w-4 text-muted-foreground" />
-                  </div>
+                <div className="flex items-stretch">
+                  {/* Indicador lateral de status */}
+                  <div
+                    className={cn(
+                      "w-1.5 rounded-l-lg shrink-0 transition-colors",
+                      anuncio.ativo ? "bg-primary" : "bg-muted-foreground/30"
+                    )}
+                  />
 
-                  {/* Imagem */}
+                  {/* Imagem thumbnail */}
                   {anuncio.imagem_url && (
-                    <div className="relative w-24 h-24 flex-shrink-0 border-r border-border">
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 self-center ml-3 rounded-lg overflow-hidden border border-border/40">
                       <Image
                         src={anuncio.imagem_url}
                         alt={anuncio.titulo}
@@ -403,64 +336,77 @@ export default function AnunciosAdminPage() {
                   )}
 
                   {/* Conteúdo */}
-                  <div className="flex-1 p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
+                  <div className="flex-1 p-4 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
                           <h3 className="font-semibold text-foreground truncate">
                             {anuncio.titulo}
                           </h3>
-                          <Badge variant={anuncio.ativo ? "default" : "secondary"} className="flex-shrink-0">
+                          <Badge
+                            variant={anuncio.ativo ? "default" : "secondary"}
+                            className={cn(
+                              "shrink-0 text-xs",
+                              anuncio.ativo && "bg-primary/15 text-primary border-primary/30"
+                            )}
+                          >
                             {anuncio.ativo ? "Ativo" : "Inativo"}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                        <p className="text-sm text-muted-foreground line-clamp-2">
                           {anuncio.texto}
                         </p>
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                          {anuncio.data_evento && (
-                            <span className="flex items-center gap-1 text-primary">
-                              <Calendar className="h-3 w-3" />
-                              {formatDate(anuncio.data_evento)}
-                            </span>
-                          )}
-                          {anuncio.imagem_url && (
-                            <span className="flex items-center gap-1">
-                              <ImageIcon className="h-3 w-3" />
-                              Com imagem
-                            </span>
-                          )}
-                        </div>
+                        {anuncio.imagem_url && (
+                          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                            <ImageIcon className="h-3 w-3" />
+                            Com imagem
+                          </span>
+                        )}
                       </div>
 
                       {/* Ações */}
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
+                      <div className="flex items-center gap-1 shrink-0">
+                        {/* Toggle ativo — botão grande e claro */}
+                        <button
                           onClick={() => toggleAtivo(anuncio)}
-                          title={anuncio.ativo ? "Desativar" : "Ativar"}
+                          disabled={togglingId === anuncio.id}
+                          title={anuncio.ativo ? "Clique para desativar" : "Clique para ativar"}
+                          className={cn(
+                            "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all border",
+                            anuncio.ativo
+                              ? "bg-primary/10 text-primary border-primary/20 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20"
+                              : "bg-muted text-muted-foreground border-border hover:bg-primary/10 hover:text-primary hover:border-primary/20",
+                            togglingId === anuncio.id && "opacity-50 pointer-events-none"
+                          )}
                         >
                           {anuncio.ativo ? (
-                            <Eye className="h-4 w-4 text-muted-foreground" />
+                            <>
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Ativo</span>
+                            </>
                           ) : (
-                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            <>
+                              <XCircle className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Inativo</span>
+                            </>
                           )}
-                        </Button>
+                        </button>
+
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
                           onClick={() => openEditDialog(anuncio)}
+                          title="Editar"
                         >
                           <Pencil className="h-4 w-4 text-muted-foreground" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
+                          className="h-8 w-8 hover:text-destructive"
                           onClick={() => setDeleteAnuncio(anuncio)}
+                          title="Excluir"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -474,19 +420,142 @@ export default function AnunciosAdminPage() {
         </div>
       )}
 
-      {/* Dialog de confirmação de exclusão */}
+      {/* Dialog criar / editar */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {editingAnuncio ? "Editar Anúncio" : "Novo Anúncio"}
+            </DialogTitle>
+            <DialogDescription>
+              {editingAnuncio
+                ? "Atualize as informações do anúncio"
+                : "Preencha os campos para criar um novo anúncio"}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Título */}
+            <div className="space-y-1.5">
+              <Label htmlFor="titulo">Título *</Label>
+              <Input
+                id="titulo"
+                value={form.titulo}
+                onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+                placeholder="Ex: Reunião Especial"
+                required
+              />
+            </div>
+
+            {/* Texto */}
+            <div className="space-y-1.5">
+              <Label htmlFor="texto">Texto *</Label>
+              <Textarea
+                id="texto"
+                value={form.texto}
+                onChange={(e) => setForm({ ...form, texto: e.target.value })}
+                placeholder="Descreva o anúncio ou evento..."
+                rows={4}
+                required
+              />
+            </div>
+
+            {/* Upload de imagem */}
+            <div className="space-y-1.5">
+              <Label>Imagem (opcional)</Label>
+
+              {imagemExibida ? (
+                <div className="relative rounded-xl overflow-hidden border border-border bg-muted">
+                  <div className="relative w-full h-40">
+                    <Image
+                      src={imagemExibida}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removerImagem}
+                    className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full p-1 hover:bg-background transition-colors"
+                  >
+                    <X className="h-4 w-4 text-foreground" />
+                  </button>
+                  {imagemFile && (
+                    <p className="text-xs text-muted-foreground px-3 py-1.5">
+                      {imagemFile.name} ({(imagemFile.size / 1024).toFixed(0)} KB)
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full border-2 border-dashed border-border rounded-xl p-6 flex flex-col items-center gap-2 hover:border-primary/50 hover:bg-primary/5 transition-colors group"
+                >
+                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                    <Upload className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-foreground">Clique para fazer upload</p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG, WebP — até 5MB</p>
+                  </div>
+                </button>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
+
+            {/* Status ativo */}
+            <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3">
+              <div>
+                <Label htmlFor="ativo" className="cursor-pointer font-medium">
+                  Anúncio ativo
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Anúncios ativos aparecem no quadro público
+                </p>
+              </div>
+              <Switch
+                id="ativo"
+                checked={form.ativo}
+                onCheckedChange={(checked) => setForm({ ...form, ativo: checked })}
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={saving || uploadando}>
+                {uploadando ? "Enviando imagem..." : saving ? "Salvando..." : editingAnuncio ? "Atualizar" : "Criar Anúncio"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmação de exclusão */}
       <AlertDialog open={!!deleteAnuncio} onOpenChange={() => setDeleteAnuncio(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir anúncio?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o anúncio &quot;{deleteAnuncio?.titulo}&quot;? 
-              Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir &quot;{deleteAnuncio?.titulo}&quot;? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive hover:bg-destructive/90"
+            >
               Excluir
             </AlertDialogAction>
           </AlertDialogFooter>

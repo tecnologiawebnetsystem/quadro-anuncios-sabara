@@ -3,12 +3,9 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
   Calendar, 
-  MapPin, 
-  Clock, 
   Menu,
   X
 } from "lucide-react"
@@ -198,84 +195,58 @@ export function SobreContent({ anuncios }: SobreContentProps) {
         
       </section>
 
-      {/* Anúncios Section */}
-      <section ref={anunciosRef} className="py-10 sm:py-16 px-4 sm:px-6 bg-card/50 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/3 via-transparent to-transparent" />
-        
-        <div className="max-w-6xl mx-auto relative">
-          
-
-          {/* Anúncios Grid */}
+      {/* Anúncio em destaque — centralizado, um por vez */}
+      <section ref={anunciosRef} className="py-12 sm:py-20 px-4 sm:px-6">
+        <div className="max-w-2xl mx-auto">
           {anuncios.length === 0 ? (
-            <Card className="bg-background border-border">
-              <CardContent className="p-12 text-center">
-                <div className="w-20 h-20 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-                  <Calendar className="h-10 w-10 text-muted-foreground" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Nenhum anúncio no momento</h3>
-                <p className="text-muted-foreground max-w-sm mx-auto">
-                  Volte em breve para conferir as novidades da congregação
-                </p>
-              </CardContent>
-            </Card>
+            <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
+              <div className="w-20 h-20 rounded-2xl bg-muted flex items-center justify-center">
+                <Calendar className="h-10 w-10 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Nenhum anúncio no momento</h3>
+              <p className="text-muted-foreground max-w-xs">
+                Volte em breve para conferir as novidades da congregação
+              </p>
+            </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {anuncios.map((anuncio, index) => (
-                <Card 
-                  key={anuncio.id} 
-                  className={cn(
-                    "bg-background border-border overflow-hidden hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group",
-                    index === 0 && anuncios.length > 2 && "md:col-span-2 lg:col-span-1"
-                  )}
+            <div className="flex flex-col items-center gap-10">
+              {anuncios.map((anuncio) => (
+                <div
+                  key={anuncio.id}
+                  className="w-full rounded-3xl border border-border bg-card shadow-xl shadow-primary/5 overflow-hidden"
                 >
-                  <CardContent className="p-0">
-                    {/* Image */}
-                    {anuncio.imagem_url && (
-                      <div className="relative h-48 overflow-hidden">
-                        <Image
-                          src={anuncio.imagem_url}
-                          alt={anuncio.titulo}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-                        {anuncio.data_evento && (
-                          <div className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-sm border border-border text-xs">
-                            <Calendar className="h-3 w-3 text-primary" />
-                            <span className="text-foreground capitalize">{formatDate(anuncio.data_evento)}</span>
-                          </div>
-                        )}
+                  {/* Imagem de destaque */}
+                  {anuncio.imagem_url && (
+                    <div className="relative w-full h-72 sm:h-96 overflow-hidden">
+                      <Image
+                        src={anuncio.imagem_url}
+                        alt={anuncio.titulo}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 672px"
+                        unoptimized
+                      />
+                    </div>
+                  )}
+
+                  {/* Conteúdo */}
+                  <div className={cn("px-8 py-10 text-center", !anuncio.imagem_url && "pt-12")}>
+                    {anuncio.data_evento && (
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-sm text-primary font-medium mb-6">
+                        <Calendar className="h-4 w-4" />
+                        <span className="capitalize">{formatDate(anuncio.data_evento)}</span>
                       </div>
                     )}
-                    
-                    {/* Content */}
-                    <div className="p-6">
-                      {!anuncio.imagem_url && anuncio.data_evento && (
-                        <div className="flex items-center gap-2 text-xs text-primary mb-3">
-                          <Calendar className="h-3 w-3" />
-                          <span className="capitalize">{formatDate(anuncio.data_evento)}</span>
-                          <span className="text-muted-foreground">•</span>
-                          <Clock className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-muted-foreground">{formatTime(anuncio.data_evento)}</span>
-                        </div>
-                      )}
-                      
-                      <h3 className="text-lg font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
-                        {anuncio.titulo}
-                      </h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
-                        {anuncio.texto}
-                      </p>
-                      
-                      {anuncio.imagem_url && anuncio.data_evento && (
-                        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          <span>{formatTime(anuncio.data_evento)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+
+                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-5 text-balance leading-tight">
+                      {anuncio.titulo}
+                    </h2>
+
+                    <p className="text-lg text-muted-foreground leading-relaxed text-pretty">
+                      {anuncio.texto}
+                    </p>
+                  </div>
+                </div>
               ))}
             </div>
           )}
