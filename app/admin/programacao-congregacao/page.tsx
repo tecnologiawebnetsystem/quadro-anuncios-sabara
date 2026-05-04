@@ -349,30 +349,13 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
               </tr>
             </thead>
             <tbody>
-              {designacoesReuniaoPublica.map((r) => {
-                const diaSemR = new Date(r.data + "T12:00:00").getDay()
-                const isQuintaR = diaSemR === 4
-                const isDomingoR = diaSemR === 0
-                return (
-                  <tr key={r.data}>
-                    <td style={cell({ fontWeight: "bold", textAlign: "center" })}>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-                        <span style={{
-                          display: "inline-block",
-                          backgroundColor: isQuintaR ? "#2563eb" : isDomingoR ? "#16a34a" : "#6b7280",
-                          color: "white", borderRadius: "3px",
-                          padding: "0px 5px", fontSize: "8px", fontWeight: "800",
-                        }}>
-                          {isQuintaR ? "QUI" : isDomingoR ? "DOM" : "—"}
-                        </span>
-                        {formatarData(r.data)}
-                      </div>
-                    </td>
-                    <td style={cell()}>{r.presidente_nome || "—"}</td>
-                    <td style={cell()}>{r.leitor_sentinela_nome || "—"}</td>
-                  </tr>
-                )
-              })}
+              {designacoesReuniaoPublica.map((r) => (
+                <tr key={r.data}>
+                  <td style={cell({ fontWeight: "bold" })}>{formatarData(r.data)}</td>
+                  <td style={cell()}>{r.presidente_nome || "—"}</td>
+                  <td style={cell()}>{r.leitor_sentinela_nome || "—"}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -390,38 +373,21 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
               </tr>
             </thead>
             <tbody>
-              {arranjoDiscursos.map((d) => {
-                const diaSemD = new Date(d.data + "T12:00:00").getDay()
-                const isQuintaD = diaSemD === 4
-                const isDomingoD = diaSemD === 0
-                return (
-                  <tr key={d.data}>
-                    <td style={cell({ fontWeight: "bold", textAlign: "center" })}>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-                        <span style={{
-                          display: "inline-block",
-                          backgroundColor: isQuintaD ? "#2563eb" : isDomingoD ? "#16a34a" : "#6b7280",
-                          color: "white", borderRadius: "3px",
-                          padding: "0px 5px", fontSize: "8px", fontWeight: "800",
-                        }}>
-                          {isQuintaD ? "QUI" : isDomingoD ? "DOM" : "—"}
-                        </span>
-                        {formatarData(d.data)}
-                      </div>
-                    </td>
-                    <td style={cell()}>{d.tema || "—"}</td>
-                    <td style={cell()}>
-                      {d.orador_nome || "—"}
-                      {d.orador_congregacao && (
-                        <div style={{ fontSize: "9px", color: "#6b7280", marginTop: "1px" }}>{d.orador_congregacao}</div>
-                      )}
-                    </td>
-                    <td style={cell({ color: d.orador_salao ? "#1e3a5f" : "#9ca3af", fontStyle: d.orador_salao ? "normal" : "italic" })}>
-                      {d.orador_salao || "—"}
-                    </td>
-                  </tr>
-                )
-              })}
+              {arranjoDiscursos.map((d) => (
+                <tr key={d.data}>
+                  <td style={cell({ fontWeight: "bold" })}>{formatarData(d.data)}</td>
+                  <td style={cell()}>{d.tema || "—"}</td>
+                  <td style={cell()}>
+                    {d.orador_nome || "—"}
+                    {d.orador_congregacao && (
+                      <div style={{ fontSize: "9px", color: "#6b7280", marginTop: "1px" }}>{d.orador_congregacao}</div>
+                    )}
+                  </td>
+                  <td style={cell({ color: d.orador_salao ? "#1e3a5f" : "#9ca3af", fontStyle: d.orador_salao ? "normal" : "italic" })}>
+                    {d.orador_salao || "—"}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

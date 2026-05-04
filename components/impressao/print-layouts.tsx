@@ -1521,30 +1521,15 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
               </tr>
             </thead>
             <tbody>
-              {reunioesPublicas.map((r, i) => {
-                const diaSemRP = new Date(r.data + "T12:00:00").getDay()
-                const isQuintaRP = diaSemRP === 4
-                const isDomingoRP = diaSemRP === 0
-                return (
-                  <tr key={r.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
-                    <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-                        <span style={{
-                          display: "inline-block",
-                          backgroundColor: isQuintaRP ? "#2563eb" : isDomingoRP ? "#16a34a" : "#6b7280",
-                          color: "white", borderRadius: "3px",
-                          padding: "0px 4px", fontSize: "6.5px", fontWeight: "800",
-                        }}>
-                          {isQuintaRP ? "QUI" : isDomingoRP ? "DOM" : "—"}
-                        </span>
-                        {formatarDataCurta(r.data)}
-                      </div>
-                    </td>
-                    <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.presidente || "-"}</td>
-                    <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.leitor_sentinela || "-"}</td>
-                  </tr>
-                )
-              })}
+              {reunioesPublicas.map((r, i) => (
+                <tr key={r.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
+                    {formatarDataCurta(r.data)}
+                  </td>
+                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.presidente || "-"}</td>
+                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.leitor_sentinela || "-"}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -1572,38 +1557,23 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
               </tr>
             </thead>
             <tbody>
-              {discursos.map((d, i) => {
-                const diaSemD = new Date(d.data + "T12:00:00").getDay()
-                const isQuintaD = diaSemD === 4
-                const isDomingoD = diaSemD === 0
-                return (
-                  <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
-                    <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-                        <span style={{
-                          display: "inline-block",
-                          backgroundColor: isQuintaD ? "#2563eb" : isDomingoD ? "#16a34a" : "#6b7280",
-                          color: "white", borderRadius: "3px",
-                          padding: "0px 4px", fontSize: "6.5px", fontWeight: "800",
-                        }}>
-                          {isQuintaD ? "QUI" : isDomingoD ? "DOM" : "—"}
-                        </span>
-                        {formatarDataCurta(d.data)}
-                      </div>
-                    </td>
-                    <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb" }}>{d.tema || "-"}</td>
-                    <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
-                      {d.orador || "-"}
-                      {d.congregacao && (
-                        <div style={{ fontSize: "7px", color: "#6b7280", marginTop: "1px" }}>{d.congregacao}</div>
-                      )}
-                    </td>
-                    <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", color: d.salao ? "#1e3a5f" : "#9ca3af", fontStyle: d.salao ? "normal" : "italic" }}>
-                      {d.salao || "—"}
-                    </td>
-                  </tr>
-                )
-              })}
+              {discursos.map((d, i) => (
+                <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
+                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
+                    {formatarDataCurta(d.data)}
+                  </td>
+                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb" }}>{d.tema || "-"}</td>
+                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
+                    {d.orador || "-"}
+                    {d.congregacao && (
+                      <div style={{ fontSize: "7px", color: "#6b7280", marginTop: "1px" }}>{d.congregacao}</div>
+                    )}
+                  </td>
+                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", color: d.salao ? "#1e3a5f" : "#9ca3af", fontStyle: d.salao ? "normal" : "italic" }}>
+                    {d.salao || "—"}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
