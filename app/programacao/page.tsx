@@ -100,6 +100,12 @@ interface ReuniaoPublica {
   } | null
 }
 
+interface LimpezaSalao {
+  grupo_nome: string | null
+  limpeza_semanal_grupo_nome: string | null
+  semana: number
+}
+
 interface ProgramacaoDia {
   data: string
   diaSemana: number
@@ -116,6 +122,7 @@ interface ProgramacaoDia {
     partes: Parte[]
   }
   reuniaoPublica: ReuniaoPublica
+  limpezaSalao: LimpezaSalao | null
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -232,6 +239,19 @@ function BlocoCampoSabado({ campo }: { campo: CampoSabado[] }) {
           <p className="text-[15px] font-medium">{c.dirigente_nome || "—"}</p>
         </div>
       ))}
+    </div>
+  )
+}
+
+function BlocoLimpeza({ limpeza }: { limpeza: LimpezaSalao }) {
+  const grupo = limpeza.grupo_nome || limpeza.limpeza_semanal_grupo_nome
+  return (
+    <div>
+      <InfoRow
+        label={`Semana ${limpeza.semana}`}
+        value={grupo || "Grupo não definido"}
+        Icon={Users}
+      />
     </div>
   )
 }
@@ -553,6 +573,12 @@ export default function ProgramacaoPage() {
                     <BlocoEquipe equipe={programacao.equipe} />
                   </Bloco>
                 )}
+
+                {programacao.limpezaSalao && (
+                  <Bloco titulo="Limpeza do Salão" corFundo="#0f766e" corTexto="#f0fdfa" Icon={Sun}>
+                    <BlocoLimpeza limpeza={programacao.limpezaSalao} />
+                  </Bloco>
+                )}
               </>
             )}
 
@@ -566,6 +592,12 @@ export default function ProgramacaoPage() {
                 {programacao.equipe && (
                   <Bloco titulo="Equipe Técnica" corFundo="#4c1d95" corTexto="#f5f3ff" Icon={Headphones}>
                     <BlocoEquipe equipe={programacao.equipe} />
+                  </Bloco>
+                )}
+
+                {programacao.limpezaSalao && (
+                  <Bloco titulo="Limpeza do Salão" corFundo="#0f766e" corTexto="#f0fdfa" Icon={Sun}>
+                    <BlocoLimpeza limpeza={programacao.limpezaSalao} />
                   </Bloco>
                 )}
               </>

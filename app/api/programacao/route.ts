@@ -19,6 +19,18 @@ export async function GET(request: NextRequest) {
   const nomeDia = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sabado"][diaSemana]
   const mes = data.substring(0, 7) // YYYY-MM
 
+  // Calcular data_inicio (domingo da semana) para buscar limpeza:
+  // quinta = domingo + 4 dias → domingo = quinta - 4 dias
+  // domingo = domingo + 7 dias (próximo) → data_inicio = domingo - 7 dias
+  let dataInicioLimpeza: string | null = null
+  if (diaSemana === 4) {
+    const d = new Date(dataObj); d.setDate(d.getDate() - 4)
+    dataInicioLimpeza = d.toISOString().slice(0, 10)
+  } else if (diaSemana === 0) {
+    const d = new Date(dataObj); d.setDate(d.getDate() - 7)
+    dataInicioLimpeza = d.toISOString().slice(0, 10)
+  }
+
   // Executa todas as queries em paralelo
   const [
     campoSemana,
@@ -29,6 +41,7 @@ export async function GET(request: NextRequest) {
     vidaSemana,
     reuniaoPublicaDesig,
     reuniaoPublicaDiscurso,
+    limpezaSalao,
   ] = await Promise.all([
     // Campo seg-sex (dirigente por dia/período)
     diaSemana >= 1 && diaSemana <= 5
@@ -106,6 +119,15 @@ export async function GET(request: NextRequest) {
           .eq("data", data)
           .maybeSingle()
       : Promise.resolve({ data: null }),
+
+    // Limpeza do salão — quinta e domingo
+    dataInicioLimpeza
+      ? supabase
+          .from("limpeza_salao")
+          .select("id, grupo_nome, limpeza_semanal_grupo_nome, semana")
+          .eq("data_inicio", dataInicioLimpeza)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ])
 
   // Se for quinta, buscar também as partes da reunião
@@ -139,5 +161,6 @@ export async function GET(request: NextRequest) {
       designacao: reuniaoPublicaDesig.data || null,
       discurso: reuniaoPublicaDiscurso.data || null,
     },
+    limpezaSalao: limpezaSalao.data || null,
   })
 }
