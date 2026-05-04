@@ -325,6 +325,19 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
               {designacoesTecnicas.map((d) => (
                 <tr key={d.data} style={{ backgroundColor: d.dia_semana === "DOMINGO" ? "#f9fafb" : "white" }}>
                   <td style={cell({ fontWeight: "bold", whiteSpace: "nowrap" })}>
+                    <span style={{
+                      display: "inline-block",
+                      backgroundColor: d.dia_semana === "QUINTA" ? "#2563eb" : d.dia_semana === "DOMINGO" ? "#16a34a" : "#6b7280",
+                      color: "white",
+                      borderRadius: "3px",
+                      padding: "0px 3px",
+                      fontSize: "7px",
+                      fontWeight: "800",
+                      marginRight: "4px",
+                      verticalAlign: "middle",
+                    }}>
+                      {d.dia_semana === "QUINTA" ? "QUI" : d.dia_semana === "DOMINGO" ? "DOM" : "—"}
+                    </span>
                     {formatarData(d.data)}
                   </td>
                   <td style={cell()}>{[d.indicador1_nome, d.indicador2_nome].filter(Boolean).join(" / ") || "—"}</td>
