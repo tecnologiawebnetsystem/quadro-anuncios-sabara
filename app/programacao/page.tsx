@@ -535,7 +535,7 @@ export default function ProgramacaoPage() {
       </header>
 
       {/* Conteúdo */}
-      <main className="max-w-lg mx-auto px-4 py-5 pb-10">
+      <main className="max-w-lg mx-auto px-4 pt-6 pb-10">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
