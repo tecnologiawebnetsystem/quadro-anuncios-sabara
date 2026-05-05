@@ -412,19 +412,7 @@ export default function ConsultaPage() {
       : undefined
   }
 
-  // Verificando autenticação
-  if (verificandoAuth) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Carregando...</div>
-      </div>
-    )
-  }
-  
-  // Se não está logado, mostrar tela de login
-  if (!publicadorLogado) {
-    return <LoginPublicador onLoginSuccess={handleLoginSuccess} />
-  }
+  // Perfil de publicador ocultado — acesso direto ao conteúdo
 
   // Skeleton Loading
   if (loading) {
@@ -556,30 +544,10 @@ export default function ConsultaPage() {
           </h1>
         </div>
         
-        {/* Info do publicador logado */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-            <div className="w-7 h-7 rounded-full bg-amber-500/20 flex items-center justify-center">
-              <User className="h-3.5 w-3.5 text-amber-400" />
-            </div>
-            <span className="text-sm font-semibold text-white">{publicadorLogado.nome}</span>
-          </div>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={handleLogout}
-            className="text-zinc-500 hover:text-white hover:bg-white/10 rounded-xl"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
-        </div>
+        {/* Info do publicador logado — ocultado */}
       </div>
 
-      {/* Busca de Designações Pessoais e Notificações */}
-      <div className="grid gap-5 lg:grid-cols-2">
-        <BuscaDesignacoes />
-        <GerenciarNotificacoes />
-      </div>
+      {/* Busca de Designações e Notificações — ocultado junto com perfil de publicador */}
 
       {/* Próximo Discurso Público */}
       {proximoDiscurso && (
