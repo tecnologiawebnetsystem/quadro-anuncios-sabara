@@ -563,9 +563,6 @@ export default function ProgramacaoPage() {
         </div>
       </header>
 
-      {/* ── Clima hora a hora ── */}
-      <WeatherWidget data={dataAtual} />
-
       {/* ── Conteúdo ── */}
       <main className="max-w-lg mx-auto px-4 pt-5 pb-12">
         {loading ? (
@@ -593,6 +590,7 @@ export default function ProgramacaoPage() {
             {isSegSex && programacao.campo.semana.length > 0 && (
               <Card titulo="Serviço de Campo" corBorda="#16a34a" corFundo="#14532d" corTexto="#f0fdf4" Icon={MapPin}>
                 <BlocoCampoSemana campo={programacao.campo.semana} />
+                <WeatherWidget data={dataAtual} inline />
               </Card>
             )}
 
@@ -600,6 +598,7 @@ export default function ProgramacaoPage() {
             {dSemana === 1 && programacao.campo.cartas.length > 0 && (
               <Card titulo="Serviço de Cartas" corBorda="#0891b2" corFundo="#0e7490" corTexto="#ecfeff" Icon={MapPin}>
                 <BlocoCampoCartas cartas={programacao.campo.cartas} />
+                <WeatherWidget data={dataAtual} inline />
               </Card>
             )}
 
@@ -607,6 +606,7 @@ export default function ProgramacaoPage() {
             {isSabado && (
               <Card titulo="Serviço de Campo — Sábado" corBorda="#16a34a" corFundo="#14532d" corTexto="#f0fdf4" Icon={MapPin}>
                 <BlocoCampoSabado campo={programacao.campo.sabado} />
+                <WeatherWidget data={dataAtual} inline />
               </Card>
             )}
 
@@ -614,6 +614,7 @@ export default function ProgramacaoPage() {
             {isDomingo && programacao.campo.domingo.length > 0 && (
               <Card titulo="Serviço de Campo" corBorda="#16a34a" corFundo="#14532d" corTexto="#f0fdf4" Icon={MapPin}>
                 <BlocoCampoDomingo campo={programacao.campo.domingo} />
+                <WeatherWidget data={dataAtual} inline />
               </Card>
             )}
 

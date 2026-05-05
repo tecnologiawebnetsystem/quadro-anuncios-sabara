@@ -60,7 +60,7 @@ function WeatherIcon({ codigo, isDia, size = 24 }: { codigo: number; isDia?: boo
   return <Sun size={s} className="text-yellow-400" />
 }
 
-export function WeatherWidget({ data }: { data: string }) {
+export function WeatherWidget({ data, inline = false }: { data: string; inline?: boolean }) {
   const [horas, setHoras] = useState<HoraClima[]>([])
   const [resumo, setResumo] = useState<ResumoClima | null>(null)
   const [loading, setLoading] = useState(true)
@@ -112,22 +112,28 @@ export function WeatherWidget({ data }: { data: string }) {
   const horaAtual = new Date().getHours()
   const isHoje = data === new Date().toISOString().slice(0, 10)
 
+  const inner = (children: React.ReactNode) =>
+    inline ? (
+      <div className="mt-3 rounded-xl overflow-hidden" style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)" }}>
+        {children}
+      </div>
+    ) : (
+      <div className="max-w-lg mx-auto px-4 mb-3">
+        <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          {children}
+        </div>
+      </div>
+    )
+
   if (loading) {
-    return (
-      <div className="max-w-lg mx-auto px-4 mb-3"><div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-        <div className="flex items-center gap-2 px-4 py-3">
-          <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
-          <div className="flex-1 space-y-1.5">
-            <div className="h-3 w-28 rounded bg-white/10 animate-pulse" />
-            <div className="h-2.5 w-20 rounded bg-white/10 animate-pulse" />
-          </div>
+    return inner(
+      <div className="flex items-center gap-2 px-4 py-3">
+        <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
+        <div className="flex-1 space-y-1.5">
+          <div className="h-3 w-28 rounded bg-white/10 animate-pulse" />
+          <div className="h-2.5 w-20 rounded bg-white/10 animate-pulse" />
         </div>
-        <div className="flex gap-2 px-4 pb-3 overflow-hidden">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex-shrink-0 w-14 h-20 rounded-xl bg-white/10 animate-pulse" />
-          ))}
-        </div>
-      </div></div>
+      </div>
     )
   }
 
@@ -135,12 +141,8 @@ export function WeatherWidget({ data }: { data: string }) {
 
   const condicao = getCondicao(resumo.codigo)
 
-  return (
-    <div className="max-w-lg mx-auto px-4 mb-3">
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
-    >
+  return inner(
+    <>
       {/* Cabeçalho resumo do dia */}
       <div className="flex items-center gap-3 px-4 pt-3 pb-2">
         <div
@@ -212,7 +214,6 @@ export function WeatherWidget({ data }: { data: string }) {
           )
         })}
       </div>
-    </div>
-    </div>
+    </>
   )
 }
