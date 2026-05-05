@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { WeatherWidget } from "@/components/weather-widget"
+import { BuscaDesignacoesProgramacao } from "@/components/programacao/busca-designacoes-inline"
 import {
   ChevronLeft,
   ChevronRight,
@@ -577,8 +578,11 @@ export default function ProgramacaoPage() {
         </div>
       </header>
 
+      {/* ── Busca de Designações ── */}
+      <BuscaDesignacoesProgramacao />
+
       {/* ── Conteúdo ── */}
-      <main className="max-w-lg mx-auto px-4 pt-5 pb-12">
+      <main className="max-w-lg mx-auto px-4 pt-3 pb-12">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <div className="w-7 h-7 rounded-full border-2 border-primary border-t-transparent animate-spin" />

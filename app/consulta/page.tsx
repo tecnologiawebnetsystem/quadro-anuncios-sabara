@@ -544,82 +544,78 @@ export default function ConsultaPage() {
         </div>
       </div>
     )}
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-10 pb-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="text-center sm:text-left">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Quadro de Anúncios
-          </h1>
-          <p className="text-zinc-400">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 pt-2">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-amber-500 mb-1">
             {format(hoje, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
           </p>
+          <h1 className="text-4xl font-bold text-white leading-tight">
+            Quadro de Anúncios
+          </h1>
         </div>
         
         {/* Info do publicador logado */}
-        <div className="flex items-center gap-3 justify-center sm:justify-end">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800/50 border border-zinc-700">
-            <User className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-white">{publicadorLogado.nome}</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+            <div className="w-7 h-7 rounded-full bg-amber-500/20 flex items-center justify-center">
+              <User className="h-3.5 w-3.5 text-amber-400" />
+            </div>
+            <span className="text-sm font-semibold text-white">{publicadorLogado.nome}</span>
           </div>
           <Button 
             variant="ghost" 
-            size="sm"
+            size="icon"
             onClick={handleLogout}
-            className="text-zinc-400 hover:text-white"
+            className="text-zinc-500 hover:text-white hover:bg-white/10 rounded-xl"
           >
             <LogOut className="h-4 w-4" />
-            <span className="sr-only">Sair</span>
           </Button>
         </div>
       </div>
 
       {/* Busca de Designações Pessoais e Notificações */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-2">
         <BuscaDesignacoes />
         <GerenciarNotificacoes />
       </div>
 
-      {/* Cards de Destaque */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Proximo Discurso */}
-        {proximoDiscurso && (
-          <Card className="border-zinc-800 bg-gradient-to-br from-amber-600/10 to-amber-900/5 sm:col-span-2 lg:col-span-3 hover:border-amber-600/30 transition-colors">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-zinc-400">
-                <Mic className="h-4 w-4 text-amber-500" />
-                Próximo Discurso Público
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                  <p className="text-lg font-semibold text-white">{proximoDiscurso.tema || "Tema a definir"}</p>
-                  {proximoDiscurso.orador_nome && (
-                    <p className="text-sm text-zinc-400">Orador: {proximoDiscurso.orador_nome}</p>
-                  )}
-                </div>
-                <span className="rounded-lg bg-amber-600/20 px-3 py-1.5 text-sm font-medium text-amber-400">
-                  {(() => {
-                    const [y, m, d] = proximoDiscurso.data.split("-").map(Number)
-                    const dt = new Date(y, m - 1, d)
-                    return format(dt, "EEEE, d/MM", { locale: ptBR })
-                  })()}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {/* Próximo Discurso Público */}
+      {proximoDiscurso && (
+        <div className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-600/15 via-amber-500/5 to-transparent p-6">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Mic className="h-5 w-5 text-amber-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-widest text-amber-500 mb-1">Próximo Discurso Público</p>
+              <p className="text-xl font-bold text-white leading-snug">{proximoDiscurso.tema || "Tema a definir"}</p>
+              {proximoDiscurso.orador_nome && (
+                <p className="text-sm text-zinc-400 mt-1">Orador: <span className="text-zinc-200">{proximoDiscurso.orador_nome}</span></p>
+              )}
+            </div>
+            <span className="flex-shrink-0 rounded-lg bg-amber-500/20 border border-amber-500/30 px-3 py-1.5 text-sm font-semibold text-amber-400 capitalize">
+              {(() => {
+                const [y, m, d] = proximoDiscurso.data.split("-").map(Number)
+                return format(new Date(y, m - 1, d), "EEE, d/MM", { locale: ptBR })
+              })()}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Grid: Calendario + Anuncios */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Calendario Compacto */}
-        <Card className="border-zinc-800 bg-zinc-900/50 lg:col-span-1">
-          <CardHeader className="pb-3">
+        <Card className="border-white/8 bg-white/4 lg:col-span-1">
+          <CardHeader className="pb-4 border-b border-white/6">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                <CalendarDays className="h-4 w-4 text-blue-500" />
+              <CardTitle className="flex items-center gap-2.5 text-base font-semibold">
+                <div className="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                  <CalendarDays className="h-3.5 w-3.5 text-blue-400" />
+                </div>
                 Calendário
               </CardTitle>
               <div className="flex items-center gap-1">
@@ -648,7 +644,7 @@ export default function ConsultaPage() {
           <CardContent>
             <div className="grid grid-cols-7 gap-1 text-center text-xs overflow-visible">
               {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
-                <div key={i} className="py-1 text-zinc-500 font-medium">{dia}</div>
+                <div key={i} className="py-1 text-zinc-300 font-semibold">{dia}</div>
               ))}
               {diasCalendario.map((dia, i) => {
                 const evento = temEvento(dia)
@@ -741,104 +737,82 @@ export default function ConsultaPage() {
                 <span className="w-2 h-2 rounded-full bg-blue-600" /> Hoje
               </span>
             </div>
-            <p className="text-[9px] text-zinc-600 mt-2">Toque na data para ver detalhes</p>
+            <p className="text-[9px] text-zinc-400 mt-2">Toque na data para ver detalhes</p>
           </CardContent>
         </Card>
 
         {/* Anuncios da Semana */}
-        <Card className="border-zinc-800 bg-zinc-900/50 lg:col-span-2">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base font-semibold">
-              <Megaphone className="h-4 w-4 text-amber-500" />
+        <Card className="border-white/8 bg-white/4 lg:col-span-2">
+          <CardHeader className="pb-4 border-b border-white/6">
+            <CardTitle className="flex items-center gap-2.5 text-base font-semibold">
+              <div className="w-7 h-7 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                <Megaphone className="h-3.5 w-3.5 text-amber-400" />
+              </div>
               Anúncios da Semana
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="pt-5 space-y-4">
             {limpezaSemana && (
-              <div className="flex items-start gap-3 rounded-lg bg-cyan-600/10 p-3">
-                <Sparkles className="h-5 w-5 text-cyan-500 flex-shrink-0 mt-0.5" />
+              <div className="flex items-start gap-4 rounded-xl border border-cyan-500/20 bg-cyan-500/8 p-4">
+                <div className="w-9 h-9 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="h-4 w-4 text-cyan-400" />
+                </div>
                 <div>
-                  <p className="text-sm font-medium text-white">Limpeza do Salão</p>
-                  <p className="text-xs text-zinc-400">
-                    Grupo responsável: <span className="text-cyan-400">{limpezaSemana.grupo_nome}</span>
+                  <p className="text-sm font-semibold text-white">Limpeza do Salão</p>
+                  <p className="text-xs text-zinc-400 mt-0.5">
+                    Grupo responsável: <span className="text-cyan-400 font-medium">{limpezaSemana.grupo_nome}</span>
                   </p>
                 </div>
               </div>
             )}
-            
-            {proximoDiscurso && (
-              <div className="flex items-start gap-3 rounded-lg bg-amber-600/10 p-3">
-                <Mic className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-white">Discurso Publico</p>
-                  <p className="text-xs text-zinc-400">
-                    {(() => {
-                      const [y, m, d] = proximoDiscurso.data.split("-").map(Number)
-                      return format(new Date(y, m - 1, d), "EEEE", { locale: ptBR })
-                    })()}: <span className="text-amber-400">{proximoDiscurso.tema || "Tema a definir"}</span>
-                    {proximoDiscurso.orador_nome && ` - ${proximoDiscurso.orador_nome}`}
-                  </p>
-                </div>
-              </div>
-            )}
-            
-
 
             {equipeSemana.length > 0 && (
-              <div className="rounded-lg bg-purple-600/10 p-3 space-y-3">
-                <div className="flex items-center gap-2">
-                  <Wrench className="h-5 w-5 text-purple-400 flex-shrink-0" />
-                  <p className="text-sm font-medium text-white">Equipe Técnica da Semana</p>
+              <div className="rounded-xl border border-purple-500/20 bg-purple-500/8 p-4 space-y-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <Wrench className="h-4 w-4 text-purple-400" />
+                  </div>
+                  <p className="text-sm font-semibold text-white">Equipe Técnica da Semana</p>
                 </div>
                 {equipeSemana.map((reuniao, i) => {
                   const diaLabel = reuniao.dia_semana === "quinta" ? "Quinta-Feira" : "Domingo"
-                  // Usar parseISO evita o offset UTC que deslocaria a data um dia para trás no fuso BR
-                  const [ano, mes, dia] = reuniao.data.split("-")
+                  const [, mes, dia] = reuniao.data.split("-")
                   const dataLabel = `${dia}/${mes}`
                   return (
-                    <div key={i} className="space-y-2">
-                      <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
-                        {diaLabel} – {dataLabel}
+                    <div key={i} className="space-y-2.5">
+                      <p className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                        {diaLabel} — {dataLabel}
                       </p>
-                      <div className="grid grid-cols-1 gap-1 pl-1">
-                        {/* Indicadores */}
-                        <div className="flex items-center gap-2 text-xs text-zinc-300">
-                          <span className="rounded bg-orange-600/20 px-1.5 py-0.5 text-orange-400 font-medium whitespace-nowrap">Indicadores</span>
-                          <span>
-                            {[reuniao.indicador1_nome, reuniao.indicador2_nome].filter(Boolean).join(" / ") || "A definir"}
-                          </span>
+                      <div className="grid grid-cols-1 gap-2 pl-1">
+                        <div className="flex items-center gap-2.5 text-xs text-zinc-300">
+                          <span className="rounded-md bg-orange-500/20 px-2 py-1 text-orange-400 font-semibold whitespace-nowrap">Indicadores</span>
+                          <span>{[reuniao.indicador1_nome, reuniao.indicador2_nome].filter(Boolean).join(" / ") || "A definir"}</span>
                         </div>
-                        {/* Volantes */}
-                        <div className="flex items-center gap-2 text-xs text-zinc-300">
-                          <span className="rounded bg-blue-600/20 px-1.5 py-0.5 text-blue-400 font-medium whitespace-nowrap">Volantes</span>
+                        <div className="flex items-center gap-2.5 text-xs text-zinc-300">
+                          <span className="rounded-md bg-blue-500/20 px-2 py-1 text-blue-400 font-semibold whitespace-nowrap">Volantes</span>
                           <span className="flex items-center gap-1 flex-wrap">
                             {reuniao.microvolante1_nome ? (
                               <span className="flex items-center gap-1">
                                 {reuniao.microvolante1_nome}
-                                {reuniao.microvolante_palco === 1 && (
-                                  <span className="text-amber-400 font-semibold">(Palco)</span>
-                                )}
+                                {reuniao.microvolante_palco === 1 && <span className="text-amber-400 font-semibold">(Palco)</span>}
                               </span>
                             ) : null}
                             {reuniao.microvolante1_nome && reuniao.microvolante2_nome && " / "}
                             {reuniao.microvolante2_nome ? (
                               <span className="flex items-center gap-1">
                                 {reuniao.microvolante2_nome}
-                                {reuniao.microvolante_palco === 2 && (
-                                  <span className="text-amber-400 font-semibold">(Palco)</span>
-                                )}
+                                {reuniao.microvolante_palco === 2 && <span className="text-amber-400 font-semibold">(Palco)</span>}
                               </span>
                             ) : null}
                             {!reuniao.microvolante1_nome && !reuniao.microvolante2_nome && "A definir"}
                           </span>
                         </div>
-                        {/* Som */}
-                        <div className="flex items-center gap-2 text-xs text-zinc-300">
-                          <span className="rounded bg-green-600/20 px-1.5 py-0.5 text-green-400 font-medium whitespace-nowrap">Som</span>
+                        <div className="flex items-center gap-2.5 text-xs text-zinc-300">
+                          <span className="rounded-md bg-green-500/20 px-2 py-1 text-green-400 font-semibold whitespace-nowrap">Som</span>
                           <span>{reuniao.som_nome || "A definir"}</span>
                         </div>
                       </div>
-                      {i < equipeSemana.length - 1 && <div className="border-t border-purple-600/20" />}
+                      {i < equipeSemana.length - 1 && <div className="border-t border-purple-500/20 pt-1" />}
                     </div>
                   )
                 })}
@@ -846,14 +820,16 @@ export default function ConsultaPage() {
             )}
 
             {campoHoje && (
-              <div className="flex items-start gap-3 rounded-lg bg-green-600/10 p-3">
-                <MapPin className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+              <div className="flex items-start gap-4 rounded-xl border border-green-500/20 bg-green-500/8 p-4">
+                <div className="w-9 h-9 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="h-4 w-4 text-green-400" />
+                </div>
                 <div>
-                  <p className="text-sm font-medium text-white">Campo Hoje</p>
-                  <p className="text-xs text-zinc-400">
-                    Dirigente: <span className="text-green-400">{campoHoje.dirigente_nome}</span>
+                  <p className="text-sm font-semibold text-white">Campo Hoje</p>
+                  <p className="text-xs text-zinc-300 mt-0.5">
+                    Dirigente: <span className="text-green-400 font-medium">{campoHoje.dirigente_nome}</span>
                   </p>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-zinc-300 mt-0.5">
                     {campoHoje.periodo === "manha" ? "Manhã" : "Tarde"} — {campoHoje.horario}
                   </p>
                 </div>
@@ -861,9 +837,9 @@ export default function ConsultaPage() {
             )}
 
             {!limpezaSemana && !proximoDiscurso && !campoHoje && equipeSemana.length === 0 && (
-              <div className="text-center py-6">
-                <Info className="h-8 w-8 text-zinc-600 mx-auto mb-2" />
-                <p className="text-sm text-zinc-500">Nenhum anuncio para esta semana</p>
+              <div className="text-center py-8">
+                <Info className="h-10 w-10 text-zinc-700 mx-auto mb-3" />
+                <p className="text-sm text-zinc-500">Nenhum anúncio para esta semana</p>
               </div>
             )}
           </CardContent>
@@ -871,31 +847,30 @@ export default function ConsultaPage() {
       </div>
 
       {/* Menu de Navegação - Organizado por Categorias */}
-      <div className="space-y-6">
+      <div className="space-y-8">
         {menuSections.map((section) => (
           <div key={section.title}>
-            <h2 className="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-3">{section.title}</h2>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex items-center gap-3 mb-4">
+              <h2 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">{section.title}</h2>
+              <div className="flex-1 h-px bg-white/6" />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {section.items.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <Card className="group h-full border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/50 hover:border-zinc-700 transition-all duration-200">
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-3">
-                        <div className={cn("rounded-lg p-2 flex-shrink-0", item.color)}>
-                          <item.icon className="h-4 w-4 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-medium text-white truncate group-hover:text-blue-300 transition-colors">
-                            {item.title}
-                          </h3>
-                          <p className="text-xs text-zinc-500 truncate">
-                            {item.description}
-                          </p>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-zinc-600 flex-shrink-0 group-hover:text-zinc-400 group-hover:translate-x-1 transition-all" />
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="group flex items-center gap-4 p-4 rounded-xl border border-white/6 bg-white/3 hover:bg-white/7 hover:border-white/12 transition-all duration-200 cursor-pointer">
+                    <div className={cn("rounded-xl p-2.5 flex-shrink-0", item.color)}>
+                      <item.icon className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-semibold text-white truncate group-hover:text-blue-300 transition-colors">
+                        {item.title}
+                      </h3>
+                      <p className="text-xs text-zinc-500 truncate mt-0.5">
+                        {item.description}
+                      </p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-zinc-600 flex-shrink-0 group-hover:text-zinc-300 group-hover:translate-x-0.5 transition-all" />
+                  </div>
                 </Link>
               ))}
             </div>
@@ -904,15 +879,19 @@ export default function ConsultaPage() {
       </div>
 
       {/* Seção Grupos de Estudo - Destaque */}
-      <Card className="border-zinc-800 bg-gradient-to-br from-emerald-600/10 to-emerald-900/5 hover:border-emerald-600/30 transition-colors">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <Users className="h-5 w-5 text-emerald-500" />
-            Grupos de Estudo
-          </CardTitle>
-          <p className="text-sm text-zinc-400">
-            {carregandoGrupos ? "Carregando..." : `${grupos.length} grupos | ${publicadores.filter(p => p.ativo).length} publicadores ativos`}
-          </p>
+      <Card className="border-emerald-500/20 bg-emerald-500/5">
+        <CardHeader className="pb-4 border-b border-emerald-500/15">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2.5 text-base font-semibold">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                <Users className="h-3.5 w-3.5 text-emerald-400" />
+              </div>
+              Grupos de Estudo
+            </CardTitle>
+            <span className="text-xs text-zinc-500 font-medium">
+              {carregandoGrupos ? "..." : `${grupos.length} grupos · ${publicadores.filter(p => p.ativo).length} ativos`}
+            </span>
+          </div>
         </CardHeader>
         <CardContent>
           {carregandoGrupos ? (
