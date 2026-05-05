@@ -19,7 +19,8 @@ import {
   Info,
   CalendarDays,
   Mail,
-  Printer
+  Printer,
+  BarChart3,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -119,9 +120,10 @@ const menuSections = [
 {
   title: "Escalas",
   items: [
-  { title: "Equipe Técnica", description: "Indicadores e som", href: "/consulta/equipe-tecnica", icon: Wrench, color: "bg-orange-600" },
-  { title: "Limpeza do Salão", description: "Escala semanal", href: "/consulta/limpeza-salao", icon: Sparkles, color: "bg-cyan-600" },
-  { title: "Serviço de Campo", description: "Dirigentes de campo", href: "/consulta/servico-campo", icon: MapPin, color: "bg-green-600" },
+  { title: "Equipe Técnica", description: "Indicadores e som",      href: "/consulta/equipe-tecnica", icon: Wrench,    color: "bg-orange-600" },
+  { title: "Limpeza do Salão", description: "Escala semanal",       href: "/consulta/limpeza-salao",  icon: Sparkles,  color: "bg-cyan-600"   },
+  { title: "Serviço de Campo", description: "Dirigentes de campo",  href: "/consulta/servico-campo",  icon: MapPin,    color: "bg-green-600"  },
+  { title: "Assistência",      description: "Presenças e estatísticas", href: "/consulta/assistencia", icon: BarChart3, color: "bg-violet-600" },
   ]
   },
   {

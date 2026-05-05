@@ -18,7 +18,6 @@ import {
   UserCheck,
   Shield,
   Flag,
-  Megaphone,
   Settings,
   Music,
   HelpCircle,
@@ -65,7 +64,6 @@ interface MenuGroup {
 
 const mainItems: MenuItem[] = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/anciao", color: "text-sky-400" },
-  { title: "Quadro de Anúncios", icon: Megaphone, href: "/anciao/anuncios", color: "text-amber-400" },
 ]
 
 const menuGroups: MenuGroup[] = [
