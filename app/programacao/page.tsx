@@ -499,7 +499,7 @@ export default function ProgramacaoPage() {
             </button>
 
             <div className="flex-1 text-center">
-              {/* Badge do dia de reunião */}
+              {/* Badge do dia de reunião (quinta/domingo) */}
               {badgeReuniao && (
                 <div className="flex justify-center mb-0.5">
                   <span
@@ -510,6 +510,7 @@ export default function ProgramacaoPage() {
                   </span>
                 </div>
               )}
+              {/* Nome do dia — só exibe quando não há badge */}
               {!badgeReuniao && (
                 <p className="text-sidebar-primary font-black text-[19px] capitalize leading-tight">
                   {DIAS_SEMANA[dSemana]}
