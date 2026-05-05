@@ -131,7 +131,7 @@ interface ProgramacaoDia {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const DIAS_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]
-const DIAS_CURTO  = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]
+const DIAS_CURTO  = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
 
 function formatarDataLonga(dataStr: string): string {
   const d = new Date(dataStr + "T12:00:00")
@@ -533,11 +533,15 @@ export default function ProgramacaoPage() {
             {Array.from({ length: 7 }).map((_, i) => {
               const base = new Date(dataAtual + "T12:00:00")
               const inicio = new Date(base)
-              inicio.setDate(base.getDate() - base.getDay() + i)
+              // Semana começa na segunda (1) e termina no domingo (7)
+              // getDay(): 0=Dom,1=Seg,...,6=Sáb → offset: Dom vira 6, demais vira getDay()-1
+              const diaSem = base.getDay()
+              const offsetParaSeg = diaSem === 0 ? 6 : diaSem - 1
+              inicio.setDate(base.getDate() - offsetParaSeg + i)
               const dStr = toDateStr(inicio)
               const isAtivo = dStr === dataAtual
-              // destaca Qui (4) e Dom (0) como dias de reunião
-              const isReuniaoDay = i === 4 || i === 0
+              // na nova ordem: i=3 → Qui, i=6 → Dom
+              const isReuniaoDay = i === 3 || i === 6
               return (
                 <button
                   key={i}
