@@ -438,6 +438,7 @@ export default function ProgramacaoPage() {
   const [programacao, setProgramacao] = useState<ProgramacaoDia | null>(null)
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
+  const [direcao, setDirecao] = useState<"left" | "right">("right")
 
   const buscarProgramacao = useCallback(async (data: string) => {
     setLoading(true)
@@ -455,7 +456,15 @@ export default function ProgramacaoPage() {
 
   useEffect(() => { buscarProgramacao(dataAtual) }, [dataAtual, buscarProgramacao])
 
-  const irParaDia = (n: number) => setDataAtual((prev) => adicionarDias(prev, n))
+  const irParaDia = (n: number) => {
+    setDirecao(n > 0 ? "right" : "left")
+    setDataAtual((prev) => adicionarDias(prev, n))
+  }
+
+  const irParaData = (data: string) => {
+    setDirecao(data > dataAtual ? "right" : "left")
+    setDataAtual(data)
+  }
 
   const dSemana  = programacao?.diaSemana ?? new Date(dataAtual + "T12:00:00").getDay()
   const isQuinta  = dSemana === 4
@@ -545,7 +554,7 @@ export default function ProgramacaoPage() {
               return (
                 <button
                   key={i}
-                  onClick={() => setDataAtual(dStr)}
+                  onClick={() => irParaData(dStr)}
                   className="flex-1 flex flex-col items-center rounded-xl py-1.5 gap-0.5 transition-all active:scale-95"
                   style={{
                     background: isAtivo
@@ -580,7 +589,10 @@ export default function ProgramacaoPage() {
             <p className="text-red-400 font-semibold text-sm">{erro}</p>
           </div>
         ) : programacao ? (
-          <div className="flex flex-col gap-3.5">
+          <div
+            key={dataAtual}
+            className={`flex flex-col gap-3.5 ${direcao === "right" ? "animate-slide-in-right" : "animate-slide-in-left"}`}
+          >
 
             {/* Pílulas resumo */}
             <PilulasDia
