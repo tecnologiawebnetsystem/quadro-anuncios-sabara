@@ -152,9 +152,9 @@ const periodoLabel: Record<string, string> = { manha: "Manhã", tarde: "Tarde" }
 const tipoLabel: Record<string, string>    = { individual: "Individual", grupo: "Grupo", salao: "No Salão" }
 
 const SECOES: Record<string, { label: string; cor: string; Icon: React.ElementType }> = {
-  tesouros:  { label: "Tesouros da Palavra de Deus",    cor: "#b45309", Icon: Gem },
-  ministerio:{ label: "Faça Seu Melhor no Ministério",  cor: "#d97706", Icon: MessageSquare },
-  vida:      { label: "Nossa Vida Cristã",               cor: "#3b82f6", Icon: Heart },
+  tesouros:  { label: "Tesouros da Palavra de Deus",    cor: "#fbbf24", Icon: Gem },
+  ministerio:{ label: "Faça Seu Melhor no Ministério",  cor: "#fdba74", Icon: MessageSquare },
+  vida:      { label: "Nossa Vida Cristã",               cor: "#93c5fd", Icon: Heart },
 }
 
 // ─── Componentes base ─────────────────────────────────────────────────────────
