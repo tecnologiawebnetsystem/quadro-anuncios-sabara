@@ -509,9 +509,11 @@ export default function ProgramacaoPage() {
                   </span>
                 </div>
               )}
-              <p className="text-sidebar-primary font-black text-[19px] capitalize leading-tight">
-                {DIAS_SEMANA[dSemana]}
-              </p>
+              {!badgeReuniao && (
+                <p className="text-sidebar-primary font-black text-[19px] capitalize leading-tight">
+                  {DIAS_SEMANA[dSemana]}
+                </p>
+              )}
               <p className="text-sidebar-foreground/50 text-[12px]">{formatarDataLonga(dataAtual)}</p>
             </div>
 
