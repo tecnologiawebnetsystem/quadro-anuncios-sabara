@@ -490,7 +490,7 @@ export default function ProgramacaoPage() {
               <CalendarDays size={13} className="text-sidebar-primary" />
             </div>
             <span className="text-[14px] font-black tracking-tight text-sidebar-foreground">
-              Info<span className="text-sidebar-primary">Flow</span>
+              Quadro<span className="text-sidebar-primary">Anúncios</span>
             </span>
           </div>
           <p className="text-[10px] uppercase tracking-widest font-bold text-sidebar-foreground/40 text-center">
