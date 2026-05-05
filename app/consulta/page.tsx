@@ -644,7 +644,7 @@ export default function ConsultaPage() {
           <CardContent>
             <div className="grid grid-cols-7 gap-1 text-center text-xs overflow-visible">
               {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
-                <div key={i} className="py-1 text-zinc-500 font-medium">{dia}</div>
+                <div key={i} className="py-1 text-zinc-300 font-semibold">{dia}</div>
               ))}
               {diasCalendario.map((dia, i) => {
                 const evento = temEvento(dia)
@@ -737,7 +737,7 @@ export default function ConsultaPage() {
                 <span className="w-2 h-2 rounded-full bg-blue-600" /> Hoje
               </span>
             </div>
-            <p className="text-[9px] text-zinc-600 mt-2">Toque na data para ver detalhes</p>
+            <p className="text-[9px] text-zinc-400 mt-2">Toque na data para ver detalhes</p>
           </CardContent>
         </Card>
 
@@ -826,10 +826,10 @@ export default function ConsultaPage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">Campo Hoje</p>
-                  <p className="text-xs text-zinc-400 mt-0.5">
+                  <p className="text-xs text-zinc-300 mt-0.5">
                     Dirigente: <span className="text-green-400 font-medium">{campoHoje.dirigente_nome}</span>
                   </p>
-                  <p className="text-xs text-zinc-500 mt-0.5">
+                  <p className="text-xs text-zinc-300 mt-0.5">
                     {campoHoje.periodo === "manha" ? "Manhã" : "Tarde"} — {campoHoje.horario}
                   </p>
                 </div>
