@@ -88,7 +88,13 @@ export function WeatherWidget({ data }: { data: string }) {
           codigo: h.weather_code[i] ?? 0,
           isDia: h.is_day[i] === 1,
         }))
-        setHoras(horasData)
+        // Exibe somente o período da reunião: 08h45 até 11h00
+        // A API retorna horas cheias, então mostramos 08h, 09h, 10h e 11h
+        const horasFiltradas = horasData.filter(h => {
+          const hora = parseInt(h.hora.split(":")[0])
+          return hora >= 8 && hora <= 11
+        })
+        setHoras(horasFiltradas)
         setResumo({
           temp_min: Math.round(d.temperature_2m_min[0]),
           temp_max: Math.round(d.temperature_2m_max[0]),
@@ -97,16 +103,7 @@ export function WeatherWidget({ data }: { data: string }) {
           descricao: getCondicao(d.weather_code[0]).label,
         })
 
-        // Rolar para hora atual
-        setTimeout(() => {
-          const agora = new Date()
-          const horaAtual = agora.getHours()
-          if (scrollRef.current) {
-            const idx = Math.max(0, horaAtual - 1)
-            const card = scrollRef.current.children[idx] as HTMLElement
-            if (card) card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
-          }
-        }, 100)
+
       })
       .catch(() => setErro(true))
       .finally(() => setLoading(false))
