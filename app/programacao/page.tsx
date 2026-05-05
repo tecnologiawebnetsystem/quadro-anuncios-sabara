@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { WeatherWidget } from "@/components/weather-widget"
 import { BuscaDesignacoesProgramacao } from "@/components/programacao/busca-designacoes-inline"
 import {
@@ -432,6 +432,59 @@ function PilulasDia({ programacao, isQuinta, isDomingo, isSabado, isSegSex }: {
   )
 }
 
+// ─── Hook de swipe ────────────────────────────────────────────────────────────
+
+function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
+  const mouseStartX = useRef<number | null>(null)
+  const isDragging  = useRef(false)
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    // Ignora se o movimento vertical for maior que o horizontal (scroll normal)
+    if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return
+    if (dx < 0) onSwipeLeft()
+    else onSwipeRight()
+    touchStartX.current = null
+    touchStartY.current = null
+  }
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    mouseStartX.current = e.clientX
+    isDragging.current  = false
+  }
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (mouseStartX.current !== null && Math.abs(e.clientX - mouseStartX.current) > 5) {
+      isDragging.current = true
+    }
+  }
+
+  const onMouseUp = (e: React.MouseEvent) => {
+    if (mouseStartX.current === null || !isDragging.current) {
+      mouseStartX.current = null
+      isDragging.current  = false
+      return
+    }
+    const dx = e.clientX - mouseStartX.current
+    mouseStartX.current = null
+    isDragging.current  = false
+    if (Math.abs(dx) < 50) return
+    if (dx < 0) onSwipeLeft()
+    else onSwipeRight()
+  }
+
+  return { onTouchStart, onTouchEnd, onMouseDown, onMouseMove, onMouseUp }
+}
+
 // ─── Página principal ─────────────────────────────────────────────────────────
 
 export default function ProgramacaoPage() {
@@ -467,6 +520,11 @@ export default function ProgramacaoPage() {
     setDataAtual(data)
   }
 
+  const swipe = useSwipe(
+    () => irParaDia(1),   // swipe para esquerda → próximo dia
+    () => irParaDia(-1),  // swipe para direita  → dia anterior
+  )
+
   const dSemana  = programacao?.diaSemana ?? new Date(dataAtual + "T12:00:00").getDay()
   const isQuinta  = dSemana === 4
   const isDomingo = dSemana === 0
@@ -479,7 +537,15 @@ export default function ProgramacaoPage() {
     : null
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--background)", color: "var(--foreground)" }}>
+    <div
+      className="min-h-screen"
+      style={{ background: "var(--background)", color: "var(--foreground)" }}
+      onTouchStart={swipe.onTouchStart}
+      onTouchEnd={swipe.onTouchEnd}
+      onMouseDown={swipe.onMouseDown}
+      onMouseMove={swipe.onMouseMove}
+      onMouseUp={swipe.onMouseUp}
+    >
 
       {/* ── Header fixo ── */}
       <header className="sticky top-0 z-30 bg-sidebar shadow-xl">
