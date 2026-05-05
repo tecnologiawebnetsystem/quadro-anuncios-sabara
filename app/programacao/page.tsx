@@ -91,8 +91,8 @@ interface Parte {
 
 interface ReuniaoPublica {
   designacao: {
-    presidente: string
-    leitor_sentinela: string
+    presidente_nome: string
+    leitor_sentinela_nome: string
   } | null
   discurso: {
     tema: string
@@ -381,12 +381,12 @@ function BlocoReuniaoDomingo({ reuniao }: { reuniao: ReuniaoPublica }) {
   const { designacao, discurso } = reuniao
   return (
     <div>
-      <InfoRow label="Presidente" value={designacao?.presidente || "—"} Icon={UserCheck} />
+      <InfoRow label="Presidente" value={designacao?.presidente_nome || "—"} Icon={UserCheck} />
       {discurso?.tema              && <InfoRow label="Tema do Discurso" value={discurso.tema} Icon={BookOpen} />}
       {discurso?.orador_nome       && <InfoRow label="Orador" value={discurso.orador_nome} Icon={UserCheck} />}
       {discurso?.orador_congregacao && <InfoRow label="Congregação" value={discurso.orador_congregacao} Icon={Church} />}
       <InfoRow label="Dirigente — A Sentinela" value="Júnior Silva" Icon={UserCheck} />
-      <InfoRow label="Leitor — A Sentinela" value={designacao?.leitor_sentinela || "—"} Icon={BookOpen} />
+      <InfoRow label="Leitor — A Sentinela" value={designacao?.leitor_sentinela_nome || "—"} Icon={BookOpen} />
     </div>
   )
 }
