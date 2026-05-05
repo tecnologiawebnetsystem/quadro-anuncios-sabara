@@ -2,16 +2,19 @@
 
 import { useState, useEffect, useCallback } from "react"
 import {
-  Monitor, Users, Search, Check, X, Loader2, BarChart3,
-  Calendar, ChevronDown, Trophy, ArrowUpDown,
+  Monitor, Search, Check, X, Loader2, BarChart3,
+  Calendar, Trophy, ArrowUpDown, ChevronLeft, ChevronRight,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { format, parseISO } from "date-fns"
+import { format, parseISO, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+
+// Mês inicial fixo: maio de 2026
+const MES_INICIAL = new Date(2026, 4, 1)
 
 interface Reuniao {
   id: string
@@ -61,6 +64,11 @@ export default function AssistenciaZoomPage() {
 
   // ── aba ──
   const [aba, setAba] = useState<"registro" | "ranking">("registro")
+
+  // ── mês exibido ──
+  const [mesAtual, setMesAtual] = useState<Date>(MES_INICIAL)
+  const irMesAnterior = () => setMesAtual(prev => { const m = subMonths(prev, 1); return m < MES_INICIAL ? prev : m })
+  const irProximoMes  = () => setMesAtual(prev => addMonths(prev, 1))
 
   // ── carregamento inicial ──
   const carregarBase = useCallback(async () => {
@@ -146,6 +154,12 @@ export default function AssistenciaZoomPage() {
   const publicadoresFiltrados = publicadores.filter(p =>
     p.nome.toLowerCase().includes(busca.toLowerCase())
   )
+  const reunioesMes = reunioes.filter(r => {
+    try { return isSameMonth(parseISO(r.data), mesAtual) } catch { return false }
+  }).sort((a, b) => a.data.localeCompare(b.data))
+
+  // Não muda de mês para trás de maio
+  const podeIrAntes = mesAtual > MES_INICIAL
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -204,42 +218,93 @@ export default function AssistenciaZoomPage() {
           /* ── ABA REGISTRO ────────────────────────────────────────────── */
           <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
 
-            {/* Coluna esquerda: seletor de reunião */}
+            {/* Coluna esquerda: navegador de meses + reuniões */}
             <div className="space-y-3">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Selecionar Reunião
-              </h2>
-              <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
-                {reunioes.map(r => {
+
+              {/* Navegador de mês */}
+              <div className="flex items-center justify-between rounded-xl border border-border bg-card px-3 py-2">
+                <button
+                  onClick={irMesAnterior}
+                  disabled={!podeIrAntes}
+                  className={cn(
+                    "flex h-7 w-7 items-center justify-center rounded-lg transition-all",
+                    podeIrAntes
+                      ? "hover:bg-muted/50 text-foreground"
+                      : "opacity-25 cursor-not-allowed text-muted-foreground"
+                  )}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+
+                <div className="text-center">
+                  <p className="text-sm font-bold capitalize">
+                    {format(mesAtual, "MMMM", { locale: ptBR })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {format(mesAtual, "yyyy")}
+                  </p>
+                </div>
+
+                <button
+                  onClick={irProximoMes}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-muted/50 transition-all text-foreground"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Reuniões do mês */}
+              <div className="space-y-2 max-h-[65vh] overflow-y-auto pr-1">
+                {reunioesMes.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center gap-2 py-10 text-muted-foreground">
+                    <Calendar className="h-8 w-8 opacity-30" />
+                    <p className="text-xs text-center">Nenhuma reunião cadastrada<br />em {format(mesAtual, "MMMM 'de' yyyy", { locale: ptBR })}</p>
+                  </div>
+                ) : reunioesMes.map(r => {
                   const ativa  = r.id === reuniaoId
                   const dataBR = format(parseISO(r.data), "dd/MM/yyyy", { locale: ptBR })
-                  const dia    = r.dia_semana
+                  const diaNome = r.dia_semana
                     ? r.dia_semana.charAt(0).toUpperCase() + r.dia_semana.slice(1).toLowerCase()
                     : ""
+                  const diaNum = format(parseISO(r.data), "d")
                   return (
                     <button
                       key={r.id}
-                      onClick={() => setReuniaoId(r.id)}
+                      onClick={() => { setReuniaoId(r.id); setBusca("") }}
                       className={cn(
-                        "w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-all",
+                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all",
                         ativa
-                          ? "border-cyan-500/50 bg-cyan-500/10 text-foreground"
+                          ? "border-cyan-500/50 bg-cyan-500/10"
                           : "border-border bg-card hover:border-border/80 hover:bg-muted/30"
                       )}
                     >
-                      <div>
-                        <p className={cn("text-sm font-semibold", ativa ? "text-cyan-400" : "text-foreground")}>
-                          {dataBR}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{dia}</p>
+                      {/* Bolinha com dia */}
+                      <div className={cn(
+                        "flex h-10 w-10 flex-shrink-0 flex-col items-center justify-center rounded-xl border-2 font-bold transition-all",
+                        ativa
+                          ? "border-cyan-400 bg-cyan-500/20 text-cyan-400"
+                          : "border-border bg-muted/20 text-foreground"
+                      )}>
+                        <span className="text-base leading-none">{diaNum}</span>
+                        <span className="text-[9px] leading-none uppercase tracking-wide opacity-70">
+                          {diaNome.slice(0, 3)}
+                        </span>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground">
+
+                      <div className="flex-1 min-w-0">
+                        <p className={cn("text-sm font-semibold truncate", ativa ? "text-cyan-400" : "text-foreground")}>
+                          {diaNome}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{dataBR}</p>
+                      </div>
+
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-xs">
                           <span className="text-blue-400 font-semibold">{r.presencial}</span>
-                          {" + "}
+                          <span className="text-muted-foreground"> + </span>
                           <span className="text-cyan-400 font-semibold">{r.zoom}</span>
                         </p>
-                        <p className="text-[10px] text-muted-foreground">pres. + zoom</p>
+                        <p className="text-[10px] text-muted-foreground">pres.+zoom</p>
                       </div>
                     </button>
                   )
