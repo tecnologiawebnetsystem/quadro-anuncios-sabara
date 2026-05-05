@@ -22,6 +22,7 @@ import {
   Settings,
   Music,
   HelpCircle,
+  BarChart3,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -109,7 +110,8 @@ const impressaoGroup: MenuGroup = {
     { title: "Grupo de Estudos", icon: BookOpen, href: "/anciao/impressao/grupo-estudos", color: "text-amber-400" },
     { title: "Serviço de Campo", icon: MapPin, href: "/anciao/impressao/servico-campo", color: "text-amber-400" },
     { title: "Limpeza do Salão", icon: Sparkles, href: "/anciao/impressao/limpeza-salao", color: "text-cyan-400" },
-    { title: "Publicadores", icon: Users, href: "/anciao/impressao/publicadores", color: "text-sky-400" },
+    { title: "Publicadores", icon: Users,     href: "/anciao/impressao/publicadores", color: "text-sky-400" },
+    { title: "Assistência",  icon: BarChart3, href: "/anciao/impressao/assistencia",  color: "text-cyan-400" },
   ]
 }
 

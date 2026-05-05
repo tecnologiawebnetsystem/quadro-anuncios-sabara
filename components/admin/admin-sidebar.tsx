@@ -24,6 +24,7 @@ import {
   Music,
   Monitor,
   Map,
+  BarChart3,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -140,6 +141,7 @@ const impressaoGroup: MenuGroup = {
     { title: "Publicadores", icon: Users, href: "/admin/impressao/publicadores", color: "text-sky-400" },
     { title: "Pioneiros Regulares", icon: Flag, href: "/admin/impressao/pioneiros", color: "text-amber-500" },
     { title: "Anciãos e Servos", icon: Shield, href: "/admin/impressao/lideranca", color: "text-blue-400" },
+    { title: "Assistência",     icon: BarChart3, href: "/admin/impressao/assistencia", color: "text-cyan-400" },
   ]
 }
 
