@@ -254,7 +254,7 @@ export default function AssistenciaZoomPage() {
               </div>
 
               {/* Reuniões do mês */}
-              <div className="space-y-2 max-h-[65vh] overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
                 {reunioesMes.length === 0 ? (
                   <div className="flex flex-col items-center justify-center gap-2 py-10 text-muted-foreground">
                     <Calendar className="h-8 w-8 opacity-30" />
@@ -363,7 +363,7 @@ export default function AssistenciaZoomPage() {
                       <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[55vh] overflow-y-auto pr-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[55vh] overflow-y-auto pr-1 scrollbar-thin">
                       {publicadoresFiltrados.map(pub => {
                         const marcado   = zoomEntries.some(e => e.publicador_id === pub.id)
                         const carregando = salvando === pub.id
