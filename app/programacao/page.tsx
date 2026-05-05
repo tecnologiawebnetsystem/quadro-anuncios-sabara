@@ -91,8 +91,8 @@ interface Parte {
 
 interface ReuniaoPublica {
   designacao: {
-    presidente_nome: string
-    leitor_sentinela_nome: string
+    presidente: string
+    leitor_sentinela: string
   } | null
   discurso: {
     tema: string
@@ -381,12 +381,12 @@ function BlocoReuniaoDomingo({ reuniao }: { reuniao: ReuniaoPublica }) {
   const { designacao, discurso } = reuniao
   return (
     <div>
-      <InfoRow label="Presidente" value={designacao?.presidente_nome || "—"} Icon={UserCheck} />
+      <InfoRow label="Presidente" value={designacao?.presidente || "—"} Icon={UserCheck} />
       {discurso?.tema              && <InfoRow label="Tema do Discurso" value={discurso.tema} Icon={BookOpen} />}
       {discurso?.orador_nome       && <InfoRow label="Orador" value={discurso.orador_nome} Icon={UserCheck} />}
       {discurso?.orador_congregacao && <InfoRow label="Congregação" value={discurso.orador_congregacao} Icon={Church} />}
       <InfoRow label="Dirigente — A Sentinela" value="Júnior Silva" Icon={UserCheck} />
-      <InfoRow label="Leitor — A Sentinela" value={designacao?.leitor_sentinela_nome || "—"} Icon={BookOpen} />
+      <InfoRow label="Leitor — A Sentinela" value={designacao?.leitor_sentinela || "—"} Icon={BookOpen} />
     </div>
   )
 }
@@ -404,7 +404,7 @@ function PilulasDia({ programacao, isQuinta, isDomingo, isSabado, isSegSex }: {
 
   if (isQuinta && programacao.vidaMinisterio.semana && !programacao.vidaMinisterio.semana.sem_reuniao)
     pilulas.push({ label: "Reunião", cor: "#1d4ed8" })
-  if (isDomingo && (programacao.reuniaoPublica.designacao || programacao.reuniaoPublica.discurso))
+  if (isDomingo)
     pilulas.push({ label: "Reunião", cor: "#b45309" })
   if ((isSegSex && programacao.campo.semana.length > 0) || (isSabado && programacao.campo.sabado.length > 0) || (isDomingo && programacao.campo.domingo.length > 0))
     pilulas.push({ label: "Campo", cor: "#15803d" })
