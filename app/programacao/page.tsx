@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { WeatherWidget } from "@/components/weather-widget"
 import {
   ChevronLeft,
   ChevronRight,
@@ -91,8 +92,8 @@ interface Parte {
 
 interface ReuniaoPublica {
   designacao: {
-    presidente: string
-    leitor_sentinela: string
+    presidente_nome: string
+    leitor_sentinela_nome: string
   } | null
   discurso: {
     tema: string
@@ -151,9 +152,9 @@ const periodoLabel: Record<string, string> = { manha: "Manhã", tarde: "Tarde" }
 const tipoLabel: Record<string, string>    = { individual: "Individual", grupo: "Grupo", salao: "No Salão" }
 
 const SECOES: Record<string, { label: string; cor: string; Icon: React.ElementType }> = {
-  tesouros:  { label: "Tesouros da Palavra de Deus",    cor: "#b45309", Icon: Gem },
-  ministerio:{ label: "Faça Seu Melhor no Ministério",  cor: "#d97706", Icon: MessageSquare },
-  vida:      { label: "Nossa Vida Cristã",               cor: "#3b82f6", Icon: Heart },
+  tesouros:  { label: "Tesouros da Palavra de Deus",    cor: "#fbbf24", Icon: Gem },
+  ministerio:{ label: "Faça Seu Melhor no Ministério",  cor: "#fdba74", Icon: MessageSquare },
+  vida:      { label: "Nossa Vida Cristã",               cor: "#93c5fd", Icon: Heart },
 }
 
 // ─── Componentes base ─────────────────────────────────────────────────────────
@@ -381,12 +382,12 @@ function BlocoReuniaoDomingo({ reuniao }: { reuniao: ReuniaoPublica }) {
   const { designacao, discurso } = reuniao
   return (
     <div>
-      <InfoRow label="Presidente" value={designacao?.presidente || "—"} Icon={UserCheck} />
+      <InfoRow label="Presidente" value={designacao?.presidente_nome || "—"} Icon={UserCheck} />
       {discurso?.tema              && <InfoRow label="Tema do Discurso" value={discurso.tema} Icon={BookOpen} />}
       {discurso?.orador_nome       && <InfoRow label="Orador" value={discurso.orador_nome} Icon={UserCheck} />}
       {discurso?.orador_congregacao && <InfoRow label="Congregação" value={discurso.orador_congregacao} Icon={Church} />}
       <InfoRow label="Dirigente — A Sentinela" value="Júnior Silva" Icon={UserCheck} />
-      <InfoRow label="Leitor — A Sentinela" value={designacao?.leitor_sentinela || "—"} Icon={BookOpen} />
+      <InfoRow label="Leitor — A Sentinela" value={designacao?.leitor_sentinela_nome || "—"} Icon={BookOpen} />
     </div>
   )
 }
@@ -509,9 +510,11 @@ export default function ProgramacaoPage() {
                   </span>
                 </div>
               )}
-              <p className="text-sidebar-primary font-black text-[19px] capitalize leading-tight">
-                {DIAS_SEMANA[dSemana]}
-              </p>
+              {!badgeReuniao && (
+                <p className="text-sidebar-primary font-black text-[19px] capitalize leading-tight">
+                  {DIAS_SEMANA[dSemana]}
+                </p>
+              )}
               <p className="text-sidebar-foreground/50 text-[12px]">{formatarDataLonga(dataAtual)}</p>
             </div>
 
@@ -587,6 +590,7 @@ export default function ProgramacaoPage() {
             {isSegSex && programacao.campo.semana.length > 0 && (
               <Card titulo="Serviço de Campo" corBorda="#16a34a" corFundo="#14532d" corTexto="#f0fdf4" Icon={MapPin}>
                 <BlocoCampoSemana campo={programacao.campo.semana} />
+                <WeatherWidget data={dataAtual} inline />
               </Card>
             )}
 
@@ -594,6 +598,7 @@ export default function ProgramacaoPage() {
             {dSemana === 1 && programacao.campo.cartas.length > 0 && (
               <Card titulo="Serviço de Cartas" corBorda="#0891b2" corFundo="#0e7490" corTexto="#ecfeff" Icon={MapPin}>
                 <BlocoCampoCartas cartas={programacao.campo.cartas} />
+                <WeatherWidget data={dataAtual} inline />
               </Card>
             )}
 
@@ -601,6 +606,7 @@ export default function ProgramacaoPage() {
             {isSabado && (
               <Card titulo="Serviço de Campo — Sábado" corBorda="#16a34a" corFundo="#14532d" corTexto="#f0fdf4" Icon={MapPin}>
                 <BlocoCampoSabado campo={programacao.campo.sabado} />
+                <WeatherWidget data={dataAtual} inline />
               </Card>
             )}
 
@@ -608,6 +614,7 @@ export default function ProgramacaoPage() {
             {isDomingo && programacao.campo.domingo.length > 0 && (
               <Card titulo="Serviço de Campo" corBorda="#16a34a" corFundo="#14532d" corTexto="#f0fdf4" Icon={MapPin}>
                 <BlocoCampoDomingo campo={programacao.campo.domingo} />
+                <WeatherWidget data={dataAtual} inline />
               </Card>
             )}
 

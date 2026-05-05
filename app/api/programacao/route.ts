@@ -107,8 +107,8 @@ export async function GET(request: NextRequest) {
     // Reunião pública — designações (domingo)
     diaSemana === 0
       ? supabase
-          .from("designacoes_reuniao_publica")
-          .select("data, presidente, leitor_sentinela")
+          .from("reuniao_publica_designacoes")
+          .select("data, presidente_nome, leitor_sentinela_nome")
           .eq("data", data)
           .maybeSingle()
       : Promise.resolve({ data: null }),
