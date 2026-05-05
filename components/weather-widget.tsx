@@ -114,7 +114,7 @@ export function WeatherWidget({ data }: { data: string }) {
 
   if (loading) {
     return (
-      <div className="mx-4 mb-3 rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="max-w-lg mx-auto px-4 mb-3"><div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-2 px-4 py-3">
           <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
           <div className="flex-1 space-y-1.5">
@@ -127,7 +127,7 @@ export function WeatherWidget({ data }: { data: string }) {
             <div key={i} className="flex-shrink-0 w-14 h-20 rounded-xl bg-white/10 animate-pulse" />
           ))}
         </div>
-      </div>
+      </div></div>
     )
   }
 
@@ -136,8 +136,9 @@ export function WeatherWidget({ data }: { data: string }) {
   const condicao = getCondicao(resumo.codigo)
 
   return (
+    <div className="max-w-lg mx-auto px-4 mb-3">
     <div
-      className="mx-4 mb-3 rounded-2xl overflow-hidden"
+      className="rounded-2xl overflow-hidden"
       style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
     >
       {/* Cabeçalho resumo do dia */}
@@ -211,6 +212,7 @@ export function WeatherWidget({ data }: { data: string }) {
           )
         })}
       </div>
+    </div>
     </div>
   )
 }
