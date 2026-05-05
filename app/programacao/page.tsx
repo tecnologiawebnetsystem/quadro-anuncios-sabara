@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { WeatherWidget } from "@/components/weather-widget"
 import {
   ChevronLeft,
   ChevronRight,
@@ -561,6 +562,9 @@ export default function ProgramacaoPage() {
           </div>
         </div>
       </header>
+
+      {/* ── Clima hora a hora ── */}
+      <WeatherWidget data={dataAtual} />
 
       {/* ── Conteúdo ── */}
       <main className="max-w-lg mx-auto px-4 pt-5 pb-12">
