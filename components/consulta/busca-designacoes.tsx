@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Search, Calendar, Wrench, BookOpen, MapPin, Mic, Sparkles, User, X, Loader2 } from "lucide-react"
+import { Search, Calendar, Wrench, BookOpen, MapPin, Mic, Sparkles, User, X, Loader2, Users } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,12 +10,12 @@ import { cn } from "@/lib/utils"
 import { buscarDesignacoesPorNome, getPublicadoresParaBusca, type DesignacaoEncontrada } from "@/lib/services/busca-designacoes"
 
 const tipoConfig: Record<DesignacaoEncontrada['tipo'], { icon: typeof Calendar; color: string; bgColor: string; label: string }> = {
-  equipe_tecnica: { icon: Wrench, color: "text-orange-400", bgColor: "bg-orange-600/20", label: "Equipe Técnica" },
-  vida_ministerio: { icon: BookOpen, color: "text-blue-400", bgColor: "bg-blue-600/20", label: "Vida e Ministério" },
-  limpeza: { icon: Sparkles, color: "text-cyan-400", bgColor: "bg-cyan-600/20", label: "Limpeza" },
-  campo: { icon: MapPin, color: "text-green-400", bgColor: "bg-green-600/20", label: "Serviço de Campo" },
-  discurso: { icon: Mic, color: "text-amber-400", bgColor: "bg-amber-600/20", label: "Discurso Público" },
-  sentinela: { icon: Calendar, color: "text-red-400", bgColor: "bg-red-600/20", label: "Sentinela" },
+  equipe_tecnica:  { icon: Wrench,   color: "text-orange-400", bgColor: "bg-orange-600/20", label: "Equipe Técnica" },
+  vida_ministerio: { icon: BookOpen, color: "text-blue-400",   bgColor: "bg-blue-600/20",   label: "Vida e Ministério" },
+  limpeza:         { icon: Sparkles, color: "text-cyan-400",   bgColor: "bg-cyan-600/20",   label: "Limpeza" },
+  campo:           { icon: MapPin,   color: "text-green-400",  bgColor: "bg-green-600/20",  label: "Serviço de Campo" },
+  discurso:        { icon: Mic,      color: "text-amber-400",  bgColor: "bg-amber-600/20",  label: "Discurso Público" },
+  reuniao_publica: { icon: Users,    color: "text-violet-400", bgColor: "bg-violet-600/20", label: "Reunião Pública" },
 }
 
 interface BuscaDesignacoesProps {

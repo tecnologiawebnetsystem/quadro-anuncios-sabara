@@ -3,18 +3,18 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import {
   Search, X, Loader2, User, Calendar, Wrench, BookOpen,
-  MapPin, Mic, Sparkles, ChevronDown, ChevronUp,
+  MapPin, Mic, Sparkles, ChevronDown, ChevronUp, Users,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { buscarDesignacoesPorNome, getPublicadoresParaBusca, type DesignacaoEncontrada } from "@/lib/services/busca-designacoes"
 
 const tipoConfig: Record<DesignacaoEncontrada["tipo"], { icon: typeof Calendar; color: string; bgColor: string; label: string }> = {
-  equipe_tecnica: { icon: Wrench,   color: "text-orange-400", bgColor: "bg-orange-500/15", label: "Equipe Técnica" },
-  vida_ministerio:{ icon: BookOpen, color: "text-blue-400",   bgColor: "bg-blue-500/15",   label: "Vida e Ministério" },
-  limpeza:        { icon: Sparkles, color: "text-cyan-400",   bgColor: "bg-cyan-500/15",   label: "Limpeza" },
-  campo:          { icon: MapPin,   color: "text-green-400",  bgColor: "bg-green-500/15",  label: "Serviço de Campo" },
-  discurso:       { icon: Mic,      color: "text-amber-400",  bgColor: "bg-amber-500/15",  label: "Discurso Público" },
-  sentinela:      { icon: Calendar, color: "text-red-400",    bgColor: "bg-red-500/15",    label: "Sentinela" },
+  equipe_tecnica:  { icon: Wrench,   color: "text-orange-400", bgColor: "bg-orange-500/15", label: "Equipe Técnica" },
+  vida_ministerio: { icon: BookOpen, color: "text-blue-400",   bgColor: "bg-blue-500/15",   label: "Vida e Ministério" },
+  limpeza:         { icon: Sparkles, color: "text-cyan-400",   bgColor: "bg-cyan-500/15",   label: "Limpeza" },
+  campo:           { icon: MapPin,   color: "text-green-400",  bgColor: "bg-green-500/15",  label: "Serviço de Campo" },
+  discurso:        { icon: Mic,      color: "text-amber-400",  bgColor: "bg-amber-500/15",  label: "Discurso Público" },
+  reuniao_publica: { icon: Users,    color: "text-violet-400", bgColor: "bg-violet-500/15", label: "Reunião Pública" },
 }
 
 export function BuscaDesignacoesProgramacao() {
