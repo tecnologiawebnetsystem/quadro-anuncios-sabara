@@ -27,6 +27,7 @@ export function BuscaDesignacoesProgramacao() {
   const [carregando, setCarregando]           = useState(false)
   const [buscaRealizada, setBuscaRealizada]   = useState(false)
   const [nomeBuscado, setNomeBuscado]         = useState("")
+  const nomeJaSelecionado = useRef(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -34,6 +35,11 @@ export function BuscaDesignacoesProgramacao() {
   }, [])
 
   useEffect(() => {
+    // Não reexibir o dropdown quando o nome foi selecionado via clique
+    if (nomeJaSelecionado.current) {
+      nomeJaSelecionado.current = false
+      return
+    }
     if (busca.length >= 2) {
       const filtradas = publicadores
         .filter(p => p.toLowerCase().includes(busca.toLowerCase()))
@@ -63,6 +69,9 @@ export function BuscaDesignacoesProgramacao() {
   }, [])
 
   const selecionarSugestao = (nome: string) => {
+    nomeJaSelecionado.current = true
+    setSugestoes([])
+    setMostrarSugestoes(false)
     setBusca(nome)
     realizarBusca(nome)
   }
@@ -84,7 +93,7 @@ export function BuscaDesignacoesProgramacao() {
   /* ── Fechado: botão compacto ── */
   if (!aberto) {
     return (
-      <div className="max-w-lg mx-auto px-4 mb-2">
+      <div className="max-w-lg mx-auto px-4 mt-4 mb-2">
         <button
           onClick={abrirBusca}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group"
@@ -105,7 +114,7 @@ export function BuscaDesignacoesProgramacao() {
 
   /* ── Aberto: painel completo ── */
   return (
-    <div className="max-w-lg mx-auto px-4 mb-2">
+    <div className="max-w-lg mx-auto px-4 mt-4 mb-2">
       <div
         className="rounded-2xl overflow-hidden"
         style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)" }}
