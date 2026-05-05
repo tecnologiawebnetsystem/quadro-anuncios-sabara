@@ -123,7 +123,7 @@ const PrintAssistencia = ({ dados }: { dados: AssistenciaReuniao[] }) => {
 
           return (
             <div key={d.id || i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-              <span style={{ fontSize: 10, color: "#555", width: 60, flexShrink: 0, textAlign: "right" }}>
+              <span style={{ fontSize: 10, color: "#222", fontWeight: 600, width: 60, flexShrink: 0, textAlign: "right" }}>
                 {diaSemana} {dataFormatada}
               </span>
               <div style={{ flex: 1, display: "flex", height: 16, borderRadius: 4, overflow: "hidden", background: "#f1f5f9" }}>
@@ -177,12 +177,12 @@ const PrintAssistencia = ({ dados }: { dados: AssistenciaReuniao[] }) => {
             return (
               <tr
                 key={d.id || i}
-                style={{ background: i % 2 === 0 ? "#fff" : "#f8fafc", borderBottom: "1px solid #e2e8f0" }}
+                style={{ background: i % 2 === 0 ? "#fff" : "#f0f4f8", borderBottom: "1px solid #cbd5e1" }}
               >
-                <td style={{ padding: "6px 10px" }}>
+                <td style={{ padding: "6px 10px", color: "#111", fontWeight: 500 }}>
                   {format(parseISO(d.data), "dd/MM/yyyy", { locale: ptBR })}
                 </td>
-                <td style={{ padding: "6px 10px", textTransform: "capitalize" }}>
+                <td style={{ padding: "6px 10px", textTransform: "capitalize", color: "#111", fontWeight: 500 }}>
                   {d.dia_semana || "—"}
                 </td>
                 <td style={{ padding: "6px 10px", textAlign: "center", color: "#1d4ed8", fontWeight: 600 }}>
