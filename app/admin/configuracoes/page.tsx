@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { CenteredLoader } from "@/components/ui/page-loader"
-import { Settings, Clock, Calendar, Save, Loader2, Check, Building2, MapPin, Video, Globe, Lock, Eye, EyeOff, UserCheck, Shield, Upload } from "lucide-react"
+import { Settings, Clock, Calendar, Save, Loader2, Check, Building2, MapPin, Video, Globe, Lock, Eye, EyeOff, UserCheck, ShieldCheck, Shield, Upload } from "lucide-react"
 import { GestaoPermissoes } from "@/components/admin/gestao-permissoes"
 import { ImportarCSV } from "@/components/admin/importar-csv"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
