@@ -1,6 +1,6 @@
-const CACHE_NAME = 'infoflow-v5';
-const STATIC_CACHE = 'infoflow-static-v5';
-const DATA_CACHE = 'infoflow-data-v1';
+const CACHE_NAME = 'infoflow-v6';
+const STATIC_CACHE = 'infoflow-static-v6';
+const DATA_CACHE = 'infoflow-data-v2';
 
 // Recursos estaticos para cache
 const staticAssets = [
@@ -75,12 +75,12 @@ self.addEventListener('fetch', (event) => {
             if (cachedResponse) {
               return cachedResponse;
             }
-            return caches.match('/consulta');
+            return caches.match('/login');
           });
         })
-    );
-    return;
-  }
+      );
+      return;
+    }
 
   // Para APIs, usar Stale While Revalidate
   if (url.pathname.startsWith('/api/')) {
