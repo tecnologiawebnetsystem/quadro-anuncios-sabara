@@ -3,10 +3,9 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
-import { ShieldCheck, Delete, Info, ArrowLeft, UserCheck } from "lucide-react"
+import { ShieldCheck, Delete, Info, UserCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import Link from "next/link"
 
 const SENHAS_PADRAO: Record<string, string> = {
   anciao: "123456",
@@ -87,17 +86,6 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4"
       style={{ background: "linear-gradient(135deg, #0f2550 0%, #1a3a6e 50%, #0f2550 100%)" }}
     >
-      <Link href="/" className="absolute top-4 left-4 sm:top-6 sm:left-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-2 text-sky-200/70 hover:text-white hover:bg-white/10"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Voltar
-        </Button>
-      </Link>
-
       <div className="w-full max-w-sm relative">
         {/* Glow sutil */}
         <div className="absolute inset-0 rounded-2xl bg-sky-400/10 blur-2xl pointer-events-none" />
