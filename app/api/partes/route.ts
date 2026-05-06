@@ -1,5 +1,3 @@
-'use server'
-
 import { streamText, UIMessage, convertToModelMessages } from 'ai'
 
 export const maxDuration = 60
