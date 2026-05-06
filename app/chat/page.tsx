@@ -7,6 +7,7 @@ import {
   Send, Loader2, BookOpen, RefreshCw, ChevronDown,
   MessageSquare, Mic, Copy, Check, ChevronRight,
   MapPin, School, Hospital, Home, ShoppingCart, Briefcase,
+  DoorOpen, Book, Lightbulb,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
@@ -409,6 +410,234 @@ Por favor, crie um roteiro completo, com linguagem popular e natural, pronto par
   )
 }
 
+// ── Componente Respostas ao Morador ──────────────────────────────────────────
+
+const EXEMPLOS_MORADOR = [
+  'Por que Deus permite o sofrimento?',
+  'Os mortos vão para o céu ou para o inferno?',
+  'Por que vocês não celebram o Natal?',
+  'Quem é Jesus para vocês?',
+  'O que acontece depois da morte?',
+  'Por que só os 144 mil vão para o céu?',
+]
+
+function RespostasMorador() {
+  const [pergunta, setPergunta]         = useState('')
+  const [copied,   setCopied]           = useState(false)
+  const bottomRef                        = useRef<HTMLDivElement>(null)
+  const inputRef                         = useRef<HTMLTextAreaElement>(null)
+
+  const { messages, sendMessage, status, setMessages } = useChat({
+    transport: new DefaultChatTransport({ api: '/api/campo' }),
+  })
+
+  const isLoading = status === 'streaming' || status === 'submitted'
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  const handleEnviar = (texto?: string) => {
+    const msg = (texto ?? pergunta).trim()
+    if (!msg || isLoading) return
+    sendMessage({ text: `O morador perguntou: "${msg}"\n\nComo posso responder isso de forma simples e bíblica?` })
+    setPergunta('')
+    setTimeout(() => inputRef.current?.focus(), 50)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleEnviar() }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setPergunta(e.target.value)
+    e.target.style.height = 'auto'
+    e.target.style.height = Math.min(e.target.scrollHeight, 140) + 'px'
+  }
+
+  const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant')
+  const lastText      = lastAssistant ? getMessageText(lastAssistant as any) : ''
+
+  const handleCopy = () => {
+    if (!lastText) return
+    navigator.clipboard.writeText(lastText)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  // Renderiza resposta formatada com seções coloridas
+  function renderResposta(text: string) {
+    return text.split('\n').map((line, i) => {
+      if (!line.trim()) return <div key={i} className="h-1.5" />
+      const matchSecao = line.match(/^(RESPOSTA PARA O MORADOR|VERSÍCULO PRINCIPAL|PUBLICAÇÃO SUGERIDA|DICA PARA O PUBLICADOR):(.*)/)
+      if (matchSecao) {
+        const cores: Record<string, string> = {
+          'RESPOSTA PARA O MORADOR': 'text-emerald-400',
+          'VERSÍCULO PRINCIPAL':     'text-amber-400',
+          'PUBLICAÇÃO SUGERIDA':     'text-blue-400',
+          'DICA PARA O PUBLICADOR':  'text-cyan-400',
+        }
+        return (
+          <p key={i} className="mt-3 mb-0.5">
+            <span className={`text-xs font-bold uppercase tracking-wider ${cores[matchSecao[1]] ?? 'text-muted-foreground'}`}>
+              {matchSecao[1]}:
+            </span>
+            {matchSecao[2] && <span className="text-foreground text-sm"> {matchSecao[2]}</span>}
+          </p>
+        )
+      }
+      return <p key={i} className="text-sm leading-relaxed text-foreground">{line}</p>
+    })
+  }
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+
+      {/* Área de mensagens */}
+      <div className="flex-1 overflow-y-auto scrollbar-thin px-4 py-4 space-y-4">
+
+        {messages.length === 0 && !isLoading && (
+          <div className="flex flex-col items-center justify-center min-h-[45vh] gap-4 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-500/10 border border-emerald-500/20">
+              <DoorOpen className="h-7 w-7 text-emerald-400" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold">Serviço de Campo</h2>
+              <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">
+                Digite o que o morador perguntou e receba uma resposta bíblica simples para usar na hora
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-2 w-full max-w-sm mt-1">
+              {EXEMPLOS_MORADOR.map((ex, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleEnviar(ex)}
+                  className="flex items-center gap-2 text-xs px-4 py-2.5 rounded-xl border border-border bg-card hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all text-left text-muted-foreground hover:text-foreground"
+                >
+                  <ChevronRight className="h-3 w-3 flex-shrink-0 text-emerald-400" />
+                  {ex}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Histórico de perguntas e respostas */}
+        {messages.map((msg, i) => {
+          const text   = getMessageText(msg as any)
+          const isUser = msg.role === 'user'
+
+          if (isUser) {
+            // Extrai apenas a pergunta original do prompt enviado
+            const perguntaOriginal = text.replace(/^O morador perguntou: "|"\n\nComo posso responder isso de forma simples e bíblica\?$/, '')
+            return (
+              <div key={msg.id ?? i} className="flex justify-end">
+                <div className="max-w-[80vw] bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-3">
+                  <p className="text-[10px] font-semibold opacity-70 mb-1 uppercase tracking-wide">Morador perguntou:</p>
+                  <p className="text-sm leading-relaxed">{perguntaOriginal}</p>
+                </div>
+              </div>
+            )
+          }
+
+          return (
+            <div key={msg.id ?? i} className="space-y-2">
+              {/* Header da resposta */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <Book className="h-3 w-3 text-emerald-400" />
+                  </div>
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Resposta Bíblica</span>
+                </div>
+                {text && (
+                  <button
+                    onClick={handleCopy}
+                    className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border bg-card hover:border-emerald-500/40 transition-all text-muted-foreground hover:text-foreground"
+                  >
+                    {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                    {copied ? 'Copiado!' : 'Copiar'}
+                  </button>
+                )}
+              </div>
+
+              {/* Conteúdo */}
+              <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/5 px-4 py-3 space-y-0.5">
+                {!text && isLoading
+                  ? <span className="flex items-center gap-1 text-muted-foreground text-xs">
+                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0ms]" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
+                    </span>
+                  : renderResposta(text)
+                }
+              </div>
+
+              {/* Botão nova pergunta */}
+              {text && !isLoading && (
+                <button
+                  onClick={() => { setMessages([]); setTimeout(() => inputRef.current?.focus(), 50) }}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <RefreshCw className="h-3 w-3" /> Nova pergunta
+                </button>
+              )}
+            </div>
+          )
+        })}
+
+        {status === 'submitted' && (
+          <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/5 px-4 py-3">
+            <span className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0ms]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
+            </span>
+          </div>
+        )}
+
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input */}
+      <div className="flex-shrink-0 px-4 pb-4 pt-2 border-t border-border/50 bg-card/80 backdrop-blur-sm">
+        <div className="flex items-end gap-2 rounded-2xl border border-border bg-background px-3 py-2 focus-within:border-emerald-500/40 focus-within:ring-1 focus-within:ring-emerald-500/20 transition-all">
+          <Lightbulb className="h-4 w-4 text-emerald-400 flex-shrink-0 mb-2" />
+          <textarea
+            ref={inputRef}
+            rows={1}
+            value={pergunta}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="O morador perguntou..."
+            disabled={isLoading}
+            className="flex-1 resize-none bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none disabled:opacity-50 py-1 max-h-36 scrollbar-thin"
+            style={{ height: 'auto' }}
+          />
+          <button
+            onClick={() => handleEnviar()}
+            disabled={!pergunta.trim() || isLoading}
+            className={cn(
+              "flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-xl transition-all mb-0.5",
+              pergunta.trim() && !isLoading
+                ? "bg-emerald-600 text-white hover:bg-emerald-500"
+                : "bg-muted text-muted-foreground cursor-not-allowed"
+            )}
+          >
+            {isLoading
+              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              : <Send className="h-3.5 w-3.5" />
+            }
+          </button>
+        </div>
+        <p className="text-center text-[10px] text-muted-foreground mt-2">
+          Respostas bíblicas baseadas em <span className="text-emerald-400">JW.org</span>
+        </p>
+      </div>
+    </div>
+  )
+}
+
 // ── Componente Chat Geral ─────────────────────────────────────────────────────
 
 function ChatGeral() {
@@ -586,7 +815,7 @@ function ChatGeral() {
 
 // ── Página principal ──────────────────────────────────────────────────────────
 
-type Aba = 'chat' | 'partes'
+type Aba = 'chat' | 'partes' | 'campo'
 
 export default function ChatPage() {
   const [aba, setAba] = useState<Aba>('chat')
@@ -622,8 +851,9 @@ export default function ChatPage() {
           {/* Abas */}
           <div className="flex px-4 gap-1">
             {([
-              { id: 'chat',   label: 'Perguntas Bíblicas',  icon: MessageSquare },
-              { id: 'partes', label: 'Criar Partes — Quinta', icon: Mic },
+              { id: 'chat',   label: 'Perguntas Bíblicas',   icon: MessageSquare },
+              { id: 'partes', label: 'Criar Partes',          icon: Mic },
+              { id: 'campo',  label: 'Serviço de Campo',      icon: DoorOpen },
             ] as { id: Aba; label: string; icon: typeof Mic }[]).map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -647,6 +877,7 @@ export default function ChatPage() {
       <div className="flex-1 overflow-hidden max-w-lg mx-auto w-full">
         {aba === 'chat'   && <ChatGeral />}
         {aba === 'partes' && <CriarPartes />}
+        {aba === 'campo'  && <RespostasMorador />}
       </div>
 
     </div>
