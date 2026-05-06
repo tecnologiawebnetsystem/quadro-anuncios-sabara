@@ -169,7 +169,8 @@ Por favor, crie um roteiro completo, com linguagem popular e natural, pronto par
     <div className="flex flex-col gap-0 h-full overflow-hidden">
 
       {/* Painel de configuração */}
-      <div className="flex-shrink-0 overflow-y-auto scrollbar-thin p-4 space-y-4 border-b border-border/50 max-h-[55vh]">
+      <div className="flex-shrink-0 overflow-y-auto scrollbar-thin max-h-[55vh] border-b border-border/50">
+      <div className="max-w-2xl mx-auto p-4 space-y-4">
 
         {/* Tipo de parte */}
         <div>
@@ -311,10 +312,12 @@ Por favor, crie um roteiro completo, com linguagem popular e natural, pronto par
             : <><Mic className="h-4 w-4" /> Gerar Roteiro da Parte</>
           }
         </button>
-      </div>
+      </div>{/* /max-w-2xl */}
+      </div>{/* /scroll wrapper */}
 
       {/* Resultado */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin p-4">
+      <div className="flex-1 overflow-y-auto scrollbar-thin">
+      <div className="max-w-2xl mx-auto p-4">
         {messages.length === 0 && !isLoading && (
           <div className="flex flex-col items-center justify-center h-full gap-3 text-center text-muted-foreground">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/8 border border-primary/15">
@@ -404,7 +407,8 @@ Por favor, crie um roteiro completo, com linguagem popular e natural, pronto par
           </div>
         )}
         <div ref={bottomRef} />
-      </div>
+      </div>{/* /max-w-2xl */}
+      </div>{/* /scroll wrapper */}
     </div>
   )
 }
@@ -598,12 +602,14 @@ export default function ChatPage() {
       <header className="flex-shrink-0 z-10 border-b border-border/50 bg-card/80 backdrop-blur-sm">
         <div className="flex items-center gap-3 px-4 py-3">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
-              <BookOpen className="h-4 w-4 text-primary" />
+            {/* Logo do app */}
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl overflow-hidden border border-primary/20 group-hover:border-primary/50 transition-colors">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/icons/icon-192x192.jpg" alt="Parque Sabará" className="h-full w-full object-cover" />
             </div>
             <div>
-              <p className="text-sm font-bold leading-none">JW Assistente</p>
-              <p className="text-[11px] text-muted-foreground leading-none mt-0.5">Baseado em JW.org</p>
+              <p className="text-sm font-bold leading-none">Parque Sabará</p>
+              <p className="text-[11px] text-muted-foreground leading-none mt-0.5">Assistente — Vida e Ministério</p>
             </div>
           </Link>
 
