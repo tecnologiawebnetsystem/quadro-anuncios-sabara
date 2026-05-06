@@ -9,7 +9,7 @@ import {
   MapPin, School, Hospital, Home, ShoppingCart, Briefcase,
   DoorOpen, Book, Lightbulb, Printer, Share2,
   AlertCircle, BookMarked, Search, Users, Heart,
-  Scroll, Globe, Star,
+  Scroll, Globe, Star, Music,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
@@ -53,11 +53,11 @@ const CATEGORIAS_CHAT = [
     ],
   },
   {
-    icon: Heart, label: 'Doutrinas', color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20',
+    icon: Music, label: 'Cânticos', color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20',
     perguntas: [
-      'Como as TJ entendem a Trindade?',
-      'O que é o Paraíso terrestre?',
-      'Por que não fazem transfusão de sangue?',
+      'Quais são os cânticos do Reino mais usados nas reuniões?',
+      'O que significa o cântico "Ó Jeová, és meu Deus e Rei"?',
+      'Onde encontrar a letra dos cânticos no JW.org?',
     ],
   },
 ]
