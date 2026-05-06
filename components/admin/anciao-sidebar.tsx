@@ -18,10 +18,10 @@ import {
   UserCheck,
   Shield,
   Flag,
-  Megaphone,
   Settings,
   Music,
   HelpCircle,
+  BarChart3,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -64,7 +64,6 @@ interface MenuGroup {
 
 const mainItems: MenuItem[] = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/anciao", color: "text-sky-400" },
-  { title: "Quadro de Anúncios", icon: Megaphone, href: "/anciao/anuncios", color: "text-amber-400" },
 ]
 
 const menuGroups: MenuGroup[] = [
@@ -90,7 +89,8 @@ const menuGroups: MenuGroup[] = [
       { title: "Equipe Técnica", icon: Wrench, href: "/anciao/equipe-tecnica", color: "text-blue-400" },
       { title: "Grupo de Estudos", icon: BookOpen, href: "/anciao/grupo-estudos", color: "text-emerald-400" },
       { title: "Limpeza do Salão", icon: Sparkles, href: "/anciao/limpeza-salao", color: "text-cyan-400" },
-      { title: "Serviço de Campo", icon: MapPin, href: "/anciao/servico-campo", color: "text-orange-400" },
+      { title: "Serviço de Campo", icon: MapPin,    href: "/anciao/servico-campo",   color: "text-orange-400" },
+      { title: "Assistência",      icon: BarChart3, href: "/anciao/assistencia",     color: "text-cyan-400"   },
     ]
   },
 ]
@@ -109,7 +109,8 @@ const impressaoGroup: MenuGroup = {
     { title: "Grupo de Estudos", icon: BookOpen, href: "/anciao/impressao/grupo-estudos", color: "text-amber-400" },
     { title: "Serviço de Campo", icon: MapPin, href: "/anciao/impressao/servico-campo", color: "text-amber-400" },
     { title: "Limpeza do Salão", icon: Sparkles, href: "/anciao/impressao/limpeza-salao", color: "text-cyan-400" },
-    { title: "Publicadores", icon: Users, href: "/anciao/impressao/publicadores", color: "text-sky-400" },
+    { title: "Publicadores", icon: Users,     href: "/anciao/impressao/publicadores", color: "text-sky-400" },
+    { title: "Assistência",  icon: BarChart3, href: "/anciao/impressao/assistencia",  color: "text-cyan-400" },
   ]
 }
 

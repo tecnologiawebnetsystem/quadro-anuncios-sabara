@@ -19,11 +19,11 @@ import {
   UserCheck,
   Shield,
   Flag,
-  Megaphone,
   Settings,
   Music,
   Monitor,
   Map,
+  BarChart3,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -71,12 +71,6 @@ const mainItems: MenuItem[] = [
     href: "/admin",
     color: "text-blue-400",
   },
-  {
-    title: "Quadro de Anúncios",
-    icon: Megaphone,
-    href: "/admin/anuncios",
-    color: "text-amber-400",
-  },
 ]
 
 const menuGroups: MenuGroup[] = [
@@ -102,8 +96,9 @@ const menuGroups: MenuGroup[] = [
       { title: "Equipe Técnica", icon: Wrench, href: "/admin/equipe-tecnica", color: "text-blue-400" },
       { title: "Grupo de Campo", icon: BookOpen, href: "/admin/grupo-estudos", color: "text-emerald-400" },
       { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/limpeza-salao", color: "text-cyan-400" },
-      { title: "Serviço de Campo", icon: MapPin, href: "/admin/servico-campo", color: "text-orange-400" },
-      { title: "Territórios", icon: Map, href: "/admin/territorios", color: "text-orange-300" },
+      { title: "Serviço de Campo", icon: MapPin,    href: "/admin/servico-campo",    color: "text-orange-400" },
+      { title: "Territórios",      icon: Map,       href: "/admin/territorios",      color: "text-orange-300" },
+      { title: "Assistência",      icon: BarChart3,  href: "/admin/assistencia",     color: "text-cyan-400"   },
     ]
   },
 ]
@@ -140,6 +135,7 @@ const impressaoGroup: MenuGroup = {
     { title: "Publicadores", icon: Users, href: "/admin/impressao/publicadores", color: "text-sky-400" },
     { title: "Pioneiros Regulares", icon: Flag, href: "/admin/impressao/pioneiros", color: "text-amber-500" },
     { title: "Anciãos e Servos", icon: Shield, href: "/admin/impressao/lideranca", color: "text-blue-400" },
+    { title: "Assistência",     icon: BarChart3, href: "/admin/impressao/assistencia", color: "text-cyan-400" },
   ]
 }
 

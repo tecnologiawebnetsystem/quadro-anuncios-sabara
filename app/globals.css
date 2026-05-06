@@ -174,39 +174,49 @@
   }
 }
 
-/* Custom Scrollbar Styles */
-.scrollbar-thin {
+/* ── Scrollbar global temática ───────────────────────────────────────────── */
+
+/* Firefox */
+* {
   scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
+  scrollbar-color: oklch(0.40 0.10 248 / 0.45) transparent;
 }
 
-.scrollbar-thin:hover {
-  scrollbar-color: rgba(59, 97, 185, 0.5) transparent;
+/* Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
 }
 
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
-  border-radius: 4px;
+  border-radius: 99px;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 4px;
+::-webkit-scrollbar-thumb {
+  background: oklch(0.40 0.10 248 / 0.40);
+  border-radius: 99px;
   transition: background 0.2s ease;
 }
 
-.scrollbar-thin:hover::-webkit-scrollbar-thumb {
-  background: rgba(59, 97, 185, 0.5);
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.55 0.14 248 / 0.75);
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(88, 130, 220, 0.7);
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
+
+/* Classe utilitária fina para listas internas */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.40 0.10 248 / 0.40) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; border-radius: 99px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: oklch(0.40 0.10 248 / 0.35); border-radius: 99px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: oklch(0.55 0.14 248 / 0.70); }
 
 /* Animation utilities */
 @keyframes float {
