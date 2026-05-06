@@ -13,14 +13,14 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'Parque Sabará',
-  description: 'Sistema de quadro de anúncios da congregação',
+  title: 'InfoFlow — Parque Sabará',
+  description: 'Sistema de gerenciamento de informações da congregação Parque Sabará',
   generator: 'v0.app',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Parque Sabará',
+    title: 'InfoFlow',
   },
   formatDetection: {
     telephone: false,
@@ -34,6 +34,28 @@ export const metadata: Metadata = {
       { url: '/icons/icon-192x192.jpg', sizes: '192x192', type: 'image/jpeg' },
       { url: '/icons/icon-512x512.jpg', sizes: '512x512', type: 'image/jpeg' },
     ],
+  },
+  openGraph: {
+    title: 'InfoFlow — Parque Sabará',
+    description: 'Sistema de gerenciamento de informações da congregação Parque Sabará',
+    url: 'https://info-flowapp.vercel.app',
+    siteName: 'InfoFlow',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'InfoFlow — Parque Sabará',
+      },
+    ],
+    locale: 'pt_BR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'InfoFlow — Parque Sabará',
+    description: 'Sistema de gerenciamento de informações da congregação Parque Sabará',
+    images: ['/og-image.jpg'],
   },
 }
 
