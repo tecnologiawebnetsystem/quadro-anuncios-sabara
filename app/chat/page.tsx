@@ -1,43 +1,55 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import {
   Send, Loader2, BookOpen, RefreshCw, ChevronDown,
   MessageSquare, Mic, Copy, Check, ChevronRight,
   MapPin, School, Hospital, Home, ShoppingCart, Briefcase,
-  DoorOpen, Book, Lightbulb,
+  DoorOpen, Book, Lightbulb, FileText, Printer, Share2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
+// ── Paleta de cores para personagens ─────────────────────────────────────────
+// Cada personagem novo recebe uma cor diferente da lista abaixo (cíclica)
+
+const PERSONAGEM_CORES = [
+  { bg: 'bg-blue-500/15',    border: 'border-blue-500/30',    text: 'text-blue-400',    badge: 'bg-blue-500/20 text-blue-300'    },
+  { bg: 'bg-amber-500/15',   border: 'border-amber-500/30',   text: 'text-amber-400',   badge: 'bg-amber-500/20 text-amber-300'   },
+  { bg: 'bg-emerald-500/15', border: 'border-emerald-500/30', text: 'text-emerald-400', badge: 'bg-emerald-500/20 text-emerald-300'},
+  { bg: 'bg-rose-500/15',    border: 'border-rose-500/30',    text: 'text-rose-400',    badge: 'bg-rose-500/20 text-rose-300'    },
+  { bg: 'bg-violet-500/15',  border: 'border-violet-500/30',  text: 'text-violet-400',  badge: 'bg-violet-500/20 text-violet-300' },
+  { bg: 'bg-cyan-500/15',    border: 'border-cyan-500/30',    text: 'text-cyan-400',    badge: 'bg-cyan-500/20 text-cyan-300'    },
+]
+
 // ── Constantes ────────────────────────────────────────────────────────────────
 
 const SUGESTOES_CHAT = [
-  "O que a Bíblia diz sobre o Reino de Deus?",
-  "Como as Testemunhas de Jeová entendem a Trindade?",
-  "O que é A Sentinela?",
-  "O que a Bíblia ensina sobre a ressurreição?",
-  "Como funciona o estudo bíblico?",
-  "O que significa o nome de Deus?",
+  'O que a Bíblia diz sobre o Reino de Deus?',
+  'Como as Testemunhas de Jeová entendem a Trindade?',
+  'O que é A Sentinela?',
+  'O que a Bíblia ensina sobre a ressurreição?',
+  'Como funciona o estudo bíblico?',
+  'O que significa o nome de Deus?',
 ]
 
 const TIPOS_PARTE = [
-  { id: 'iniciando',   label: 'Iniciando Conversas',         duracoes: [2, 3],     desc: 'Primeiro contato com uma pessoa' },
-  { id: 'aprofundando',label: 'Aprofundando a Conversa',     duracoes: [3, 4],     desc: 'Revisita ou continuação do contato' },
-  { id: 'discipulos',  label: 'Fazendo Discípulos',          duracoes: [4, 6],     desc: 'Cena de estudo bíblico' },
-  { id: 'discurso',    label: 'Discurso / Parte de Estudante',duracoes: [4, 5, 6, 8, 10], desc: 'Apresentação para a congregação' },
+  { id: 'iniciando',    label: 'Iniciando Conversas',          duracoes: [2, 3],          desc: 'Primeiro contato com uma pessoa'    },
+  { id: 'aprofundando', label: 'Aprofundando a Conversa',      duracoes: [3, 4],          desc: 'Revisita ou continuação do contato' },
+  { id: 'discipulos',   label: 'Fazendo Discípulos',           duracoes: [4, 6],          desc: 'Cena de estudo bíblico'             },
+  { id: 'discurso',     label: 'Discurso / Parte de Estudante',duracoes: [4, 5, 6, 8, 10],desc: 'Apresentação para a congregação'    },
 ]
 
 const CENARIOS = [
-  { id: 'rua',         label: 'Na Rua',          icon: MapPin },
-  { id: 'porta',       label: 'De Porta em Porta',icon: Home },
-  { id: 'escola',      label: 'Na Escola',        icon: School },
-  { id: 'hospital',    label: 'No Hospital',      icon: Hospital },
-  { id: 'comercio',    label: 'No Comércio',      icon: ShoppingCart },
-  { id: 'trabalho',    label: 'No Trabalho',      icon: Briefcase },
-  { id: 'informal',    label: 'Situação Informal', icon: MessageSquare },
+  { id: 'rua',      label: 'Na Rua',           icon: MapPin       },
+  { id: 'porta',    label: 'De Porta em Porta', icon: Home         },
+  { id: 'escola',   label: 'Na Escola',         icon: School       },
+  { id: 'hospital', label: 'No Hospital',       icon: Hospital     },
+  { id: 'comercio', label: 'No Comércio',       icon: ShoppingCart },
+  { id: 'trabalho', label: 'No Trabalho',       icon: Briefcase    },
+  { id: 'informal', label: 'Situação Informal',  icon: MessageSquare},
 ]
 
 const PUBLICACOES = [
@@ -49,6 +61,15 @@ const PUBLICACOES = [
   'Examine as Escrituras Diariamente',
   'Deixe Que Deus Seja Verdadeiro',
   'Aplicação livre pelo usuário',
+]
+
+const EXEMPLOS_MORADOR = [
+  'Por que Deus permite o sofrimento?',
+  'Os mortos vão para o céu ou para o inferno?',
+  'Por que vocês não celebram o Natal?',
+  'Quem é Jesus para vocês?',
+  'O que acontece depois da morte?',
+  'Por que só os 144 mil vão para o céu?',
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -63,64 +84,213 @@ function getMessageText(msg: { parts?: { type: string; text?: string }[]; conten
   return msg.content ?? ''
 }
 
-function renderFormattedText(text: string) {
-  const lines = text.split('\n')
-  return lines.map((line, i) => {
-    // Cabeçalho com ---
-    if (line.trim().startsWith('---')) {
-      return <hr key={i} className="border-border/40 my-2" />
+// Mapeia nomes de personagens para índices de cor (memoizado por texto)
+function buildPersonagemMap(text: string): Record<string, number> {
+  const map: Record<string, number> = {}
+  let idx = 0
+  const matches = text.matchAll(/^\[([^\]]+)\]:/gm)
+  for (const m of matches) {
+    const nome = m[1].trim()
+    if (!(nome in map)) {
+      map[nome] = idx % PERSONAGEM_CORES.length
+      idx++
     }
-    // Linhas de PERSONAGEM: em destaque
+  }
+  return map
+}
+
+// Renderiza o roteiro com personagens coloridos e seções destacadas
+function renderRoteiro(text: string) {
+  const personagemMap = buildPersonagemMap(text)
+  const lines = text.split('\n')
+
+  return lines.map((line, i) => {
+    // Separador
+    if (line.trim() === '---') return <hr key={i} className="border-border/30 my-3" />
+
+    // Linha de PERSONAGEM: [NOME]: fala
     const matchPersonagem = line.match(/^\[([^\]]+)\]:\s*(.*)/)
     if (matchPersonagem) {
+      const nome  = matchPersonagem[1].trim()
+      const fala  = matchPersonagem[2]
+      const ci    = personagemMap[nome] ?? 0
+      const cores = PERSONAGEM_CORES[ci]
       return (
-        <p key={i} className="my-1">
-          <span className="font-bold text-primary text-xs">[{matchPersonagem[1]}]</span>
-          <span className="text-foreground"> {matchPersonagem[2]}</span>
-        </p>
+        <div key={i} className={cn('flex gap-2 items-start my-1.5 rounded-xl px-3 py-2 border', cores.bg, cores.border)}>
+          <span className={cn('flex-shrink-0 text-[10px] font-bold uppercase tracking-wider rounded-md px-1.5 py-0.5 mt-0.5 whitespace-nowrap', cores.badge)}>
+            {nome}
+          </span>
+          <p className="text-sm leading-relaxed text-foreground flex-1">{fala}</p>
+        </div>
       )
     }
-    // Cabeçalho PARTE / DURAÇÃO / etc
-    const matchHeader = line.match(/^(PARTE|DURAÇÃO|TEMA|CENÁRIO|PUBLICAÇÃO|PONTOS DE ATENÇÃO):(.*)/)
+
+    // Cabeçalho de seção (PARTE:, TEMA:, PONTOS DE ATENÇÃO:, etc.)
+    const matchHeader = line.match(/^(PARTE|DURAÇÃO|DURAÇÃO ESTIMADA|TEMA|CENÁRIO|PUBLICAÇÃO|PONTOS DE ATENÇÃO):(.*)/)
     if (matchHeader) {
       return (
-        <p key={i} className="my-0.5">
-          <span className="font-bold text-amber-400 text-xs uppercase tracking-wide">{matchHeader[1]}:</span>
-          <span className="text-foreground text-sm"> {matchHeader[2]}</span>
+        <div key={i} className="flex items-baseline gap-1.5 mt-3 mb-0.5">
+          <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">{matchHeader[1]}:</span>
+          <span className="text-foreground text-sm font-medium">{matchHeader[2]}</span>
+        </div>
+      )
+    }
+
+    // Linha de NARRADOR
+    if (line.trim().toUpperCase().startsWith('NARRADOR:') || line.match(/^\[NARRADOR\]/i)) {
+      const fala = line.replace(/^\[?NARRADOR\]?:?\s*/i, '')
+      return (
+        <p key={i} className="text-xs italic text-muted-foreground my-1.5 pl-2 border-l-2 border-border">
+          <span className="font-semibold not-italic text-muted-foreground/70 mr-1">Narrador:</span>{fala}
         </p>
       )
     }
-    // Bullets
-    if (line.trim().startsWith('•')) {
-      return <p key={i} className="ml-3 text-sm text-muted-foreground">{line}</p>
+
+    // Bullet
+    if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
+      return (
+        <p key={i} className="text-sm text-muted-foreground ml-3 leading-relaxed">
+          {line}
+        </p>
+      )
     }
+
     // Linha vazia
     if (!line.trim()) return <div key={i} className="h-1" />
+
     // Texto normal
-    return <p key={i} className="text-sm leading-relaxed">{line}</p>
+    return <p key={i} className="text-sm leading-relaxed text-foreground">{line}</p>
   })
+}
+
+// ── Barra de ações: PDF, Imprimir, WhatsApp ───────────────────────────────────
+
+function BarraAcoes({ texto, titulo }: { texto: string; titulo: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopiar = () => {
+    navigator.clipboard.writeText(texto)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleImprimir = () => {
+    const janela = window.open('', '_blank')
+    if (!janela) return
+    janela.document.write(`
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8"/>
+        <title>${titulo}</title>
+        <style>
+          body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; color: #111; line-height: 1.6; }
+          h1 { font-size: 18px; color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 8px; margin-bottom: 20px; }
+          .personagem { display: flex; gap: 10px; align-items: flex-start; margin: 8px 0; padding: 10px 12px; border-radius: 8px; border-left: 4px solid; }
+          .badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 4px; white-space: nowrap; margin-top: 3px; }
+          .p0 { border-color: #3b82f6; background: #eff6ff; } .b0 { background: #dbeafe; color: #1d4ed8; }
+          .p1 { border-color: #f59e0b; background: #fffbeb; } .b1 { background: #fef3c7; color: #b45309; }
+          .p2 { border-color: #10b981; background: #f0fdf4; } .b2 { background: #d1fae5; color: #065f46; }
+          .p3 { border-color: #f43f5e; background: #fff1f2; } .b3 { background: #ffe4e6; color: #be123c; }
+          .p4 { border-color: #8b5cf6; background: #f5f3ff; } .b4 { background: #ede9fe; color: #5b21b6; }
+          .p5 { border-color: #06b6d4; background: #ecfeff; } .b5 { background: #cffafe; color: #0e7490; }
+          .header { color: #b45309; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 16px; }
+          .narrador { font-style: italic; color: #6b7280; font-size: 13px; border-left: 2px solid #d1d5db; padding-left: 10px; margin: 6px 0; }
+          .bullet { color: #6b7280; margin-left: 16px; font-size: 13px; }
+          hr { border: none; border-top: 1px solid #e5e7eb; margin: 12px 0; }
+          .footer { margin-top: 32px; font-size: 11px; color: #9ca3af; text-align: center; border-top: 1px solid #e5e7eb; padding-top: 12px; }
+          @media print { body { margin: 20px; } }
+        </style>
+      </head>
+      <body>
+        <h1>${titulo}</h1>
+        ${renderParaPDF(texto)}
+        <div class="footer">Gerado por Parque Sabará Assistente &bull; JW.org</div>
+      </body>
+      </html>
+    `)
+    janela.document.close()
+    janela.focus()
+    setTimeout(() => { janela.print() }, 400)
+  }
+
+  const handleWhatsApp = () => {
+    const max  = 1500
+    const msg  = texto.length > max ? texto.slice(0, max) + '...' : texto
+    const url  = `https://wa.me/?text=${encodeURIComponent(`*${titulo}*\n\n${msg}`)}`
+    window.open(url, '_blank')
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-border/40">
+      <button
+        onClick={handleCopiar}
+        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border bg-card hover:border-primary/40 transition-all text-muted-foreground hover:text-foreground"
+      >
+        {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+        {copied ? 'Copiado!' : 'Copiar'}
+      </button>
+      <button
+        onClick={handleImprimir}
+        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border bg-card hover:border-amber-500/40 hover:text-amber-400 transition-all text-muted-foreground"
+      >
+        <Printer className="h-3 w-3" />
+        Imprimir / PDF
+      </button>
+      <button
+        onClick={handleWhatsApp}
+        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border bg-card hover:border-emerald-500/40 hover:text-emerald-400 transition-all text-muted-foreground"
+      >
+        <Share2 className="h-3 w-3" />
+        WhatsApp
+      </button>
+    </div>
+  )
+}
+
+// Converte o texto plain para HTML para impressão
+function renderParaPDF(text: string): string {
+  const personagemMap: Record<string, number> = {}
+  let idx = 0
+  const matches = Array.from(text.matchAll(/^\[([^\]]+)\]:/gm))
+  for (const m of matches) {
+    const nome = m[1].trim()
+    if (!(nome in personagemMap)) { personagemMap[nome] = idx % 6; idx++ }
+  }
+
+  return text.split('\n').map(line => {
+    if (line.trim() === '---') return '<hr/>'
+    const mp = line.match(/^\[([^\]]+)\]:\s*(.*)/)
+    if (mp) {
+      const ci = personagemMap[mp[1].trim()] ?? 0
+      return `<div class="personagem p${ci}"><span class="badge b${ci}">${mp[1]}</span><span>${mp[2]}</span></div>`
+    }
+    const mh = line.match(/^(PARTE|DURAÇÃO|DURAÇÃO ESTIMADA|TEMA|CENÁRIO|PUBLICAÇÃO|PONTOS DE ATENÇÃO):(.*)/)
+    if (mh) return `<div class="header">${mh[1]}:</div><span style="font-size:14px">${mh[2]}</span>`
+    if (line.match(/^\[?NARRADOR\]?:?/i)) return `<div class="narrador">${line.replace(/^\[?NARRADOR\]?:?\s*/i,'')}</div>`
+    if (line.startsWith('•') || line.startsWith('-')) return `<p class="bullet">${line}</p>`
+    if (!line.trim()) return '<div style="height:6px"/>'
+    return `<p>${line}</p>`
+  }).join('')
 }
 
 // ── Componente Criar Partes ───────────────────────────────────────────────────
 
 function CriarPartes() {
-  const [tipo, setTipo]             = useState(TIPOS_PARTE[0].id)
-  const [duracao, setDuracao]       = useState(2)
-  const [cenario, setCenario]       = useState(CENARIOS[0].id)
-  const [tema, setTema]             = useState('')
-  const [ponto, setPonto]           = useState('')
+  const [tipo,       setTipo]       = useState(TIPOS_PARTE[0].id)
+  const [duracao,    setDuracao]    = useState(2)
+  const [cenario,    setCenario]    = useState(CENARIOS[0].id)
+  const [tema,       setTema]       = useState('')
+  const [ponto,      setPonto]      = useState('')
   const [publicacao, setPublicacao] = useState(PUBLICACOES[0])
-  const [pubCustom, setPubCustom]   = useState('')
-  const [copied, setCopied]         = useState(false)
+  const [pubCustom,  setPubCustom]  = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const tipoAtual = TIPOS_PARTE.find(t => t.id === tipo)!
 
-  // Ajusta duração ao mudar tipo
   const handleTipo = (id: string) => {
     setTipo(id)
-    const t = TIPOS_PARTE.find(t => t.id === id)!
-    setDuracao(t.duracoes[0])
+    setDuracao(TIPOS_PARTE.find(t => t.id === id)!.duracoes[0])
   }
 
   const { messages, sendMessage, status, setMessages } = useChat({
@@ -137,59 +307,42 @@ function CriarPartes() {
     if (!tema.trim()) return
     const pub = publicacao === 'Aplicação livre pelo usuário' ? pubCustom || 'escolha do publicador' : publicacao
     const cenarioLabel = CENARIOS.find(c => c.id === cenario)?.label ?? cenario
+    sendMessage({
+      text: `Crie uma parte do tipo "${tipoAtual.label}" com duração de ${duracao} minutos.
 
-    const prompt = `Crie uma parte do tipo "${tipoAtual.label}" com duração de ${duracao} minutos.
-
-Tema / Assunto: ${tema}
-Ponto da lição ou texto bíblico: ${ponto || 'livre'}
+Tema: ${tema}
+Ponto da lição / versículo: ${ponto || 'livre'}
 Publicação de referência: ${pub}
 Cenário: ${cenarioLabel}
 
-Por favor, crie um roteiro completo, com linguagem popular e natural, pronto para ser apresentado na reunião Vida e Ministério.`
-
-    sendMessage({ text: prompt })
+Roteiro completo, linguagem popular, pronto para apresentação na reunião Vida e Ministério.`,
+    })
   }
 
   const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant')
   const lastText = lastAssistant ? getMessageText(lastAssistant as any) : ''
-
-  const handleCopy = () => {
-    if (!lastText) return
-    navigator.clipboard.writeText(lastText)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const handleNova = () => {
-    setMessages([])
-    setTema('')
-    setPonto('')
-  }
+  const titulo = `${tipoAtual.label} — ${duracao} min | ${tema}`
 
   return (
-    <div className="flex flex-col gap-0 h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
 
       {/* Painel de configuração */}
       <div className="flex-shrink-0 overflow-y-auto scrollbar-thin max-h-[55vh] border-b border-border/50 p-4 space-y-4">
 
-        {/* Tipo de parte */}
+        {/* Tipo */}
         <div>
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
-            Tipo de Parte
-          </label>
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Tipo de Parte</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {TIPOS_PARTE.map(t => (
               <button
                 key={t.id}
                 onClick={() => handleTipo(t.id)}
                 className={cn(
-                  "flex flex-col items-start gap-0.5 px-3 py-2.5 rounded-xl border text-left transition-all",
-                  tipo === t.id
-                    ? "border-primary/50 bg-primary/8 text-foreground"
-                    : "border-border bg-card hover:border-border/80 hover:bg-muted/20 text-muted-foreground"
+                  'flex flex-col items-start gap-0.5 px-3 py-2.5 rounded-xl border text-left transition-all',
+                  tipo === t.id ? 'border-primary/50 bg-primary/10 text-foreground' : 'border-border bg-card hover:border-border/80 text-muted-foreground'
                 )}
               >
-                <span className={cn("text-sm font-semibold", tipo === t.id ? "text-primary" : "")}>{t.label}</span>
+                <span className={cn('text-sm font-semibold', tipo === t.id && 'text-primary')}>{t.label}</span>
                 <span className="text-[11px] opacity-70">{t.desc}</span>
               </button>
             ))}
@@ -198,32 +351,24 @@ Por favor, crie um roteiro completo, com linguagem popular e natural, pronto par
 
         {/* Duração */}
         <div>
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
-            Duração
-          </label>
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Duração</label>
           <div className="flex flex-wrap gap-2">
             {tipoAtual.duracoes.map(d => (
               <button
                 key={d}
                 onClick={() => setDuracao(d)}
                 className={cn(
-                  "px-4 py-1.5 rounded-lg text-sm font-medium border transition-all",
-                  duracao === d
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border bg-card text-muted-foreground hover:border-primary/40"
+                  'px-4 py-1.5 rounded-lg text-sm font-medium border transition-all',
+                  duracao === d ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-muted-foreground hover:border-primary/40'
                 )}
-              >
-                {d} min
-              </button>
+              >{d} min</button>
             ))}
           </div>
         </div>
 
         {/* Cenário */}
         <div>
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
-            Cenário
-          </label>
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Cenário</label>
           <div className="flex flex-wrap gap-2">
             {CENARIOS.map(c => {
               const Icon = c.icon
@@ -232,14 +377,11 @@ Por favor, crie um roteiro completo, com linguagem popular e natural, pronto par
                   key={c.id}
                   onClick={() => setCenario(c.id)}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all",
-                    cenario === c.id
-                      ? "border-cyan-500/50 bg-cyan-500/10 text-cyan-400"
-                      : "border-border bg-card text-muted-foreground hover:border-cyan-500/30"
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
+                    cenario === c.id ? 'border-cyan-500/50 bg-cyan-500/10 text-cyan-400' : 'border-border bg-card text-muted-foreground hover:border-cyan-500/30'
                   )}
                 >
-                  <Icon className="h-3 w-3" />
-                  {c.label}
+                  <Icon className="h-3 w-3" />{c.label}
                 </button>
               )
             })}
@@ -259,11 +401,9 @@ Por favor, crie um roteiro completo, com linguagem popular e natural, pronto par
           />
         </div>
 
-        {/* Ponto da lição */}
+        {/* Ponto */}
         <div>
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
-            Ponto da Lição / Versículo Bíblico
-          </label>
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Ponto da Lição / Versículo</label>
           <input
             value={ponto}
             onChange={e => setPonto(e.target.value)}
@@ -274,17 +414,13 @@ Por favor, crie um roteiro completo, com linguagem popular e natural, pronto par
 
         {/* Publicação */}
         <div>
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
-            Publicação de Referência
-          </label>
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Publicação de Referência</label>
           <select
             value={publicacao}
             onChange={e => setPublicacao(e.target.value)}
             className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary/50 transition-all"
           >
-            {PUBLICACOES.map(p => (
-              <option key={p} value={p}>{p}</option>
-            ))}
+            {PUBLICACOES.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
           {publicacao === 'Aplicação livre pelo usuário' && (
             <input
@@ -301,10 +437,10 @@ Por favor, crie um roteiro completo, com linguagem popular e natural, pronto par
           onClick={handleGerar}
           disabled={!tema.trim() || isLoading}
           className={cn(
-            "w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all",
+            'w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all',
             tema.trim() && !isLoading
-              ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20"
-              : "bg-muted text-muted-foreground cursor-not-allowed"
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20'
+              : 'bg-muted text-muted-foreground cursor-not-allowed'
           )}
         >
           {isLoading
@@ -316,94 +452,65 @@ Por favor, crie um roteiro completo, com linguagem popular e natural, pronto par
 
       {/* Resultado */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-4">
+
         {messages.length === 0 && !isLoading && (
           <div className="flex flex-col items-center justify-center h-full gap-3 text-center text-muted-foreground">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/8 border border-primary/15">
               <Mic className="h-6 w-6 text-primary/60" />
             </div>
             <p className="text-sm max-w-xs leading-relaxed">
-              Preencha os campos acima e clique em <span className="text-primary font-medium">Gerar Roteiro</span> para criar sua parte
+              Preencha os campos acima e clique em <span className="text-primary font-medium">Gerar Roteiro</span>
             </p>
             <div className="grid grid-cols-2 gap-2 mt-2 text-left max-w-sm w-full">
-              {[
-                'Iniciando conversa na rua — 3 min',
-                'Estudo bíblico sobre ressurreição',
-                'Discurso sobre esperança — 10 min',
-                'Revisita no hospital — 4 min',
-              ].map((ex, i) => (
-                <button
-                  key={i}
-                  onClick={() => setTema(ex)}
+              {['Iniciando conversa na rua — 3 min','Estudo bíblico sobre ressurreição','Discurso sobre esperança — 10 min','Revisita no hospital — 4 min'].map((ex, i) => (
+                <button key={i} onClick={() => setTema(ex)}
                   className="text-xs px-3 py-2 rounded-lg border border-border bg-card hover:border-primary/30 hover:text-foreground transition-all text-left"
                 >
-                  <ChevronRight className="h-2.5 w-2.5 inline mr-1 text-primary" />
-                  {ex}
+                  <ChevronRight className="h-2.5 w-2.5 inline mr-1 text-primary" />{ex}
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Mensagens geradas */}
         {messages.map((msg, i) => {
           const text = getMessageText(msg as any)
-          if (msg.role === 'user') return null // não exibe a pergunta técnica
+          if (msg.role === 'user') return null
           return (
             <div key={msg.id ?? i} className="space-y-2">
-              {/* Toolbar do resultado */}
-              {text && (
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Mic className="h-3 w-3 text-primary" />
-                    </div>
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Roteiro Gerado</span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Mic className="h-3 w-3 text-primary" />
                   </div>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={handleCopy}
-                      className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border bg-card hover:border-primary/40 transition-all text-muted-foreground hover:text-foreground"
-                    >
-                      {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
-                      {copied ? 'Copiado!' : 'Copiar'}
-                    </button>
-                    <button
-                      onClick={handleNova}
-                      className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border bg-card hover:border-border/80 transition-all text-muted-foreground hover:text-foreground"
-                    >
-                      <RefreshCw className="h-3 w-3" />
-                      Nova parte
-                    </button>
-                  </div>
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Roteiro Gerado</span>
                 </div>
-              )}
+                <button
+                  onClick={() => setMessages([])}
+                  className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border bg-card hover:border-border/80 transition-all text-muted-foreground hover:text-foreground"
+                >
+                  <RefreshCw className="h-3 w-3" />Nova
+                </button>
+              </div>
 
-              {/* Conteúdo formatado */}
-              <div className="rounded-2xl border border-border bg-card p-4 space-y-0.5">
+              <div className="rounded-2xl border border-border bg-card/50 p-4 space-y-0.5">
                 {isLoading && !text
-                  ? (
-                    <span className="flex items-center gap-1 text-muted-foreground text-xs">
-                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0ms]" />
-                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
-                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
-                    </span>
-                  )
-                  : renderFormattedText(text)
+                  ? <Dots />
+                  : renderRoteiro(text)
                 }
               </div>
+
+              {text && !isLoading && (
+                <BarraAcoes texto={text} titulo={titulo} />
+              )}
             </div>
           )
         })}
 
         {status === 'submitted' && (
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <span className="flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0ms]" />
-              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
-              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
-            </span>
-          </div>
+          <div className="rounded-2xl border border-border bg-card/50 p-4"><Dots /></div>
         )}
+
         <div ref={bottomRef} />
       </div>
     </div>
@@ -412,20 +519,11 @@ Por favor, crie um roteiro completo, com linguagem popular e natural, pronto par
 
 // ── Componente Respostas ao Morador ──────────────────────────────────────────
 
-const EXEMPLOS_MORADOR = [
-  'Por que Deus permite o sofrimento?',
-  'Os mortos vão para o céu ou para o inferno?',
-  'Por que vocês não celebram o Natal?',
-  'Quem é Jesus para vocês?',
-  'O que acontece depois da morte?',
-  'Por que só os 144 mil vão para o céu?',
-]
-
 function RespostasMorador() {
-  const [pergunta, setPergunta]         = useState('')
-  const [copied,   setCopied]           = useState(false)
-  const bottomRef                        = useRef<HTMLDivElement>(null)
-  const inputRef                         = useRef<HTMLTextAreaElement>(null)
+  const [pergunta, setPergunta] = useState('')
+  const [copied,   setCopied]   = useState(false)
+  const bottomRef  = useRef<HTMLDivElement>(null)
+  const inputRef   = useRef<HTMLTextAreaElement>(null)
 
   const { messages, sendMessage, status, setMessages } = useChat({
     transport: new DefaultChatTransport({ api: '/api/campo' }),
@@ -456,16 +554,8 @@ function RespostasMorador() {
   }
 
   const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant')
-  const lastText      = lastAssistant ? getMessageText(lastAssistant as any) : ''
+  const lastText = lastAssistant ? getMessageText(lastAssistant as any) : ''
 
-  const handleCopy = () => {
-    if (!lastText) return
-    navigator.clipboard.writeText(lastText)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  // Renderiza resposta formatada com seções coloridas
   function renderResposta(text: string) {
     return text.split('\n').map((line, i) => {
       if (!line.trim()) return <div key={i} className="h-1.5" />
@@ -492,8 +582,6 @@ function RespostasMorador() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-
-      {/* Área de mensagens */}
       <div className="flex-1 overflow-y-auto scrollbar-thin px-4 py-4 space-y-4">
 
         {messages.length === 0 && !isLoading && (
@@ -509,27 +597,22 @@ function RespostasMorador() {
             </div>
             <div className="grid grid-cols-1 gap-2 w-full max-w-sm mt-1">
               {EXEMPLOS_MORADOR.map((ex, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleEnviar(ex)}
+                <button key={i} onClick={() => handleEnviar(ex)}
                   className="flex items-center gap-2 text-xs px-4 py-2.5 rounded-xl border border-border bg-card hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all text-left text-muted-foreground hover:text-foreground"
                 >
-                  <ChevronRight className="h-3 w-3 flex-shrink-0 text-emerald-400" />
-                  {ex}
+                  <ChevronRight className="h-3 w-3 flex-shrink-0 text-emerald-400" />{ex}
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Histórico de perguntas e respostas */}
         {messages.map((msg, i) => {
           const text   = getMessageText(msg as any)
           const isUser = msg.role === 'user'
 
           if (isUser) {
-            // Extrai apenas a pergunta original do prompt enviado
-            const perguntaOriginal = text.replace(/^O morador perguntou: "|"\n\nComo posso responder isso de forma simples e bíblica\?$/, '')
+            const perguntaOriginal = text.replace(/^O morador perguntou: "/, '').replace(/"\n\nComo posso responder isso de forma simples e bíblica\?$/, '')
             return (
               <div key={msg.id ?? i} className="flex justify-end">
                 <div className="max-w-[80vw] bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-3">
@@ -542,58 +625,32 @@ function RespostasMorador() {
 
           return (
             <div key={msg.id ?? i} className="space-y-2">
-              {/* Header da resposta */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-6 w-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                    <Book className="h-3 w-3 text-emerald-400" />
-                  </div>
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Resposta Bíblica</span>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="h-6 w-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                  <Book className="h-3 w-3 text-emerald-400" />
                 </div>
-                {text && (
-                  <button
-                    onClick={handleCopy}
-                    className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border bg-card hover:border-emerald-500/40 transition-all text-muted-foreground hover:text-foreground"
-                  >
-                    {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
-                    {copied ? 'Copiado!' : 'Copiar'}
-                  </button>
-                )}
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Resposta Bíblica</span>
               </div>
-
-              {/* Conteúdo */}
               <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/5 px-4 py-3 space-y-0.5">
-                {!text && isLoading
-                  ? <span className="flex items-center gap-1 text-muted-foreground text-xs">
-                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0ms]" />
-                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
-                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
-                    </span>
-                  : renderResposta(text)
-                }
+                {!text && isLoading ? <Dots /> : renderResposta(text)}
               </div>
-
-              {/* Botão nova pergunta */}
               {text && !isLoading && (
-                <button
-                  onClick={() => { setMessages([]); setTimeout(() => inputRef.current?.focus(), 50) }}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <RefreshCw className="h-3 w-3" /> Nova pergunta
-                </button>
+                <>
+                  <BarraAcoes texto={text} titulo="Resposta para o Morador — JW.org" />
+                  <button
+                    onClick={() => { setMessages([]); setTimeout(() => inputRef.current?.focus(), 50) }}
+                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mt-1"
+                  >
+                    <RefreshCw className="h-3 w-3" /> Nova pergunta
+                  </button>
+                </>
               )}
             </div>
           )
         })}
 
         {status === 'submitted' && (
-          <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/5 px-4 py-3">
-            <span className="flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0ms]" />
-              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
-              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
-            </span>
-          </div>
+          <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/5 px-4 py-3"><Dots /></div>
         )}
 
         <div ref={bottomRef} />
@@ -618,16 +675,11 @@ function RespostasMorador() {
             onClick={() => handleEnviar()}
             disabled={!pergunta.trim() || isLoading}
             className={cn(
-              "flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-xl transition-all mb-0.5",
-              pergunta.trim() && !isLoading
-                ? "bg-emerald-600 text-white hover:bg-emerald-500"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
+              'flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-xl transition-all mb-0.5',
+              pergunta.trim() && !isLoading ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-muted text-muted-foreground cursor-not-allowed'
             )}
           >
-            {isLoading
-              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              : <Send className="h-3.5 w-3.5" />
-            }
+            {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
           </button>
         </div>
         <p className="text-center text-[10px] text-muted-foreground mt-2">
@@ -638,10 +690,10 @@ function RespostasMorador() {
   )
 }
 
-// ── Componente Chat Geral ─────────────────────────────────────────────────────
+// ── Chat Geral ────────────────────────────────────────────────────────────────
 
 function ChatGeral() {
-  const [input, setInput]         = useState('')
+  const [input, setInput]           = useState('')
   const [autoScroll, setAutoScroll] = useState(true)
   const bottomRef   = useRef<HTMLDivElement>(null)
   const messagesRef = useRef<HTMLDivElement>(null)
@@ -660,8 +712,7 @@ function ChatGeral() {
   const handleScroll = () => {
     const el = messagesRef.current
     if (!el) return
-    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 60
-    setAutoScroll(atBottom)
+    setAutoScroll(el.scrollHeight - el.scrollTop - el.clientHeight < 60)
   }
 
   const handleSend = (text?: string) => {
@@ -674,10 +725,7 @@ function ChatGeral() {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -686,14 +734,14 @@ function ChatGeral() {
     e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px'
   }
 
+  // Última mensagem do assistente para exportar
+  const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant')
+  const lastText = lastAssistant ? getMessageText(lastAssistant as any) : ''
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Mensagens */}
-      <div
-        ref={messagesRef}
-        onScroll={handleScroll}
-        className="flex-1 overflow-y-auto scrollbar-thin px-4 py-6 space-y-5"
-      >
+      <div ref={messagesRef} onScroll={handleScroll} className="flex-1 overflow-y-auto scrollbar-thin px-4 py-6 space-y-5">
+
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center min-h-[50vh] gap-5 text-center px-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 border border-primary/20">
@@ -707,13 +755,9 @@ function ChatGeral() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg mt-1">
               {SUGESTOES_CHAT.map((s, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleSend(s)}
+                <button key={i} onClick={() => handleSend(s)}
                   className="text-left text-xs px-4 py-3 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all text-muted-foreground hover:text-foreground leading-relaxed"
-                >
-                  {s}
-                </button>
+                >{s}</button>
               ))}
             </div>
           </div>
@@ -723,46 +767,38 @@ function ChatGeral() {
           const text   = getMessageText(msg as any)
           const isUser = msg.role === 'user'
           return (
-            <div key={msg.id} className={cn("flex gap-3 max-w-3xl", isUser ? "ml-auto flex-row-reverse" : "mr-auto")}>
+            <div key={msg.id} className={cn('flex gap-3 max-w-full', isUser ? 'ml-auto flex-row-reverse' : 'mr-auto')}>
               <div className={cn(
-                "flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold mt-0.5",
-                isUser ? "bg-primary text-primary-foreground" : "bg-amber-500/15 border border-amber-500/30 text-amber-400"
+                'flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold mt-0.5',
+                isUser ? 'bg-primary text-primary-foreground' : 'bg-amber-500/15 border border-amber-500/30 text-amber-400'
               )}>
-                {isUser ? "EU" : <BookOpen className="h-3.5 w-3.5" />}
+                {isUser ? 'EU' : <BookOpen className="h-3.5 w-3.5" />}
               </div>
               <div className={cn(
-                "relative px-4 py-3 rounded-2xl text-sm leading-relaxed max-w-[80vw] md:max-w-[540px]",
-                isUser
-                  ? "bg-primary text-primary-foreground rounded-tr-sm"
-                  : "bg-card border border-border text-foreground rounded-tl-sm"
+                'relative px-4 py-3 rounded-2xl text-sm leading-relaxed max-w-[80vw]',
+                isUser ? 'bg-primary text-primary-foreground rounded-tr-sm' : 'bg-card border border-border text-foreground rounded-tl-sm'
               )}>
-                {!isUser && !text && isLoading && (
-                  <span className="flex items-center gap-1 text-muted-foreground text-xs">
-                    <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0ms]" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
-                  </span>
-                )}
+                {!isUser && !text && isLoading && <Dots />}
                 <p className="whitespace-pre-wrap">{text}</p>
+                {!isUser && text && !isLoading && (
+                  <div className="mt-2">
+                    <BarraAcoes texto={text} titulo="Resposta — JW.org" />
+                  </div>
+                )}
               </div>
             </div>
           )
         })}
 
         {status === 'submitted' && (
-          <div className="flex gap-3 max-w-3xl mr-auto">
+          <div className="flex gap-3 mr-auto">
             <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/15 border border-amber-500/30">
               <BookOpen className="h-3.5 w-3.5 text-amber-400" />
             </div>
-            <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-card border border-border">
-              <span className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0ms]" />
-                <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
-                <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
-              </span>
-            </div>
+            <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-card border border-border"><Dots /></div>
           </div>
         )}
+
         <div ref={bottomRef} />
       </div>
 
@@ -775,7 +811,6 @@ function ChatGeral() {
         </button>
       )}
 
-      {/* Input */}
       <div className="flex-shrink-0 px-4 pb-4 pt-2 border-t border-border/50 bg-card/80 backdrop-blur-sm">
         <div className="flex items-end gap-2 max-w-3xl mx-auto rounded-2xl border border-border bg-background px-3 py-2 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
           <textarea
@@ -793,16 +828,11 @@ function ChatGeral() {
             onClick={() => handleSend()}
             disabled={!input.trim() || isLoading}
             className={cn(
-              "flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-xl transition-all",
-              input.trim() && !isLoading
-                ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
+              'flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-xl transition-all',
+              input.trim() && !isLoading ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-muted text-muted-foreground cursor-not-allowed'
             )}
           >
-            {isLoading
-              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              : <Send className="h-3.5 w-3.5" />
-            }
+            {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
           </button>
         </div>
         <p className="text-center text-[10px] text-muted-foreground mt-2">
@@ -810,6 +840,18 @@ function ChatGeral() {
         </p>
       </div>
     </div>
+  )
+}
+
+// ── Micro-componentes ─────────────────────────────────────────────────────────
+
+function Dots() {
+  return (
+    <span className="flex items-center gap-1">
+      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0ms]" />
+      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
+      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
+    </span>
   )
 }
 
@@ -823,7 +865,6 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
 
-      {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="flex-shrink-0 z-10 border-b border-border/50 bg-card/80 backdrop-blur-sm">
         <div className="max-w-lg mx-auto w-full">
           <div className="flex items-center gap-3 px-4 py-3">
@@ -837,7 +878,7 @@ export default function ChatPage() {
                 <p className="text-[11px] text-muted-foreground leading-none mt-0.5">Assistente — Vida e Ministério</p>
               </div>
             </Link>
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto">
               <button
                 onClick={() => window.location.reload()}
                 className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
@@ -849,31 +890,27 @@ export default function ChatPage() {
           </div>
 
           {/* Abas */}
-          <div className="flex px-4 gap-1">
+          <div className="flex px-2 gap-0 overflow-x-auto scrollbar-none">
             {([
-              { id: 'chat',   label: 'Perguntas Bíblicas',   icon: MessageSquare },
-              { id: 'partes', label: 'Criar Partes',          icon: Mic },
-              { id: 'campo',  label: 'Serviço de Campo',      icon: DoorOpen },
+              { id: 'chat',   label: 'Perguntas',      icon: MessageSquare },
+              { id: 'partes', label: 'Criar Partes',    icon: Mic           },
+              { id: 'campo',  label: 'Campo',           icon: DoorOpen      },
             ] as { id: Aba; label: string; icon: typeof Mic }[]).map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setAba(id)}
                 className={cn(
-                  "flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all",
-                  aba === id
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
+                  'flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold border-b-2 whitespace-nowrap transition-all flex-1 justify-center',
+                  aba === id ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
                 )}
               >
-                <Icon className="h-3.5 w-3.5" />
-                {label}
+                <Icon className="h-3.5 w-3.5" />{label}
               </button>
             ))}
           </div>
         </div>
       </header>
 
-      {/* ── Conteúdo ────────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-hidden max-w-lg mx-auto w-full">
         {aba === 'chat'   && <ChatGeral />}
         {aba === 'partes' && <CriarPartes />}
