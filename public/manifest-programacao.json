@@ -1,0 +1,65 @@
+{
+  "name": "InfoFlow Programação",
+  "short_name": "IF Programação",
+  "description": "Programação da congregação Parque Sabará — reuniões, serviço de campo e designações",
+  "start_url": "/consulta",
+  "scope": "/consulta",
+  "display": "standalone",
+  "background_color": "#0d1f0f",
+  "theme_color": "#166534",
+  "orientation": "portrait-primary",
+  "id": "/consulta",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/prog-icon-192x192.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/prog-icon-512x512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/prog-icon-192x192.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/prog-icon-512x512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Vida e Ministério",
+      "short_name": "Vida e Min.",
+      "description": "Programação da reunião de vida e ministério",
+      "url": "/consulta#vida-ministerio",
+      "icons": [{ "src": "/icons/prog-icon-192x192.jpg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Serviço de Campo",
+      "short_name": "Campo",
+      "description": "Programação do serviço de campo",
+      "url": "/consulta#servico-campo",
+      "icons": [{ "src": "/icons/prog-icon-192x192.jpg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Reuniões Públicas",
+      "short_name": "Reunião",
+      "description": "Programação das reuniões públicas",
+      "url": "/consulta#reunioes-publicas",
+      "icons": [{ "src": "/icons/prog-icon-192x192.jpg", "sizes": "192x192" }]
+    }
+  ]
+}
