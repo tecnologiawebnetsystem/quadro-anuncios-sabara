@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Download, Lock, MessageSquare, Calendar, Smartphone, CheckCircle } from 'lucide-react'
+import { Download, Lock, MessageSquare, Calendar, Smartphone, CheckCircle, ClipboardList } from 'lucide-react'
+import Image from 'next/image'
 
-type PWAType = 'login' | 'chat' | 'programacao'
+type PWAType = 'anuncios' | 'chat' | 'programacao'
 
 interface PWAOption {
   id: PWAType
@@ -15,49 +16,53 @@ interface PWAOption {
   startUrl: string
   color: string
   bgColor: string
-  icon: React.ReactNode
+  iconSrc: string
+  iconAlt: string
   features: string[]
 }
 
 const pwas: PWAOption[] = [
   {
-    id: 'login',
-    name: 'InfoFlow Acesso',
-    shortName: 'IF Acesso',
-    description: 'Acesse o sistema com seu perfil: Administrador, Ancião ou Consulta.',
-    manifest: '/manifest-login.json',
+    id: 'anuncios',
+    name: 'Quadro de Anúncios',
+    shortName: 'Anúncios',
+    description: 'Acesse o sistema com seu perfil: Administrador ou Ancião. Gerencie anúncios, designações e informações da congregação.',
+    manifest: '/manifest.json',
     sw: '/sw.js',
     startUrl: '/login',
-    color: '#1e3a6e',
-    bgColor: '#0d1b2a',
-    icon: <Lock className="w-8 h-8 text-white" />,
-    features: ['Login Administrador', 'Login Ancião', 'Modo Consulta', 'Acesso seguro'],
-  },
-  {
-    id: 'chat',
-    name: 'InfoFlow Chat',
-    shortName: 'IF Chat',
-    description: 'Chat inteligente para perguntas, partes da reunião e serviço de campo.',
-    manifest: '/manifest-chat.json',
-    sw: '/sw-chat.js',
-    startUrl: '/chat',
-    color: '#1e3a6e',
-    bgColor: '#0a0f1e',
-    icon: <MessageSquare className="w-8 h-8 text-white" />,
-    features: ['Chat de Perguntas', 'Criar Partes — Quinta', 'Serviço de Campo', 'Assistente IA'],
+    color: '#991b1b',
+    bgColor: '#1a0808',
+    iconSrc: '/icons/anuncios-icon-192x192.jpg',
+    iconAlt: 'Ícone Quadro de Anúncios',
+    features: ['Login Administrador', 'Login Ancião', 'Gestão de Anúncios', 'Designações e Escalas'],
   },
   {
     id: 'programacao',
-    name: 'InfoFlow Programação',
-    shortName: 'IF Programação',
-    description: 'Consulte a programação completa da congregação Parque Sabará.',
+    name: 'Programação',
+    shortName: 'Programação',
+    description: 'Consulte a programação completa da congregação Parque Sabará: reuniões, serviço de campo e designações.',
     manifest: '/manifest-programacao.json',
     sw: '/sw-programacao.js',
     startUrl: '/consulta',
     color: '#166534',
     bgColor: '#0d1f0f',
-    icon: <Calendar className="w-8 h-8 text-white" />,
+    iconSrc: '/icons/prog-icon-192x192.jpg',
+    iconAlt: 'Ícone Programação',
     features: ['Vida e Ministério', 'Serviço de Campo', 'Reuniões Públicas', 'Designações'],
+  },
+  {
+    id: 'chat',
+    name: 'Chat Assistência',
+    shortName: 'Chat Assistência',
+    description: 'Chat inteligente para perguntas bíblicas, criação de partes da reunião e apoio no serviço de campo.',
+    manifest: '/manifest-chat.json',
+    sw: '/sw-chat.js',
+    startUrl: '/chat',
+    color: '#1e3a6e',
+    bgColor: '#0a0f1e',
+    iconSrc: '/icons/chat-icon-192x192.jpg',
+    iconAlt: 'Ícone Chat Assistência',
+    features: ['Chat de Perguntas', 'Criar Partes — Quinta', 'Serviço de Campo', 'Assistente IA'],
   },
 ]
 
@@ -72,20 +77,6 @@ function PWACard({ pwa }: { pwa: PWAOption }) {
     if (!('serviceWorker' in navigator)) {
       setSupported(false)
       return
-    }
-
-    // Injeta o manifest dinamicamente ao focar no card
-    const injectManifest = () => {
-      // Remove manifest anterior se existir
-      const existing = document.querySelector(`link[data-pwa="${pwa.id}"]`)
-      if (existing) existing.remove()
-
-      const link = document.createElement('link')
-      link.rel = 'manifest'
-      link.href = pwa.manifest
-      link.setAttribute('data-pwa', pwa.id)
-      document.head.appendChild(link)
-      linkRef.current = link
     }
 
     const handler = (e: Event) => {
@@ -105,7 +96,7 @@ function PWACard({ pwa }: { pwa: PWAOption }) {
     setLoading(true)
 
     try {
-      // Atualiza o manifest para este PWA
+      // Troca o manifest para este PWA
       const existingManifests = document.querySelectorAll('link[rel="manifest"]')
       existingManifests.forEach((el) => el.remove())
 
@@ -113,6 +104,7 @@ function PWACard({ pwa }: { pwa: PWAOption }) {
       link.rel = 'manifest'
       link.href = pwa.manifest
       document.head.appendChild(link)
+      linkRef.current = link
 
       // Registra o service worker correto
       if ('serviceWorker' in navigator) {
@@ -129,11 +121,9 @@ function PWACard({ pwa }: { pwa: PWAOption }) {
         }
         deferredPromptRef.current = null
       } else {
-        // iOS / sem prompt: mostra instrucoes
         window.open(pwa.startUrl, '_blank')
       }
-    } catch (err) {
-      // fallback: abrir direto
+    } catch {
       window.open(pwa.startUrl, '_blank')
     } finally {
       setLoading(false)
@@ -147,29 +137,43 @@ function PWACard({ pwa }: { pwa: PWAOption }) {
     >
       {/* Header */}
       <div
-        className="flex items-center gap-4 px-6 py-5"
-        style={{ background: `${pwa.color}cc` }}
+        className="flex items-center gap-4 px-5 py-4"
+        style={{ background: `${pwa.color}33`, borderBottom: `1px solid ${pwa.color}44` }}
       >
         <div
-          className="flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg"
-          style={{ background: pwa.color }}
+          className="flex items-center justify-center w-14 h-14 rounded-2xl overflow-hidden shadow-lg shrink-0"
+          style={{ border: `2px solid ${pwa.color}88` }}
         >
-          {pwa.icon}
+          <Image
+            src={pwa.iconSrc}
+            alt={pwa.iconAlt}
+            width={56}
+            height={56}
+            className="w-full h-full object-cover"
+          />
         </div>
-        <div>
-          <h2 className="text-white font-bold text-lg leading-tight">{pwa.name}</h2>
-          <span className="text-white/60 text-sm">{pwa.shortName}</span>
+        <div className="flex flex-col min-w-0">
+          <h2 className="text-white font-bold text-base leading-tight">{pwa.name}</h2>
+          <span
+            className="text-xs font-semibold mt-0.5 px-2 py-0.5 rounded-full w-fit"
+            style={{ background: `${pwa.color}55`, color: 'white' }}
+          >
+            {pwa.shortName}
+          </span>
         </div>
       </div>
 
       {/* Body */}
-      <div className="flex flex-col gap-4 px-6 py-5 flex-1">
-        <p className="text-white/80 text-sm leading-relaxed">{pwa.description}</p>
+      <div className="flex flex-col gap-4 px-5 py-4 flex-1">
+        <p className="text-white/70 text-sm leading-relaxed">{pwa.description}</p>
 
         <ul className="flex flex-col gap-2">
           {pwa.features.map((f) => (
-            <li key={f} className="flex items-center gap-2 text-white/70 text-sm">
-              <CheckCircle className="w-4 h-4 shrink-0" style={{ color: pwa.color === '#166534' ? '#4ade80' : '#60a5fa' }} />
+            <li key={f} className="flex items-center gap-2.5 text-white/65 text-sm">
+              <CheckCircle
+                className="w-4 h-4 shrink-0"
+                style={{ color: pwa.id === 'programacao' ? '#4ade80' : pwa.id === 'chat' ? '#60a5fa' : '#f87171' }}
+              />
               {f}
             </li>
           ))}
@@ -177,9 +181,9 @@ function PWACard({ pwa }: { pwa: PWAOption }) {
       </div>
 
       {/* Footer */}
-      <div className="px-6 pb-6">
+      <div className="px-5 pb-5">
         {installed ? (
-          <div className="flex items-center justify-center gap-2 py-3 rounded-xl bg-green-600/20 text-green-400 text-sm font-medium">
+          <div className="flex items-center justify-center gap-2 py-3 rounded-xl bg-green-600/20 text-green-400 text-sm font-semibold">
             <CheckCircle className="w-4 h-4" />
             Instalado com sucesso
           </div>
@@ -208,14 +212,24 @@ export default function InstalarPage() {
     <main className="min-h-screen bg-[#080c14] flex flex-col items-center px-4 py-10">
       {/* Header */}
       <div className="flex flex-col items-center gap-3 mb-10 text-center">
-        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-[#1e3a6e] shadow-xl">
-          <Smartphone className="w-8 h-8 text-white" />
+        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-[#991b1b] shadow-xl">
+          <ClipboardList className="w-8 h-8 text-white" />
         </div>
         <h1 className="text-white text-2xl font-bold tracking-tight text-balance">
-          Instalar InfoFlow
+          Instalar Apps
         </h1>
         <p className="text-white/50 text-sm max-w-xs leading-relaxed text-pretty">
-          Escolha qual versão do app deseja instalar na tela inicial do seu celular.
+          Escolha qual versão do app deseja instalar na tela inicial do seu celular. Cada app tem uma função diferente.
+        </p>
+      </div>
+
+      {/* Descrição dos 3 PWAs */}
+      <div className="w-full max-w-md mb-7 rounded-xl bg-white/5 border border-white/10 px-5 py-4">
+        <p className="text-white/60 text-xs leading-relaxed text-center">
+          <span className="text-white/80 font-semibold">3 apps disponíveis:</span>{' '}
+          <span className="text-red-400 font-medium">Quadro de Anúncios</span> para administração,{' '}
+          <span className="text-green-400 font-medium">Programação</span> para consulta da congregação e{' '}
+          <span className="text-blue-400 font-medium">Chat Assistência</span> para perguntas e roteiros.
         </p>
       </div>
 

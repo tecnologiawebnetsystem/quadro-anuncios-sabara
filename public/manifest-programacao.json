@@ -1,6 +1,6 @@
 {
-  "name": "InfoFlow Programação",
-  "short_name": "IF Programação",
+  "name": "Quadro de Anúncios — Programação",
+  "short_name": "Programação",
   "description": "Programação da congregação Parque Sabará — reuniões, serviço de campo e designações",
   "start_url": "/consulta",
   "scope": "/consulta",

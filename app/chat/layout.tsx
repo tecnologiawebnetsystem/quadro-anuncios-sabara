@@ -2,13 +2,13 @@ import type { Metadata, Viewport } from 'next'
 import ChatPwaProvider from './pwa-provider'
 
 export const metadata: Metadata = {
-  title: 'JW Assistente — Parque Sabará',
-  description: 'Assistente bíblico baseado em JW.org: perguntas, roteiros de reunião e respostas para o serviço de campo.',
-  manifest: '/chat-manifest.json',
+  title: 'Chat Assistência — Parque Sabará',
+  description: 'Chat inteligente — assistência para a congregação Parque Sabará: perguntas, roteiros de reunião e serviço de campo.',
+  manifest: '/manifest-chat.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'JW Assistente',
+    title: 'Chat Assistência',
     startupImage: [
       { url: '/icons/chat-icon-512x512.jpg' },
     ],
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'JW Assistente — Parque Sabará',
-    description: 'Assistente bíblico baseado em JW.org',
+    title: 'Chat Assistência — Parque Sabará',
+    description: 'Chat inteligente — assistência para a congregação Parque Sabará',
     type: 'website',
     images: [{ url: '/icons/chat-icon-512x512.jpg' }],
   },
