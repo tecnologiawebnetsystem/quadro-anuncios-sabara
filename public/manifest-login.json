@@ -1,12 +1,12 @@
 {
-  "name": "InfoFlow — Acesso",
-  "short_name": "IF Acesso",
-  "description": "Acesso ao sistema InfoFlow — Administrador, Ancião e Consulta",
+  "name": "Quadro de Anúncios",
+  "short_name": "Anúncios",
+  "description": "Acesso ao Quadro de Anúncios — Administrador, Ancião e Consulta",
   "start_url": "/login",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0d1b2a",
-  "theme_color": "#1e3a6e",
+  "background_color": "#1a0a0a",
+  "theme_color": "#991b1b",
   "orientation": "portrait-primary",
   "id": "/login",
   "lang": "pt-BR",
@@ -15,25 +15,25 @@
   "categories": ["productivity", "utilities"],
   "icons": [
     {
-      "src": "/icons/login-icon-192x192.jpg",
+      "src": "/icons/anuncios-icon-192x192.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "/icons/login-icon-512x512.jpg",
+      "src": "/icons/anuncios-icon-512x512.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "/icons/login-icon-192x192.jpg",
+      "src": "/icons/anuncios-icon-192x192.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/login-icon-512x512.jpg",
+      "src": "/icons/anuncios-icon-512x512.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "maskable"
@@ -45,21 +45,21 @@
       "short_name": "Admin",
       "description": "Login com perfil de Administrador",
       "url": "/login?perfil=admin",
-      "icons": [{ "src": "/icons/login-icon-192x192.jpg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/anuncios-icon-192x192.jpg", "sizes": "192x192" }]
     },
     {
       "name": "Entrar como Ancião",
       "short_name": "Ancião",
       "description": "Login com perfil de Ancião",
       "url": "/login?perfil=anciao",
-      "icons": [{ "src": "/icons/login-icon-192x192.jpg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/anuncios-icon-192x192.jpg", "sizes": "192x192" }]
     },
     {
       "name": "Modo Consulta",
       "short_name": "Consulta",
       "description": "Acesso em modo de consulta",
       "url": "/consulta",
-      "icons": [{ "src": "/icons/login-icon-192x192.jpg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/anuncios-icon-192x192.jpg", "sizes": "192x192" }]
     }
   ]
 }

@@ -13,39 +13,39 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'InfoFlow — Parque Sabará',
-  description: 'Sistema de gerenciamento de informações da congregação Parque Sabará',
+  title: 'Quadro de Anúncios — Parque Sabará',
+  description: 'Sistema de gerenciamento da congregação Parque Sabará — acesso do administrador e anunciador',
   generator: 'v0.app',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'InfoFlow',
+    title: 'Quadro de Anúncios',
   },
   formatDetection: {
     telephone: false,
   },
   icons: {
     icon: [
-      { url: '/icons/icon-192x192.jpg', sizes: '192x192', type: 'image/jpeg' },
-      { url: '/icons/icon-512x512.jpg', sizes: '512x512', type: 'image/jpeg' },
+      { url: '/icons/anuncios-icon-192x192.jpg', sizes: '192x192', type: 'image/jpeg' },
+      { url: '/icons/anuncios-icon-512x512.jpg', sizes: '512x512', type: 'image/jpeg' },
     ],
     apple: [
-      { url: '/icons/icon-192x192.jpg', sizes: '192x192', type: 'image/jpeg' },
-      { url: '/icons/icon-512x512.jpg', sizes: '512x512', type: 'image/jpeg' },
+      { url: '/icons/anuncios-icon-192x192.jpg', sizes: '192x192', type: 'image/jpeg' },
+      { url: '/icons/anuncios-icon-512x512.jpg', sizes: '512x512', type: 'image/jpeg' },
     ],
   },
   openGraph: {
-    title: 'InfoFlow — Parque Sabará',
-    description: 'Sistema de gerenciamento de informações da congregação Parque Sabará',
+    title: 'Quadro de Anúncios — Parque Sabará',
+    description: 'Sistema de gerenciamento da congregação Parque Sabará',
     url: 'https://info-flowapp.vercel.app',
-    siteName: 'InfoFlow',
+    siteName: 'Quadro de Anúncios',
     images: [
       {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'InfoFlow — Parque Sabará',
+        url: '/icons/anuncios-icon-512x512.jpg',
+        width: 512,
+        height: 512,
+        alt: 'Quadro de Anúncios — Parque Sabará',
       },
     ],
     locale: 'pt_BR',
@@ -53,9 +53,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'InfoFlow — Parque Sabará',
-    description: 'Sistema de gerenciamento de informações da congregação Parque Sabará',
-    images: ['/og-image.jpg'],
+    title: 'Quadro de Anúncios — Parque Sabará',
+    description: 'Sistema de gerenciamento da congregação Parque Sabará',
+    images: ['/icons/anuncios-icon-512x512.jpg'],
   },
 }
 
