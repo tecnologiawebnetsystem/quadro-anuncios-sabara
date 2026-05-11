@@ -4,6 +4,7 @@
 import dynamic from "next/dynamic"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AdminHeader } from "@/components/admin/admin-header"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 // Dynamic import para evitar hydration mismatch com IDs do Radix UI
 const AdminSidebar = dynamic(
@@ -16,8 +17,10 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
+  const isMobile = useIsMobile()
+
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={!isMobile}>
       <AdminSidebar />
       <SidebarInset>
         <AdminHeader />

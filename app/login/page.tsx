@@ -83,8 +83,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4"
-      style={{ background: "linear-gradient(135deg, #0f2550 0%, #1a3a6e 50%, #0f2550 100%)" }}
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        background: "linear-gradient(135deg, #0f2550 0%, #1a3a6e 50%, #0f2550 100%)",
+        paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
+        paddingTop: "max(1rem, env(safe-area-inset-top))",
+        paddingLeft: "max(1rem, env(safe-area-inset-left))",
+        paddingRight: "max(1rem, env(safe-area-inset-right))",
+      }}
     >
       <div className="w-full max-w-sm relative">
         {/* Glow sutil */}

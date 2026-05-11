@@ -467,10 +467,10 @@ export default function ConsultaPage() {
       />
     )}
     
-    {/* Tooltip fixo do calendário */}
+    {/* Tooltip fixo do calendário — apenas em telas maiores (sm+) */}
     {tooltip && (
       <div
-        className="fixed z-[9999] pointer-events-none"
+        className="hidden sm:block fixed z-[9999] pointer-events-none"
         style={{ left: tooltip.x, top: tooltip.y - 8, transform: "translate(-50%, -100%)" }}
       >
         <div
@@ -491,7 +491,6 @@ export default function ConsultaPage() {
               )}
             </div>
           )}
-          
           {/* Sentinela (Domingo) */}
           {tooltip.sentinela && (
             <div className={cn(tooltip.vidaMinisterio ? "border-t border-zinc-600 pt-2" : "")}>
@@ -506,7 +505,6 @@ export default function ConsultaPage() {
               )}
             </div>
           )}
-          
           {/* Campo */}
           {tooltip.campo && (
             <div className={cn((tooltip.vidaMinisterio || tooltip.sentinela) ? "border-t border-zinc-600 pt-2" : "")}>
@@ -518,7 +516,6 @@ export default function ConsultaPage() {
               <p className="text-[10px] text-zinc-300 mt-0.5">{periodoTooltip} {tooltip.campo.horario}</p>
             </div>
           )}
-          
           {/* Segunda - Cartas */}
           {tooltip.isSegunda && (
             <div className={cn((tooltip.campo || tooltip.vidaMinisterio || tooltip.sentinela) ? "border-t border-zinc-600 pt-2" : "")}>
@@ -541,7 +538,7 @@ export default function ConsultaPage() {
           <p className="text-xs font-semibold uppercase tracking-widest text-amber-500 mb-1">
             {format(hoje, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
           </p>
-          <h1 className="text-4xl font-bold text-white leading-tight">
+          <h1 className="text-2xl sm:text-4xl font-bold text-white leading-tight text-balance">
             Quadro de Anúncios
           </h1>
         </div>
@@ -708,6 +705,69 @@ export default function ConsultaPage() {
               </span>
             </div>
             <p className="text-[9px] text-zinc-400 mt-2">Toque na data para ver detalhes</p>
+
+            {/* Painel de detalhes — apenas mobile (oculto em sm+) */}
+            {tooltipFixo && tooltip && (
+              <div className="sm:hidden mt-3 rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-3 space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-150">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Detalhes do dia</span>
+                  <button
+                    onClick={() => { setTooltip(null); setTooltipFixo(false) }}
+                    className="text-zinc-500 hover:text-zinc-300 transition-colors p-0.5"
+                    aria-label="Fechar"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                {tooltip.vidaMinisterio && (
+                  <div>
+                    <div className="flex items-center gap-1 mb-0.5">
+                      <Gem className="h-3 w-3 text-blue-400 flex-shrink-0" />
+                      <span className="text-[10px] font-semibold text-blue-400 uppercase tracking-wide">Vida e Ministério</span>
+                    </div>
+                    {tooltip.vidaMinisterio.sem_reuniao ? (
+                      <p className="text-xs text-amber-400">Sem reunião: {tooltip.vidaMinisterio.motivo_sem_reuniao || "Semana especial"}</p>
+                    ) : (
+                      <p className="text-xs text-zinc-300">{tooltip.vidaMinisterio.livro_biblia || tooltip.vidaMinisterio.leitura_semanal || "Reunião de meio de semana"}</p>
+                    )}
+                  </div>
+                )}
+                {tooltip.sentinela && (
+                  <div className={cn(tooltip.vidaMinisterio ? "border-t border-zinc-700 pt-2" : "")}>
+                    <div className="flex items-center gap-1 mb-0.5">
+                      <BookMarked className="h-3 w-3 text-red-400 flex-shrink-0" />
+                      <span className="text-[10px] font-semibold text-red-400 uppercase tracking-wide">Estudo Sentinela</span>
+                    </div>
+                    {tooltip.sentinela.sem_reuniao ? (
+                      <p className="text-xs text-amber-400">Sem reunião: {tooltip.sentinela.motivo_sem_reuniao || "Semana especial"}</p>
+                    ) : (
+                      <p className="text-xs text-zinc-300">{tooltip.sentinela.titulo || "Estudo de A Sentinela"}</p>
+                    )}
+                  </div>
+                )}
+                {tooltip.campo && (
+                  <div className={cn((tooltip.vidaMinisterio || tooltip.sentinela) ? "border-t border-zinc-700 pt-2" : "")}>
+                    <div className="flex items-center gap-1 mb-0.5">
+                      <MapPin className="h-3 w-3 text-green-400 flex-shrink-0" />
+                      <span className="text-[10px] font-semibold text-green-400 uppercase tracking-wide">Campo</span>
+                    </div>
+                    <p className="text-xs font-medium text-white">{tooltip.campo.dirigente_nome}</p>
+                    <p className="text-[10px] text-zinc-300 mt-0.5">{periodoTooltip} {tooltip.campo.horario}</p>
+                  </div>
+                )}
+                {tooltip.isSegunda && (
+                  <div className={cn((tooltip.campo || tooltip.vidaMinisterio || tooltip.sentinela) ? "border-t border-zinc-700 pt-2" : "")}>
+                    <div className="flex items-center gap-1 mb-0.5">
+                      <Mail className="h-3 w-3 text-yellow-400 flex-shrink-0" />
+                      <span className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wide">Arranjo de Cartas</span>
+                    </div>
+                    <p className="text-xs text-zinc-300">Toda segunda-feira</p>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
