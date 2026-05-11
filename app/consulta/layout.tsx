@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SyncProvider, useSync } from "@/lib/contexts/sync-context"
+import { AppIcon } from "@/components/ui/app-icon"
 
 const bottomNavItems = [
   { title: "Início", href: "/consulta", icon: Home },
@@ -102,9 +103,7 @@ function ConsultaLayoutContent({ children }: { children: React.ReactNode }) {
               </Link>
             )}
             <Link href="/consulta" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#1c3d77] border border-sky-500/40 flex items-center justify-center">
-                <span className="text-xs font-bold text-white">I<span className="text-amber-400">F</span></span>
-              </div>
+              <AppIcon size={32} className="rounded-lg shadow-md shadow-orange-900/30 flex-shrink-0" />
               <div className="hidden sm:block">
                 <h1 className="text-sm font-semibold text-white leading-tight">
                   Quadro de <span className="text-amber-400">Anúncios</span>
