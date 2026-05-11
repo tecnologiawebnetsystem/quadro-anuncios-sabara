@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AdminHeader } from "@/components/admin/admin-header"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 const AnciaoSidebar = dynamic(
   () => import("@/components/admin/anciao-sidebar").then(mod => ({ default: mod.AnciaoSidebar })),
@@ -14,8 +15,10 @@ export default function AnciaoLayout({
 }: {
   children: React.ReactNode
 }) {
+  const isMobile = useIsMobile()
+
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={!isMobile}>
       <AnciaoSidebar />
       <SidebarInset>
         <AdminHeader />
