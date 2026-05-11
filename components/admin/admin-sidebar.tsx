@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { AppIcon } from "@/components/ui/app-icon"
 import {
   Collapsible,
   CollapsibleContent,
@@ -190,9 +191,7 @@ export function AdminSidebar() {
       {/* Header */}
       <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
         <Link href="/admin" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
-            <ClipboardList className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <AppIcon size={40} className="rounded-xl shadow-lg shadow-orange-900/30 flex-shrink-0" />
           <div className="flex flex-col">
             <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
               Parque<span className="text-sidebar-primary"> Sabará</span>

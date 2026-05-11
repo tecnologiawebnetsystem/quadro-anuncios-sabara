@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ShieldCheck, Delete, Info, UserCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { AppIcon } from "@/components/ui/app-icon"
 
 const SENHAS_PADRAO: Record<string, string> = {
   anciao: "123456",
@@ -103,11 +104,9 @@ export default function LoginPage() {
           <CardContent className="p-8">
             {/* Logo */}
             <div className="flex items-center gap-3 mb-8">
-              <div className="relative w-12 h-12 rounded-xl bg-[#0f2550] border border-sky-500/40 flex items-center justify-center overflow-hidden">
-                <span className="relative text-white font-black text-sm">IF</span>
-              </div>
+              <AppIcon size={48} className="rounded-xl shadow-lg shadow-orange-900/40 flex-shrink-0" />
               <div>
-                <p className="text-white font-bold text-base leading-none">InfoFlow</p>
+                <p className="text-white font-bold text-base leading-none">Quadro de Anúncios</p>
                 <p className="text-sky-300/60 text-xs mt-0.5">Congregação Parque Sabará</p>
               </div>
             </div>
