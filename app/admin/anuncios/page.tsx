@@ -39,11 +39,31 @@ import {
   X,
   CheckCircle2,
   XCircle,
+  Tag,
 } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+
+type Categoria = "Geral" | "Reunião" | "Evento" | "Aviso" | "Serviço"
+
+const CATEGORIAS: Categoria[] = ["Geral", "Reunião", "Evento", "Aviso", "Serviço"]
+
+const CATEGORIA_STYLES: Record<Categoria, { bg: string; text: string; border: string }> = {
+  Geral:    { bg: "bg-muted",        text: "text-muted-foreground",  border: "border-border" },
+  Reunião:  { bg: "bg-blue-500/10",  text: "text-blue-600",          border: "border-blue-500/30" },
+  Evento:   { bg: "bg-amber-500/10", text: "text-amber-600",         border: "border-amber-500/30" },
+  Aviso:    { bg: "bg-red-500/10",   text: "text-red-600",           border: "border-red-500/30" },
+  Serviço:  { bg: "bg-green-500/10", text: "text-green-600",         border: "border-green-500/30" },
+}
 
 interface Anuncio {
   id: string
@@ -52,6 +72,7 @@ interface Anuncio {
   imagem_url: string | null
   ativo: boolean
   ordem: number
+  categoria: Categoria
   created_at: string
   updated_at: string
 }
@@ -60,12 +81,14 @@ interface AnuncioForm {
   titulo: string
   texto: string
   ativo: boolean
+  categoria: Categoria
 }
 
 const initialForm: AnuncioForm = {
   titulo: "",
   texto: "",
   ativo: true,
+  categoria: "Geral",
 }
 
 export default function AnunciosAdminPage() {
@@ -122,6 +145,7 @@ export default function AnunciosAdminPage() {
       titulo: anuncio.titulo,
       texto: anuncio.texto,
       ativo: anuncio.ativo,
+      categoria: anuncio.categoria ?? "Geral",
     })
     setImagemFile(null)
     setImagemPreview(null)
@@ -195,6 +219,7 @@ export default function AnunciosAdminPage() {
       texto: form.texto.trim(),
       imagem_url: imagemUrl,
       ativo: form.ativo,
+      categoria: form.categoria,
       updated_at: new Date().toISOString(),
     }
 
@@ -343,6 +368,19 @@ export default function AnunciosAdminPage() {
                           <h3 className="font-semibold text-foreground truncate">
                             {anuncio.titulo}
                           </h3>
+                          {(() => {
+                            const cat = (anuncio.categoria ?? "Geral") as Categoria
+                            const s = CATEGORIA_STYLES[cat] ?? CATEGORIA_STYLES["Geral"]
+                            return (
+                              <span className={cn(
+                                "inline-flex items-center gap-1 shrink-0 text-xs font-medium px-2 py-0.5 rounded-full border",
+                                s.bg, s.text, s.border
+                              )}>
+                                <Tag className="h-2.5 w-2.5" />
+                                {cat}
+                              </span>
+                            )
+                          })()}
                           <Badge
                             variant={anuncio.ativo ? "default" : "secondary"}
                             className={cn(
@@ -435,6 +473,39 @@ export default function AnunciosAdminPage() {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Categoria */}
+            <div className="space-y-1.5">
+              <Label htmlFor="categoria">Categoria</Label>
+              <Select
+                value={form.categoria}
+                onValueChange={(val) => setForm({ ...form, categoria: val as Categoria })}
+              >
+                <SelectTrigger id="categoria">
+                  <SelectValue placeholder="Selecione a categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIAS.map((cat) => {
+                    const s = CATEGORIA_STYLES[cat]
+                    return (
+                      <SelectItem key={cat} value={cat}>
+                        <span className="flex items-center gap-2">
+                          <span className={cn(
+                            "inline-block w-2 h-2 rounded-full",
+                            cat === "Geral"   ? "bg-muted-foreground" :
+                            cat === "Reunião" ? "bg-blue-500" :
+                            cat === "Evento"  ? "bg-amber-500" :
+                            cat === "Aviso"   ? "bg-red-500" :
+                            "bg-green-500"
+                          )} />
+                          {cat}
+                        </span>
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Título */}
             <div className="space-y-1.5">
               <Label htmlFor="titulo">Título *</Label>
