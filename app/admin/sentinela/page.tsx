@@ -19,6 +19,7 @@ import { BookOpen, ChevronLeft, ChevronRight, Plus, MoreVertical, Trash2, FileTe
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { toast } from "sonner"
 
 const meses = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -374,9 +375,12 @@ export default function SentinelaPage() {
       if (response.ok) {
         const data = await response.json()
         await atualizarParagrafo(paragrafo.id, "imagem_descricao", data.descricao)
+      } else {
+        const data = await response.json().catch(() => ({}))
+        toast.error(data.error || "Erro ao descrever imagem. Tente novamente.")
       }
     } catch (err) {
-      // erro silencioso
+      toast.error("Erro ao conectar com a IA. Tente novamente.")
     } finally {
       setGerandoDescricao(null)
     }
@@ -404,9 +408,12 @@ export default function SentinelaPage() {
       if (response.ok) {
         const data = await response.json()
         await atualizarParagrafo(paragrafo.id, "imagem_explicacao", data.explicacao)
+      } else {
+        const data = await response.json().catch(() => ({}))
+        toast.error(data.error || "Erro ao gerar explicação. Tente novamente.")
       }
     } catch (err) {
-      // erro silencioso
+      toast.error("Erro ao conectar com a IA. Tente novamente.")
     } finally {
       setGerandoExplicacao(null)
     }
