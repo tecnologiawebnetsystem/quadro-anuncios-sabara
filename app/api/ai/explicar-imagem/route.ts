@@ -1,8 +1,9 @@
 import { generateText } from "ai"
 import { NextResponse } from "next/server"
 
-// Modelo multimodal gratuito disponível no Vercel AI Gateway
-const VISION_MODEL = "google/gemini-3-flash"
+// Modelo multimodal disponível no Vercel AI Gateway
+// Nota: Modelos com visão podem requerer créditos pagos
+const VISION_MODEL = "openai/gpt-5-mini"
 
 export async function POST(request: Request) {
   try {
