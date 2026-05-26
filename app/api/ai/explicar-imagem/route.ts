@@ -1,6 +1,10 @@
 import { generateText } from "ai"
 import { NextResponse } from "next/server"
 
+// Modelo multimodal disponível no Vercel AI Gateway
+// Nota: Modelos com visão podem requerer créditos pagos
+const VISION_MODEL = "openai/gpt-5-mini"
+
 export async function POST(request: Request) {
   try {
     const { imagemUrl, textoBase, pergunta, modo } = await request.json()
@@ -17,7 +21,7 @@ export async function POST(request: Request) {
     if (modo === "descrever") {
       // Usar modelo multimodal para analisar a imagem
       const { text } = await generateText({
-        model: "openai/gpt-4o",
+        model: VISION_MODEL,
         messages: [
           {
             role: "user",
@@ -48,7 +52,7 @@ A descrição deve ter 2-4 frases.${textoBase ? `\n\nContexto - Texto do parágr
     } else {
       // Modo explicar: analisar imagem e gerar explicação espiritual
       const { text } = await generateText({
-        model: "openai/gpt-4o",
+        model: VISION_MODEL,
         messages: [
           {
             role: "user",
@@ -80,8 +84,18 @@ Instruções:
     }
   } catch (error) {
     console.error("Erro ao processar imagem:", error)
+    
+    // Verificar se é erro de modelo restrito
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    if (errorMessage.includes("Free tier") || errorMessage.includes("Free credits") || errorMessage.includes("restricted")) {
+      return NextResponse.json(
+        { error: "Modelo de IA temporariamente indisponível. Por favor, tente novamente mais tarde." },
+        { status: 503 }
+      )
+    }
+    
     return NextResponse.json(
-      { error: "Erro ao processar imagem" },
+      { error: "Erro ao processar imagem. Por favor, tente novamente." },
       { status: 500 }
     )
   }
