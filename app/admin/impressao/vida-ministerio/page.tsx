@@ -198,31 +198,15 @@ export default function ImpressaoVidaMinisterioPage() {
             <p className="text-sm">Nenhuma semana cadastrada para {nomesMes} {anoAtual}.</p>
           </div>
         ) : (
-          <>
-            {/* Preview na tela */}
-            <div className="print:hidden rounded-xl border border-border bg-card p-6">
-              <PrintVidaMinisterio
-                ref={printRef}
-                mes={mesAtual}
-                ano={anoAtual}
-                semanas={semanas}
-                partes={partes}
-                canticos={canticos}
-              />
-            </div>
-
-            {/* Conteúdo oculto para impressão */}
-            <div className="hidden print:block">
-              <PrintVidaMinisterio
-                ref={printRef}
-                mes={mesAtual}
-                ano={anoAtual}
-                semanas={semanas}
-                partes={partes}
-                canticos={canticos}
-              />
-            </div>
-          </>
+          <div ref={printRef}>
+            <PrintVidaMinisterio
+              mes={mesAtual}
+              ano={anoAtual}
+              semanas={semanas}
+              partes={partes}
+              canticos={canticos}
+            />
+          </div>
         )}
       </div>
     </div>
