@@ -15,27 +15,27 @@
   "categories": ["productivity", "utilities"],
   "icons": [
     {
-      "src": "/icons/prog-icon-192x192.jpg",
+      "src": "/icons/prog-icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/prog-icon-512x512.jpg",
+      "src": "/icons/prog-icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/prog-icon-192x192.jpg",
+      "src": "/icons/prog-icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/prog-icon-512x512.jpg",
+      "src": "/icons/prog-icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ],
@@ -45,21 +45,21 @@
       "short_name": "Vida e Min.",
       "description": "Programação da reunião de vida e ministério",
       "url": "/consulta#vida-ministerio",
-      "icons": [{ "src": "/icons/prog-icon-192x192.jpg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/prog-icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Serviço de Campo",
       "short_name": "Campo",
       "description": "Programação do serviço de campo",
       "url": "/consulta#servico-campo",
-      "icons": [{ "src": "/icons/prog-icon-192x192.jpg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/prog-icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Reuniões Públicas",
       "short_name": "Reunião",
       "description": "Programação das reuniões públicas",
       "url": "/consulta#reunioes-publicas",
-      "icons": [{ "src": "/icons/prog-icon-192x192.jpg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/prog-icon-192x192.png", "sizes": "192x192" }]
     }
   ]
 }

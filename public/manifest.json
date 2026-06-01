@@ -5,33 +5,33 @@
   "start_url": "/login",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#1a0a0a",
-  "theme_color": "#991b1b",
+  "background_color": "#1e3a6e",
+  "theme_color": "#1e3a6e",
   "orientation": "portrait-primary",
   "id": "/",
   "icons": [
     {
-      "src": "/icons/anuncios-icon-192x192.jpg",
+      "src": "/icons/anuncios-icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/anuncios-icon-512x512.jpg",
+      "src": "/icons/anuncios-icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/anuncios-icon-192x192.jpg",
+      "src": "/icons/anuncios-icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/anuncios-icon-512x512.jpg",
+      "src": "/icons/anuncios-icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ],
@@ -41,14 +41,14 @@
       "short_name": "Admin",
       "description": "Acesso como administrador",
       "url": "/admin",
-      "icons": [{ "src": "/icons/anuncios-icon-192x192.jpg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/anuncios-icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Ancião",
       "short_name": "Ancião",
       "description": "Acesso como ancião",
       "url": "/anciao",
-      "icons": [{ "src": "/icons/anuncios-icon-192x192.jpg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/anuncios-icon-192x192.png", "sizes": "192x192" }]
     }
   ],
   "categories": ["productivity", "utilities"],

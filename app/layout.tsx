@@ -27,12 +27,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icons/anuncios-icon-192x192.jpg', sizes: '192x192', type: 'image/jpeg' },
-      { url: '/icons/anuncios-icon-512x512.jpg', sizes: '512x512', type: 'image/jpeg' },
+      { url: '/icons/anuncios-icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/anuncios-icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [
-      { url: '/icons/anuncios-icon-192x192.jpg', sizes: '192x192', type: 'image/jpeg' },
-      { url: '/icons/anuncios-icon-512x512.jpg', sizes: '512x512', type: 'image/jpeg' },
+      { url: '/icons/anuncios-icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/anuncios-icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
   },
   openGraph: {
@@ -40,9 +40,9 @@ export const metadata: Metadata = {
     description: 'Sistema de gerenciamento da congregação Parque Sabará',
     url: 'https://info-flowapp.vercel.app',
     siteName: 'Quadro de Anúncios',
-    images: [
+      images: [
       {
-        url: '/icons/anuncios-icon-512x512.jpg',
+        url: '/icons/anuncios-icon-512x512.png',
         width: 512,
         height: 512,
         alt: 'Quadro de Anúncios — Parque Sabará',
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Quadro de Anúncios — Parque Sabará',
     description: 'Sistema de gerenciamento da congregação Parque Sabará',
-    images: ['/icons/anuncios-icon-512x512.jpg'],
+    images: ['/icons/anuncios-icon-512x512.png'],
   },
 }
 

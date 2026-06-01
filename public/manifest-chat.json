@@ -15,27 +15,27 @@
   "categories": ["productivity", "education", "utilities"],
   "icons": [
     {
-      "src": "/icons/chat-icon-192x192.jpg",
+      "src": "/icons/chat-icon-new-192x192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/chat-icon-512x512.jpg",
+      "src": "/icons/chat-icon-new-512x512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/chat-icon-192x192.jpg",
+      "src": "/icons/chat-icon-new-192x192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/chat-icon-512x512.jpg",
+      "src": "/icons/chat-icon-new-512x512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ],
@@ -45,21 +45,21 @@
       "short_name": "Perguntas",
       "description": "Faça perguntas ao assistente",
       "url": "/chat?aba=chat",
-      "icons": [{ "src": "/icons/chat-icon-192x192.jpg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/chat-icon-new-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Criar Partes — Quinta",
       "short_name": "Criar Partes",
       "description": "Gere roteiros para a reunião de quinta-feira",
       "url": "/chat?aba=partes",
-      "icons": [{ "src": "/icons/chat-icon-192x192.jpg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/chat-icon-new-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Serviço de Campo",
       "short_name": "Campo",
       "description": "Respostas rápidas para perguntas de moradores",
       "url": "/chat?aba=campo",
-      "icons": [{ "src": "/icons/chat-icon-192x192.jpg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/chat-icon-new-192x192.png", "sizes": "192x192" }]
     }
   ]
 }
