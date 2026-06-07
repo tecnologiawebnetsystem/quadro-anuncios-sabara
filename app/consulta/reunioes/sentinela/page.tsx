@@ -11,7 +11,9 @@ import {
   Music,
   FileText,
   Calendar,
-  AlertTriangle
+  AlertTriangle,
+  Wand2,
+  Loader2
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useSync } from "@/lib/contexts/sync-context"
@@ -69,9 +71,31 @@ export default function ConsultaSentinelaPage() {
   const [paragrafos, setParagrafos] = useState<Paragrafo[]>([])
   const [loading, setLoading] = useState(true)
   const [estudoAtivo, setEstudoAtivo] = useState(0)
+  const [respostasIA, setRespostasIA] = useState<Record<string, string>>({})
+  const [gerandoIA, setGerandoIA] = useState<Record<string, boolean>>({})
   const { syncTrigger } = useSync()
 
   const supabase = createClient()
+
+  const gerarRespostaIA = useCallback(async (paragrafo: Paragrafo) => {
+    if (!paragrafo.texto_base || !paragrafo.pergunta) return
+    setGerandoIA(prev => ({ ...prev, [paragrafo.id]: true }))
+    try {
+      const response = await fetch("/api/sentinela/gerar-resposta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ texto: paragrafo.texto_base, pergunta: paragrafo.pergunta }),
+      })
+      const data = await response.json()
+      if (data.resposta) {
+        setRespostasIA(prev => ({ ...prev, [paragrafo.id]: data.resposta }))
+      }
+    } catch (error) {
+      console.error("Erro ao gerar resposta IA:", error)
+    } finally {
+      setGerandoIA(prev => ({ ...prev, [paragrafo.id]: false }))
+    }
+  }, [])
 
   const carregarDados = useCallback(async () => {
     setLoading(true)
@@ -353,19 +377,50 @@ export default function ConsultaSentinelaPage() {
                           </span>
                           <div className="flex-1 space-y-3">
                             {paragrafo.pergunta && (
-                              <p className="text-zinc-200 font-medium">
-                                {paragrafo.pergunta}
-                              </p>
+                              <div className="flex items-start justify-between gap-3">
+                                <p className="text-zinc-200 font-medium flex-1">
+                                  {paragrafo.pergunta}
+                                </p>
+                                {paragrafo.texto_base && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="shrink-0 border-zinc-600 text-zinc-400 hover:text-white hover:border-red-600 hover:bg-red-600/10 h-7 px-2 gap-1.5 text-xs"
+                                    onClick={() => gerarRespostaIA(paragrafo)}
+                                    disabled={gerandoIA[paragrafo.id]}
+                                    title="Gerar resposta com IA"
+                                  >
+                                    {gerandoIA[paragrafo.id] ? (
+                                      <Loader2 className="w-3 h-3 animate-spin" />
+                                    ) : (
+                                      <Wand2 className="w-3 h-3" />
+                                    )}
+                                    {gerandoIA[paragrafo.id] ? "Gerando..." : "IA"}
+                                  </Button>
+                                )}
+                              </div>
                             )}
                             {paragrafo.texto_base && (
                               <p className="text-zinc-400 leading-relaxed">
                                 {paragrafo.texto_base}
                               </p>
                             )}
+                            {/* Resposta cadastrada */}
                             {paragrafo.resposta && (
                               <p className="text-zinc-300 leading-relaxed bg-zinc-900/50 p-3 rounded border-l-2 border-red-500">
                                 {paragrafo.resposta}
                               </p>
+                            )}
+                            {/* Resposta gerada pela IA (sessão local) */}
+                            {respostasIA[paragrafo.id] && (
+                              <div className="bg-zinc-900/50 p-3 rounded border-l-2 border-violet-500 space-y-1">
+                                <p className="text-[10px] font-semibold text-violet-400 uppercase tracking-wider flex items-center gap-1">
+                                  <Wand2 className="w-3 h-3" /> Resposta gerada por IA
+                                </p>
+                                <p className="text-zinc-300 leading-relaxed">
+                                  {respostasIA[paragrafo.id]}
+                                </p>
+                              </div>
                             )}
                             {paragrafo.imagem_url && (
                               <div className="mt-3 space-y-2">
