@@ -1590,3 +1590,395 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
   }
 )
 PrintProgramacaoCongregacao.displayName = "PrintProgramacaoCongregacao"
+
+// =====================================
+// ROTEIRO DO PRESIDENTE (QUINTA-FEIRA)
+// =====================================
+interface RoteiroPresidenteProps {
+  mes: number
+  ano: number
+  semanas: Semana[]
+  partes: Parte[]
+  canticos?: Cantico[]
+}
+
+export const PrintRoteiroPresidente = forwardRef<HTMLDivElement, RoteiroPresidenteProps>(
+  ({ mes, ano, semanas, partes, canticos = [] }, ref) => {
+    const semanasComReuniao = semanas.filter(s => !s.sem_reuniao)
+
+    const getCanticoDescricao = (numero: number | null) => {
+      if (!numero) return ""
+      const c = canticos.find(c => c.numero === numero)
+      return c ? c.descricao : ""
+    }
+
+    // Caixa de anotações reutilizável
+    const CaixaAnotacoes = ({ altura = "28px", label }: { altura?: string; label?: string }) => (
+      <div style={{
+        border: "1px dashed #9ca3af",
+        borderRadius: "4px",
+        minHeight: altura,
+        marginTop: label ? "4px" : "6px",
+        padding: "4px 8px",
+        backgroundColor: "#fafafa",
+        fontSize: "10px",
+        color: "#9ca3af",
+        fontStyle: "italic",
+      }}>
+        {label || ""}
+      </div>
+    )
+
+    return (
+      <div ref={ref} className="vm-print-wrapper" style={{ width: "210mm", margin: "0 auto" }}>
+        {semanasComReuniao.map((semana, idx) => {
+          const partesSemanais = partes.filter(p => p.semana_id === semana.id)
+          const tesouros = partesSemanais.filter(p => p.secao === "tesouros").sort((a, b) => a.ordem - b.ordem)
+          const ministerio = partesSemanais.filter(p => p.secao === "ministerio").sort((a, b) => a.ordem - b.ordem)
+          const vida = partesSemanais.filter(p => p.secao === "vida").sort((a, b) => a.ordem - b.ordem)
+          const oracaoFinal = vida.find(p => p.oracao_final_nome)
+
+          // Índice global de cada parte
+          let numGlobal = 0
+          const getNum = () => { numGlobal++; return numGlobal }
+
+          return (
+            <div
+              key={semana.id}
+              className="vm-page"
+              style={{
+                backgroundColor: "white",
+                padding: "10mm 14mm",
+                width: "210mm",
+                minHeight: "297mm",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                pageBreakAfter: idx < semanasComReuniao.length - 1 ? "always" : "auto",
+              }}
+            >
+              {/* Cabeçalho */}
+              <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderBottom: "3px solid #374151",
+                paddingBottom: "10px",
+                marginBottom: "12px",
+                flexShrink: 0,
+              }}>
+                <div style={{ fontSize: "15px", fontWeight: "bold", color: "#111827" }}>
+                  Parque Sabará — Taubaté SP
+                </div>
+                <div style={{ fontSize: "13px", fontWeight: "bold", color: "#111827", textAlign: "right" }}>
+                  Roteiro do Presidente — Quinta-feira
+                </div>
+              </div>
+
+              {/* Banner da semana */}
+              <div style={{
+                backgroundColor: "#1f2937",
+                color: "white",
+                padding: "10px 16px",
+                borderRadius: "6px",
+                marginBottom: "12px",
+                fontSize: "14px",
+                fontWeight: "bold",
+                flexShrink: 0,
+              }}>
+                {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)}
+                {semana.livro_biblia && (
+                  <span style={{ marginLeft: "10px", color: "#9ca3af", fontSize: "12px", fontWeight: "normal" }}>
+                    | {(semana.livro_biblia).toUpperCase()}
+                  </span>
+                )}
+              </div>
+
+              {/* Presidente e Oração */}
+              <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "12px",
+                marginBottom: "10px",
+                flexShrink: 0,
+              }}>
+                <div style={{ flex: 1, backgroundColor: "#f3f4f6", borderRadius: "6px", padding: "8px 12px" }}>
+                  <span style={{ fontSize: "11px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase" }}>Presidente</span>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827", marginTop: "2px" }}>
+                    {semana.presidente || "—"}
+                  </div>
+                </div>
+                <div style={{ flex: 1, backgroundColor: "#f3f4f6", borderRadius: "6px", padding: "8px 12px" }}>
+                  <span style={{ fontSize: "11px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase" }}>Oração Inicial</span>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827", marginTop: "2px" }}>
+                    {semana.oracao_inicial || "—"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Cântico Inicial */}
+              {semana.cantico_inicial && (
+                <div style={{
+                  backgroundColor: "#e0e7ff",
+                  color: "#3730a3",
+                  padding: "8px 14px",
+                  borderRadius: "6px",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  marginBottom: "10px",
+                  flexShrink: 0,
+                }}>
+                  Cântico {semana.cantico_inicial}: {getCanticoDescricao(semana.cantico_inicial) || semana.cantico_inicial_nome || ""}
+                </div>
+              )}
+
+              {/* Comentários Iniciais */}
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#374151", padding: "4px 0", marginBottom: "4px", flexShrink: 0 }}>
+                Comentários iniciais
+              </div>
+
+              {/* ── TESOUROS DA PALAVRA DE DEUS ── */}
+              {tesouros.length > 0 && (
+                <div style={{ marginBottom: "10px", flexShrink: 0 }}>
+                  <div style={{
+                    backgroundColor: "#2a6b77",
+                    color: "white",
+                    padding: "7px 12px",
+                    fontWeight: "bold",
+                    fontSize: "12px",
+                    borderRadius: "5px 5px 0 0",
+                  }}>
+                    TESOUROS DA PALAVRA DE DEUS
+                  </div>
+                  <div style={{ border: "1px solid #d1d5db", borderTop: "none", borderRadius: "0 0 5px 5px", padding: "8px 12px" }}>
+                    {tesouros.map((parte) => {
+                      const n = getNum()
+                      // Parte 1 = Joias Espirituais (participante + tempo)
+                      // Parte 2 = Leitura da Bíblia (leitura, licao, ponto)
+                      const isLeituraBiblia = parte.titulo.toLowerCase().includes("leitura da bíblia") || parte.titulo.toLowerCase().includes("leitura da biblia")
+                      return (
+                        <div key={parte.id} style={{ marginBottom: "8px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: "13px" }}>
+                            <span style={{ fontWeight: "700", color: "#111827" }}>
+                              {n}. {parte.titulo}
+                              {parte.tempo && <span style={{ fontWeight: "400", color: "#6b7280", fontSize: "11px" }}> ({parte.tempo} min)</span>}
+                            </span>
+                            <span style={{ fontWeight: "700", color: "#1e40af", fontSize: "13px", whiteSpace: "nowrap", marginLeft: "8px" }}>
+                              {parte.participante_nome || "—"}
+                            </span>
+                          </div>
+                          {isLeituraBiblia ? (
+                            // Leitura da Bíblia: mostrar leitura, lição, ponto e moldura
+                            <div style={{ marginTop: "4px", fontSize: "12px" }}>
+                              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "4px" }}>
+                                {parte.textos && parte.textos.length > 0 && (
+                                  <span style={{ color: "#374151" }}>
+                                    <strong>Leitura:</strong> {parte.textos.join(", ")}
+                                  </span>
+                                )}
+                                {parte.licao && (
+                                  <span style={{ color: "#374151" }}>
+                                    <strong>Lição:</strong> {parte.licao}
+                                  </span>
+                                )}
+                                {parte.descricao && (
+                                  <span style={{ color: "#374151" }}>
+                                    <strong>Ponto:</strong> {parte.descricao}
+                                  </span>
+                                )}
+                              </div>
+                              <CaixaAnotacoes altura="30px" label="Espaço para anotações..." />
+                            </div>
+                          ) : (
+                            // Demais partes de tesouros: só moldura
+                            <CaixaAnotacoes altura="26px" label="Espaço para anotações..." />
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* ── FAÇA SEU MELHOR NO MINISTÉRIO ── */}
+              {ministerio.length > 0 && (
+                <div style={{ marginBottom: "10px", flexShrink: 0 }}>
+                  <div style={{
+                    backgroundColor: "#c69214",
+                    color: "white",
+                    padding: "7px 12px",
+                    fontWeight: "bold",
+                    fontSize: "12px",
+                    borderRadius: "5px 5px 0 0",
+                  }}>
+                    FAÇA SEU MELHOR NO MINISTÉRIO
+                  </div>
+                  <div style={{ border: "1px solid #d1d5db", borderTop: "none", borderRadius: "0 0 5px 5px", padding: "8px 12px" }}>
+                    {ministerio.map((parte) => {
+                      const n = getNum()
+                      return (
+                        <div key={parte.id} style={{ marginBottom: "8px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: "13px" }}>
+                            <span style={{ fontWeight: "700", color: "#111827" }}>
+                              {n}. {parte.titulo}
+                              {parte.tempo && <span style={{ fontWeight: "400", color: "#6b7280", fontSize: "11px" }}> ({parte.tempo} min)</span>}
+                            </span>
+                            <span style={{ fontWeight: "700", color: "#92400e", fontSize: "13px", whiteSpace: "nowrap", marginLeft: "8px" }}>
+                              {parte.participante_nome || "—"}
+                              {parte.ajudante_nome && <span style={{ fontWeight: "400", color: "#6b7280" }}> / {parte.ajudante_nome}</span>}
+                            </span>
+                          </div>
+                          {/* Lição e Ponto se existirem */}
+                          {(parte.licao || parte.descricao) && (
+                            <div style={{ fontSize: "11px", color: "#374151", marginTop: "2px", display: "flex", gap: "10px" }}>
+                              {parte.licao && <span><strong>Lição:</strong> {parte.licao}</span>}
+                              {parte.descricao && <span><strong>Ponto:</strong> {parte.descricao}</span>}
+                            </div>
+                          )}
+                          <CaixaAnotacoes altura="26px" label="Espaço para anotações..." />
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Cântico do Meio ── */}
+              {semana.cantico_meio && (
+                <div style={{
+                  backgroundColor: "#e0e7ff",
+                  color: "#3730a3",
+                  padding: "8px 14px",
+                  borderRadius: "6px",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  marginBottom: "10px",
+                  flexShrink: 0,
+                }}>
+                  Cântico {semana.cantico_meio}: {getCanticoDescricao(semana.cantico_meio) || semana.cantico_meio_nome || ""}
+                </div>
+              )}
+
+              {/* ── NOSSA VIDA CRISTÃ ── */}
+              {vida.length > 0 && (
+                <div style={{ marginBottom: "10px", flexShrink: 0 }}>
+                  <div style={{
+                    backgroundColor: "#8b2332",
+                    color: "white",
+                    padding: "7px 12px",
+                    fontWeight: "bold",
+                    fontSize: "12px",
+                    borderRadius: "5px 5px 0 0",
+                  }}>
+                    NOSSA VIDA CRISTÃ
+                  </div>
+                  <div style={{ border: "1px solid #d1d5db", borderTop: "none", borderRadius: "0 0 5px 5px", padding: "8px 12px" }}>
+                    {vida.map((parte) => {
+                      const n = getNum()
+                      const isEstudoCongregacao = parte.titulo.toLowerCase().includes("estudo bíblico da congregação") || parte.titulo.toLowerCase().includes("estudo biblico")
+                      return (
+                        <div key={parte.id} style={{ marginBottom: "8px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: "13px" }}>
+                            <span style={{ fontWeight: "700", color: "#111827" }}>
+                              {n}. {parte.titulo}
+                              {parte.tempo && <span style={{ fontWeight: "400", color: "#6b7280", fontSize: "11px" }}> ({parte.tempo} min)</span>}
+                            </span>
+                            <div style={{ textAlign: "right", whiteSpace: "nowrap", marginLeft: "8px" }}>
+                              {isEstudoCongregacao ? (
+                                <div>
+                                  {parte.participante_nome && (
+                                    <div style={{ fontSize: "12px", fontWeight: "700", color: "#7f1d1d" }}>
+                                      Dirigente: {parte.participante_nome}
+                                    </div>
+                                  )}
+                                  {parte.leitor_nome && (
+                                    <div style={{ fontSize: "11px", color: "#6b7280" }}>
+                                      Leitor: {parte.leitor_nome}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span style={{ fontWeight: "700", color: "#7f1d1d", fontSize: "13px" }}>
+                                  {parte.participante_nome || "—"}
+                                  {parte.ajudante_nome && <span style={{ fontWeight: "400", color: "#6b7280" }}> / {parte.ajudante_nome}</span>}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {/* Lição e Ponto se existirem */}
+                          {(parte.licao || parte.descricao) && (
+                            <div style={{ fontSize: "11px", color: "#374151", marginTop: "2px", display: "flex", gap: "10px" }}>
+                              {parte.licao && <span><strong>Lição:</strong> {parte.licao}</span>}
+                              {parte.descricao && <span><strong>Ponto:</strong> {parte.descricao}</span>}
+                            </div>
+                          )}
+                          <CaixaAnotacoes altura="26px" label="Espaço para anotações..." />
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Comentários Finais */}
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#374151", padding: "4px 0", marginBottom: "6px", flexShrink: 0 }}>
+                Comentários finais
+              </div>
+
+              {/* Cântico Final e Oração Final */}
+              <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "10px 14px",
+                backgroundColor: "#e0e7ff",
+                borderRadius: "6px",
+                fontSize: "13px",
+                flexShrink: 0,
+                marginBottom: "12px",
+              }}>
+                <div style={{ color: "#3730a3", fontWeight: "700" }}>
+                  {semana.cantico_final && `Cântico ${semana.cantico_final}: ${getCanticoDescricao(semana.cantico_final) || semana.cantico_final_nome || ""}`}
+                </div>
+                <div>
+                  <span style={{ fontWeight: "700", color: "#374151" }}>Oração:</span>
+                  <span style={{ marginLeft: "8px", fontWeight: "700", color: "#111827" }}>
+                    {oracaoFinal?.oracao_final_nome || "—"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Área de Anotações Gerais */}
+              <div style={{ marginTop: "auto", flexShrink: 0 }}>
+                <div style={{
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  marginBottom: "4px",
+                }}>
+                  Anotações gerais
+                </div>
+                <div style={{
+                  border: "1px dashed #9ca3af",
+                  borderRadius: "6px",
+                  minHeight: "55px",
+                  padding: "6px 10px",
+                  backgroundColor: "#fafafa",
+                  lineHeight: "1.8",
+                  backgroundImage: "repeating-linear-gradient(transparent, transparent 23px, #e5e7eb 23px, #e5e7eb 24px)",
+                  backgroundPositionY: "6px",
+                }}>
+                  &nbsp;
+                </div>
+              </div>
+
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+)
+PrintRoteiroPresidente.displayName = "PrintRoteiroPresidente"
