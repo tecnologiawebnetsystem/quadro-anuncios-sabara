@@ -381,23 +381,21 @@ export default function ConsultaSentinelaPage() {
                                 <p className="text-zinc-200 font-medium flex-1">
                                   {paragrafo.pergunta}
                                 </p>
-                                {paragrafo.texto_base && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="shrink-0 border-zinc-600 text-zinc-400 hover:text-white hover:border-red-600 hover:bg-red-600/10 h-7 px-2 gap-1.5 text-xs"
-                                    onClick={() => gerarRespostaIA(paragrafo)}
-                                    disabled={gerandoIA[paragrafo.id]}
-                                    title="Gerar resposta com IA"
-                                  >
-                                    {gerandoIA[paragrafo.id] ? (
-                                      <Loader2 className="w-3 h-3 animate-spin" />
-                                    ) : (
-                                      <Wand2 className="w-3 h-3" />
-                                    )}
-                                    {gerandoIA[paragrafo.id] ? "Gerando..." : "IA"}
-                                  </Button>
-                                )}
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="shrink-0 border-zinc-600 text-zinc-400 hover:text-white hover:border-red-600 hover:bg-red-600/10 h-7 px-2 gap-1.5 text-xs"
+                                  onClick={() => gerarRespostaIA(paragrafo)}
+                                  disabled={gerandoIA[paragrafo.id] || (!paragrafo.texto_base)}
+                                  title={paragrafo.texto_base ? "Gerar resposta com IA" : "Sem texto para gerar resposta"}
+                                >
+                                  {gerandoIA[paragrafo.id] ? (
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <Wand2 className="w-3 h-3" />
+                                  )}
+                                  {gerandoIA[paragrafo.id] ? "Gerando..." : "IA"}
+                                </Button>
                               </div>
                             )}
                             {paragrafo.texto_base && (
