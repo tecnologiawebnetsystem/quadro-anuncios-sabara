@@ -1876,14 +1876,14 @@ export const PrintRoteiroPresidente = forwardRef<HTMLDivElement, RoteiroPresiden
                             </span>
                             <div style={{ textAlign: "right", whiteSpace: "nowrap", marginLeft: "8px" }}>
                               {isEstudoCongregacao ? (
-                                <div>
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
                                   {parte.participante_nome && (
                                     <span style={{ fontSize: "12px", fontWeight: "700", color: "#7f1d1d" }}>
                                       Dirigente: {parte.participante_nome}
                                     </span>
                                   )}
                                   {parte.leitor_nome && (
-                                    <span style={{ fontSize: "11px", color: "#6b7280", marginLeft: "8px" }}>
+                                    <span style={{ fontSize: "11px", fontWeight: "600", color: "#374151" }}>
                                       Leitor: {parte.leitor_nome}
                                     </span>
                                   )}
