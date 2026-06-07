@@ -1753,8 +1753,6 @@ export const PrintRoteiroPresidente = forwardRef<HTMLDivElement, RoteiroPresiden
                   <div style={{ border: "1px solid #d1d5db", borderTop: "none", borderRadius: "0 0 5px 5px", padding: "8px 12px" }}>
                     {tesouros.map((parte) => {
                       const n = getNum()
-                      // Parte 1 = Joias Espirituais (participante + tempo)
-                      // Parte 2 = Leitura da Bíblia (leitura, licao, ponto)
                       const isLeituraBiblia = parte.titulo.toLowerCase().includes("leitura da bíblia") || parte.titulo.toLowerCase().includes("leitura da biblia")
                       return (
                         <div key={parte.id} style={{ marginBottom: "8px" }}>
@@ -1767,32 +1765,24 @@ export const PrintRoteiroPresidente = forwardRef<HTMLDivElement, RoteiroPresiden
                               {parte.participante_nome || "—"}
                             </span>
                           </div>
-                          {isLeituraBiblia ? (
-                            // Leitura da Bíblia: mostrar leitura, lição, ponto e moldura
-                            <div style={{ marginTop: "4px", fontSize: "12px" }}>
-                              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "4px" }}>
+                          {isLeituraBiblia && (
+                            // Leitura da Bíblia: leitura, lição, ponto + moldura de anotações
+                            <div style={{ marginTop: "4px" }}>
+                              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", fontSize: "11px", color: "#374151", marginBottom: "4px" }}>
                                 {parte.textos && parte.textos.length > 0 && (
-                                  <span style={{ color: "#374151" }}>
-                                    <strong>Leitura:</strong> {parte.textos.join(", ")}
-                                  </span>
+                                  <span><strong>Leitura:</strong> {parte.textos.join(", ")}</span>
                                 )}
                                 {parte.licao && (
-                                  <span style={{ color: "#374151" }}>
-                                    <strong>Lição:</strong> {parte.licao}
-                                  </span>
+                                  <span><strong>Lição:</strong> {parte.licao}</span>
                                 )}
                                 {parte.descricao && (
-                                  <span style={{ color: "#374151" }}>
-                                    <strong>Ponto:</strong> {parte.descricao}
-                                  </span>
+                                  <span><strong>Ponto:</strong> {parte.descricao}</span>
                                 )}
                               </div>
                               <CaixaAnotacoes altura="30px" label="Espaço para anotações..." />
                             </div>
-                          ) : (
-                            // Demais partes de tesouros: só moldura
-                            <CaixaAnotacoes altura="26px" label="Espaço para anotações..." />
                           )}
+                          {/* Partes 1 e 2 (não Leitura da Bíblia): sem moldura */}
                         </div>
                       )
                     })}
@@ -1828,13 +1818,14 @@ export const PrintRoteiroPresidente = forwardRef<HTMLDivElement, RoteiroPresiden
                               {parte.ajudante_nome && <span style={{ fontWeight: "400", color: "#6b7280" }}> / {parte.ajudante_nome}</span>}
                             </span>
                           </div>
-                          {/* Lição e Ponto se existirem */}
+                          {/* Lição e Ponto */}
                           {(parte.licao || parte.descricao) && (
                             <div style={{ fontSize: "11px", color: "#374151", marginTop: "2px", display: "flex", gap: "10px" }}>
                               {parte.licao && <span><strong>Lição:</strong> {parte.licao}</span>}
                               {parte.descricao && <span><strong>Ponto:</strong> {parte.descricao}</span>}
                             </div>
                           )}
+                          {/* Moldura de anotações para todas as partes do ministério */}
                           <CaixaAnotacoes altura="26px" label="Espaço para anotações..." />
                         </div>
                       )
@@ -1887,14 +1878,14 @@ export const PrintRoteiroPresidente = forwardRef<HTMLDivElement, RoteiroPresiden
                               {isEstudoCongregacao ? (
                                 <div>
                                   {parte.participante_nome && (
-                                    <div style={{ fontSize: "12px", fontWeight: "700", color: "#7f1d1d" }}>
+                                    <span style={{ fontSize: "12px", fontWeight: "700", color: "#7f1d1d" }}>
                                       Dirigente: {parte.participante_nome}
-                                    </div>
+                                    </span>
                                   )}
                                   {parte.leitor_nome && (
-                                    <div style={{ fontSize: "11px", color: "#6b7280" }}>
+                                    <span style={{ fontSize: "11px", color: "#6b7280", marginLeft: "8px" }}>
                                       Leitor: {parte.leitor_nome}
-                                    </div>
+                                    </span>
                                   )}
                                 </div>
                               ) : (
@@ -1905,14 +1896,7 @@ export const PrintRoteiroPresidente = forwardRef<HTMLDivElement, RoteiroPresiden
                               )}
                             </div>
                           </div>
-                          {/* Lição e Ponto se existirem */}
-                          {(parte.licao || parte.descricao) && (
-                            <div style={{ fontSize: "11px", color: "#374151", marginTop: "2px", display: "flex", gap: "10px" }}>
-                              {parte.licao && <span><strong>Lição:</strong> {parte.licao}</span>}
-                              {parte.descricao && <span><strong>Ponto:</strong> {parte.descricao}</span>}
-                            </div>
-                          )}
-                          <CaixaAnotacoes altura="26px" label="Espaço para anotações..." />
+                          {/* Sem moldura de anotações na seção Vida Cristã */}
                         </div>
                       )
                     })}
@@ -1963,7 +1947,7 @@ export const PrintRoteiroPresidente = forwardRef<HTMLDivElement, RoteiroPresiden
                 <div style={{
                   border: "1px dashed #9ca3af",
                   borderRadius: "6px",
-                  minHeight: "55px",
+                  minHeight: "90px",
                   padding: "6px 10px",
                   backgroundColor: "#fafafa",
                   lineHeight: "1.8",
