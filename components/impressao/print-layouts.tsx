@@ -1866,7 +1866,10 @@ export const PrintRoteiroPresidente = forwardRef<HTMLDivElement, RoteiroPresiden
                   <div style={{ border: "1px solid #d1d5db", borderTop: "none", borderRadius: "0 0 5px 5px", padding: "8px 12px" }}>
                     {vida.map((parte) => {
                       const n = getNum()
-                      const isEstudoCongregacao = parte.titulo.toLowerCase().includes("estudo bíblico da congregação") || parte.titulo.toLowerCase().includes("estudo biblico")
+                      const tituloLower = parte.titulo.toLowerCase()
+                      const isEstudoCongregacao =
+                        tituloLower.includes("estudo b") && // cobre "bíblico" e "biblico"
+                        (tituloLower.includes("congreg") || tituloLower.includes("livro"))
                       return (
                         <div key={parte.id} style={{ marginBottom: "8px" }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: "13px" }}>
