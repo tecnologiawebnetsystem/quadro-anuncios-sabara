@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     }
 
     const { text: resposta } = await generateText({
-      model: "anthropic/claude-sonnet-4-20250514",
+      model: "anthropic/claude-opus-4-5",
       system: `Você é um assistente para estudo da Bíblia focado no estudo de A Sentinela das Testemunhas de Jeová.
 Sua tarefa é fornecer respostas claras, concisas e baseadas no texto do parágrafo fornecido.
 As respostas devem ser diretas e adequadas para serem lidas durante a reunião.
