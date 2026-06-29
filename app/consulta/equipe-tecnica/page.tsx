@@ -28,6 +28,12 @@ const meses = [
   { valor: "2026-04", label: "Abril 2026" },
   { valor: "2026-05", label: "Maio 2026" },
   { valor: "2026-06", label: "Junho 2026" },
+  { valor: "2026-07", label: "Julho 2026" },
+  { valor: "2026-08", label: "Agosto 2026" },
+  { valor: "2026-09", label: "Setembro 2026" },
+  { valor: "2026-10", label: "Outubro 2026" },
+  { valor: "2026-11", label: "Novembro 2026" },
+  { valor: "2026-12", label: "Dezembro 2026" },
 ]
 
 // Calcular índice do mês atual baseado na data do sistema
