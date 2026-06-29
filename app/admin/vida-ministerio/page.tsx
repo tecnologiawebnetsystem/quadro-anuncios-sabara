@@ -207,9 +207,11 @@ export default function AdminVidaMinisterioPage() {
       dataInicio = new Date(ultimaSemana.data_fim)
       dataInicio.setDate(dataInicio.getDate() + 1)
     } else {
+      // Segunda-feira da semana que contém o dia 1º do mês
+      // (pode cair no mês anterior, ex: quinta 02/07 pertence à semana de 29/06)
       dataInicio = new Date(anoAtual, mesAtual - 1, 1)
       while (dataInicio.getDay() !== 1) {
-        dataInicio.setDate(dataInicio.getDate() + 1)
+        dataInicio.setDate(dataInicio.getDate() - 1)
       }
     }
 
@@ -440,7 +442,7 @@ export default function AdminVidaMinisterioPage() {
       dataReuniao = dataInicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
     }
     
-    let mensagem = `*DESIGNAÇÃO - VIDA E MINIST��RIO*\n\n`
+    let mensagem = `*DESIGNAÇÃO - VIDA E MINIST����RIO*\n\n`
     mensagem += `Olá, ${parte.oracao_final_nome}!\n\n`
     mensagem += `Você foi designado para fazer a *Oração Final* na reunião de Vida e Ministério.\n\n`
     mensagem += `*Data:* ${dataReuniao} (quinta-feira)\n`

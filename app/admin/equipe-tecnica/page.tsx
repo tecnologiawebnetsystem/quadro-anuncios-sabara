@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { CenteredLoader } from "@/components/ui/page-loader"
-import { ArrowLeft, ArrowRight, Mic, Volume2, Users, Loader2 } from "lucide-react"
+import { ArrowLeft, ArrowRight, Mic, Volume2, Users, Loader2, CalendarOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { SeletorPublicador, type Publicador } from "@/components/reuniao/seletor-publicador"
 import { toast } from "sonner"
 
@@ -26,6 +27,8 @@ interface EquipeTecnica {
   microvolante_palco: 1 | 2 | null
   som_id: string | null
   som_nome: string | null
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
 }
 
 // Gerar datas das reuniões para um mês específico
@@ -69,6 +72,12 @@ const mesesDisponiveis = [
   { value: "2026-04", label: "Abril 2026" },
   { value: "2026-05", label: "Maio 2026" },
   { value: "2026-06", label: "Junho 2026" },
+  { value: "2026-07", label: "Julho 2026" },
+  { value: "2026-08", label: "Agosto 2026" },
+  { value: "2026-09", label: "Setembro 2026" },
+  { value: "2026-10", label: "Outubro 2026" },
+  { value: "2026-11", label: "Novembro 2026" },
+  { value: "2026-12", label: "Dezembro 2026" },
 ]
 
 // Calcular índice do mês atual baseado na data do sistema
@@ -84,6 +93,7 @@ export default function EquipeTecnicaPage() {
   const [designacoes, setDesignacoes] = useState<Record<string, EquipeTecnica>>({})
   const [loading, setLoading] = useState(true)
   const [salvando, setSalvando] = useState<string | null>(null)
+  const [motivosLocais, setMotivosLocais] = useState<Record<string, string>>({})
   
   const mesAtual = mesesDisponiveis[mesAtualIndex]
   
@@ -166,6 +176,50 @@ export default function EquipeTecnicaPage() {
     }
   }
   
+  // Salvar campos genéricos (ex: sem_reuniao / motivo_sem_reuniao)
+  async function salvarCampos(
+    reuniao: { data: string; dia_semana: string },
+    campos: Partial<EquipeTecnica>
+  ) {
+    const chave = `${reuniao.data}-${reuniao.dia_semana}`
+    setSalvando(chave)
+
+    const designacaoExistente = designacoes[chave]
+
+    const novaDesignacao: EquipeTecnica = {
+      ...designacaoExistente,
+      mes: mesAtual.value,
+      data: reuniao.data,
+      dia_semana: reuniao.dia_semana,
+      ...campos,
+    }
+
+    try {
+      const method = designacaoExistente?.id ? "PUT" : "POST"
+      const body = designacaoExistente?.id
+        ? { id: designacaoExistente.id, ...novaDesignacao }
+        : novaDesignacao
+
+      const response = await fetch("/api/equipe-tecnica", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setDesignacoes(prev => ({ ...prev, [chave]: data }))
+        toast.success("Salvo")
+      } else {
+        toast.error("Erro ao salvar")
+      }
+    } catch {
+      toast.error("Erro ao salvar")
+    } finally {
+      setSalvando(null)
+    }
+  }
+
   // Salvar qual microfone volante cuida do palco
   async function salvarPalco(
     reuniao: { data: string; dia_semana: string },
@@ -291,6 +345,50 @@ export default function EquipeTecnicaPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Não haverá reunião */}
+                  <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/40">
+                    <Checkbox
+                      id={`sem-reuniao-${chave}`}
+                      checked={!!designacao.sem_reuniao}
+                      onCheckedChange={(checked) =>
+                        salvarCampos(reuniao, { sem_reuniao: checked === true })
+                      }
+                      disabled={salvando === chave}
+                      className="border-amber-500 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                    />
+                    <Label
+                      htmlFor={`sem-reuniao-${chave}`}
+                      className="flex items-center gap-2 text-sm font-medium text-amber-700 cursor-pointer select-none dark:text-amber-400"
+                    >
+                      <CalendarOff className="h-4 w-4" />
+                      Não haverá reunião neste dia
+                    </Label>
+                  </div>
+
+                  {designacao.sem_reuniao ? (
+                    /* Motivo (linha inteira) */
+                    <div className="space-y-2">
+                      <Label htmlFor={`motivo-${chave}`} className="text-sm font-medium text-foreground">
+                        Motivo
+                      </Label>
+                      <Textarea
+                        id={`motivo-${chave}`}
+                        value={motivosLocais[chave] ?? designacao.motivo_sem_reuniao ?? ""}
+                        onChange={(e) =>
+                          setMotivosLocais((prev) => ({ ...prev, [chave]: e.target.value }))
+                        }
+                        onBlur={() =>
+                          salvarCampos(reuniao, {
+                            motivo_sem_reuniao: motivosLocais[chave] ?? designacao.motivo_sem_reuniao ?? "",
+                          })
+                        }
+                        placeholder="Ex: Assembleia de Circuito, Congresso Regional, Celebração da Morte de Cristo..."
+                        className="min-h-[80px]"
+                        disabled={salvando === chave}
+                      />
+                    </div>
+                  ) : (
+                  <>
                   {/* Indicadores */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -396,6 +494,8 @@ export default function EquipeTecnicaPage() {
                       />
                     </div>
                   </div>
+                  </>
+                  )}
                 </CardContent>
               </Card>
             )
