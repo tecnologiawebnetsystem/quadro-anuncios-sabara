@@ -121,7 +121,6 @@ export default function ImpressaoServicoCampoPage() {
     [campoSemana]
   )
   const sabadosManha = campoSabado.filter(s => s.periodo === "manha")
-  const sabadosTarde = campoSabado.filter(s => s.periodo === "tarde")
 
   // segundo domingo do mês
   const segundoDomingo = useMemo(() => {
@@ -193,7 +192,6 @@ export default function ImpressaoServicoCampoPage() {
                 semanaOrdenada={semanaOrdenada}
                 campoCartas={campoCartas}
                 sabadosManha={sabadosManha}
-                sabadosTarde={sabadosTarde}
                 campoDomingo={campoDomingo}
                 segundoDomingo={segundoDomingo}
               />
@@ -208,7 +206,6 @@ export default function ImpressaoServicoCampoPage() {
                 semanaOrdenada={semanaOrdenada}
                 campoCartas={campoCartas}
                 sabadosManha={sabadosManha}
-                sabadosTarde={sabadosTarde}
                 campoDomingo={campoDomingo}
                 segundoDomingo={segundoDomingo}
               />
@@ -227,19 +224,17 @@ interface PrintServicoCampoProps {
   semanaOrdenada: CampoSemana[]
   campoCartas: CampoCartas[]
   sabadosManha: CampoSabado[]
-  sabadosTarde: CampoSabado[]
   campoDomingo: CampoDomingo[]
   segundoDomingo: string | null
 }
 
 const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
-  ({ mesLabel, semanaOrdenada, campoCartas, sabadosManha, sabadosTarde, campoDomingo, segundoDomingo }, ref) => {
+  ({ mesLabel, semanaOrdenada, campoCartas, sabadosManha, campoDomingo, segundoDomingo }, ref) => {
     // Conta quantas seções temos para distribuir o espaço
     const totalSecoes = [
       semanaOrdenada.length > 0,
       campoCartas.length > 0,
       sabadosManha.length > 0,
-      sabadosTarde.length > 0,
       campoDomingo.length > 0
     ].filter(Boolean).length
 
@@ -373,36 +368,6 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                   </tr>
                   <tr>
                     {sabadosManha.map(s => (
-                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>{s.dirigente_nome || "—"}</td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* SÁBADOS TARDE */}
-          {sabadosTarde.length > 0 && (
-            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-              <div style={headerBar("#166534")}>Dirigentes de Campo aos Sábados — Tarde</div>
-              <table style={{ borderCollapse: "collapse", width: "100%", flex: 1 }}>
-                <thead>
-                  <tr>
-                    {sabadosTarde.map(s => (
-                      <th key={s.id} style={cell({ backgroundColor: "#e5e7eb", textAlign: "center", fontWeight: "bold", fontSize: "15px" })}>
-                        {formatarData(s.data)}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    {sabadosTarde.map(s => (
-                      <td key={s.id} style={cell({ textAlign: "center", fontSize: "12px", color: "#555", padding: "3px 10px" })}>{s.horario}</td>
-                    ))}
-                  </tr>
-                  <tr>
-                    {sabadosTarde.map(s => (
                       <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>{s.dirigente_nome || "—"}</td>
                     ))}
                   </tr>
