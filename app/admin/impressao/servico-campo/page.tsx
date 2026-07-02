@@ -368,7 +368,13 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                   </tr>
                   <tr>
                     {sabadosManha.map(s => (
-                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>{s.dirigente_nome || "—"}</td>
+                      <td key={s.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>
+                        {s.data === "2026-07-18" ? (
+                          <span style={{ color: "#9a3412", fontWeight: "bold" }}>Congresso 2026</span>
+                        ) : (
+                          s.dirigente_nome || "—"
+                        )}
+                      </td>
                     ))}
                   </tr>
                 </tbody>
@@ -399,7 +405,9 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                   <tr>
                     {campoDomingo.map(d => (
                       <td key={d.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>
-                        {d.tipo === "grupo" ? (
+                        {d.data === "2026-07-19" ? (
+                          <span style={{ color: "#9a3412", fontWeight: "bold" }}>Congresso 2026</span>
+                        ) : d.tipo === "grupo" ? (
                           <span style={{ color: "#166534", fontWeight: "bold" }}>Saída em Grupo</span>
                         ) : d.tipo === "salao" ? (
                           <span><span style={{ color: "#1e40af", fontWeight: "bold", fontSize: "13px" }}>No Salão</span><br/>{d.dirigente_nome || "—"}</span>
