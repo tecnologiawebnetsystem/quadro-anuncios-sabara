@@ -15,6 +15,8 @@ import {
   Sparkles,
   MapPin,
   Mic,
+  Mic2,
+  Music,
   Megaphone,
   Info,
   CalendarDays,
@@ -124,6 +126,14 @@ const menuSections = [
   { title: "Limpeza do Salão", description: "Escala semanal",       href: "/consulta/limpeza-salao",  icon: Sparkles,  color: "bg-cyan-600"   },
   { title: "Serviço de Campo", description: "Dirigentes de campo",  href: "/consulta/servico-campo",  icon: MapPin,    color: "bg-green-600"  },
   { title: "Assistência",      description: "Presenças e estatísticas", href: "/consulta/assistencia", icon: BarChart3, color: "bg-violet-600" },
+  ]
+  },
+  {
+  title: "Referências",
+  items: [
+    { title: "Cânticos", description: "Números e nomes", href: "/consulta/canticos", icon: Music, color: "bg-amber-600" },
+    { title: "Discursos", description: "Esboços S-99", href: "/consulta/discursos", icon: Mic2, color: "bg-sky-600" },
+    { title: "Publicadores", description: "Lista da congregação", href: "/consulta/publicadores", icon: Users, color: "bg-emerald-600" },
   ]
   },
   {
@@ -531,25 +541,147 @@ export default function ConsultaPage() {
         </div>
       </div>
     )}
-    <div className="max-w-5xl mx-auto space-y-10 pb-10">
+    <div className="max-w-5xl mx-auto space-y-8 pb-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 pt-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-amber-500 mb-1">
+          <p className="text-xs font-semibold uppercase tracking-widest text-amber-500 mb-1 capitalize">
             {format(hoje, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
           </p>
-          <h1 className="text-2xl sm:text-4xl font-bold text-white leading-tight text-balance">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white leading-tight text-balance">
             Quadro de Anúncios
           </h1>
+          <p className="text-sm text-zinc-400 mt-1">Congregação Parque Sabará</p>
         </div>
-        
-        {/* Info do publicador logado — ocultado */}
       </div>
 
-      {/* Busca de Designações e Notificações — ocultado junto com perfil de publicador */}
+      {/* Cards de Destaque do Dia */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* Campo hoje */}
+        <div className={cn(
+          "rounded-2xl border p-4 flex items-center gap-3 transition-colors",
+          campoHoje
+            ? "border-green-500/30 bg-green-500/8"
+            : "border-zinc-700/40 bg-zinc-800/20"
+        )}>
+          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
+            campoHoje ? "bg-green-500/20" : "bg-zinc-700/40"
+          )}>
+            <MapPin className={cn("h-5 w-5", campoHoje ? "text-green-400" : "text-zinc-600")} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Campo Hoje</p>
+            {campoHoje ? (
+              <>
+                <p className="text-sm font-semibold text-white truncate">{campoHoje.dirigente_nome}</p>
+                <p className="text-xs text-zinc-400">
+                  {campoHoje.periodo === "manha" ? "Manhã" : "Tarde"} · {campoHoje.horario}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-zinc-500">Sem campo hoje</p>
+            )}
+          </div>
+        </div>
 
-      {/* Próximo Discurso Público */}
-      {proximoDiscurso && (
+        {/* Limpeza da semana */}
+        <div className={cn(
+          "rounded-2xl border p-4 flex items-center gap-3",
+          limpezaSemana
+            ? "border-cyan-500/30 bg-cyan-500/8"
+            : "border-zinc-700/40 bg-zinc-800/20"
+        )}>
+          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
+            limpezaSemana ? "bg-cyan-500/20" : "bg-zinc-700/40"
+          )}>
+            <Sparkles className={cn("h-5 w-5", limpezaSemana ? "text-cyan-400" : "text-zinc-600")} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Limpeza da Semana</p>
+            {limpezaSemana ? (
+              <p className="text-sm font-semibold text-white truncate">{limpezaSemana.grupo_nome}</p>
+            ) : (
+              <p className="text-sm text-zinc-500">Não definido</p>
+            )}
+          </div>
+        </div>
+
+        {/* Próximo discurso */}
+        <div className={cn(
+          "rounded-2xl border p-4 flex items-center gap-3",
+          proximoDiscurso
+            ? "border-amber-500/30 bg-amber-500/8"
+            : "border-zinc-700/40 bg-zinc-800/20"
+        )}>
+          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
+            proximoDiscurso ? "bg-amber-500/20" : "bg-zinc-700/40"
+          )}>
+            <Mic className={cn("h-5 w-5", proximoDiscurso ? "text-amber-400" : "text-zinc-600")} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Próximo Discurso</p>
+            {proximoDiscurso ? (
+              <>
+                <p className="text-sm font-semibold text-white line-clamp-1 leading-tight">{proximoDiscurso.tema || "Tema a definir"}</p>
+                <p className="text-xs text-amber-400 mt-0.5">
+                  {(() => {
+                    const [y, m, d] = proximoDiscurso.data.split("-").map(Number)
+                    return format(new Date(y, m - 1, d), "EEE, d/MM", { locale: ptBR })
+                  })()}
+                  {proximoDiscurso.orador_nome && ` · ${proximoDiscurso.orador_nome}`}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-zinc-500">Não agendado</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Equipe técnica da semana — card compacto */}
+      {equipeSemana.length > 0 && (
+        <div className="rounded-2xl border border-purple-500/20 bg-purple-500/8 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 rounded-lg bg-purple-500/20 flex items-center justify-center">
+              <Wrench className="h-3.5 w-3.5 text-purple-400" />
+            </div>
+            <p className="text-sm font-semibold text-white">Equipe Técnica da Semana</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {equipeSemana.map((reuniao, i) => {
+              const diaLabel = reuniao.dia_semana === "quinta" ? "Quinta-feira" : "Domingo"
+              const [, mes, dia] = reuniao.data.split("-")
+              return (
+                <div key={i} className="rounded-xl bg-zinc-800/40 p-3 space-y-2">
+                  <p className="text-[10px] font-bold text-purple-400 uppercase tracking-wider">{diaLabel} — {dia}/{mes}</p>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="rounded bg-orange-500/20 px-1.5 py-0.5 text-orange-400 font-semibold">Indicadores</span>
+                      <span className="text-zinc-300 truncate">{[reuniao.indicador1_nome, reuniao.indicador2_nome].filter(Boolean).join(" / ") || "A definir"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-blue-400 font-semibold">Volantes</span>
+                      <span className="text-zinc-300 truncate">
+                        {[reuniao.microvolante1_nome, reuniao.microvolante2_nome].filter(Boolean).join(" / ") || "A definir"}
+                        {reuniao.microvolante_palco && (
+                          <span className="text-amber-400 ml-1">(Palco: {reuniao.microvolante_palco === 1 ? reuniao.microvolante1_nome : reuniao.microvolante2_nome})</span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="rounded bg-green-500/20 px-1.5 py-0.5 text-green-400 font-semibold">Som</span>
+                      <span className="text-zinc-300">{reuniao.som_nome || "A definir"}</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Próximo Discurso Público — banner expandido (só se não tiver campo hoje nem equipe) */}
+      {proximoDiscurso && !campoHoje && equipeSemana.length === 0 && (
         <div className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-600/15 via-amber-500/5 to-transparent p-6">
           <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="flex items-start gap-4">
@@ -771,109 +903,6 @@ export default function ConsultaPage() {
           </CardContent>
         </Card>
 
-        {/* Anuncios da Semana */}
-        <Card className="border-white/8 bg-white/4 lg:col-span-2">
-          <CardHeader className="pb-4 border-b border-white/6">
-            <CardTitle className="flex items-center gap-2.5 text-base font-semibold">
-              <div className="w-7 h-7 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                <Megaphone className="h-3.5 w-3.5 text-amber-400" />
-              </div>
-              Anúncios da Semana
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-5 space-y-4">
-            {limpezaSemana && (
-              <div className="flex items-start gap-4 rounded-xl border border-cyan-500/20 bg-cyan-500/8 p-4">
-                <div className="w-9 h-9 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="h-4 w-4 text-cyan-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">Limpeza do Salão</p>
-                  <p className="text-xs text-zinc-400 mt-0.5">
-                    Grupo responsável: <span className="text-cyan-400 font-medium">{limpezaSemana.grupo_nome}</span>
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {equipeSemana.length > 0 && (
-              <div className="rounded-xl border border-purple-500/20 bg-purple-500/8 p-4 space-y-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-                    <Wrench className="h-4 w-4 text-purple-400" />
-                  </div>
-                  <p className="text-sm font-semibold text-white">Equipe Técnica da Semana</p>
-                </div>
-                {equipeSemana.map((reuniao, i) => {
-                  const diaLabel = reuniao.dia_semana === "quinta" ? "Quinta-Feira" : "Domingo"
-                  const [, mes, dia] = reuniao.data.split("-")
-                  const dataLabel = `${dia}/${mes}`
-                  return (
-                    <div key={i} className="space-y-2.5">
-                      <p className="text-xs font-bold text-purple-400 uppercase tracking-wider">
-                        {diaLabel} — {dataLabel}
-                      </p>
-                      <div className="grid grid-cols-1 gap-2 pl-1">
-                        <div className="flex items-center gap-2.5 text-xs text-zinc-300">
-                          <span className="rounded-md bg-orange-500/20 px-2 py-1 text-orange-400 font-semibold whitespace-nowrap">Indicadores</span>
-                          <span>{[reuniao.indicador1_nome, reuniao.indicador2_nome].filter(Boolean).join(" / ") || "A definir"}</span>
-                        </div>
-                        <div className="flex items-center gap-2.5 text-xs text-zinc-300">
-                          <span className="rounded-md bg-blue-500/20 px-2 py-1 text-blue-400 font-semibold whitespace-nowrap">Volantes</span>
-                          <span className="flex items-center gap-1 flex-wrap">
-                            {reuniao.microvolante1_nome ? (
-                              <span className="flex items-center gap-1">
-                                {reuniao.microvolante1_nome}
-                                {reuniao.microvolante_palco === 1 && <span className="text-amber-400 font-semibold">(Palco)</span>}
-                              </span>
-                            ) : null}
-                            {reuniao.microvolante1_nome && reuniao.microvolante2_nome && " / "}
-                            {reuniao.microvolante2_nome ? (
-                              <span className="flex items-center gap-1">
-                                {reuniao.microvolante2_nome}
-                                {reuniao.microvolante_palco === 2 && <span className="text-amber-400 font-semibold">(Palco)</span>}
-                              </span>
-                            ) : null}
-                            {!reuniao.microvolante1_nome && !reuniao.microvolante2_nome && "A definir"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2.5 text-xs text-zinc-300">
-                          <span className="rounded-md bg-green-500/20 px-2 py-1 text-green-400 font-semibold whitespace-nowrap">Som</span>
-                          <span>{reuniao.som_nome || "A definir"}</span>
-                        </div>
-                      </div>
-                      {i < equipeSemana.length - 1 && <div className="border-t border-purple-500/20 pt-1" />}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-
-            {campoHoje && (
-              <div className="flex items-start gap-4 rounded-xl border border-green-500/20 bg-green-500/8 p-4">
-                <div className="w-9 h-9 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-4 w-4 text-green-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">Campo Hoje</p>
-                  <p className="text-xs text-zinc-300 mt-0.5">
-                    Dirigente: <span className="text-green-400 font-medium">{campoHoje.dirigente_nome}</span>
-                  </p>
-                  <p className="text-xs text-zinc-300 mt-0.5">
-                    {campoHoje.periodo === "manha" ? "Manhã" : "Tarde"} — {campoHoje.horario}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {!limpezaSemana && !proximoDiscurso && !campoHoje && equipeSemana.length === 0 && (
-              <div className="text-center py-8">
-                <Info className="h-10 w-10 text-zinc-700 mx-auto mb-3" />
-                <p className="text-sm text-zinc-500">Nenhum anúncio para esta semana</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
 
       {/* Menu de Navegação - Organizado por Categorias */}
