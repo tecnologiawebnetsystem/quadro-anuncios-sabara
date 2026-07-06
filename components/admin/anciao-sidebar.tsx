@@ -22,6 +22,7 @@ import {
   Music,
   HelpCircle,
   BarChart3,
+  Mic2,
   type LucideIcon
 } from "lucide-react"
 import {
@@ -97,6 +98,7 @@ const menuGroups: MenuGroup[] = [
 
 const orgItems: MenuItem[] = [
   { title: "Cânticos", icon: Music, href: "/anciao/canticos", color: "text-amber-400" },
+  { title: "Discursos", icon: Mic2, href: "/anciao/discursos", color: "text-sky-400" },
 ]
 
 const impressaoGroup: MenuGroup = {
