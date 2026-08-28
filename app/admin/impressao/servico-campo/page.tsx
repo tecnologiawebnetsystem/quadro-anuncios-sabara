@@ -239,6 +239,7 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
       semanaOrdenada.length > 0,
       campoCartas.length > 0,
       sabadosManha.length > 0,
+      sabadosTarde.length > 0,
       campoDomingo.length > 0
     ].filter(Boolean).length
 
