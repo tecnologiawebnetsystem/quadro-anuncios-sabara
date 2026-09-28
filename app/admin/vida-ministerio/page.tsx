@@ -102,6 +102,8 @@ interface Publicador {
   nome: string
 }
 
+const supabase = createClient()
+
 export default function AdminVidaMinisterioPage() {
   const [mesAtual, setMesAtual] = useState(new Date().getMonth() + 1)
   const [anoAtual, setAnoAtual] = useState(new Date().getFullYear())
@@ -119,8 +121,6 @@ export default function AdminVidaMinisterioPage() {
     contentRef: printRef,
     documentTitle: `Vida_Ministerio_${meses.find((m) => m.valor === mesAtual)?.nome}_${anoAtual}`,
   })
-
-  const supabase = createClient()
 
   const carregarDados = useCallback(async () => {
     setLoading(true)
@@ -209,26 +209,6 @@ export default function AdminVidaMinisterioPage() {
     const ultimaSemana = semanas[semanas.length - 1]
     let dataInicio: Date
 
-    console.log("[v0] Início da inserção de semana", {
-      mesSelecionado: mesAtual,
-      anoSelecionado: anoAtual,
-      mesDataId: mesData.id,
-      semanasCarregadas: semanas.map((semana) => ({
-        id: semana.id,
-        mes_id: semana.mes_id,
-        data_inicio: semana.data_inicio,
-        data_fim: semana.data_fim,
-      })),
-      ultimaSemana: ultimaSemana
-        ? {
-            id: ultimaSemana.id,
-            mes_id: ultimaSemana.mes_id,
-            data_inicio: ultimaSemana.data_inicio,
-            data_fim: ultimaSemana.data_fim,
-          }
-        : null,
-    })
-
     if (ultimaSemana) {
       dataInicio = new Date(`${ultimaSemana.data_fim}T12:00:00`)
       dataInicio.setDate(dataInicio.getDate() + 1)
@@ -285,32 +265,11 @@ export default function AdminVidaMinisterioPage() {
         leitura_semanal: "",
       }
 
-      console.log("[v0] Tentando inserir semana", {
-        tentativa: tentativa + 1,
-        mesSelecionado: mesAtual,
-        anoSelecionado: anoAtual,
-        payload: payloadSemana,
-      })
-
       const { data: novaSemana, error } = await supabase
         .from("vida_ministerio_semanas")
         .insert(payloadSemana)
         .select()
         .single()
-
-      console.log("[v0] Resultado da inserção de semana", {
-        tentativa: tentativa + 1,
-        payload: payloadSemana,
-        novaSemana,
-        erro: error
-          ? {
-              code: error.code,
-              message: error.message,
-              details: error.details,
-              hint: error.hint,
-            }
-          : null,
-      })
 
       if (!error && novaSemana) {
         setSemanas((semanasAtuais) => [...semanasAtuais, novaSemana])
@@ -602,7 +561,7 @@ export default function AdminVidaMinisterioPage() {
 
   // ────────────────────────────────────────────
   // Renderização de parte: Tesouros
-  // ──────────────────────────────────────────────
+  // ────────────────────────��─────────────────────
   const renderParteTesouro = (parte: Parte) => {
     const ordemLabel =
       parte.ordem === TESOUROS_ORDEM.DISCURSO
