@@ -239,6 +239,35 @@ export default function AdminVidaMinisterioPage() {
       }
     }
 
+    // A semana que cruza o mês pode já existir com outro mes_id.
+    // Ex.: 28/09–04/10 foi cadastrada em setembro. Avançamos até a
+    // próxima data_inicio realmente livre antes de inserir a semana de outubro.
+    const formatarData = (data: Date) => {
+      const ano = data.getFullYear()
+      const mes = String(data.getMonth() + 1).padStart(2, "0")
+      const dia = String(data.getDate()).padStart(2, "0")
+      return `${ano}-${mes}-${dia}`
+    }
+
+    for (let tentativa = 0; tentativa < 52; tentativa += 1) {
+      const dataInicioTexto = formatarData(dataInicio)
+      const { data: semanaExistente, error: erroConsulta } = await supabase
+        .from("vida_ministerio_semanas")
+        .select("id")
+        .eq("data_inicio", dataInicioTexto)
+        .maybeSingle()
+
+      if (erroConsulta) {
+        toast.error("Não foi possível verificar a semana", {
+          description: erroConsulta.message || "Tente novamente.",
+        })
+        return
+      }
+
+      if (!semanaExistente) break
+      dataInicio.setDate(dataInicio.getDate() + 7)
+    }
+
     const dataFim = new Date(dataInicio)
     dataFim.setDate(dataFim.getDate() + 6)
 
@@ -246,8 +275,8 @@ export default function AdminVidaMinisterioPage() {
       .from("vida_ministerio_semanas")
       .insert({
         mes_id: mesData.id,
-        data_inicio: dataInicio.toISOString().split("T")[0],
-        data_fim: dataFim.toISOString().split("T")[0],
+        data_inicio: formatarData(dataInicio),
+        data_fim: formatarData(dataFim),
         leitura_semanal: "",
       })
       .select()
@@ -780,7 +809,7 @@ export default function AdminVidaMinisterioPage() {
   }
 
   // ──────────────────────────────────────────────
-  // Renderização de parte genérica (Nossa Vida Cristã)
+  // Renderizaç��o de parte genérica (Nossa Vida Cristã)
   // ──────────────────────────────────────────────
   const renderParteGenerica = (parte: Parte, secaoId: string, numeroParte?: number) => (
     <div key={parte.id} className="bg-zinc-800/50 rounded-lg p-3 space-y-3">
