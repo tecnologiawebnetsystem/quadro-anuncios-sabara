@@ -199,7 +199,13 @@ export default function AdminVidaMinisterioPage() {
   // Semanas
   // ──────────────────────────────────────────────
   const adicionarSemana = async () => {
-    if (!mesData) return
+    if (!mesData) {
+      toast.error("Não foi possível criar a semana", {
+        description: "O mês ainda não foi carregado. Atualize a página e tente novamente.",
+      })
+      return
+    }
+
     const ultimaSemana = semanas[semanas.length - 1]
     let dataInicio: Date
 
@@ -207,11 +213,12 @@ export default function AdminVidaMinisterioPage() {
       dataInicio = new Date(ultimaSemana.data_fim)
       dataInicio.setDate(dataInicio.getDate() + 1)
     } else {
-      // Segunda-feira da semana que contém o dia 1º do mês
-      // (pode cair no mês anterior, ex: quinta 02/07 pertence à semana de 29/06)
+      // Começa na primeira segunda-feira dentro do mês.
+      // A semana anterior pertence ao mês anterior e não pode ser
+      // inserida novamente, pois data_inicio é única no banco.
       dataInicio = new Date(anoAtual, mesAtual - 1, 1)
       while (dataInicio.getDay() !== 1) {
-        dataInicio.setDate(dataInicio.getDate() - 1)
+        dataInicio.setDate(dataInicio.getDate() + 1)
       }
     }
 
@@ -229,9 +236,20 @@ export default function AdminVidaMinisterioPage() {
       .select()
       .single()
 
-    if (!error && novaSemana) {
+    if (error) {
+      console.error("[v0] Erro ao inserir semana:", error)
+      toast.error("Não foi possível inserir a semana", {
+        description: error.message || "Verifique suas permissões e tente novamente.",
+      })
+      return
+    }
+
+    if (novaSemana) {
       setSemanas([...semanas, novaSemana])
       setSemanaAtiva(novaSemana.id)
+      toast.success("Semana inserida", {
+        description: "A nova semana foi adicionada ao mês.",
+      })
     }
   }
 
@@ -256,9 +274,9 @@ export default function AdminVidaMinisterioPage() {
     }
   }
 
-  // ────────────────���─────────────────────────────
+  // ─────────────────────────────────────────────
   // Partes genéricas
-  // ────���───────���─────────────────────────────────
+  // ────────────────────────────────────────────
   const adicionarParte = async (semanaId: string, secao: string) => {
     const partesSecao = partes.filter((p) => p.semana_id === semanaId && p.secao === secao)
     const ordem = partesSecao.length + 1
@@ -303,7 +321,7 @@ export default function AdminVidaMinisterioPage() {
 
   // ──────────────────────────────────────────────
   // Navegação de mês
-  // ───────────────────────────────��──────────────
+  // ─────────────────────────────────────────────
   const mesAnterior = () => {
     if (mesAtual === 1) { setMesAtual(12); setAnoAtual(anoAtual - 1) }
     else setMesAtual(mesAtual - 1)
@@ -442,7 +460,7 @@ export default function AdminVidaMinisterioPage() {
       dataReuniao = dataInicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
     }
     
-    let mensagem = `*DESIGNAÇÃO - VIDA E MINIST����RIO*\n\n`
+    let mensagem = `*DESIGNAÇÃO - VIDA E MINISTÉRIO*\n\n`
     mensagem += `Olá, ${parte.oracao_final_nome}!\n\n`
     mensagem += `Você foi designado para fazer a *Oração Final* na reunião de Vida e Ministério.\n\n`
     mensagem += `*Data:* ${dataReuniao} (quinta-feira)\n`
@@ -497,7 +515,7 @@ export default function AdminVidaMinisterioPage() {
     </Button>
   )
 
-  // ──────────────────���───────────────���───────────
+  // ────────────────────────────────────────────
   // Renderização de parte: Tesouros
   // ──────────────────────────────────────────────
   const renderParteTesouro = (parte: Parte) => {
@@ -603,7 +621,7 @@ export default function AdminVidaMinisterioPage() {
     )
   }
 
-  // ────────────────────────────────────���─────────
+  // ─────────────────────────────────────────────
   // Renderização de parte: Faça Seu Melhor no Ministério
   // ──────────────────────────────────────────────
   const renderParteMinisterio = (parte: Parte, numeroParte?: number) => {
@@ -909,7 +927,7 @@ export default function AdminVidaMinisterioPage() {
 
   // ──────────────────────────────────────────────
   // JSX principal
-  // ──────────────────────────────��───────────────
+  // ─────────────────────────────────────────────
   if (loading) return <CenteredLoader />
 
   return (
@@ -1045,7 +1063,7 @@ export default function AdminVidaMinisterioPage() {
                           onChange={(e) =>
                             atualizarSemana(semanaAtualData.id, "motivo_sem_reuniao", e.target.value)
                           }
-                          placeholder="Ex: Assembleia de Circuito, Congresso Regional, Celebra��ão da Morte de Cristo..."
+                          placeholder="Ex: Assembleia de Circuito, Congresso Regional, Celebração da Morte de Cristo..."
                           className="bg-zinc-900 border-zinc-600 min-h-[60px]"
                         />
                       </div>

@@ -16,6 +16,7 @@ export const metadata: Metadata = {
   title: 'Quadro de Anúncios — Parque Sabará',
   description: 'Sistema de gerenciamento da congregação Parque Sabará — acesso do administrador e anunciador',
   generator: 'v0.app',
+  metadataBase: new URL('https://info-flowapp.vercel.app'),
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -74,7 +75,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR" className="bg-background">
+    <html lang="pt-BR" className="bg-background" suppressHydrationWarning>
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -95,15 +96,6 @@ export default function RootLayout({
                   navigator.serviceWorker.register('/sw.js');
                 });
               }
-              // Aplicar tema antes da renderização para evitar flash
-              (function() {
-                const theme = localStorage.getItem('infoflow-theme') || 'dark';
-                if (theme === 'light' || (theme === 'system' && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                  document.documentElement.classList.add('light');
-                } else {
-                  document.documentElement.classList.add('dark');
-                }
-              })();
             `,
           }}
         />
