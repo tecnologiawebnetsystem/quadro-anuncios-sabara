@@ -273,9 +273,9 @@ export default function AdminVidaMinisterioPage() {
     }
   }
 
-  // ────────────────���─────────────────────────────
+  // ─────────────────────────────────────────────
   // Partes genéricas
-  // ────���───────���─────────────────────────────────
+  // ────────────────────────────────────────────
   const adicionarParte = async (semanaId: string, secao: string) => {
     const partesSecao = partes.filter((p) => p.semana_id === semanaId && p.secao === secao)
     const ordem = partesSecao.length + 1
@@ -320,7 +320,7 @@ export default function AdminVidaMinisterioPage() {
 
   // ──────────────────────────────────────────────
   // Navegação de mês
-  // ───────────────────────────────��──────────────
+  // ─────────────────────────────────────────────
   const mesAnterior = () => {
     if (mesAtual === 1) { setMesAtual(12); setAnoAtual(anoAtual - 1) }
     else setMesAtual(mesAtual - 1)
@@ -459,7 +459,7 @@ export default function AdminVidaMinisterioPage() {
       dataReuniao = dataInicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
     }
     
-    let mensagem = `*DESIGNAÇÃO - VIDA E MINIST����RIO*\n\n`
+    let mensagem = `*DESIGNAÇÃO - VIDA E MINISTÉRIO*\n\n`
     mensagem += `Olá, ${parte.oracao_final_nome}!\n\n`
     mensagem += `Você foi designado para fazer a *Oração Final* na reunião de Vida e Ministério.\n\n`
     mensagem += `*Data:* ${dataReuniao} (quinta-feira)\n`
@@ -514,7 +514,7 @@ export default function AdminVidaMinisterioPage() {
     </Button>
   )
 
-  // ──────────────────���───────────────���───────────
+  // ────────────────────────────────────────────
   // Renderização de parte: Tesouros
   // ──────────────────────────────────────────────
   const renderParteTesouro = (parte: Parte) => {
@@ -620,7 +620,7 @@ export default function AdminVidaMinisterioPage() {
     )
   }
 
-  // ────────────────────────────────────���─────────
+  // ─────────────────────────────────────────────
   // Renderização de parte: Faça Seu Melhor no Ministério
   // ──────────────────────────────────────────────
   const renderParteMinisterio = (parte: Parte, numeroParte?: number) => {
@@ -926,7 +926,7 @@ export default function AdminVidaMinisterioPage() {
 
   // ──────────────────────────────────────────────
   // JSX principal
-  // ──────────────────────────────��───────────────
+  // ─────────────────────────────────────────────
   if (loading) return <CenteredLoader />
 
   return (
@@ -1062,7 +1062,7 @@ export default function AdminVidaMinisterioPage() {
                           onChange={(e) =>
                             atualizarSemana(semanaAtualData.id, "motivo_sem_reuniao", e.target.value)
                           }
-                          placeholder="Ex: Assembleia de Circuito, Congresso Regional, Celebra��ão da Morte de Cristo..."
+                          placeholder="Ex: Assembleia de Circuito, Congresso Regional, Celebração da Morte de Cristo..."
                           className="bg-zinc-900 border-zinc-600 min-h-[60px]"
                         />
                       </div>
