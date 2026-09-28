@@ -199,7 +199,13 @@ export default function AdminVidaMinisterioPage() {
   // Semanas
   // ──────────────────────────────────────────────
   const adicionarSemana = async () => {
-    if (!mesData) return
+    if (!mesData) {
+      toast.error("Não foi possível criar a semana", {
+        description: "O mês ainda não foi carregado. Atualize a página e tente novamente.",
+      })
+      return
+    }
+
     const ultimaSemana = semanas[semanas.length - 1]
     let dataInicio: Date
 
@@ -229,9 +235,20 @@ export default function AdminVidaMinisterioPage() {
       .select()
       .single()
 
-    if (!error && novaSemana) {
+    if (error) {
+      console.error("[v0] Erro ao inserir semana:", error)
+      toast.error("Não foi possível inserir a semana", {
+        description: error.message || "Verifique suas permissões e tente novamente.",
+      })
+      return
+    }
+
+    if (novaSemana) {
       setSemanas([...semanas, novaSemana])
       setSemanaAtiva(novaSemana.id)
+      toast.success("Semana inserida", {
+        description: "A nova semana foi adicionada ao mês.",
+      })
     }
   }
 
