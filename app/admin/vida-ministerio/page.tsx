@@ -213,11 +213,12 @@ export default function AdminVidaMinisterioPage() {
       dataInicio = new Date(ultimaSemana.data_fim)
       dataInicio.setDate(dataInicio.getDate() + 1)
     } else {
-      // Segunda-feira da semana que contém o dia 1º do mês
-      // (pode cair no mês anterior, ex: quinta 02/07 pertence à semana de 29/06)
+      // Começa na primeira segunda-feira dentro do mês.
+      // A semana anterior pertence ao mês anterior e não pode ser
+      // inserida novamente, pois data_inicio é única no banco.
       dataInicio = new Date(anoAtual, mesAtual - 1, 1)
       while (dataInicio.getDay() !== 1) {
-        dataInicio.setDate(dataInicio.getDate() - 1)
+        dataInicio.setDate(dataInicio.getDate() + 1)
       }
     }
 
