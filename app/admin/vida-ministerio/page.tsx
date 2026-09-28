@@ -239,9 +239,6 @@ export default function AdminVidaMinisterioPage() {
       }
     }
 
-    // A semana que cruza o mês pode já existir com outro mes_id.
-    // Ex.: 28/09–04/10 foi cadastrada em setembro. Avançamos até a
-    // próxima data_inicio realmente livre antes de inserir a semana de outubro.
     const formatarData = (data: Date) => {
       const ano = data.getFullYear()
       const mes = String(data.getMonth() + 1).padStart(2, "0")
@@ -249,54 +246,50 @@ export default function AdminVidaMinisterioPage() {
       return `${ano}-${mes}-${dia}`
     }
 
+    // A verificação anterior evita a maioria dos conflitos, mas não protege
+    // contra duas tentativas simultâneas. O banco continua sendo a fonte de
+    // verdade: se outra tentativa ocupar a data entre o SELECT e o INSERT,
+    // avançamos para a próxima semana e tentamos novamente.
     for (let tentativa = 0; tentativa < 52; tentativa += 1) {
       const dataInicioTexto = formatarData(dataInicio)
-      const { data: semanaExistente, error: erroConsulta } = await supabase
-        .from("vida_ministerio_semanas")
-        .select("id")
-        .eq("data_inicio", dataInicioTexto)
-        .maybeSingle()
+      const dataFim = new Date(dataInicio)
+      dataFim.setDate(dataFim.getDate() + 6)
 
-      if (erroConsulta) {
-        toast.error("Não foi possível verificar a semana", {
-          description: erroConsulta.message || "Tente novamente.",
+      const { data: novaSemana, error } = await supabase
+        .from("vida_ministerio_semanas")
+        .insert({
+          mes_id: mesData.id,
+          data_inicio: dataInicioTexto,
+          data_fim: formatarData(dataFim),
+          leitura_semanal: "",
+        })
+        .select()
+        .single()
+
+      if (!error && novaSemana) {
+        setSemanas((semanasAtuais) => [...semanasAtuais, novaSemana])
+        setSemanaAtiva(novaSemana.id)
+        toast.success("Semana inserida", {
+          description: "A nova semana foi adicionada ao mês.",
         })
         return
       }
 
-      if (!semanaExistente) break
-      dataInicio.setDate(dataInicio.getDate() + 7)
-    }
+      if (error?.code === "23505") {
+        dataInicio.setDate(dataInicio.getDate() + 7)
+        continue
+      }
 
-    const dataFim = new Date(dataInicio)
-    dataFim.setDate(dataFim.getDate() + 6)
-
-    const { data: novaSemana, error } = await supabase
-      .from("vida_ministerio_semanas")
-      .insert({
-        mes_id: mesData.id,
-        data_inicio: formatarData(dataInicio),
-        data_fim: formatarData(dataFim),
-        leitura_semanal: "",
-      })
-      .select()
-      .single()
-
-    if (error) {
       console.error("[v0] Erro ao inserir semana:", error)
       toast.error("Não foi possível inserir a semana", {
-        description: error.message || "Verifique suas permissões e tente novamente.",
+        description: error?.message || "Verifique suas permissões e tente novamente.",
       })
       return
     }
 
-    if (novaSemana) {
-      setSemanas([...semanas, novaSemana])
-      setSemanaAtiva(novaSemana.id)
-      toast.success("Semana inserida", {
-        description: "A nova semana foi adicionada ao mês.",
-      })
-    }
+    toast.error("Não foi possível inserir a semana", {
+      description: "Não há uma data semanal disponível para este período.",
+    })
   }
 
   const removerSemana = async (semanaId: string) => {
@@ -971,7 +964,7 @@ export default function AdminVidaMinisterioPage() {
     </div>
   )
 
-  // ──────────────────────────────────────────────
+  // ──���───────────────────────────────────────────
   // JSX principal
   // ─────────────────────────────────────────────
   if (loading) return <CenteredLoader />
