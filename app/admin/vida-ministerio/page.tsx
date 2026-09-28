@@ -210,15 +210,32 @@ export default function AdminVidaMinisterioPage() {
     let dataInicio: Date
 
     if (ultimaSemana) {
-      dataInicio = new Date(ultimaSemana.data_fim)
+      dataInicio = new Date(`${ultimaSemana.data_fim}T12:00:00`)
       dataInicio.setDate(dataInicio.getDate() + 1)
     } else {
-      // Começa na primeira segunda-feira dentro do mês.
-      // A semana anterior pertence ao mês anterior e não pode ser
-      // inserida novamente, pois data_inicio é única no banco.
-      dataInicio = new Date(anoAtual, mesAtual - 1, 1)
-      while (dataInicio.getDay() !== 1) {
+      // A primeira semana do mês pode ter começado no mês anterior.
+      // Ex.: 28/09–04/10 pertence ao mês de setembro, mas é a primeira
+      // semana exibida no calendário de outubro. Nesse caso, a próxima
+      // semana deve ser criada a partir da última semana cadastrada,
+      // evitando reutilizar uma data_inicio que já é única no banco.
+      const primeiroDiaMes = `${anoAtual}-${String(mesAtual).padStart(2, "0")}-01`
+      const { data: semanaAnterior } = await supabase
+        .from("vida_ministerio_semanas")
+        .select("data_inicio, data_fim")
+        .lt("data_inicio", primeiroDiaMes)
+        .order("data_inicio", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (semanaAnterior) {
+        dataInicio = new Date(`${semanaAnterior.data_fim}T12:00:00`)
         dataInicio.setDate(dataInicio.getDate() + 1)
+      } else {
+        // Sem histórico: começa na primeira segunda-feira do mês.
+        dataInicio = new Date(anoAtual, mesAtual - 1, 1, 12)
+        while (dataInicio.getDay() !== 1) {
+          dataInicio.setDate(dataInicio.getDate() + 1)
+        }
       }
     }
 
