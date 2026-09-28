@@ -219,14 +219,17 @@ export default function AdminVidaMinisterioPage() {
       // semana deve ser criada a partir da última semana cadastrada,
       // evitando reutilizar uma data_inicio que já é única no banco.
       const primeiroDiaMes = `${anoAtual}-${String(mesAtual).padStart(2, "0")}-01`
-      const { data: semanaAnterior } = await supabase
+      const { data: semanasAnteriores } = await supabase
         .from("vida_ministerio_semanas")
         .select("data_inicio, data_fim")
-        .lt("data_inicio", primeiroDiaMes)
-        .order("data_inicio", { ascending: false })
-        .limit(1)
-        .maybeSingle()
+        .lte("data_inicio", primeiroDiaMes)
+        .order("data_fim", { ascending: false })
+        .limit(100)
 
+      // A semana 28/09–04/10 pertence ao mês de setembro no banco,
+      // mas é a primeira semana exibida em outubro. Portanto, a nova
+      // semana deve começar em 05/10, e não reutilizar 28/09.
+      const semanaAnterior = semanasAnteriores?.[0]
       if (semanaAnterior) {
         dataInicio = new Date(`${semanaAnterior.data_fim}T12:00:00`)
         dataInicio.setDate(dataInicio.getDate() + 1)
@@ -964,7 +967,7 @@ export default function AdminVidaMinisterioPage() {
     </div>
   )
 
-  // ──���───────────────────────────────────────────
+  // ──���───────────────────────────────���───────────
   // JSX principal
   // ─────────────────────────────────────────────
   if (loading) return <CenteredLoader />
