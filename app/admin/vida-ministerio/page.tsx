@@ -86,10 +86,6 @@ interface Parte {
   licao: string | null
   // Campo ministério
   descricao: string | null
-  // Campos extras Ministério (Parte 3 Tesouros e seção Ministério)
-  texto_ministerio: string | null
-  licao_ministerio: string | null
-  ponto_ministerio: string | null
   // Campos estudo bíblico de congregação
   leitor_id: string | null
   leitor_nome: string | null
