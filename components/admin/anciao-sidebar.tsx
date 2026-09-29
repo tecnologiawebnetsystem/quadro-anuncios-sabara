@@ -106,13 +106,11 @@ const impressaoGroup: MenuGroup = {
   color: "text-amber-400",
   items: [
     { title: "Vida e Ministério", icon: Gem, href: "/anciao/impressao/vida-ministerio", color: "text-amber-400" },
-    { title: "Roteiro do Presidente", icon: ClipboardList, href: "/anciao/impressao/roteiro-presidente", color: "text-emerald-400" },
     { title: "Programação", icon: ClipboardList, href: "/anciao/programacao-congregacao", color: "text-amber-400" },
     { title: "Grupo de Estudos", icon: BookOpen, href: "/anciao/impressao/grupo-estudos", color: "text-amber-400" },
     { title: "Serviço de Campo", icon: MapPin, href: "/anciao/impressao/servico-campo", color: "text-amber-400" },
     { title: "Limpeza do Salão", icon: Sparkles, href: "/anciao/impressao/limpeza-salao", color: "text-cyan-400" },
     { title: "Publicadores", icon: Users,     href: "/anciao/impressao/publicadores", color: "text-sky-400" },
-    { title: "Assistência",  icon: BarChart3, href: "/anciao/impressao/assistencia",  color: "text-cyan-400" },
   ]
 }
 
