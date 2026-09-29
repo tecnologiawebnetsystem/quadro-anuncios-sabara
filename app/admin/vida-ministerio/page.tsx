@@ -86,10 +86,6 @@ interface Parte {
   licao: string | null
   // Campo ministério
   descricao: string | null
-  // Campos extras Ministério (Parte 3 Tesouros e seção Ministério)
-  texto_ministerio: string | null
-  licao_ministerio: string | null
-  ponto_ministerio: string | null
   // Campos estudo bíblico de congregação
   leitor_id: string | null
   leitor_nome: string | null
@@ -101,6 +97,8 @@ interface Publicador {
   id: string
   nome: string
 }
+
+const supabase = createClient()
 
 export default function AdminVidaMinisterioPage() {
   const [mesAtual, setMesAtual] = useState(new Date().getMonth() + 1)
@@ -119,8 +117,6 @@ export default function AdminVidaMinisterioPage() {
     contentRef: printRef,
     documentTitle: `Vida_Ministerio_${meses.find((m) => m.valor === mesAtual)?.nome}_${anoAtual}`,
   })
-
-  const supabase = createClient()
 
   const carregarDados = useCallback(async () => {
     setLoading(true)
@@ -219,14 +215,17 @@ export default function AdminVidaMinisterioPage() {
       // semana deve ser criada a partir da última semana cadastrada,
       // evitando reutilizar uma data_inicio que já é única no banco.
       const primeiroDiaMes = `${anoAtual}-${String(mesAtual).padStart(2, "0")}-01`
-      const { data: semanaAnterior } = await supabase
+      const { data: semanasAnteriores } = await supabase
         .from("vida_ministerio_semanas")
         .select("data_inicio, data_fim")
-        .lt("data_inicio", primeiroDiaMes)
-        .order("data_inicio", { ascending: false })
-        .limit(1)
-        .maybeSingle()
+        .lte("data_inicio", primeiroDiaMes)
+        .order("data_fim", { ascending: false })
+        .limit(100)
 
+      // A semana 28/09–04/10 pertence ao mês de setembro no banco,
+      // mas é a primeira semana exibida em outubro. Portanto, a nova
+      // semana deve começar em 05/10, e não reutilizar 28/09.
+      const semanaAnterior = semanasAnteriores?.[0]
       if (semanaAnterior) {
         dataInicio = new Date(`${semanaAnterior.data_fim}T12:00:00`)
         dataInicio.setDate(dataInicio.getDate() + 1)
@@ -239,35 +238,59 @@ export default function AdminVidaMinisterioPage() {
       }
     }
 
-    const dataFim = new Date(dataInicio)
-    dataFim.setDate(dataFim.getDate() + 6)
+    const formatarData = (data: Date) => {
+      const ano = data.getFullYear()
+      const mes = String(data.getMonth() + 1).padStart(2, "0")
+      const dia = String(data.getDate()).padStart(2, "0")
+      return `${ano}-${mes}-${dia}`
+    }
 
-    const { data: novaSemana, error } = await supabase
-      .from("vida_ministerio_semanas")
-      .insert({
+    // A verificação anterior evita a maioria dos conflitos, mas não protege
+    // contra duas tentativas simultâneas. O banco continua sendo a fonte de
+    // verdade: se outra tentativa ocupar a data entre o SELECT e o INSERT,
+    // avançamos para a próxima semana e tentamos novamente.
+    for (let tentativa = 0; tentativa < 52; tentativa += 1) {
+      const dataInicioTexto = formatarData(dataInicio)
+      const dataFim = new Date(dataInicio)
+      dataFim.setDate(dataFim.getDate() + 6)
+      const dataFimTexto = formatarData(dataFim)
+      const payloadSemana = {
         mes_id: mesData.id,
-        data_inicio: dataInicio.toISOString().split("T")[0],
-        data_fim: dataFim.toISOString().split("T")[0],
+        data_inicio: dataInicioTexto,
+        data_fim: dataFimTexto,
         leitura_semanal: "",
-      })
-      .select()
-      .single()
+      }
 
-    if (error) {
+      const { data: novaSemana, error } = await supabase
+        .from("vida_ministerio_semanas")
+        .insert(payloadSemana)
+        .select()
+        .single()
+
+      if (!error && novaSemana) {
+        setSemanas((semanasAtuais) => [...semanasAtuais, novaSemana])
+        setSemanaAtiva(novaSemana.id)
+        toast.success("Semana inserida", {
+          description: "A nova semana foi adicionada ao mês.",
+        })
+        return
+      }
+
+      if (error?.code === "23505") {
+        dataInicio.setDate(dataInicio.getDate() + 7)
+        continue
+      }
+
       console.error("[v0] Erro ao inserir semana:", error)
       toast.error("Não foi possível inserir a semana", {
-        description: error.message || "Verifique suas permissões e tente novamente.",
+        description: error?.message || "Verifique suas permissões e tente novamente.",
       })
       return
     }
 
-    if (novaSemana) {
-      setSemanas([...semanas, novaSemana])
-      setSemanaAtiva(novaSemana.id)
-      toast.success("Semana inserida", {
-        description: "A nova semana foi adicionada ao mês.",
-      })
-    }
+    toast.error("Não foi possível inserir a semana", {
+      description: "Não há uma data semanal disponível para este período.",
+    })
   }
 
   const removerSemana = async (semanaId: string) => {
@@ -354,187 +377,9 @@ export default function AdminVidaMinisterioPage() {
   const formatarData = (data: string) =>
     new Date(data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
 
-  // ──────────────────────────────────────────────
-  // WhatsApp - Formatar e compartilhar parte
-  // ──────────────────────────────────────────────
-  const formatarMensagemWhatsApp = (parte: Parte, numeroParte?: number) => {
-    const semana = semanas.find(s => s.id === parte.semana_id)
-    
-    // Calcular a data da reunião (quinta-feira = data_inicio + 3 dias)
-    let dataReuniao = ""
-    if (semana) {
-      const dataInicio = new Date(semana.data_inicio + "T12:00:00")
-      dataInicio.setDate(dataInicio.getDate() + 3) // Segunda + 3 = Quinta-feira
-      dataReuniao = dataInicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
-    }
-    
-    let mensagem = `*DESIGNAÇÃO - VIDA E MINISTÉRIO*\n`
-    mensagem += `Data: ${dataReuniao}\n\n`
-    
-    // Nome da seção
-    const secaoNome = secoes.find(s => s.id === parte.secao)?.nome || parte.secao
-    mensagem += `*${secaoNome}*\n`
-    
-    // Número da parte e título
-    if (numeroParte) {
-      mensagem += `Parte ${numeroParte}: ${parte.titulo || "Sem título"}\n`
-    } else if (parte.secao === "tesouros") {
-      const ordemLabel = parte.ordem === 1 ? "Discurso" 
-        : parte.ordem === 2 ? "Joias Espirituais" 
-        : "Leitura da Bíblia"
-      // Evita redundância: se o título for igual ao label, mostra só o label
-      const titulo = parte.titulo || ""
-      const tituloNormalizado = titulo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      const labelNormalizado = ordemLabel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      if (tituloNormalizado === labelNormalizado || !titulo) {
-        mensagem += `${ordemLabel}\n`
-      } else {
-        mensagem += `${ordemLabel}: ${titulo}\n`
-      }
-    } else {
-      mensagem += `${parte.titulo || "Sem título"}\n`
-    }
-    
-    // Tempo
-    if (parte.tempo) {
-      mensagem += `Duração: ${parte.tempo} minutos\n`
-    }
-    
-    // Participante
-    if (parte.participante_nome) {
-      mensagem += `\n*Designado(a):* ${parte.participante_nome}\n`
-    }
-    
-    // Ajudante (para partes do Ministério)
-    if (parte.ajudante_nome) {
-      mensagem += `*Ajudante:* ${parte.ajudante_nome}\n`
-    }
-    
-    // Texto bíblico (para Leitura da Bíblia ou partes do Ministério)
-    if (parte.texto_ministerio) {
-      mensagem += `\n*Texto:* ${parte.texto_ministerio}\n`
-    }
-    
-    // Lição
-    if (parte.licao_ministerio) {
-      mensagem += `*Lição:* ${parte.licao_ministerio}\n`
-    }
-    
-    // Ponto (para Ministério)
-    if (parte.ponto_ministerio) {
-      mensagem += `*Ponto:* ${parte.ponto_ministerio}\n`
-    }
-    
-    // Leitor do Estudo (para Estudo Bíblico de Congregação)
-    if (parte.leitor_nome) {
-      mensagem += `*Leitor:* ${parte.leitor_nome}\n`
-    }
-    
-    // Oração Final
-    if (parte.oracao_final_nome) {
-      mensagem += `*Oração Final:* ${parte.oracao_final_nome}\n`
-    }
-    
-    return mensagem
-  }
-
-  const compartilharWhatsApp = (parte: Parte, numeroParte?: number) => {
-    const mensagem = formatarMensagemWhatsApp(parte, numeroParte)
-    const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`
-    window.open(url, "_blank")
-  }
-
-  // Formatar mensagem WhatsApp para Leitor do Estudo
-  const formatarMensagemLeitor = (parte: Parte) => {
-    const semana = semanas.find(s => s.id === parte.semana_id)
-    
-    // Calcular a data da reunião (quinta-feira = data_inicio + 3 dias)
-    let dataReuniao = ""
-    if (semana) {
-      const dataInicio = new Date(semana.data_inicio + "T12:00:00")
-      dataInicio.setDate(dataInicio.getDate() + 3)
-      dataReuniao = dataInicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
-    }
-    
-    let mensagem = `*DESIGNAÇÃO - VIDA E MINISTÉRIO*\n\n`
-    mensagem += `Olá, ${parte.leitor_nome}!\n\n`
-    mensagem += `Você foi designado como *Leitor do Estudo Bíblico de Congregação* na reunião de Vida e Ministério.\n\n`
-    mensagem += `*Data:* ${dataReuniao} (quinta-feira)\n`
-    mensagem += `*Parte:* ${parte.titulo || "Estudo Bíblico de Congregação"}\n`
-    
-    return mensagem
-  }
-
-  // Formatar mensagem WhatsApp para Oração Final
-  const formatarMensagemOracaoFinal = (parte: Parte) => {
-    const semana = semanas.find(s => s.id === parte.semana_id)
-    
-    // Calcular a data da reunião (quinta-feira = data_inicio + 3 dias)
-    let dataReuniao = ""
-    if (semana) {
-      const dataInicio = new Date(semana.data_inicio + "T12:00:00")
-      dataInicio.setDate(dataInicio.getDate() + 3)
-      dataReuniao = dataInicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
-    }
-    
-    let mensagem = `*DESIGNAÇÃO - VIDA E MINISTÉRIO*\n\n`
-    mensagem += `Olá, ${parte.oracao_final_nome}!\n\n`
-    mensagem += `Você foi designado para fazer a *Oração Final* na reunião de Vida e Ministério.\n\n`
-    mensagem += `*Data:* ${dataReuniao} (quinta-feira)\n`
-    
-    return mensagem
-  }
-
-  const compartilharWhatsAppLeitor = (parte: Parte) => {
-    const mensagem = formatarMensagemLeitor(parte)
-    const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`
-    window.open(url, "_blank")
-  }
-
-  const compartilharWhatsAppOracaoFinal = (parte: Parte) => {
-    const mensagem = formatarMensagemOracaoFinal(parte)
-    const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`
-    window.open(url, "_blank")
-  }
-
-  // Ícone SVG do WhatsApp (reutilizável)
-  const WhatsAppIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className="w-4 h-4"
-    >
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-    </svg>
-  )
-
-  // Componente do botão WhatsApp
-  const BotaoWhatsApp = ({ parte, numeroParte }: { parte: Parte; numeroParte?: number }) => (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="h-8 w-8 text-green-500 hover:text-green-400 hover:bg-green-500/10"
-      onClick={(e) => {
-        e.stopPropagation()
-        compartilharWhatsApp(parte, numeroParte)
-      }}
-      title="Enviar por WhatsApp"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        className="w-4 h-4"
-      >
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-      </svg>
-    </Button>
-  )
-
   // ────────────────────────────────────────────
   // Renderização de parte: Tesouros
-  // ──────────────────────────────────────────────
+  // ────────────────────────��─────────────────────
   const renderParteTesouro = (parte: Parte) => {
     const ordemLabel =
       parte.ordem === TESOUROS_ORDEM.DISCURSO
@@ -573,7 +418,6 @@ export default function AdminVidaMinisterioPage() {
             </div>
           </div>
           <div className="flex items-center gap-1 mt-5">
-            <BotaoWhatsApp parte={parte} />
             <Button
               variant="ghost"
               size="icon"
@@ -611,29 +455,7 @@ export default function AdminVidaMinisterioPage() {
           </Select>
         </div>
 
-        {/* Campos extras para Parte 3 - Leitura da Bíblia */}
-        {parte.ordem === TESOUROS_ORDEM.LEITURA && (
-          <div className="space-y-3 pt-3 border-t border-zinc-700/50">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-zinc-400">Texto</Label>
-              <Input
-                value={parte.texto_ministerio || ""}
-                onChange={(e) => atualizarParte(parte.id, "texto_ministerio", e.target.value)}
-                placeholder="Ex: Mateus 5:1-16"
-                className="bg-zinc-900 border-zinc-700 text-sm"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-zinc-400">Lição</Label>
-              <Input
-                value={parte.licao_ministerio || ""}
-                onChange={(e) => atualizarParte(parte.id, "licao_ministerio", e.target.value)}
-                placeholder="Ex: Lição 2, Ponto 2"
-                className="bg-zinc-900 border-zinc-700 text-sm"
-              />
-            </div>
-          </div>
-        )}
+
       </div>
     )
   }
@@ -677,7 +499,6 @@ export default function AdminVidaMinisterioPage() {
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <BotaoWhatsApp parte={parte} numeroParte={numeroParte} />
             <Button
               variant="ghost"
               size="icon"
@@ -751,36 +572,12 @@ export default function AdminVidaMinisterioPage() {
           </div>
         </div>
 
-        {/* Campos extras para Faça Seu Melhor no Ministério */}
-        <div className="space-y-3 pt-3 border-t border-zinc-700/50">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-zinc-400">Lição</Label>
-              <Input
-                value={parte.licao_ministerio || ""}
-                onChange={(e) => atualizarParte(parte.id, "licao_ministerio", e.target.value)}
-                placeholder="Ex: Lição 5"
-                className="bg-zinc-900 border-zinc-700 text-sm"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-zinc-400">Ponto</Label>
-              <Input
-                value={parte.ponto_ministerio || ""}
-                onChange={(e) => atualizarParte(parte.id, "ponto_ministerio", e.target.value)}
-                placeholder="Ex: Ponto 3"
-                className="bg-zinc-900 border-zinc-700 text-sm"
-              />
-            </div>
-          </div>
-        </div>
-
       </div>
     )
   }
 
   // ──────────────────────────────────────────────
-  // Renderização de parte genérica (Nossa Vida Cristã)
+  // Renderizaç��o de parte genérica (Nossa Vida Cristã)
   // ──────────────────────────────────────────────
   const renderParteGenerica = (parte: Parte, secaoId: string, numeroParte?: number) => (
     <div key={parte.id} className="bg-zinc-800/50 rounded-lg p-3 space-y-3">
@@ -813,7 +610,6 @@ export default function AdminVidaMinisterioPage() {
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <BotaoWhatsApp parte={parte} numeroParte={numeroParte} />
             <Button
               variant="ghost"
               size="icon"
@@ -878,20 +674,6 @@ export default function AdminVidaMinisterioPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                {parte.leitor_nome && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-green-500 hover:text-green-400 hover:bg-green-500/10 shrink-0"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      compartilharWhatsAppLeitor(parte)
-                    }}
-                    title="Enviar por WhatsApp"
-                  >
-                    <WhatsAppIcon />
-                  </Button>
-                )}
               </div>
             </div>
 
@@ -920,20 +702,6 @@ export default function AdminVidaMinisterioPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                {parte.oracao_final_nome && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-green-500 hover:text-green-400 hover:bg-green-500/10 shrink-0"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      compartilharWhatsAppOracaoFinal(parte)
-                    }}
-                    title="Enviar por WhatsApp"
-                  >
-                    <WhatsAppIcon />
-                  </Button>
-                )}
               </div>
             </div>
           </div>
@@ -942,7 +710,7 @@ export default function AdminVidaMinisterioPage() {
     </div>
   )
 
-  // ──────────────────────────────────────────────
+  // ──���───────────────────────────────���───────────
   // JSX principal
   // ─────────────────────────────────────────────
   if (loading) return <CenteredLoader />
