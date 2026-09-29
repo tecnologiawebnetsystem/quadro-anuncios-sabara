@@ -100,8 +100,7 @@ const menuGroups: MenuGroup[] = [
       { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/limpeza-salao", color: "text-cyan-400" },
       { title: "Serviço de Campo", icon: MapPin,    href: "/admin/servico-campo",    color: "text-orange-400" },
       { title: "Territórios",      icon: Map,       href: "/admin/territorios",      color: "text-orange-300" },
-      { title: "Assistência",      icon: BarChart3,  href: "/admin/assistencia",     color: "text-cyan-400"   },
-    ]
+        ]
   },
 ]
 

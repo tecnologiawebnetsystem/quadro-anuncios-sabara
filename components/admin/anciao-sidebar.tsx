@@ -91,8 +91,7 @@ const menuGroups: MenuGroup[] = [
       { title: "Grupo de Estudos", icon: BookOpen, href: "/anciao/grupo-estudos", color: "text-emerald-400" },
       { title: "Limpeza do Salão", icon: Sparkles, href: "/anciao/limpeza-salao", color: "text-cyan-400" },
       { title: "Serviço de Campo", icon: MapPin,    href: "/anciao/servico-campo",   color: "text-orange-400" },
-      { title: "Assistência",      icon: BarChart3, href: "/anciao/assistencia",     color: "text-cyan-400"   },
-    ]
+        ]
   },
 ]
 
