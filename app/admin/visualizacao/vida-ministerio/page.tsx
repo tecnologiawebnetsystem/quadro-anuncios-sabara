@@ -66,10 +66,8 @@ interface Parte {
   ajudante_nome: string | null
   sala: string
   ordem: number
-  // Tesouros extras
+  // Tesouros extras usados apenas no discurso
   textos: string[] | null
-  texto_biblia: string | null
-  licao: string | null
   // Ministério extras
   descricao: string | null
   // Estudo Bíblico de Congregação

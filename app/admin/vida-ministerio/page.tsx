@@ -81,9 +81,8 @@ interface Parte {
   ajudante_nome: string | null
   sala: string
   ordem: number
-  // Campos extras Tesouros
+  // Campos extras Tesouros usados apenas no discurso
   textos: string[]
-  licao: string | null
   // Campo ministério
   descricao: string | null
   // Campos estudo bíblico de congregação
@@ -623,28 +622,30 @@ export default function AdminVidaMinisterioPage() {
 
       {/* Participante */}
       <div className="space-y-2">
-        <Select
-          value={parte.participante_id || "none"}
-          onValueChange={(value) => {
-            const pub = publicadores.find((p) => p.id === value)
-            atualizarParteLote(parte.id, {
-              participante_id: value === "none" ? null : value,
-              participante_nome: value === "none" ? null : (pub?.nome || null),
-            })
-          }}
-        >
-          <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
-            <SelectValue placeholder="Selecione o participante" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">Selecione o participante</SelectItem>
-            {publicadores.map((pub) => (
-              <SelectItem key={pub.id} value={pub.id}>
-                {pub.nome}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {!parte.titulo?.toLowerCase().includes("necessidades locais") && (
+          <Select
+            value={parte.participante_id || "none"}
+            onValueChange={(value) => {
+              const pub = publicadores.find((p) => p.id === value)
+              atualizarParteLote(parte.id, {
+                participante_id: value === "none" ? null : value,
+                participante_nome: value === "none" ? null : (pub?.nome || null),
+              })
+            }}
+          >
+            <SelectTrigger className="bg-zinc-900 border-zinc-700 text-sm">
+              <SelectValue placeholder="Selecione o participante" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Selecione o participante</SelectItem>
+              {publicadores.map((pub) => (
+                <SelectItem key={pub.id} value={pub.id}>
+                  {pub.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
         {/* Campos extras para Estudo Bíblico de Congregação */}
         {parte.titulo?.toLowerCase().includes("estudo bíblico") && (
