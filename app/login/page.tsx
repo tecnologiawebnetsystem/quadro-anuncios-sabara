@@ -3,22 +3,20 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
-import { ShieldCheck, Delete, Info, UserCheck } from "lucide-react"
+import { ShieldCheck, Delete, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AppIcon } from "@/components/ui/app-icon"
 
-const SENHAS_PADRAO: Record<string, string> = {
-  anciao: "123456",
+  const SENHAS_PADRAO: Record<string, string> = {
   administrador: "080754",
-}
+  }
 
-const DESTINOS: Record<string, string> = {
-  anciao: "/anciao",
+  const DESTINOS: Record<string, string> = {
   administrador: "/admin",
-}
+  }
 
-type Perfil = "anciao" | "administrador" | null
+  type Perfil = "administrador" | null
 
 export default function LoginPage() {
   const router = useRouter()
@@ -33,7 +31,7 @@ export default function LoginPage() {
     fetch("/api/senhas")
       .then(res => res.json())
       .then(data => {
-        if (data.administrador && data.anciao) setSenhas(data)
+        if (data.administrador) setSenhas({ administrador: data.administrador })
       })
       .catch(() => {})
   }, [])
@@ -65,14 +63,6 @@ export default function LoginPage() {
   }
 
   const perfilConfig = {
-    anciao: {
-      label: "Ancião",
-      descricao: "Acesso ao quadro de anúncios da congregação.",
-      cor: "text-amber-500",
-      bgCor: "bg-amber-500/15",
-      borderCor: "border-amber-500/30",
-      icon: UserCheck,
-    },
     administrador: {
       label: "Administrador",
       descricao: "Acesso completo ao sistema",
@@ -133,25 +123,8 @@ export default function LoginPage() {
                     <Info className="h-5 w-5 text-sky-400" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-white text-sm font-semibold">Publicador</p>
+                    <p className="text-white text-sm font-semibold">Consulta</p>
                     <p className="text-sky-300/60 text-xs mt-0.5">Consultar o quadro de anúncios.</p>
-                  </div>
-                  <svg className="w-4 h-4 text-sky-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-
-                {/* Ancião */}
-                <button
-                  onClick={() => setPerfil("anciao")}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-amber-500/10 transition-colors text-left"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
-                    <UserCheck className="h-5 w-5 text-amber-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white text-sm font-semibold">Ancião</p>
-                    <p className="text-sky-300/60 text-xs mt-0.5">Acesso ao quadro de anúncios da congregação.</p>
                   </div>
                   <svg className="w-4 h-4 text-sky-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
