@@ -81,9 +81,8 @@ interface Parte {
   ajudante_nome: string | null
   sala: string
   ordem: number
-  // Campos extras Tesouros
+  // Campos extras Tesouros usados apenas no discurso
   textos: string[]
-  licao: string | null
   // Campo ministério
   descricao: string | null
   // Campos estudo bíblico de congregação

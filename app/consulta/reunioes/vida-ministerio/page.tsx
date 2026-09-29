@@ -66,10 +66,8 @@ interface Parte {
   ajudante_nome: string | null
   sala: string
   ordem: number
-  // Tesouros extras
+  // Tesouros extras usados apenas no discurso
   textos: string[] | null
-  texto_biblia: string | null
-  licao: string | null
   // Ministério extras
   descricao: string | null
   // Estudo Bíblico de Congregação
@@ -402,21 +400,6 @@ export default function ConsultaVidaMinisterioPage() {
                                     </li>
                                   ))}
                                 </ul>
-                              )}
-
-                              {/* Tesouros – Parte 3: texto bíblico e lição */}
-                              {secao.id === "tesouros" && parte.ordem === TESOUROS_ORDEM.LEITURA && (
-                                <div className="flex flex-wrap gap-3 text-sm text-zinc-300">
-                                  {parte.texto_biblia && (
-                                    <span className="flex items-center gap-1">
-                                      <BookOpen className="w-3.5 h-3.5 text-zinc-500" />
-                                      {parte.texto_biblia}
-                                    </span>
-                                  )}
-                                  {parte.licao && (
-                                    <span className="text-zinc-500">({parte.licao})</span>
-                                  )}
-                                </div>
                               )}
 
                               {/* Ministério: descrição */}
