@@ -1,6 +1,6 @@
-const CACHE_NAME = 'jw-assistente-v1';
+const CACHE_NAME = 'jw-assistente-v2';
 const STATIC_ASSETS = [
-  '/chat',
+  '/offline.html',
   '/chat-manifest.json',
   '/icons/chat-icon-192x192.jpg',
   '/icons/chat-icon-512x512.jpg',
@@ -45,18 +45,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navegação para /chat: Network First com fallback para cache
+  // Não manter páginas que podem incluir conteúdo da sessão no cache local.
   if (request.mode === 'navigate' && url.pathname.startsWith('/chat')) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((c) => c.put(request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(request).then((r) => r || caches.match('/chat')))
+      fetch(request).catch(async () => (await caches.match('/offline.html')) || Response.error())
     );
     return;
   }

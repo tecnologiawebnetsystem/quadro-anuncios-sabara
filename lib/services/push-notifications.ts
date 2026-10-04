@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/client"
 
+type PushNotificationOptions = NotificationOptions & { vibrate?: number[] }
+
 export interface PushSubscriptionData {
   endpoint: string
   p256dh: string
@@ -113,7 +115,7 @@ export async function getCurrentSubscription(): Promise<PushSubscription | null>
   }
 }
 
-export async function sendLocalNotification(title: string, options?: NotificationOptions): Promise<boolean> {
+export async function sendLocalNotification(title: string, options?: PushNotificationOptions): Promise<boolean> {
   if (!isPushSupported()) return false
   
   const permission = await getNotificationPermission()
@@ -121,12 +123,13 @@ export async function sendLocalNotification(title: string, options?: Notificatio
   
   try {
     const registration = await navigator.serviceWorker.ready
-    await registration.showNotification(title, {
+    const notificationOptions: PushNotificationOptions = {
       icon: '/icons/icon-192x192.jpg',
       badge: '/icons/icon-192x192.jpg',
       vibrate: [200, 100, 200],
       ...options
-    })
+    }
+    await registration.showNotification(title, notificationOptions)
     return true
   } catch (error) {
     console.error('[Push] Erro ao enviar notificacao:', error)

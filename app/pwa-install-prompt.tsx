@@ -14,6 +14,35 @@ export function PwaInstallPrompt() {
   const [ios, setIos] = useState(false)
 
   useEffect(() => {
+    if (!('serviceWorker' in navigator)) return
+
+    if (process.env.NODE_ENV !== 'production') {
+      void navigator.serviceWorker.getRegistrations().then((registrations) =>
+        Promise.all(registrations
+          .filter((registration) => registration.scope === `${window.location.origin}/`)
+          .map((registration) => registration.unregister()))
+      ).catch((error) => {
+        console.warn('[PWA] Não foi possível limpar o service worker de desenvolvimento.', error)
+      })
+      return
+    }
+
+    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch((error) => {
+      console.warn('[PWA] Não foi possível registrar o service worker.', error)
+    })
+  }, [])
+
+  useEffect(() => {
+    const handleInstalled = () => {
+      setVisible(false)
+      setPromptEvent(null)
+    }
+
+    window.addEventListener('appinstalled', handleInstalled)
+    return () => window.removeEventListener('appinstalled', handleInstalled)
+  }, [])
+
+  useEffect(() => {
     const standalone = window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as Navigator & { standalone?: boolean }).standalone === true
     if (standalone || sessionStorage.getItem('pwa-install-dismissed')) return

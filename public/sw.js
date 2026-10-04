@@ -1,21 +1,11 @@
-const CACHE_NAME = 'infoflow-v6';
-const STATIC_CACHE = 'infoflow-static-v6';
-const DATA_CACHE = 'infoflow-data-v2';
+const CACHE_PREFIX = 'quadro-anuncios-';
+const STATIC_CACHE = `${CACHE_PREFIX}static-v2`;
 
-// Recursos estaticos para cache
 const staticAssets = [
+  '/offline.html',
   '/manifest.json',
   '/icons/anuncios-icon-192x192.png',
   '/icons/anuncios-icon-512x512.png',
-];
-
-// URLs de API que devem ser cacheadas para uso offline
-const apiCacheUrls = [
-  '/api/equipe-tecnica',
-  '/api/limpeza-salao',
-  '/api/servico-campo',
-  '/api/discursos-publicos',
-  '/api/grupos',
 ];
 
 // Install event - pre-cache recursos estaticos
@@ -32,106 +22,42 @@ self.addEventListener('install', (event) => {
 
 // Activate event - limpar caches antigos
 self.addEventListener('activate', (event) => {
-  const currentCaches = [CACHE_NAME, STATIC_CACHE, DATA_CACHE];
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (!currentCaches.includes(cacheName)) {
-            console.log('[SW] Removendo cache antigo:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches.keys().then((cacheNames) => Promise.all(
+      cacheNames
+        .filter((cacheName) => cacheName.startsWith(CACHE_PREFIX) && cacheName !== STATIC_CACHE)
+        .map((cacheName) => caches.delete(cacheName))
+    )).then(() => self.clients.claim())
   );
 });
 
-// Fetch event - estrategias de cache
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Ignorar requisicoes de outras origens
-  if (url.origin !== location.origin) {
-    return;
-  }
+  if (url.origin !== self.location.origin || request.method !== 'GET') return;
 
-  // Para navegacao (HTML), usar Network First com fallback
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request).then((cachedResponse) => {
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            return caches.match('/login');
-          });
-        })
-      );
-      return;
-    }
-
-  // Para APIs, usar Stale While Revalidate
-  if (url.pathname.startsWith('/api/') && request.method === 'GET') {
-    event.respondWith(
-      caches.open(DATA_CACHE).then((cache) => {
-        return cache.match(request).then((cachedResponse) => {
-          const fetchPromise = fetch(request).then((networkResponse) => {
-            if (networkResponse.ok) {
-              cache.put(request, networkResponse.clone());
-            }
-            return networkResponse;
-          }).catch(() => cachedResponse);
-          
-          return cachedResponse || fetchPromise;
-        });
-      })
+      fetch(request).catch(async () => (await caches.match('/offline.html')) || Response.error())
     );
     return;
   }
 
-  // Para recursos estaticos, usar Cache First
-  if (
-    request.destination === 'script' ||
-    request.destination === 'style' ||
-    request.destination === 'image' ||
-    request.destination === 'font'
-  ) {
-    event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(request).then((response) => {
-          if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(STATIC_CACHE).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return response;
-        });
-      })
-    );
-    return;
-  }
+  if (!['script', 'style', 'image', 'font'].includes(request.destination)) return;
 
-  // Para outros recursos, usar Network First
   event.respondWith(
-    fetch(request)
-      .then((response) => response)
-      .catch(() => caches.match(request))
+    caches.match(request).then((cachedResponse) => {
+      if (cachedResponse) return cachedResponse;
+
+      return fetch(request).then((response) => {
+        if (response.ok && response.type === 'basic') {
+          const responseClone = response.clone();
+          caches.open(STATIC_CACHE).then((cache) => cache.put(request, responseClone));
+        }
+        return response;
+      });
+    })
   );
 });
 
@@ -140,8 +66,8 @@ self.addEventListener('push', (event) => {
   console.log('[SW] Push recebido:', event);
   
   let data = {
-    title: 'InfoFlow',
-    body: 'Voce tem uma nova notificacao',
+    title: 'Quadro de Anúncios',
+    body: 'Você tem uma nova notificação',
     icon: '/icons/anuncios-icon-192x192.png',
     badge: '/icons/anuncios-icon-192x192.png',
     tag: 'infoflow-notification',
@@ -205,53 +131,16 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Sincronizacao em segundo plano
-self.addEventListener('sync', (event) => {
-  console.log('[SW] Sync event:', event.tag);
-  
-  if (event.tag === 'sync-designacoes') {
-    event.waitUntil(syncDesignacoes());
-  }
-});
-
-async function syncDesignacoes() {
-  try {
-    // Atualizar cache de dados quando voltar online
-    const cache = await caches.open(DATA_CACHE);
-    for (const url of apiCacheUrls) {
-      try {
-        const response = await fetch(url);
-        if (response.ok) {
-          await cache.put(url, response);
-        }
-      } catch (e) {
-        console.log('[SW] Erro ao sincronizar:', url);
-      }
-    }
-  } catch (e) {
-    console.error('[SW] Erro na sincronizacao:', e);
-  }
-}
-
-// Mensagens do cliente
 self.addEventListener('message', (event) => {
-  console.log('[SW] Mensagem recebida:', event.data);
-  
-  if (event.data?.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-  
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+
   if (event.data?.type === 'CLEAR_CACHE') {
     event.waitUntil(
-      caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => caches.delete(cacheName))
-        );
-      })
+      caches.keys().then((cacheNames) => Promise.all(
+        cacheNames
+          .filter((cacheName) => cacheName.startsWith(CACHE_PREFIX))
+          .map((cacheName) => caches.delete(cacheName))
+      ))
     );
-  }
-  
-  if (event.data?.type === 'CACHE_API') {
-    event.waitUntil(syncDesignacoes());
   }
 });

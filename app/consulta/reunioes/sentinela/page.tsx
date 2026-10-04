@@ -16,6 +16,7 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { useSync } from "@/lib/contexts/sync-context"
 import { cn } from "@/lib/utils"
+import { formatarNumeroParagrafoSentinela, ordenarParagrafosSentinela } from "@/lib/sentinela-order"
 
 const meses = [
   { valor: 1, nome: "Janeiro" },
@@ -142,7 +143,7 @@ export default function ConsultaSentinelaPage() {
   }
 
   const estudoAtualData = estudos[estudoAtivo]
-  const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtualData?.id)
+  const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtualData?.id).sort(ordenarParagrafosSentinela)
 
   // Identificar qual semana é a atual (baseado na data de hoje)
   // Usa ano/mês/dia locais para evitar offset UTC que deslocaria a data
@@ -203,7 +204,7 @@ export default function ConsultaSentinelaPage() {
   if (loading) return <CenteredLoader />
   
   return (
-    <div className="min-h-screen bg-[#f4f7fb] -m-4 p-4 text-[#172338] md:-m-6 md:p-8">
+    <div className="light min-h-screen bg-[#f5f8fb] -m-4 p-4 text-[#18324b] md:-m-6 md:p-8">
       <div className="mx-auto max-w-6xl space-y-6">
         <header className="overflow-hidden rounded-3xl bg-[#123b68] px-6 py-7 text-white shadow-lg md:px-10 md:py-9">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -267,7 +268,7 @@ export default function ConsultaSentinelaPage() {
                 >
                   {formatarPeriodoCurto(estudo.data_inicio, estudo.data_fim)}
                   {isAtual && (
-                    <span className="ml-1.5 text-[10px] bg-zinc-950 text-[#252525] px-1.5 py-0.5 rounded-full font-medium border border-zinc-700">
+                    <span className="ml-1.5 rounded-full border border-white/25 bg-[#0d2d50] px-2 py-0.5 text-[10px] font-semibold text-white">
                       Atual
                     </span>
                   )}
@@ -291,11 +292,11 @@ export default function ConsultaSentinelaPage() {
                         <h3 className="text-xl font-bold text-amber-400 mb-2">
                           Não haverá reunião esta semana
                         </h3>
-                        <p className="text-[#444]">
+                        <p className="text-[#304b63]">
                           Semana de {formatarPeriodo(estudoAtualData.data_inicio, estudoAtualData.data_fim)}
                         </p>
                         {estudoAtualData.motivo_sem_reuniao && (
-                          <p className="text-[#666] mt-3 text-sm">
+                          <p className="text-[#4d667c] mt-3 text-sm">
                             Motivo: {estudoAtualData.motivo_sem_reuniao}
                           </p>
                         )}
@@ -306,35 +307,35 @@ export default function ConsultaSentinelaPage() {
               ) : (
               <>
               {/* Header do Estudo */}
-              <Card className="overflow-hidden rounded-3xl border-[#dbe5ef] bg-white shadow-sm">
-                <CardContent className="p-6">
+              <Card className="overflow-hidden rounded-3xl border-[#d5e1ec] bg-white shadow-[0_10px_30px_rgba(24,50,75,0.08)]">
+                <CardContent className="p-6 md:p-8">
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-sm text-[#666]">
+                    <div className="flex items-center gap-2 text-sm text-[#4d667c]">
                       <Calendar className="w-4 h-4" />
                       <span>Semana de {formatarPeriodo(estudoAtualData.data_inicio, estudoAtualData.data_fim)}</span>
                     </div>
-                    <h2 className="text-2xl font-bold text-[#252525]">
+                    <h2 className="text-2xl font-bold text-[#172338]">
                       {estudoAtualData.titulo}
                     </h2>
                     {estudoAtualData.texto_tema && (
-                      <p className="text-[#444] italic border-l-2 border-red-500 pl-4">
+                      <p className="text-[#304b63] italic border-l-2 border-red-500 pl-4">
                         &ldquo;{estudoAtualData.texto_tema}&rdquo;
                       </p>
                     )}
                     {estudoAtualData.objetivo && (
-                      <p className="text-[#666] text-sm">
+                      <p className="text-[#4d667c] text-sm">
                         <span className="font-semibold">Objetivo:</span> {estudoAtualData.objetivo}
                       </p>
                     )}
                     <div className="flex flex-wrap gap-4 pt-2">
                       {estudoAtualData.cantico_inicial && (
-                        <div className="flex items-center gap-1 text-sm text-[#666]">
+                        <div className="flex items-center gap-1 text-sm text-[#4d667c]">
                           <Music className="w-4 h-4" />
                           <span>Cântico {estudoAtualData.cantico_inicial}{estudoAtualData.cantico_inicial_nome && ` - ${estudoAtualData.cantico_inicial_nome}`}</span>
                         </div>
                       )}
                       {estudoAtualData.cantico_final && (
-                        <div className="flex items-center gap-1 text-sm text-[#666]">
+                        <div className="flex items-center gap-1 text-sm text-[#4d667c]">
                           <Music className="w-4 h-4" />
                           <span>Cântico {estudoAtualData.cantico_final}{estudoAtualData.cantico_final_nome && ` - ${estudoAtualData.cantico_final_nome}`}</span>
                         </div>
@@ -346,8 +347,8 @@ export default function ConsultaSentinelaPage() {
 
               {/* Parágrafos */}
               {paragrafosAtuais.length > 0 && (
-                <Card className="overflow-hidden rounded-3xl border-[#dbe5ef] bg-white shadow-sm">
-                  <CardHeader className="border-b border-[#e8eef4] bg-[#f8fbfe] pb-4">
+                <Card className="overflow-hidden rounded-3xl border-[#d5e1ec] bg-white shadow-[0_10px_30px_rgba(24,50,75,0.08)]">
+                  <CardHeader className="border-b border-[#dce7f0] bg-[#eef5fa] px-6 pb-4 pt-5 md:px-8">
                     <CardTitle className="flex items-center gap-2 text-base text-[#172338]">
                       <FileText className="h-5 w-5 text-[#123b68]" />
                       Parágrafos ({paragrafosAtuais.length})
@@ -361,7 +362,7 @@ export default function ConsultaSentinelaPage() {
                       >
                         <div className="flex gap-3">
                           <span className="flex h-9 min-w-9 items-center justify-center rounded-xl bg-[#e9a72f] px-2 text-sm font-bold text-[#123b68]">
-                            {paragrafo.numero}
+                            {formatarNumeroParagrafoSentinela(paragrafo.numero)}
                           </span>
                           <div className="flex-1 space-y-3">
                             {paragrafo.pergunta && (
@@ -370,7 +371,7 @@ export default function ConsultaSentinelaPage() {
                               </p>
                             )}
                             {paragrafo.texto_base && (
-                              <p className="text-[#666] leading-relaxed">
+                              <p className="text-[#4d667c] leading-relaxed">
                                 {paragrafo.texto_base}
                               </p>
                             )}
@@ -388,12 +389,12 @@ export default function ConsultaSentinelaPage() {
                                   className="rounded-lg max-w-full h-auto max-h-64 object-contain"
                                 />
                                 {paragrafo.imagem_descricao && (
-                                  <p className="text-sm text-[#666] italic">
+                                  <p className="text-sm text-[#4d667c] italic">
                                     {paragrafo.imagem_descricao}
                                   </p>
                                 )}
                                 {paragrafo.imagem_explicacao && (
-                                  <p className="text-[#444] leading-relaxed bg-zinc-900/50 p-3 rounded border-l-2 border-green-500">
+                                  <p className="rounded-xl border border-[#dce7f0] border-l-2 border-l-[#3d8bb8] bg-[#f4f9fc] p-3 leading-relaxed text-[#304b63]">
                                     {paragrafo.imagem_explicacao}
                                   </p>
                                 )}

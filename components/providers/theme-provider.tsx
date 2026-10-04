@@ -14,7 +14,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({
   children,
-  defaultTheme = "dark",
+  defaultTheme = "light",
   storageKey = "infoflow-theme",
 }: {
   children: React.ReactNode
@@ -22,7 +22,7 @@ export function ThemeProvider({
   storageKey?: string
 }) {
   const [theme, setTheme] = useState<Theme>(defaultTheme)
-  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("dark")
+  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("light")
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -67,18 +67,11 @@ export function ThemeProvider({
     return () => mediaQuery.removeEventListener("change", handleChange)
   }, [theme])
 
-  // Evitar flash de conteúdo incorreto
-  if (!mounted) {
-    return (
-      <div className="dark">
-        {children}
-      </div>
-    )
-  }
-
   return (
     <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>
-      {children}
+      <div className={theme === "system" ? resolvedTheme : theme}>
+        {children}
+      </div>
     </ThemeContext.Provider>
   )
 }
