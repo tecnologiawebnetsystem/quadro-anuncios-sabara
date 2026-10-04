@@ -83,7 +83,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className={`${poppins.variable} font-sans antialiased bg-background`}>
-        <ThemeProvider defaultTheme="dark" storageKey="infoflow-theme">
+        <ThemeProvider defaultTheme="light" storageKey="infoflow-theme">
           <NavigationProgress />
           {children}
           <PwaInstallPrompt />
