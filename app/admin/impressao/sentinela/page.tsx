@@ -140,9 +140,14 @@ export default function ImpressaoSentinelaPage() {
         @media print {
           body * { visibility: hidden !important; }
           #sentinela-print, #sentinela-print * { visibility: visible !important; }
-          #sentinela-print { position: absolute; inset: 0; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 8mm 10mm; box-sizing: border-box; color: #000; background: white; }
+          #sentinela-print { position: absolute; inset: 0; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 7mm 8mm; box-sizing: border-box; color: #000; background: white; }
           .no-print { display: none !important; }
-          .sentinela-print-item { break-inside: avoid; }
+          .sentinela-print-list { column-count: 2; column-gap: 7mm; }
+          .sentinela-print-item { break-inside: avoid; page-break-inside: avoid; margin-bottom: 7px !important; }
+          .sentinela-print-item > div { font-size: 10px !important; padding: 4px 6px !important; }
+          .sentinela-print-table { font-size: 9px !important; }
+          .sentinela-print-table th, .sentinela-print-table td { padding: 3px 4px !important; }
+          @page { size: A4 portrait; margin: 0; }
         }
       `}</style>
 
@@ -170,16 +175,16 @@ export default function ImpressaoSentinelaPage() {
             <h1 style={{ fontSize: "16px", fontWeight: "bold", margin: 0 }}>Parque Sabará - Taubaté SP</h1>
             <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: 0 }}>A Sentinela - {tituloPeriodo}</h2>
           </header>
-          {!estudosComDados.length ? <div style={{ padding: "40px 0", textAlign: "center", color: "#6b7280" }}><Search className="mx-auto mb-2 h-8 w-8" /><p>Nenhum parágrafo com pergunta e resposta encontrado para este período.</p></div> : estudosComDados.map((estudo) => {
+          {!estudosComDados.length ? <div style={{ padding: "40px 0", textAlign: "center", color: "#6b7280" }}><Search className="mx-auto mb-2 h-8 w-8" /><p>Nenhum parágrafo com pergunta e resposta encontrado para este período.</p></div> : <div className="sentinela-print-list">{estudosComDados.map((estudo) => {
             const itens = paragrafosSelecionados.filter((item) => item.estudo_id === estudo.id && item.pergunta && item.resposta)
             return <section key={estudo.id} className="sentinela-print-item" style={{ marginBottom: "12px" }}>
               <div style={{ backgroundColor: "#2a6b77", color: "white", padding: "5px 10px", fontWeight: "bold", fontSize: "13px" }}>Estudo {estudo.numero_estudo}: {estudo.titulo} — {formatarData(estudo.data_inicio)} a {formatarData(estudo.data_fim)}</div>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+              <table className="sentinela-print-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
                 <thead><tr style={{ backgroundColor: "#f3f4f6" }}><th style={{ padding: "5px 8px", border: "1px solid #999", textAlign: "left", width: "12%" }}>Parágrafo</th><th style={{ padding: "5px 8px", border: "1px solid #999", textAlign: "left", width: "44%" }}>Pergunta</th><th style={{ padding: "5px 8px", border: "1px solid #999", textAlign: "left", width: "44%" }}>Resposta</th></tr></thead>
                 <tbody>{itens.map((item, index) => <tr key={item.id} style={{ backgroundColor: index % 2 === 0 ? "white" : "#f5f5f5" }}><td style={{ padding: "5px 8px", border: "1px solid #ddd", fontWeight: "bold", verticalAlign: "top" }}>{item.numero}</td><td style={{ padding: "5px 8px", border: "1px solid #ddd", verticalAlign: "top" }}>{item.pergunta}</td><td style={{ padding: "5px 8px", border: "1px solid #ddd", verticalAlign: "top" }}>{item.resposta}</td></tr>)}</tbody>
               </table>
             </section>
-          })}
+          })}</div>}
         </div>
       )}
     </div>
