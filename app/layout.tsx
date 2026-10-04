@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
 import { NavigationProgress } from '@/components/ui/navigation-progress'
 import { ThemeProvider } from '@/components/providers/theme-provider'
+import { PwaInstallPrompt } from './pwa-install-prompt'
 import './globals.css'
 
 const poppins = Poppins({
@@ -61,7 +62,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#1e3a6e',
+  themeColor: '#1f4e79',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -85,6 +86,7 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="dark" storageKey="infoflow-theme">
           <NavigationProgress />
           {children}
+          <PwaInstallPrompt />
           <Toaster richColors position="top-right" />
           <Analytics />
         </ThemeProvider>

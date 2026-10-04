@@ -18,32 +18,28 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Tema Claro - Paleta JW Library */
+/* Tema Claro — azul editorial inspirado no JW.org */
 :root {
-  /* Fundo: branco levemente azulado */
-  --background: oklch(0.97 0.008 248);
-  --foreground: oklch(0.18 0.05 248);
+  --background: oklch(0.975 0.008 235);
+  --foreground: oklch(0.22 0.045 235);
 
-  --card: oklch(0.99 0.004 248);
-  --card-foreground: oklch(0.18 0.05 248);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.045 235);
 
-  --popover: oklch(0.99 0.004 248);
-  --popover-foreground: oklch(0.18 0.05 248);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.045 235);
 
-  /* Primário: azul-marinho JW Library */
-  --primary: oklch(0.36 0.13 248);
-  --primary-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.39 0.105 235);
+  --primary-foreground: oklch(1 0 0);
 
-  /* Secundário: azul muito claro */
-  --secondary: oklch(0.91 0.025 248);
-  --secondary-foreground: oklch(0.26 0.09 248);
+  --secondary: oklch(0.925 0.025 235);
+  --secondary-foreground: oklch(0.30 0.07 235);
 
-  --muted: oklch(0.93 0.015 248);
-  --muted-foreground: oklch(0.50 0.04 248);
+  --muted: oklch(0.945 0.012 235);
+  --muted-foreground: oklch(0.49 0.035 235);
 
-  /* Acento: dourado âmbar */
-  --accent: oklch(0.68 0.14 75);
-  --accent-foreground: oklch(0.15 0.04 248);
+  --accent: oklch(0.62 0.105 235);
+  --accent-foreground: oklch(1 0 0);
 
   --destructive: oklch(0.52 0.22 28);
   --destructive-foreground: oklch(0.98 0 0);
@@ -71,32 +67,28 @@
   --sidebar-ring: oklch(0.72 0.15 75);
 }
 
-/* Tema Escuro - Paleta JW Library adaptada (azul-marinho, não preto) */
+/* Tema Escuro — azul profundo inspirado no JW.org */
 .dark {
-  /* Fundo: azul-marinho profundo */
-  --background: oklch(0.21 0.06 248);
-  --foreground: oklch(0.95 0.008 240);
+  --background: oklch(0.19 0.045 235);
+  --foreground: oklch(0.96 0.008 235);
 
-  --card: oklch(0.26 0.07 248);
-  --card-foreground: oklch(0.95 0.008 240);
+  --card: oklch(0.245 0.055 235);
+  --card-foreground: oklch(0.96 0.008 235);
 
-  --popover: oklch(0.26 0.07 248);
-  --popover-foreground: oklch(0.95 0.008 240);
+  --popover: oklch(0.245 0.055 235);
+  --popover-foreground: oklch(0.96 0.008 235);
 
-  /* Primário: azul-royal claro e vibrante */
-  --primary: oklch(0.62 0.18 248);
-  --primary-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.62 0.105 235);
+  --primary-foreground: oklch(1 0 0);
 
-  /* Secundário: azul-marinho médio */
-  --secondary: oklch(0.30 0.08 248);
-  --secondary-foreground: oklch(0.92 0.01 240);
+  --secondary: oklch(0.29 0.06 235);
+  --secondary-foreground: oklch(0.94 0.008 235);
 
-  --muted: oklch(0.30 0.07 248);
-  --muted-foreground: oklch(0.68 0.04 240);
+  --muted: oklch(0.29 0.05 235);
+  --muted-foreground: oklch(0.72 0.035 235);
 
-  /* Acento: dourado âmbar brilhante */
-  --accent: oklch(0.76 0.16 75);
-  --accent-foreground: oklch(0.15 0.05 248);
+  --accent: oklch(0.70 0.11 235);
+  --accent-foreground: oklch(0.14 0.035 235);
 
   --destructive: oklch(0.58 0.22 28);
   --destructive-foreground: oklch(0.98 0 0);

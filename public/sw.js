@@ -142,8 +142,8 @@ self.addEventListener('push', (event) => {
   let data = {
     title: 'InfoFlow',
     body: 'Voce tem uma nova notificacao',
-    icon: '/icons/icon-192x192.jpg',
-    badge: '/icons/icon-192x192.jpg',
+    icon: '/icons/anuncios-icon-192x192.png',
+    badge: '/icons/anuncios-icon-192x192.png',
     tag: 'infoflow-notification',
     data: { url: '/consulta' }
   };
@@ -158,8 +158,8 @@ self.addEventListener('push', (event) => {
   
   const options = {
     body: data.body,
-    icon: data.icon || '/icons/icon-192x192.jpg',
-    badge: data.badge || '/icons/icon-192x192.jpg',
+    icon: data.icon || '/icons/anuncios-icon-192x192.png',
+    badge: data.badge || '/icons/anuncios-icon-192x192.png',
     tag: data.tag || 'infoflow-notification',
     renotify: true,
     vibrate: [200, 100, 200],
