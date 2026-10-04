@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
-import { ShieldCheck, Delete, Info } from "lucide-react"
+import { ShieldCheck, Delete, Info, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AppIcon } from "@/components/ui/app-icon"
@@ -125,6 +125,23 @@ export default function LoginPage() {
                   <div className="flex-1">
                     <p className="text-white text-sm font-semibold">Consulta</p>
                     <p className="text-sky-300/60 text-xs mt-0.5">Consultar o quadro de anúncios.</p>
+                  </div>
+                  <svg className="w-4 h-4 text-sky-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+
+                {/* A Sentinela */}
+                <button
+                  onClick={() => router.push("/consulta/reunioes/sentinela")}
+                  className="w-full flex items-center gap-4 p-4 hover:bg-sky-500/10 transition-colors text-left"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-sky-500/15 border border-sky-500/30 flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="h-5 w-5 text-sky-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white text-sm font-semibold">A Sentinela</p>
+                    <p className="text-sky-300/60 text-xs mt-0.5">Visualizar a Sentinela por mês e semana.</p>
                   </div>
                   <svg className="w-4 h-4 text-sky-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
