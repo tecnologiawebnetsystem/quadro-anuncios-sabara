@@ -752,21 +752,21 @@ export default function ConsultaPage() {
 
       {/* Grid: Calendario + Anuncios */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Calendario Compacto */}
-        <Card className="border-white/8 bg-white/4 lg:col-span-1">
-          <CardHeader className="pb-4 border-b border-white/6">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2.5 text-base font-semibold">
-                <div className="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <CalendarDays className="h-3.5 w-3.5 text-blue-400" />
+        {/* Calendário principal */}
+        <Card className="border-white/10 bg-white/[0.045] lg:col-span-2 shadow-xl shadow-black/10">
+          <CardHeader className="pb-5 border-b border-white/8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <CardTitle className="flex items-center gap-3 text-xl font-semibold tracking-tight">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/20 ring-1 ring-blue-400/20">
+                  <CalendarDays className="h-5 w-5 text-blue-400" />
                 </div>
-                Calendário
+                <span>Calendário</span>
               </CardTitle>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/10 p-1">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-9 w-9 rounded-lg hover:bg-white/10"
                   onClick={() => setMesSelecionado(subMonths(mesSelecionado, 1))}
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -781,14 +781,19 @@ export default function ConsultaPage() {
                 </Button>
               </div>
             </div>
-            <p className="text-sm text-zinc-400 capitalize">
-              {format(mesSelecionado, "MMMM yyyy", { locale: ptBR })}
-            </p>
+            <div className="flex items-center gap-2 text-sm text-zinc-400 capitalize">
+              <span>{format(mesSelecionado, "MMMM yyyy", { locale: ptBR })}</span>
+              <button
+                type="button"
+                onClick={() => setMesSelecionado(new Date())}
+                className="rounded-md px-2 py-1 text-xs font-medium text-blue-300 transition-colors hover:bg-blue-400/10 hover:text-blue-200"
+              >Hoje</button>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-7 gap-1 text-center text-xs overflow-visible">
-              {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
-                <div key={i} className="py-1 text-zinc-300 font-semibold">{dia}</div>
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-7 gap-1.5 text-center text-sm overflow-visible sm:gap-2">
+              {["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"].map((dia, i) => (
+                <div key={i} className="py-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{dia}</div>
               ))}
               {diasCalendario.map((dia, i) => {
                 const evento = temEvento(dia)
@@ -840,7 +845,7 @@ export default function ConsultaPage() {
                   <div
                     key={i}
                     className={cn(
-                      "py-1.5 rounded-md text-sm relative transition-colors select-none",
+                      "min-h-12 rounded-xl py-3 text-base relative transition-colors select-none sm:min-h-16 sm:py-4",
                       !mesAtual && "text-zinc-700",
                       mesAtual && "text-zinc-300",
                       isToday(dia) && "bg-blue-600 text-white font-bold",
@@ -867,7 +872,7 @@ export default function ConsultaPage() {
             </div>
             
             {/* Legenda */}
-            <div className="mt-4 pt-3 border-t border-zinc-800 flex flex-wrap gap-x-3 gap-y-1 text-[10px]">
+            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-white/8 pt-4 text-xs">
               <span className="flex items-center gap-1 text-zinc-400">
                 <span className="w-2 h-2 rounded-full bg-blue-500" /> Vida e Min.
               </span>
