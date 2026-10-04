@@ -140,7 +140,7 @@ export default function ImpressaoSentinelaPage() {
         @media print {
           body * { visibility: hidden !important; }
           #sentinela-print, #sentinela-print * { visibility: visible !important; }
-          #sentinela-print { position: absolute; inset: 0; width: 100%; padding: 24px; color: #111827; background: white; }
+          #sentinela-print { position: absolute; inset: 0; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 8mm 10mm; box-sizing: border-box; color: #000; background: white; }
           .no-print { display: none !important; }
           .sentinela-print-item { break-inside: avoid; }
         }
@@ -165,13 +165,21 @@ export default function ImpressaoSentinelaPage() {
       </Card>
 
       {loading ? <CenteredLoader /> : erro ? <Card><CardContent className="py-10 text-center text-destructive">{erro}</CardContent></Card> : (
-        <div id="sentinela-print" className="rounded-xl border bg-card p-6 text-card-foreground shadow-sm">
-          <header className="mb-6 border-b pb-4"><h2 className="text-xl font-bold">A Sentinela</h2><p className="text-sm text-muted-foreground">{tituloPeriodo}</p></header>
-          {!estudosComDados.length ? <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground"><Search className="h-8 w-8" /><p>Nenhum parágrafo com pergunta e resposta encontrado para este período.</p></div> : estudosComDados.map((estudo) => (
-            <section key={estudo.id} className="mb-8 last:mb-0"><div className="mb-4 border-b pb-2"><h3 className="font-semibold">Estudo {estudo.numero_estudo}: {estudo.titulo}</h3><p className="text-sm text-muted-foreground">{formatarData(estudo.data_inicio)} a {formatarData(estudo.data_fim)}</p></div>
-              <div className="space-y-5">{paragrafosSelecionados.filter((item) => item.estudo_id === estudo.id && item.pergunta && item.resposta).map((item) => <article key={item.id} className="sentinela-print-item space-y-2 border-b pb-4 last:border-0"><p className="font-semibold">Parágrafo {item.numero}</p><p><strong>Pergunta:</strong> {item.pergunta}</p><p><strong>Resposta:</strong> {item.resposta}</p></article>)}</div>
+        <div id="sentinela-print" style={{ width: "210mm", minHeight: "297mm", margin: "0 auto", padding: "8mm 10mm", boxSizing: "border-box", backgroundColor: "white", color: "black" }}>
+          <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #333", paddingBottom: "8px", marginBottom: "8px" }}>
+            <h1 style={{ fontSize: "16px", fontWeight: "bold", margin: 0 }}>Parque Sabará - Taubaté SP</h1>
+            <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: 0 }}>A Sentinela - {tituloPeriodo}</h2>
+          </header>
+          {!estudosComDados.length ? <div style={{ padding: "40px 0", textAlign: "center", color: "#6b7280" }}><Search className="mx-auto mb-2 h-8 w-8" /><p>Nenhum parágrafo com pergunta e resposta encontrado para este período.</p></div> : estudosComDados.map((estudo) => {
+            const itens = paragrafosSelecionados.filter((item) => item.estudo_id === estudo.id && item.pergunta && item.resposta)
+            return <section key={estudo.id} className="sentinela-print-item" style={{ marginBottom: "12px" }}>
+              <div style={{ backgroundColor: "#2a6b77", color: "white", padding: "5px 10px", fontWeight: "bold", fontSize: "13px" }}>Estudo {estudo.numero_estudo}: {estudo.titulo} — {formatarData(estudo.data_inicio)} a {formatarData(estudo.data_fim)}</div>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                <thead><tr style={{ backgroundColor: "#f3f4f6" }}><th style={{ padding: "5px 8px", border: "1px solid #999", textAlign: "left", width: "12%" }}>Parágrafo</th><th style={{ padding: "5px 8px", border: "1px solid #999", textAlign: "left", width: "44%" }}>Pergunta</th><th style={{ padding: "5px 8px", border: "1px solid #999", textAlign: "left", width: "44%" }}>Resposta</th></tr></thead>
+                <tbody>{itens.map((item, index) => <tr key={item.id} style={{ backgroundColor: index % 2 === 0 ? "white" : "#f5f5f5" }}><td style={{ padding: "5px 8px", border: "1px solid #ddd", fontWeight: "bold", verticalAlign: "top" }}>{item.numero}</td><td style={{ padding: "5px 8px", border: "1px solid #ddd", verticalAlign: "top" }}>{item.pergunta}</td><td style={{ padding: "5px 8px", border: "1px solid #ddd", verticalAlign: "top" }}>{item.resposta}</td></tr>)}</tbody>
+              </table>
             </section>
-          ))}
+          })}
         </div>
       )}
     </div>
