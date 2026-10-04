@@ -5,8 +5,8 @@ const DATA_CACHE = 'infoflow-data-v2';
 // Recursos estaticos para cache
 const staticAssets = [
   '/manifest.json',
-  '/icons/icon-192x192.jpg',
-  '/icons/icon-512x512.jpg',
+  '/icons/anuncios-icon-192x192.png',
+  '/icons/anuncios-icon-512x512.png',
 ];
 
 // URLs de API que devem ser cacheadas para uso offline
@@ -83,7 +83,7 @@ self.addEventListener('fetch', (event) => {
     }
 
   // Para APIs, usar Stale While Revalidate
-  if (url.pathname.startsWith('/api/')) {
+  if (url.pathname.startsWith('/api/') && request.method === 'GET') {
     event.respondWith(
       caches.open(DATA_CACHE).then((cache) => {
         return cache.match(request).then((cachedResponse) => {

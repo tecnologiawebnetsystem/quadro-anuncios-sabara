@@ -4,8 +4,8 @@ const DATA_CACHE = 'infoflow-programacao-data-v1';
 
 const staticAssets = [
   '/manifest-programacao.json',
-  '/icons/prog-icon-192x192.jpg',
-  '/icons/prog-icon-512x512.jpg',
+  '/icons/prog-icon-192x192.png',
+  '/icons/prog-icon-512x512.png',
 ];
 
 const apiCacheUrls = [
@@ -31,11 +31,9 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (!currentCaches.includes(cacheName)) {
-            return caches.delete(cacheName);
-          }
-        })
+        cacheNames
+          .filter((cacheName) => cacheName.startsWith('infoflow-programacao-') && !currentCaches.includes(cacheName))
+          .map((cacheName) => caches.delete(cacheName))
       );
     }).then(() => self.clients.claim())
   );
