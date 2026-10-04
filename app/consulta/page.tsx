@@ -23,6 +23,9 @@ import {
   Mail,
   Printer,
   BarChart3,
+  Search,
+  ArrowUpRight,
+  LayoutGrid,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -193,6 +196,8 @@ export default function ConsultaPage() {
   const [mesSelecionado, setMesSelecionado] = useState(new Date())
   const [vidaMinisterioSemanas, setVidaMinisterioSemanas] = useState<VidaMinisterioSemana[]>([])
   const [sentinelaSemanas, setSentinelaSemanas] = useState<SentinelaSemana[]>([])
+  const [busca, setBusca] = useState("")
+  const [categoriaAtiva, setCategoriaAtiva] = useState("Todas")
   const [tooltip, setTooltip] = useState<{ 
     x: number; 
     y: number; 
@@ -458,6 +463,17 @@ export default function ConsultaPage() {
   }
 
   const periodoTooltip = tooltip?.campo?.periodo === "manha" ? "Manhã" : tooltip?.campo?.periodo === "tarde" ? "Tarde" : tooltip?.campo?.periodo
+  const categorias = ["Todas", ...menuSections.map((section) => section.title)]
+  const termoBusca = busca.trim().toLocaleLowerCase("pt-BR")
+  const secoesFiltradas = menuSections
+    .filter((section) => categoriaAtiva === "Todas" || section.title === categoriaAtiva)
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) =>
+        !termoBusca || `${item.title} ${item.description}`.toLocaleLowerCase("pt-BR").includes(termoBusca)
+      ),
+    }))
+    .filter((section) => section.items.length > 0)
 
   // Fechar tooltip ao clicar fora
   const handleClickFora = () => {
@@ -554,6 +570,35 @@ export default function ConsultaPage() {
           <p className="text-sm text-zinc-400 mt-1">Congregação Parque Sabará</p>
         </div>
       </div>
+
+      {/* Hub de consulta */}
+      <section className="relative overflow-hidden rounded-3xl border border-sky-400/20 bg-gradient-to-br from-sky-500/15 via-white/[0.04] to-transparent p-5 sm:p-7 shadow-2xl shadow-black/10">
+        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-sky-400/10 blur-3xl" aria-hidden="true" />
+        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-3 flex items-center gap-2 text-sky-300">
+              <LayoutGrid className="h-4 w-4" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em]">Área de consulta</span>
+            </div>
+            <h2 className="max-w-xl text-2xl font-bold text-white sm:text-3xl text-balance">Tudo o que você precisa, em um só lugar.</h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-sky-100/65">Visualize a programação, as escalas e as informações da congregação. Esta área é somente para consulta.</p>
+          </div>
+          <div className="w-full lg:max-w-xs">
+            <label htmlFor="busca-consulta" className="sr-only">Buscar informação</label>
+            <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-3 py-2.5 transition-colors focus-within:border-sky-400/60 focus-within:bg-black/30">
+              <Search className="h-4 w-4 text-sky-300/70" aria-hidden="true" />
+              <input id="busca-consulta" value={busca} onChange={(event) => setBusca(event.target.value)} placeholder="Buscar uma informação..." className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-sky-100/40" />
+            </div>
+          </div>
+        </div>
+        <div className="relative mt-5 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Categorias da consulta">
+          {categorias.map((categoria) => (
+            <button key={categoria} type="button" role="tab" aria-selected={categoriaAtiva === categoria} onClick={() => setCategoriaAtiva(categoria)} className={cn("whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors", categoriaAtiva === categoria ? "border-sky-300/50 bg-sky-400 text-[#0f2550]" : "border-white/10 bg-white/[0.04] text-sky-100/65 hover:border-sky-300/30 hover:text-white")}>
+              {categoria}
+            </button>
+          ))}
+        </div>
+      </section>
 
       {/* Cards de Destaque do Dia */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -907,7 +952,7 @@ export default function ConsultaPage() {
 
       {/* Menu de Navegação - Organizado por Categorias */}
       <div className="space-y-8">
-        {menuSections.map((section) => (
+        {secoesFiltradas.map((section) => (
           <div key={section.title}>
             <div className="flex items-center gap-3 mb-4">
               <h2 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">{section.title}</h2>
@@ -916,7 +961,7 @@ export default function ConsultaPage() {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {section.items.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <div className="group flex items-center gap-4 p-4 rounded-xl border border-white/6 bg-white/3 hover:bg-white/7 hover:border-white/12 transition-all duration-200 cursor-pointer">
+                  <div className="group flex items-center gap-4 rounded-2xl border border-white/8 bg-white/[0.04] p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300/30 hover:bg-sky-400/[0.08] hover:shadow-lg hover:shadow-sky-950/20 cursor-pointer">
                     <div className={cn("rounded-xl p-2.5 flex-shrink-0", item.color)}>
                       <item.icon className="h-4 w-4 text-white" />
                     </div>
@@ -936,6 +981,14 @@ export default function ConsultaPage() {
           </div>
         ))}
       </div>
+
+      {secoesFiltradas.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] px-6 py-12 text-center">
+          <Search className="mx-auto h-8 w-8 text-sky-300/50" />
+          <h2 className="mt-3 text-base font-semibold text-white">Nenhuma informação encontrada</h2>
+          <p className="mt-1 text-sm text-zinc-400">Tente outro termo ou selecione a categoria “Todas”.</p>
+        </div>
+      )}
 
       {/* Seção Grupos de Estudo - Destaque */}
       <Card className="border-emerald-500/20 bg-emerald-500/5">
