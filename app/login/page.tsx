@@ -59,7 +59,7 @@ export default function LoginPage() {
   }
 
   if (!mounted) {
-    return <div className="min-h-screen bg-[#1a3a6e] flex items-center justify-center" />
+    return <div className="min-h-screen bg-[#1f4e79] flex items-center justify-center" />
   }
 
   const perfilConfig = {
