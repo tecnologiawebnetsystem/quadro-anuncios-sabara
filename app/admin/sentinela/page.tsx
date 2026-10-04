@@ -20,6 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { toast } from "sonner"
+import { extrairNumeroParagrafoSentinela, ordenarParagrafosSentinela } from "@/lib/sentinela-order"
 
 const meses = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -243,7 +244,10 @@ export default function SentinelaPage() {
 
   const adicionarParagrafo = async (estudoId: string) => {
     const paragrafosEstudo = paragrafos.filter(p => p.estudo_id === estudoId)
-    const proximoNumero = paragrafosEstudo.length + 1
+    const numerosExistentes = paragrafosEstudo
+      .map((paragrafo) => extrairNumeroParagrafoSentinela(paragrafo.numero))
+      .filter(Number.isFinite)
+    const proximoNumero = Math.max(0, ...numerosExistentes) + 1
 
     const { data: novoParagrafo, error } = await supabase
       .from("sentinela_paragrafos")
@@ -439,12 +443,12 @@ export default function SentinelaPage() {
   }
 
   const estudoAtualData = estudos.find(e => e.id === estudoAtivo)
-  const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtivo).sort((a, b) => a.ordem - b.ordem)
+  const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtivo).sort(ordenarParagrafosSentinela)
 
   if (loading) return <CenteredLoader />
   
   return (
-    <div className="space-y-6">
+    <div className="dark space-y-6 text-foreground">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -551,7 +555,7 @@ export default function SentinelaPage() {
                       value={estudoAtualData.titulo || ""}
                       onChange={(e) => atualizarEstudo(estudoAtualData.id, "titulo", e.target.value)}
                       placeholder="Ex: Sirva a Jeová com alegria"
-                      className="bg-zinc-800 border-zinc-700"
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-400"
                     />
                   </div>
                   <div className="space-y-2">
@@ -560,7 +564,7 @@ export default function SentinelaPage() {
                       value={estudoAtualData.texto_tema || ""}
                       onChange={(e) => atualizarEstudo(estudoAtualData.id, "texto_tema", e.target.value)}
                       placeholder="Ex: 'Sirvam a Jeová com alegria.' — Sal. 100:2"
-                      className="bg-zinc-800 border-zinc-700"
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-400"
                     />
                   </div>
                 </div>
@@ -593,7 +597,7 @@ export default function SentinelaPage() {
                           atualizarEstudo(estudoAtualData.id, "motivo_sem_reuniao", e.target.value)
                         }
                         placeholder="Ex: Assembleia de Circuito, Congresso Regional, Celebração da Morte de Cristo..."
-                        className="bg-zinc-900 border-zinc-600 min-h-[60px]"
+                        className="bg-zinc-900 border-zinc-600 text-zinc-100 placeholder:text-zinc-400 min-h-[60px]"
                       />
                     </div>
                   )}
@@ -608,7 +612,7 @@ export default function SentinelaPage() {
                       type="date"
                       value={estudoAtualData.data_inicio || ""}
                       onChange={(e) => atualizarEstudo(estudoAtualData.id, "data_inicio", e.target.value)}
-                      className="bg-zinc-800 border-zinc-700"
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-400"
                     />
                   </div>
                   <div className="space-y-2">
@@ -617,7 +621,7 @@ export default function SentinelaPage() {
                       type="date"
                       value={estudoAtualData.data_fim || ""}
                       onChange={(e) => atualizarEstudo(estudoAtualData.id, "data_fim", e.target.value)}
-                      className="bg-zinc-800 border-zinc-700"
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-400"
                     />
                   </div>
                   <div className="space-y-2">
@@ -627,7 +631,7 @@ export default function SentinelaPage() {
                       value={estudoAtualData.cantico_inicial || ""}
                       onChange={(e) => atualizarEstudo(estudoAtualData.id, "cantico_inicial", e.target.value ? parseInt(e.target.value) : null)}
                       placeholder="Nº"
-                      className="bg-zinc-800 border-zinc-700"
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-400"
                     />
                   </div>
                   <div className="space-y-2">
@@ -637,7 +641,7 @@ export default function SentinelaPage() {
                       value={estudoAtualData.cantico_final || ""}
                       onChange={(e) => atualizarEstudo(estudoAtualData.id, "cantico_final", e.target.value ? parseInt(e.target.value) : null)}
                       placeholder="Nº"
-                      className="bg-zinc-800 border-zinc-700"
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-400"
                     />
                   </div>
                 </div>
@@ -662,7 +666,7 @@ export default function SentinelaPage() {
                   ) : (
                     <div className="space-y-4">
                       {paragrafosAtuais.map((paragrafo) => (
-                        <Card key={paragrafo.id} className="bg-zinc-800 border-zinc-700">
+                        <Card key={paragrafo.id} className="bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-400">
                           <CardContent className="pt-4 space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
@@ -671,7 +675,7 @@ export default function SentinelaPage() {
                                   value={paragrafo.numero}
                                   onChange={(e) => atualizarParagrafo(paragrafo.id, "numero", e.target.value)}
                                   placeholder="1"
-                                  className="bg-zinc-900 border-zinc-600 w-20"
+                                  className="bg-zinc-900 border-zinc-600 text-zinc-100 placeholder:text-zinc-400 w-20"
                                 />
                               </div>
                               <Button 
@@ -690,7 +694,7 @@ export default function SentinelaPage() {
                                 value={paragrafo.texto_base || ""}
                                 onChange={(e) => atualizarParagrafo(paragrafo.id, "texto_base", e.target.value)}
                                 placeholder="Cole aqui o texto do parágrafo..."
-                                className="bg-zinc-900 border-zinc-600 min-h-[80px]"
+                                className="bg-zinc-900 border-zinc-600 text-zinc-100 placeholder:text-zinc-400 min-h-[80px]"
                               />
                             </div>
                             
@@ -700,7 +704,7 @@ export default function SentinelaPage() {
                                 value={paragrafo.pergunta || ""}
                                 onChange={(e) => atualizarParagrafo(paragrafo.id, "pergunta", e.target.value)}
                                 placeholder="Qual é a pergunta deste parágrafo?"
-                                className="bg-zinc-900 border-zinc-600"
+                                className="bg-zinc-900 border-zinc-600 text-zinc-100 placeholder:text-zinc-400"
                               />
                             </div>
 
@@ -731,7 +735,7 @@ export default function SentinelaPage() {
                                 value={paragrafo.resposta || ""}
                                 onChange={(e) => atualizarParagrafo(paragrafo.id, "resposta", e.target.value)}
                                 placeholder="A resposta aparecerá aqui após clicar em 'IA Responder' ou digite manualmente..."
-                                className="bg-zinc-900 border-zinc-600 min-h-[60px]"
+                                className="bg-zinc-900 border-zinc-600 text-zinc-100 placeholder:text-zinc-400 min-h-[60px]"
                               />
                             </div>
 
@@ -823,7 +827,7 @@ export default function SentinelaPage() {
                                       value={paragrafo.imagem_descricao || ""}
                                       onChange={(e) => atualizarParagrafo(paragrafo.id, "imagem_descricao", e.target.value)}
                                       placeholder="Clique em 'IA Descrever' para a IA analisar a imagem automaticamente ou digite manualmente..."
-                                      className="bg-zinc-900 border-zinc-600 min-h-[60px]"
+                                      className="bg-zinc-900 border-zinc-600 text-zinc-100 placeholder:text-zinc-400 min-h-[60px]"
                                     />
                                   </div>
 
@@ -854,7 +858,7 @@ export default function SentinelaPage() {
                                       value={paragrafo.imagem_explicacao || ""}
                                       onChange={(e) => atualizarParagrafo(paragrafo.id, "imagem_explicacao", e.target.value)}
                                       placeholder="A explicação da imagem aparecerá aqui após clicar em 'IA Explicar' ou digite manualmente..."
-                                      className="bg-zinc-900 border-zinc-600 min-h-[60px]"
+                                      className="bg-zinc-900 border-zinc-600 text-zinc-100 placeholder:text-zinc-400 min-h-[60px]"
                                     />
                                   </div>
                                 </div>

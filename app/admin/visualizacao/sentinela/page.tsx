@@ -16,6 +16,7 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { useSync } from "@/lib/contexts/sync-context"
 import { cn } from "@/lib/utils"
+import { formatarNumeroParagrafoSentinela, ordenarParagrafosSentinela } from "@/lib/sentinela-order"
 
 const meses = [
   { valor: 1, nome: "Janeiro" },
@@ -142,7 +143,9 @@ export default function ConsultaSentinelaPage() {
   }
 
   const estudoAtualData = estudos[estudoAtivo]
-  const paragrafosAtuais = paragrafos.filter(p => p.estudo_id === estudoAtualData?.id)
+  const paragrafosAtuais = paragrafos
+    .filter((paragrafo) => paragrafo.estudo_id === estudoAtualData?.id)
+    .sort(ordenarParagrafosSentinela)
 
   // Identificar qual semana é a atual (baseado na data de hoje)
   // Usa ano/mês/dia locais para evitar offset UTC que deslocaria a data
@@ -349,7 +352,7 @@ export default function ConsultaSentinelaPage() {
                       >
                         <div className="flex gap-3">
                           <span className="bg-red-600/20 text-red-400 px-2 py-1 rounded text-sm font-bold h-fit">
-                            {paragrafo.numero}
+                            {formatarNumeroParagrafoSentinela(paragrafo.numero)}
                           </span>
                           <div className="flex-1 space-y-3">
                             {paragrafo.pergunta && (

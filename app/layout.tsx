@@ -65,8 +65,8 @@ export const viewport: Viewport = {
   themeColor: '#1f4e79',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  userScalable: true,
   viewportFit: 'cover',
 }
 
@@ -83,24 +83,13 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className={`${poppins.variable} font-sans antialiased bg-background`}>
-        <ThemeProvider defaultTheme="light" storageKey="infoflow-theme">
+        <ThemeProvider defaultTheme="light" storageKey="infoflow-theme-v2">
           <NavigationProgress />
           {children}
           <PwaInstallPrompt />
           <Toaster richColors position="top-right" />
           <Analytics />
         </ThemeProvider>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js');
-                });
-              }
-            `,
-          }}
-        />
       </body>
     </html>
   )

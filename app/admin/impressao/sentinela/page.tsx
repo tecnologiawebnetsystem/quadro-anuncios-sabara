@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CenteredLoader } from "@/components/ui/page-loader"
+import { formatarRotuloImpressaoSentinela, ordenarParagrafosSentinela } from "@/lib/sentinela-order"
 
 type FiltroPeriodo = "semana" | "mes" | "ano"
 
@@ -26,7 +27,15 @@ interface Paragrafo {
   texto_base: string | null
   pergunta: string | null
   resposta: string | null
+  imagem_url: string | null
+  imagem_descricao: string | null
+  imagem_explicacao: string | null
   ordem: number
+}
+
+function temConteudo(imagem: Pick<Paragrafo, "texto_base" | "pergunta" | "resposta" | "imagem_url" | "imagem_descricao" | "imagem_explicacao">) {
+  return [imagem.texto_base, imagem.pergunta, imagem.resposta, imagem.imagem_url, imagem.imagem_descricao, imagem.imagem_explicacao]
+    .some((conteudo) => Boolean(conteudo?.trim()))
 }
 
 const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
@@ -49,8 +58,20 @@ export default function ImpressaoSentinelaPage() {
   const [paragrafos, setParagrafos] = useState<Paragrafo[]>([])
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
+  const [imprimindo, setImprimindo] = useState(false)
 
   const supabase = createClient()
+
+  const imprimir = async () => {
+    setImprimindo(true)
+    try {
+      const imagens = Array.from(document.querySelectorAll<HTMLImageElement>("#sentinela-print img"))
+      await Promise.all(imagens.map((imagem) => imagem.decode().catch(() => undefined)))
+      window.print()
+    } finally {
+      setImprimindo(false)
+    }
+  }
 
   const carregarDados = useCallback(async () => {
     setLoading(true)
@@ -93,7 +114,7 @@ export default function ImpressaoSentinelaPage() {
     const { data: paragrafosData, error: paragrafosError } = estudosCarregados.length
       ? await supabase
           .from("sentinela_paragrafos")
-          .select("id, estudo_id, numero, texto_base, pergunta, resposta, ordem")
+          .select("id, estudo_id, numero, texto_base, pergunta, resposta, imagem_url, imagem_descricao, imagem_explicacao, ordem")
           .in("estudo_id", estudosCarregados.map((estudo) => estudo.id))
           .order("ordem")
       : { data: [], error: null }
@@ -123,7 +144,9 @@ export default function ImpressaoSentinelaPage() {
     () => paragrafos.filter((paragrafo) => estudosSelecionados.some((estudo) => estudo.id === paragrafo.estudo_id)),
     [paragrafos, estudosSelecionados],
   )
-  const estudosComDados = estudosSelecionados.filter((estudo) => paragrafosSelecionados.some((paragrafo) => paragrafo.estudo_id === estudo.id))
+  const estudosComDados = estudosSelecionados.filter((estudo) => paragrafosSelecionados.some((paragrafo) =>
+    paragrafo.estudo_id === estudo.id && temConteudo(paragrafo),
+  ))
 
   const tituloPeriodo = periodo === "ano"
     ? `Ano de ${ano}`
@@ -138,16 +161,18 @@ export default function ImpressaoSentinelaPage() {
     <div className="space-y-6">
       <style jsx global>{`
         @media print {
+          @page { size: A4 portrait; margin: 12mm; }
+          html, body { background: #fff !important; }
           body * { visibility: hidden !important; }
           #sentinela-print, #sentinela-print * { visibility: visible !important; }
-          #sentinela-print { position: absolute; inset: 0; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 7mm 8mm; box-sizing: border-box; color: #000; background: white; }
+          #sentinela-print { position: absolute; inset: 0 auto auto 0; width: 100%; max-width: none; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none; color: #172338; background: #fff; }
           .no-print { display: none !important; }
-          .sentinela-print-list { column-count: 2; column-gap: 7mm; }
-          .sentinela-print-item { break-inside: avoid; page-break-inside: avoid; margin-bottom: 7px !important; }
-          .sentinela-print-item > div { font-size: 10px !important; padding: 4px 6px !important; }
-          .sentinela-print-table { font-size: 9px !important; }
-          .sentinela-print-table th, .sentinela-print-table td { padding: 3px 4px !important; }
-          @page { size: A4 portrait; margin: 0; }
+          .sentinela-print-study { break-inside: auto; page-break-inside: auto; margin-bottom: 18px !important; }
+          .sentinela-print-entry { break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; }
+          .sentinela-print-entry h4, .sentinela-print-entry h5, .sentinela-print-study h3 { color: #172338 !important; }
+          .sentinela-print-entry p { color: #26394d !important; }
+          .sentinela-print-image { display: block; max-width: 100%; max-height: 150mm; object-fit: contain; break-inside: avoid; page-break-inside: avoid; }
+          .sentinela-print-entry figure { break-inside: avoid; page-break-inside: avoid; }
         }
       `}</style>
 
@@ -156,7 +181,7 @@ export default function ImpressaoSentinelaPage() {
           <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground"><BookMarked className="h-6 w-6 text-red-500" /> Impressão de A Sentinela</h1>
           <p className="text-muted-foreground">Imprima parágrafos, perguntas e respostas cadastradas pela IA.</p>
         </div>
-        <Button onClick={() => window.print()} disabled={!paragrafosSelecionados.length} className="gap-2"><Printer className="h-4 w-4" /> Imprimir</Button>
+        <Button onClick={imprimir} disabled={!paragrafosSelecionados.length || imprimindo} className="gap-2"><Printer className="h-4 w-4" /> {imprimindo ? "Preparando impressão..." : "Imprimir"}</Button>
       </div>
 
       <Card className="no-print">
@@ -170,21 +195,69 @@ export default function ImpressaoSentinelaPage() {
       </Card>
 
       {loading ? <CenteredLoader /> : erro ? <Card><CardContent className="py-10 text-center text-destructive">{erro}</CardContent></Card> : (
-        <div id="sentinela-print" style={{ width: "210mm", minHeight: "297mm", margin: "0 auto", padding: "8mm 10mm", boxSizing: "border-box", backgroundColor: "white", color: "black" }}>
-          <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #333", paddingBottom: "8px", marginBottom: "8px" }}>
-            <h1 style={{ fontSize: "16px", fontWeight: "bold", margin: 0 }}>Parque Sabará - Taubaté SP</h1>
-            <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: 0 }}>A Sentinela - {tituloPeriodo}</h2>
+        <div id="sentinela-print" className="sentinela-print-sheet mx-auto w-full max-w-5xl rounded-xl bg-white p-6 text-slate-900 shadow-lg md:p-10">
+          <header className="mb-8 flex flex-col gap-2 border-b-2 border-slate-800 pb-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Congregação Parque Sabará · Taubaté — SP</p>
+              <h2 className="mt-1 text-2xl font-bold text-slate-900">A Sentinela</h2>
+            </div>
+            <p className="text-sm font-semibold text-slate-600">{tituloPeriodo}</p>
           </header>
-          {!estudosComDados.length ? <div style={{ padding: "40px 0", textAlign: "center", color: "#6b7280" }}><Search className="mx-auto mb-2 h-8 w-8" /><p>Nenhum parágrafo com pergunta e resposta encontrado para este período.</p></div> : <div className="sentinela-print-list">{estudosComDados.map((estudo) => {
-            const itens = paragrafosSelecionados.filter((item) => item.estudo_id === estudo.id && item.pergunta && item.resposta)
-            return <section key={estudo.id} className="sentinela-print-item" style={{ marginBottom: "12px" }}>
-              <div style={{ backgroundColor: "#2a6b77", color: "white", padding: "5px 10px", fontWeight: "bold", fontSize: "13px" }}>Estudo {estudo.numero_estudo}: {estudo.titulo} — {formatarData(estudo.data_inicio)} a {formatarData(estudo.data_fim)}</div>
-              <table className="sentinela-print-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
-                <thead><tr style={{ backgroundColor: "#f3f4f6" }}><th style={{ padding: "5px 8px", border: "1px solid #999", textAlign: "left", width: "12%" }}>Parágrafo</th><th style={{ padding: "5px 8px", border: "1px solid #999", textAlign: "left", width: "44%" }}>Pergunta</th><th style={{ padding: "5px 8px", border: "1px solid #999", textAlign: "left", width: "44%" }}>Resposta</th></tr></thead>
-                <tbody>{itens.map((item, index) => <tr key={item.id} style={{ backgroundColor: index % 2 === 0 ? "white" : "#f5f5f5" }}><td style={{ padding: "5px 8px", border: "1px solid #ddd", fontWeight: "bold", verticalAlign: "top" }}>{item.numero}</td><td style={{ padding: "5px 8px", border: "1px solid #ddd", verticalAlign: "top" }}>{item.pergunta}</td><td style={{ padding: "5px 8px", border: "1px solid #ddd", verticalAlign: "top" }}>{item.resposta}</td></tr>)}</tbody>
-              </table>
-            </section>
-          })}</div>}
+          {!estudosComDados.length ? (
+            <div className="py-10 text-center text-slate-500">
+              <Search className="mx-auto mb-2 size-8" />
+              <p>Nenhum parágrafo com conteúdo encontrado para este período.</p>
+            </div>
+          ) : (
+            <div className="sentinela-print-list">
+              {estudosComDados.map((estudo) => {
+                const itens = paragrafosSelecionados
+                  .filter((item) =>
+                    item.estudo_id === estudo.id && temConteudo(item),
+                  )
+                  .sort(ordenarParagrafosSentinela)
+
+                return (
+                  <section key={estudo.id} className="sentinela-print-study">
+                    <div className="mb-4 border-b border-slate-300 pb-2">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Estudo {estudo.numero_estudo}</p>
+                      <h3 className="mt-1 text-lg font-bold text-slate-900">{estudo.titulo}</h3>
+                      <p className="mt-1 text-sm text-slate-600">{formatarData(estudo.data_inicio)} a {formatarData(estudo.data_fim)}</p>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      {itens.map((item) => (
+                        <article key={item.id} className="sentinela-print-entry rounded-lg border border-slate-300 px-4 py-3">
+                          <h4 className="text-base font-bold text-slate-900">{formatarRotuloImpressaoSentinela(item.numero)}</h4>
+                          {item.texto_base?.trim() && <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">{item.texto_base}</p>}
+                          <div className="mt-3 grid gap-3 border-t border-slate-200 pt-3">
+                            <div>
+                              <h5 className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Pergunta</h5>
+                              <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-slate-800">{item.pergunta?.trim() || "Não cadastrada"}</p>
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Resposta</h5>
+                              <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-slate-800">{item.resposta?.trim() || "Sem resposta cadastrada"}</p>
+                            </div>
+                          </div>
+                          {item.imagem_url && (
+                            <figure className="mt-3">
+                              <img
+                                src={item.imagem_url}
+                                alt={item.imagem_descricao || `Imagem de ${formatarRotuloImpressaoSentinela(item.numero)}`}
+                                className="sentinela-print-image mx-auto rounded-md"
+                              />
+                              {item.imagem_descricao && <figcaption className="mt-2 text-center text-xs italic text-slate-600">{item.imagem_descricao}</figcaption>}
+                              {item.imagem_explicacao && <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">{item.imagem_explicacao}</p>}
+                            </figure>
+                          )}
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { ordenarParagrafosSentinela } from "@/lib/sentinela-order"
 
 // Tipos
 export interface Mes {
@@ -109,7 +110,7 @@ export async function buscarParagrafos(estudoId: string): Promise<Paragrafo[]> {
     console.error("Erro ao buscar parágrafos:", error)
     return []
   }
-  return data || []
+  return (data || []).sort(ordenarParagrafosSentinela)
 }
 
 // Buscar perguntas de recapitulação

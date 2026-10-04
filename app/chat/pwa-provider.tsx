@@ -15,9 +15,17 @@ export default function ChatPwaProvider() {
   const [isInstalled, setIsInstalled]       = useState(false)
 
   useEffect(() => {
-    // Registra o service worker exclusivo do chat
+    // Registra o service worker exclusivo do chat apenas em produção.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/chat-sw.js', { scope: '/chat' }).catch(() => {})
+      if (process.env.NODE_ENV !== 'production') {
+        void navigator.serviceWorker.getRegistrations().then((registrations) =>
+          Promise.all(registrations
+            .filter((registration) => new URL(registration.scope).pathname.startsWith('/chat'))
+            .map((registration) => registration.unregister()))
+        ).catch(() => {})
+      } else {
+        navigator.serviceWorker.register('/chat-sw.js', { scope: '/chat' }).catch(() => {})
+      }
     }
 
     // Detecta se já está instalado como PWA
