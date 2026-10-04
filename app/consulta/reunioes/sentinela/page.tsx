@@ -203,47 +203,46 @@ export default function ConsultaSentinelaPage() {
   if (loading) return <CenteredLoader />
   
   return (
-    <div className="min-h-screen bg-[#f7f7f7] -m-4 p-4 text-[#252525] md:-m-6 md:p-6">
-      <div className="mx-auto max-w-5xl space-y-5">
-        <header className="border-b border-[#d9d9d9] pb-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#006699] text-[#252525]">
-              <BookMarked className="h-5 w-5" />
+    <div className="min-h-screen bg-[#f4f7fb] -m-4 p-4 text-[#172338] md:-m-6 md:p-8">
+      <div className="mx-auto max-w-6xl space-y-6">
+        <header className="overflow-hidden rounded-3xl bg-[#123b68] px-6 py-7 text-white shadow-lg md:px-10 md:py-9">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#e9a72f] text-[#123b68] shadow-sm">
+                <BookMarked className="h-7 w-7" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b9d5ed]">Quadro de Anúncios</p>
+                <h1 className="mt-1 text-3xl font-bold tracking-tight md:text-4xl">A Sentinela</h1>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#666]">Quadro de Anúncios</p>
-              <h1 className="text-2xl font-semibold text-[#252525]">A Sentinela</h1>
-            </div>
+            <p className="max-w-sm text-sm leading-6 text-[#d8e7f5] md:text-right">Consulte o estudo semanal, os parágrafos e as respostas cadastradas.</p>
           </div>
-          <p className="mt-3 text-sm text-[#666]">Estudo semanal com parágrafos, perguntas e respostas.</p>
         </header>
 
-        {/* Navegação de Mês */}
-        <Card className="rounded-none border-[#d9d9d9] bg-white shadow-sm">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <Button variant="ghost" size="icon" onClick={mesAnterior} className="text-[#006699] hover:bg-[#eef6fa]">
-                <ChevronLeft className="w-5 h-5" />
-                <span className="sr-only">Mês anterior</span>
-              </Button>
-              <div className="text-center">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#666]">Edições do mês</p>
-                <h2 className="text-lg font-semibold text-[#252525]">
-                  {meses.find(m => m.valor === mesAtual)?.nome} {anoAtual}
-                </h2>
-              </div>
-              <Button variant="ghost" size="icon" onClick={mesProximo} className="text-[#006699] hover:bg-[#eef6fa]">
-                <ChevronRight className="w-5 h-5" />
-                <span className="sr-only">Próximo mês</span>
-              </Button>
+        <section className="rounded-2xl border border-[#dbe5ef] bg-white p-4 shadow-sm md:p-5" aria-label="Navegação de mês">
+          <div className="flex items-center justify-between gap-4">
+            <Button variant="outline" size="icon" onClick={mesAnterior} className="h-11 w-11 rounded-xl border-[#cbd9e7] text-[#123b68] hover:bg-[#eef5fb]">
+              <ChevronLeft className="h-5 w-5" />
+              <span className="sr-only">Mês anterior</span>
+            </Button>
+            <div className="text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#66809a]">Edições disponíveis</p>
+              <h2 className="mt-1 text-2xl font-bold text-[#172338] md:text-3xl">
+                {meses.find(m => m.valor === mesAtual)?.nome} {anoAtual}
+              </h2>
             </div>
-          </CardContent>
-        </Card>
+            <Button variant="outline" size="icon" onClick={mesProximo} className="h-11 w-11 rounded-xl border-[#cbd9e7] text-[#123b68] hover:bg-[#eef5fb]">
+              <ChevronRight className="h-5 w-5" />
+              <span className="sr-only">Próximo mês</span>
+            </Button>
+          </div>
+        </section>
 
       {loading ? (
         <div className="text-center text-zinc-500 py-12">Carregando...</div>
       ) : estudos.length === 0 ? (
-        <Card className="border-[#d9d9d9] bg-white shadow-sm">
+        <Card className="rounded-3xl border-[#dbe5ef] bg-white shadow-sm">
           <CardContent className="py-12 text-center text-zinc-500">
             Nenhum estudo cadastrado para este mês
           </CardContent>
@@ -251,7 +250,7 @@ export default function ConsultaSentinelaPage() {
       ) : (
         <>
           {/* Seletor de Semanas */}
-          <div className="flex gap-2 overflow-x-auto border-b border-[#d9d9d9] pb-2">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {estudos.map((estudo, index) => {
               const isAtual = index === indiceSemanaAtual
               return (
@@ -261,8 +260,9 @@ export default function ConsultaSentinelaPage() {
                   size="sm"
                   onClick={() => setEstudoAtivo(index)}
                   className={cn(
-                    "relative",
-                    isAtual && estudoAtivo !== index && "border-red-800 text-red-400"
+                    "relative h-auto min-h-20 justify-start rounded-2xl border-[#dbe5ef] bg-white px-4 py-3 text-left text-[#172338] shadow-sm hover:border-[#123b68] hover:bg-[#f7fbff]",
+                    estudoAtivo === index && "border-[#123b68] bg-[#123b68] text-white hover:bg-[#123b68]",
+                    isAtual && estudoAtivo !== index && "border-[#e9a72f]"
                   )}
                 >
                   {formatarPeriodoCurto(estudo.data_inicio, estudo.data_fim)}
@@ -282,7 +282,7 @@ export default function ConsultaSentinelaPage() {
               {/* Aviso de Semana sem Reunião */}
               {estudoAtualData.sem_reuniao ? (
                 <Card className="bg-amber-500/10 border-amber-500/50">
-                  <CardContent className="p-6">
+                <CardContent className="p-6 md:p-8">
                     <div className="flex flex-col items-center text-center gap-4">
                       <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
                         <AlertTriangle className="w-8 h-8 text-amber-400" />
@@ -306,7 +306,7 @@ export default function ConsultaSentinelaPage() {
               ) : (
               <>
               {/* Header do Estudo */}
-              <Card className="rounded-none border-[#d9d9d9] bg-white shadow-sm">
+              <Card className="overflow-hidden rounded-3xl border-[#dbe5ef] bg-white shadow-sm">
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm text-[#666]">
@@ -346,10 +346,10 @@ export default function ConsultaSentinelaPage() {
 
               {/* Parágrafos */}
               {paragrafosAtuais.length > 0 && (
-                <Card className="border-[#d9d9d9] bg-white shadow-sm">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2 text-[#252525]">
-                      <FileText className="w-4 h-4 text-[#006699]" />
+                <Card className="overflow-hidden rounded-3xl border-[#dbe5ef] bg-white shadow-sm">
+                  <CardHeader className="border-b border-[#e8eef4] bg-[#f8fbfe] pb-4">
+                    <CardTitle className="flex items-center gap-2 text-base text-[#172338]">
+                      <FileText className="h-5 w-5 text-[#123b68]" />
                       Parágrafos ({paragrafosAtuais.length})
                     </CardTitle>
                   </CardHeader>
@@ -360,12 +360,12 @@ export default function ConsultaSentinelaPage() {
                         className="border-b border-[#e2e2e2] bg-white py-5 first:pt-2 last:border-b-0"
                       >
                         <div className="flex gap-3">
-                          <span className="bg-red-600/20 text-red-400 px-2 py-1 rounded text-sm font-bold h-fit">
+                          <span className="flex h-9 min-w-9 items-center justify-center rounded-xl bg-[#e9a72f] px-2 text-sm font-bold text-[#123b68]">
                             {paragrafo.numero}
                           </span>
                           <div className="flex-1 space-y-3">
                             {paragrafo.pergunta && (
-                              <p className="text-zinc-200 font-medium leading-relaxed">
+                              <p className="text-lg font-semibold leading-7 text-[#172338]">
                                 {paragrafo.pergunta}
                               </p>
                             )}
@@ -376,7 +376,7 @@ export default function ConsultaSentinelaPage() {
                             )}
                             {/* Resposta cadastrada */}
                             {paragrafo.resposta && (
-                              <p className="text-[#444] leading-relaxed bg-zinc-900/50 p-3 rounded border-l-2 border-red-500">
+                              <p className="rounded-xl border border-[#dbe5ef] border-l-4 border-l-[#e9a72f] bg-[#fffaf0] p-4 leading-7 text-[#34465a]">
                                 {paragrafo.resposta}
                               </p>
                             )}
