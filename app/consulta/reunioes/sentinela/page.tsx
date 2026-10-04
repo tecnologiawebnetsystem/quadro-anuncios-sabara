@@ -227,35 +227,47 @@ export default function ConsultaSentinelaPage() {
   if (loading) return <CenteredLoader />
   
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Estudo de A Sentinela</h1>
-        <p className="text-zinc-400">Artigos de estudo por mês</p>
-      </div>
-
-      {/* Navegação de Mês */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={mesAnterior}>
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            <div className="text-center">
-              <h2 className="text-xl font-bold text-white">
-                {meses.find(m => m.valor === mesAtual)?.nome} {anoAtual}
-              </h2>
+    <div className="min-h-screen bg-[#f7f7f7] -m-4 p-4 text-[#252525] md:-m-6 md:p-6">
+      <div className="mx-auto max-w-5xl space-y-5">
+        <header className="border-b border-[#d9d9d9] pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#006699] text-[#252525]">
+              <BookMarked className="h-5 w-5" />
             </div>
-            <Button variant="ghost" size="icon" onClick={mesProximo}>
-              <ChevronRight className="w-5 h-5" />
-            </Button>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#666]">Quadro de Anúncios</p>
+              <h1 className="text-2xl font-semibold text-[#252525]">A Sentinela</h1>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+          <p className="mt-3 text-sm text-[#666]">Estudo semanal com parágrafos, perguntas e respostas.</p>
+        </header>
+
+        {/* Navegação de Mês */}
+        <Card className="rounded-none border-[#d9d9d9] bg-white shadow-sm">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <Button variant="ghost" size="icon" onClick={mesAnterior} className="text-[#006699] hover:bg-[#eef6fa]">
+                <ChevronLeft className="w-5 h-5" />
+                <span className="sr-only">Mês anterior</span>
+              </Button>
+              <div className="text-center">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#666]">Edições do mês</p>
+                <h2 className="text-lg font-semibold text-[#252525]">
+                  {meses.find(m => m.valor === mesAtual)?.nome} {anoAtual}
+                </h2>
+              </div>
+              <Button variant="ghost" size="icon" onClick={mesProximo} className="text-[#006699] hover:bg-[#eef6fa]">
+                <ChevronRight className="w-5 h-5" />
+                <span className="sr-only">Próximo mês</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
       {loading ? (
         <div className="text-center text-zinc-500 py-12">Carregando...</div>
       ) : estudos.length === 0 ? (
-        <Card className="bg-zinc-900/50 border-zinc-800">
+        <Card className="border-[#d9d9d9] bg-white shadow-sm">
           <CardContent className="py-12 text-center text-zinc-500">
             Nenhum estudo cadastrado para este mês
           </CardContent>
@@ -263,7 +275,7 @@ export default function ConsultaSentinelaPage() {
       ) : (
         <>
           {/* Seletor de Semanas */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2 overflow-x-auto border-b border-[#d9d9d9] pb-2">
             {estudos.map((estudo, index) => {
               const isAtual = index === indiceSemanaAtual
               return (
@@ -279,7 +291,7 @@ export default function ConsultaSentinelaPage() {
                 >
                   {formatarPeriodoCurto(estudo.data_inicio, estudo.data_fim)}
                   {isAtual && (
-                    <span className="ml-1.5 text-[10px] bg-zinc-950 text-white px-1.5 py-0.5 rounded-full font-medium border border-zinc-700">
+                    <span className="ml-1.5 text-[10px] bg-zinc-950 text-[#252525] px-1.5 py-0.5 rounded-full font-medium border border-zinc-700">
                       Atual
                     </span>
                   )}
@@ -303,11 +315,11 @@ export default function ConsultaSentinelaPage() {
                         <h3 className="text-xl font-bold text-amber-400 mb-2">
                           Não haverá reunião esta semana
                         </h3>
-                        <p className="text-zinc-300">
+                        <p className="text-[#444]">
                           Semana de {formatarPeriodo(estudoAtualData.data_inicio, estudoAtualData.data_fim)}
                         </p>
                         {estudoAtualData.motivo_sem_reuniao && (
-                          <p className="text-zinc-400 mt-3 text-sm">
+                          <p className="text-[#666] mt-3 text-sm">
                             Motivo: {estudoAtualData.motivo_sem_reuniao}
                           </p>
                         )}
@@ -318,35 +330,35 @@ export default function ConsultaSentinelaPage() {
               ) : (
               <>
               {/* Header do Estudo */}
-              <Card className="bg-gradient-to-r from-red-900/30 to-zinc-900 border-red-800/50">
+              <Card className="rounded-none border-[#d9d9d9] bg-white shadow-sm">
                 <CardContent className="p-6">
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-sm text-zinc-400">
+                    <div className="flex items-center gap-2 text-sm text-[#666]">
                       <Calendar className="w-4 h-4" />
                       <span>Semana de {formatarPeriodo(estudoAtualData.data_inicio, estudoAtualData.data_fim)}</span>
                     </div>
-                    <h2 className="text-2xl font-bold text-white">
+                    <h2 className="text-2xl font-bold text-[#252525]">
                       {estudoAtualData.titulo}
                     </h2>
                     {estudoAtualData.texto_tema && (
-                      <p className="text-zinc-300 italic border-l-2 border-red-500 pl-4">
+                      <p className="text-[#444] italic border-l-2 border-red-500 pl-4">
                         &ldquo;{estudoAtualData.texto_tema}&rdquo;
                       </p>
                     )}
                     {estudoAtualData.objetivo && (
-                      <p className="text-zinc-400 text-sm">
+                      <p className="text-[#666] text-sm">
                         <span className="font-semibold">Objetivo:</span> {estudoAtualData.objetivo}
                       </p>
                     )}
                     <div className="flex flex-wrap gap-4 pt-2">
                       {estudoAtualData.cantico_inicial && (
-                        <div className="flex items-center gap-1 text-sm text-zinc-400">
+                        <div className="flex items-center gap-1 text-sm text-[#666]">
                           <Music className="w-4 h-4" />
                           <span>Cântico {estudoAtualData.cantico_inicial}{estudoAtualData.cantico_inicial_nome && ` - ${estudoAtualData.cantico_inicial_nome}`}</span>
                         </div>
                       )}
                       {estudoAtualData.cantico_final && (
-                        <div className="flex items-center gap-1 text-sm text-zinc-400">
+                        <div className="flex items-center gap-1 text-sm text-[#666]">
                           <Music className="w-4 h-4" />
                           <span>Cântico {estudoAtualData.cantico_final}{estudoAtualData.cantico_final_nome && ` - ${estudoAtualData.cantico_final_nome}`}</span>
                         </div>
@@ -358,10 +370,10 @@ export default function ConsultaSentinelaPage() {
 
               {/* Parágrafos */}
               {paragrafosAtuais.length > 0 && (
-                <Card className="bg-zinc-900/50 border-zinc-800">
+                <Card className="border-[#d9d9d9] bg-white shadow-sm">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2 text-white">
-                      <FileText className="w-4 h-4 text-red-500" />
+                    <CardTitle className="text-base flex items-center gap-2 text-[#252525]">
+                      <FileText className="w-4 h-4 text-[#006699]" />
                       Parágrafos ({paragrafosAtuais.length})
                     </CardTitle>
                   </CardHeader>
@@ -369,7 +381,7 @@ export default function ConsultaSentinelaPage() {
                     {paragrafosAtuais.map((paragrafo) => (
                       <div 
                         key={paragrafo.id} 
-                        className="bg-zinc-800/50 rounded-lg p-4"
+                        className="border-b border-[#e2e2e2] bg-white py-5 first:pt-2 last:border-b-0"
                       >
                         <div className="flex gap-3">
                           <span className="bg-red-600/20 text-red-400 px-2 py-1 rounded text-sm font-bold h-fit">
@@ -384,7 +396,7 @@ export default function ConsultaSentinelaPage() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="shrink-0 border-zinc-600 text-zinc-400 hover:text-white hover:border-red-600 hover:bg-red-600/10 h-7 px-2 gap-1.5 text-xs"
+                                  className="shrink-0 border-zinc-600 text-[#666] hover:text-[#252525] hover:border-red-600 hover:bg-red-600/10 h-7 px-2 gap-1.5 text-xs"
                                   onClick={() => gerarRespostaIA(paragrafo)}
                                   disabled={gerandoIA[paragrafo.id] || (!paragrafo.texto_base)}
                                   title={paragrafo.texto_base ? "Gerar resposta com IA" : "Sem texto para gerar resposta"}
@@ -399,13 +411,13 @@ export default function ConsultaSentinelaPage() {
                               </div>
                             )}
                             {paragrafo.texto_base && (
-                              <p className="text-zinc-400 leading-relaxed">
+                              <p className="text-[#666] leading-relaxed">
                                 {paragrafo.texto_base}
                               </p>
                             )}
                             {/* Resposta cadastrada */}
                             {paragrafo.resposta && (
-                              <p className="text-zinc-300 leading-relaxed bg-zinc-900/50 p-3 rounded border-l-2 border-red-500">
+                              <p className="text-[#444] leading-relaxed bg-zinc-900/50 p-3 rounded border-l-2 border-red-500">
                                 {paragrafo.resposta}
                               </p>
                             )}
@@ -415,7 +427,7 @@ export default function ConsultaSentinelaPage() {
                                 <p className="text-[10px] font-semibold text-violet-400 uppercase tracking-wider flex items-center gap-1">
                                   <Wand2 className="w-3 h-3" /> Resposta gerada por IA
                                 </p>
-                                <p className="text-zinc-300 leading-relaxed">
+                                <p className="text-[#444] leading-relaxed">
                                   {respostasIA[paragrafo.id]}
                                 </p>
                               </div>
@@ -428,12 +440,12 @@ export default function ConsultaSentinelaPage() {
                                   className="rounded-lg max-w-full h-auto max-h-64 object-contain"
                                 />
                                 {paragrafo.imagem_descricao && (
-                                  <p className="text-sm text-zinc-400 italic">
+                                  <p className="text-sm text-[#666] italic">
                                     {paragrafo.imagem_descricao}
                                   </p>
                                 )}
                                 {paragrafo.imagem_explicacao && (
-                                  <p className="text-zinc-300 leading-relaxed bg-zinc-900/50 p-3 rounded border-l-2 border-green-500">
+                                  <p className="text-[#444] leading-relaxed bg-zinc-900/50 p-3 rounded border-l-2 border-green-500">
                                     {paragrafo.imagem_explicacao}
                                   </p>
                                 )}
@@ -452,6 +464,7 @@ export default function ConsultaSentinelaPage() {
           )}
         </>
       )}
+      </div>
     </div>
   )
 }
