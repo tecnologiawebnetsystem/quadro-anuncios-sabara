@@ -4,7 +4,7 @@ export interface ParagrafoOrdenavel {
 }
 
 export function ehRecapitulacaoSentinela(numero: string) {
-  return /^\s*rec(?:\.|:|apitula(?:ção|cao)?)/i.test(numero)
+  return /^\s*rec(?:\.|:|ap)/i.test(numero)
 }
 
 export function extrairNumeroParagrafoSentinela(numero: string) {
@@ -23,8 +23,10 @@ export function ordenarParagrafosSentinela<T extends ParagrafoOrdenavel>(a: T, b
   const bEhRecapitulacao = ehRecapitulacaoSentinela(b.numero)
   if (aEhRecapitulacao !== bEhRecapitulacao) return aEhRecapitulacao ? 1 : -1
 
-  const diferencaNumero = extrairNumeroParagrafoSentinela(a.numero) - extrairNumeroParagrafoSentinela(b.numero)
-  if (diferencaNumero !== 0) return diferencaNumero
+  const numeroA = extrairNumeroParagrafoSentinela(a.numero)
+  const numeroB = extrairNumeroParagrafoSentinela(b.numero)
+  if (numeroA < numeroB) return -1
+  if (numeroA > numeroB) return 1
 
   const diferencaRotulo = a.numero.localeCompare(b.numero, "pt-BR", { numeric: true })
   return diferencaRotulo || a.ordem - b.ordem

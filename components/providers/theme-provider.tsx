@@ -67,18 +67,11 @@ export function ThemeProvider({
     return () => mediaQuery.removeEventListener("change", handleChange)
   }, [theme])
 
-  // Evitar flash de conteúdo incorreto
-  if (!mounted) {
-    return (
-      <div className={defaultTheme === "dark" ? "dark" : "light"}>
-        {children}
-      </div>
-    )
-  }
-
   return (
     <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>
-      {children}
+      <div className={theme === "system" ? resolvedTheme : theme}>
+        {children}
+      </div>
     </ThemeContext.Provider>
   )
 }

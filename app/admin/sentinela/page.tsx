@@ -152,7 +152,7 @@ export default function SentinelaPage() {
         
         if (mesExistente) {
           mesId = mesExistente.id
-          setMesData({ id: mesId, mes: mesAtual, ano: anoAtual })
+          setMesData({ id: mesExistente.id, mes: mesAtual, ano: anoAtual })
         } else {
           const { data: novoMes, error: erroMes } = await supabase
             .from("sentinela_meses")
@@ -208,7 +208,7 @@ export default function SentinelaPage() {
     }
   }
 
-  const atualizarEstudo = async (estudoId: string, campo: string, valor: string | number | null) => {
+  const atualizarEstudo = async (estudoId: string, campo: string, valor: string | number | boolean | null) => {
     const { error } = await supabase
       .from("sentinela_estudos")
       .update({ [campo]: valor })
@@ -448,18 +448,18 @@ export default function SentinelaPage() {
   if (loading) return <CenteredLoader />
   
   return (
-    <div className="dark space-y-6 text-foreground">
+    <div className="space-y-6 text-foreground">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Estudo de A Sentinela</h1>
-          <p className="text-zinc-400">Gerencie os estudos da Sentinela por mês</p>
+          <h1 className="text-2xl font-bold text-foreground">Estudo de A Sentinela</h1>
+        <p className="text-muted-foreground">Gerencie os estudos da Sentinela por mês</p>
         </div>
 
       </div>
 
       {/* Seletor de Mês */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="bg-zinc-900 border-zinc-800 text-zinc-100">
         <CardContent className="py-6">
           <div className="flex items-center justify-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navegarMes(-1)}>
@@ -479,7 +479,7 @@ export default function SentinelaPage() {
       {/* Conteúdo Principal */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Lista de Semanas */}
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-zinc-900 border-zinc-800 text-zinc-100">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Semanas</CardTitle>
@@ -537,7 +537,7 @@ export default function SentinelaPage() {
         </Card>
 
         {/* Editor de Estudo */}
-        <Card className="bg-zinc-900 border-zinc-800 lg:col-span-2">
+        <Card className="bg-zinc-900 border-zinc-800 text-zinc-100 lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BookOpen className="w-5 h-5" />
