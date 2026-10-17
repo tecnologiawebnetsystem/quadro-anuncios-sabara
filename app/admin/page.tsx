@@ -83,7 +83,7 @@ interface Alerta {
 // Componente de Skeleton Loading
 function SkeletonCard() {
   return (
-    <Card className="border-zinc-800 bg-zinc-900/50 overflow-hidden">
+    <Card className="border-border bg-card overflow-hidden">
       <CardContent className="p-6">
         <div className="animate-pulse space-y-3">
           <div className="flex justify-between">
@@ -102,7 +102,7 @@ function SkeletonCard() {
 
 function SkeletonMiniCard() {
   return (
-    <Card className="border-zinc-800 bg-zinc-900/50">
+    <Card className="border-border bg-card">
       <CardContent className="p-4">
         <div className="animate-pulse flex items-center gap-3">
           <div className="h-10 w-10 bg-zinc-700 rounded-lg" />
@@ -291,7 +291,7 @@ export default function AdminDashboard() {
 
         {/* Content Skeleton */}
         <div className="grid gap-6 lg:grid-cols-2">
-          <Card className="border-zinc-800 bg-zinc-900/50">
+          <Card className="border-border bg-card">
             <CardContent className="p-6">
               <div className="animate-pulse space-y-4">
                 <div className="h-6 w-48 bg-zinc-700 rounded" />
@@ -299,7 +299,7 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
-          <Card className="border-zinc-800 bg-zinc-900/50">
+          <Card className="border-border bg-card">
             <CardContent className="p-6">
               <div className="animate-pulse space-y-4">
                 <div className="h-6 w-48 bg-zinc-700 rounded" />
@@ -352,8 +352,8 @@ export default function AdminDashboard() {
                   alerta.tipo === "info" && "text-blue-500",
                   alerta.tipo === "success" && "text-green-500"
                 )} />
-                <p className="flex-1 text-sm text-zinc-300">{alerta.mensagem}</p>
-                <ChevronRight className="h-4 w-4 text-zinc-500" />
+                <p className="flex-1 text-sm text-card-foreground">{alerta.mensagem}</p>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </div>
             </Link>
           ))}
@@ -400,13 +400,13 @@ export default function AdminDashboard() {
       {/* Stats Cards - Grid Principal */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Link href="/admin/publicadores">
-          <Card className="group relative overflow-hidden border-zinc-800 bg-gradient-to-br from-blue-600/10 to-blue-900/5 transition-all hover:border-blue-600/50 hover:shadow-lg hover:shadow-blue-600/10">
+          <Card className="group relative overflow-hidden border-border bg-gradient-to-br from-blue-600/10 to-blue-900/5 transition-all hover:border-blue-600/50 hover:shadow-lg hover:shadow-blue-600/10">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zinc-400">Total de Publicadores</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total de Publicadores</p>
                   <p className="mt-2 text-4xl font-bold text-white">{totalAtivos}</p>
-                  <p className="mt-1 text-xs text-zinc-500">Ativos na congregação</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Ativos na congregação</p>
                 </div>
                 <div className="rounded-xl bg-blue-600 p-3">
                   <Users className="h-6 w-6 text-white" />
@@ -421,13 +421,13 @@ export default function AdminDashboard() {
         </Link>
 
         <Link href="/admin/publicadores/anciaos">
-          <Card className="group relative overflow-hidden border-zinc-800 bg-gradient-to-br from-red-600/10 to-red-900/5 transition-all hover:border-red-600/50 hover:shadow-lg hover:shadow-red-600/10">
+          <Card className="group relative overflow-hidden border-border bg-gradient-to-br from-red-600/10 to-red-900/5 transition-all hover:border-red-600/50 hover:shadow-lg hover:shadow-red-600/10">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zinc-400">Anciãos</p>
+                  <p className="text-sm font-medium text-muted-foreground">Anciãos</p>
                   <p className="mt-2 text-4xl font-bold text-white">{totalAnciaos}</p>
-                  <p className="mt-1 text-xs text-zinc-500">Corpo de anciãos</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Corpo de anciãos</p>
                 </div>
                 <div className="rounded-xl bg-red-600 p-3">
                   <UserCheck className="h-6 w-6 text-white" />
@@ -442,13 +442,13 @@ export default function AdminDashboard() {
         </Link>
 
         <Link href="/admin/publicadores/servos-ministeriais">
-          <Card className="group relative overflow-hidden border-zinc-800 bg-gradient-to-br from-emerald-600/10 to-emerald-900/5 transition-all hover:border-emerald-600/50 hover:shadow-lg hover:shadow-emerald-600/10">
+          <Card className="group relative overflow-hidden border-border bg-gradient-to-br from-emerald-600/10 to-emerald-900/5 transition-all hover:border-emerald-600/50 hover:shadow-lg hover:shadow-emerald-600/10">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zinc-400">Servos Ministeriais</p>
+                  <p className="text-sm font-medium text-muted-foreground">Servos Ministeriais</p>
                   <p className="mt-2 text-4xl font-bold text-white">{totalServos}</p>
-                  <p className="mt-1 text-xs text-zinc-500">Designados</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Designados</p>
                 </div>
                 <div className="rounded-xl bg-emerald-600 p-3">
                   <Shield className="h-6 w-6 text-white" />
@@ -463,13 +463,13 @@ export default function AdminDashboard() {
         </Link>
 
         <Link href="/admin/publicadores/pioneiros-regulares">
-          <Card className="group relative overflow-hidden border-zinc-800 bg-gradient-to-br from-amber-600/10 to-amber-900/5 transition-all hover:border-amber-600/50 hover:shadow-lg hover:shadow-amber-600/10">
+          <Card className="group relative overflow-hidden border-border bg-gradient-to-br from-amber-600/10 to-amber-900/5 transition-all hover:border-amber-600/50 hover:shadow-lg hover:shadow-amber-600/10">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zinc-400">Pioneiros</p>
+                  <p className="text-sm font-medium text-muted-foreground">Pioneiros</p>
                   <p className="mt-2 text-4xl font-bold text-white">{totalPioneiros}</p>
-                  <p className="mt-1 text-xs text-zinc-500">Regulares</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Regulares</p>
                 </div>
                 <div className="rounded-xl bg-amber-600 p-3">
                   <Flag className="h-6 w-6 text-white" />
@@ -486,7 +486,7 @@ export default function AdminDashboard() {
 
       {/* Segunda linha - Cards informativos menores */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-zinc-800 bg-zinc-900/50">
+        <Card className="border-border bg-card">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-purple-600/20 p-2.5">
@@ -494,13 +494,13 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{totalGrupos}</p>
-                <p className="text-xs text-zinc-500">Grupos de Campo</p>
+                <p className="text-xs text-muted-foreground">Grupos de Campo</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-800 bg-zinc-900/50">
+        <Card className="border-border bg-card">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-cyan-600/20 p-2.5">
@@ -508,13 +508,13 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{mediaPresencial}</p>
-                <p className="text-xs text-zinc-500">Média Presencial</p>
+                <p className="text-xs text-muted-foreground">Média Presencial</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-800 bg-zinc-900/50">
+        <Card className="border-border bg-card">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-green-600/20 p-2.5">
@@ -522,7 +522,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{mediaZoom}</p>
-                <p className="text-xs text-zinc-500">Media Zoom</p>
+                <p className="text-xs text-muted-foreground">Media Zoom</p>
               </div>
             </div>
           </CardContent>
@@ -531,7 +531,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Gráfico de Assistência */}
-      <Card className="border-zinc-800 bg-zinc-900/50">
+      <Card className="border-border bg-card">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -542,7 +542,7 @@ export default function AdminDashboard() {
               Ver detalhes
             </Link>
           </div>
-          <p className="text-sm text-zinc-500">Ultimas {assistencia.length} reunioes</p>
+          <p className="text-sm text-muted-foreground">Ultimas {assistencia.length} reunioes</p>
         </CardHeader>
         <CardContent>
           {assistencia.length > 0 ? (
@@ -581,7 +581,7 @@ export default function AdminDashboard() {
                           )}
                         </div>
                       </div>
-                      <span className="text-[10px] text-zinc-500">
+                      <span className="text-[10px] text-muted-foreground">
                         {format(parseISO(a.data), "dd/MM")}
                       </span>
                     </div>
@@ -593,17 +593,17 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-center gap-6 text-xs">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-sm bg-gradient-to-t from-blue-600 to-cyan-500" />
-                  <span className="text-zinc-400">Presencial</span>
+                  <span className="text-muted-foreground">Presencial</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-sm bg-green-500" />
-                  <span className="text-zinc-400">Zoom</span>
+                  <span className="text-muted-foreground">Zoom</span>
                 </div>
               </div>
             </div>
           ) : (
             <div className="flex items-center justify-center h-40 rounded-lg bg-zinc-800/30">
-              <p className="text-sm text-zinc-500">Nenhum dado de assistencia cadastrado</p>
+              <p className="text-sm text-muted-foreground">Nenhum dado de assistencia cadastrado</p>
             </div>
           )}
         </CardContent>
@@ -612,7 +612,7 @@ export default function AdminDashboard() {
       {/* Terceira secao - Cards de informacoes da semana */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Equipe Técnica da Semana */}
-        <Card className="border-zinc-800 bg-zinc-900/50">
+        <Card className="border-border bg-card">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -623,7 +623,7 @@ export default function AdminDashboard() {
                 Ver tudo
               </Link>
             </div>
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-muted-foreground">
               {format(inicioSemana, "d", { locale: ptBR })} a {format(fimSemana, "d 'de' MMMM", { locale: ptBR })}
             </p>
           </CardHeader>
@@ -640,7 +640,7 @@ export default function AdminDashboard() {
                     )}>
                       {reuniao.dia_semana === "quinta" ? "Quinta" : "Domingo"}
                     </span>
-                    <span className="text-sm text-zinc-400">
+                    <span className="text-sm text-muted-foreground">
                       {format(new Date(reuniao.data), "dd/MM", { locale: ptBR })}
                     </span>
                     {isToday(new Date(reuniao.data)) && (
@@ -653,26 +653,26 @@ export default function AdminDashboard() {
 
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div>
-                      <div className="mb-1 flex items-center gap-1 text-zinc-500">
+                      <div className="mb-1 flex items-center gap-1 text-muted-foreground">
                         <Wrench className="h-3 w-3 text-green-500" />
                         <span className="text-xs">Indicadores</span>
                       </div>
-                      <p className="text-zinc-300">{reuniao.indicador1_nome || "-"}</p>
-                      <p className="text-zinc-300">{reuniao.indicador2_nome || "-"}</p>
+                      <p className="text-card-foreground">{reuniao.indicador1_nome || "-"}</p>
+                      <p className="text-card-foreground">{reuniao.indicador2_nome || "-"}</p>
                     </div>
 
                     <div>
-                      <div className="mb-1 flex items-center gap-1 text-zinc-500">
+                      <div className="mb-1 flex items-center gap-1 text-muted-foreground">
                         <Mic className="h-3 w-3 text-purple-500" />
                         <span className="text-xs">Microfone</span>
                       </div>
-                      <p className="text-zinc-300 flex items-center gap-1.5">
+                      <p className="text-card-foreground flex items-center gap-1.5">
                         {reuniao.microvolante1_nome || "-"}
                         {reuniao.microvolante_palco === 1 && (
                           <span className="text-xs font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/30 px-1.5 py-0.5 rounded">Palco</span>
                         )}
                       </p>
-                      <p className="text-zinc-300 flex items-center gap-1.5">
+                      <p className="text-card-foreground flex items-center gap-1.5">
                         {reuniao.microvolante2_nome || "-"}
                         {reuniao.microvolante_palco === 2 && (
                           <span className="text-xs font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/30 px-1.5 py-0.5 rounded">Palco</span>
@@ -681,18 +681,18 @@ export default function AdminDashboard() {
                     </div>
 
                     <div>
-                      <div className="mb-1 flex items-center gap-1 text-zinc-500">
+                      <div className="mb-1 flex items-center gap-1 text-muted-foreground">
                         <Volume2 className="h-3 w-3 text-blue-500" />
                         <span className="text-xs">Som</span>
                       </div>
-                      <p className="text-zinc-300">{reuniao.som_nome || "-"}</p>
+                      <p className="text-card-foreground">{reuniao.som_nome || "-"}</p>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
               <div className="rounded-lg bg-zinc-800/30 p-6 text-center">
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-muted-foreground">
                   Nenhuma designacao cadastrada para esta semana
                 </p>
               </div>
@@ -703,7 +703,7 @@ export default function AdminDashboard() {
         {/* Coluna direita - Limpeza + Proximo Discurso + Campo */}
         <div className="space-y-6">
           {/* Limpeza da Semana */}
-          <Card className="border-zinc-800 bg-zinc-900/50">
+          <Card className="border-border bg-card">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -720,7 +720,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between rounded-lg bg-cyan-600/10 p-4">
                   <div>
                     <p className="text-lg font-semibold text-white">{limpezaSemana.grupo_nome}</p>
-                    <p className="text-sm text-zinc-400">
+                    <p className="text-sm text-muted-foreground">
                       {format(new Date(limpezaSemana.data_inicio), "dd/MM", { locale: ptBR })} a {format(new Date(limpezaSemana.data_fim), "dd/MM", { locale: ptBR })}
                     </p>
                   </div>
@@ -730,14 +730,14 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div className="rounded-lg bg-zinc-800/30 p-4 text-center">
-                  <p className="text-sm text-zinc-500">Nenhum grupo designado</p>
+                  <p className="text-sm text-muted-foreground">Nenhum grupo designado</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
           {/* Proximo Discurso Publico */}
-          <Card className="border-zinc-800 bg-zinc-900/50">
+          <Card className="border-border bg-card">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -760,19 +760,19 @@ export default function AdminDashboard() {
                   </div>
                   <p className="mb-1 text-base font-medium text-white">{proximoDiscurso.tema || "Tema nao definido"}</p>
                   {proximoDiscurso.orador_nome && (
-                    <p className="text-sm text-zinc-400">Orador: {proximoDiscurso.orador_nome}</p>
+                    <p className="text-sm text-muted-foreground">Orador: {proximoDiscurso.orador_nome}</p>
                   )}
                 </div>
               ) : (
                 <div className="rounded-lg bg-zinc-800/30 p-4 text-center">
-                  <p className="text-sm text-zinc-500">Nenhum discurso agendado</p>
+                  <p className="text-sm text-muted-foreground">Nenhum discurso agendado</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
           {/* Serviço de Campo */}
-          <Card className="border-zinc-800 bg-zinc-900/50">
+          <Card className="border-border bg-card">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -791,13 +791,13 @@ export default function AdminDashboard() {
                     <div key={index} className="rounded-lg bg-purple-600/10 p-3">
                       <p className="text-xs text-purple-400 capitalize">{campo.dia_semana}</p>
                       <p className="text-sm font-medium text-white truncate">{campo.dirigente_nome}</p>
-                      <p className="text-xs text-zinc-500">{campo.horario} - {campo.periodo}</p>
+                      <p className="text-xs text-muted-foreground">{campo.horario} - {campo.periodo}</p>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="rounded-lg bg-zinc-800/30 p-4 text-center">
-                  <p className="text-sm text-zinc-500">Nenhum dirigente cadastrado</p>
+                  <p className="text-sm text-muted-foreground">Nenhum dirigente cadastrado</p>
                 </div>
               )}
             </CardContent>

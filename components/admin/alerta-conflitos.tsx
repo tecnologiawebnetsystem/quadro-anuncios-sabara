@@ -52,13 +52,13 @@ export function AlertaConflitos({ mes, className, onVerDetalhes }: AlertaConflit
   
   if (carregando) {
     return (
-      <Card className={cn("border-zinc-800 bg-zinc-900/50", className)}>
+      <Card className={cn("border-border bg-card", className)}>
         <CardContent className="p-4">
           <div className="flex items-center gap-3 animate-pulse">
-            <div className="h-10 w-10 bg-zinc-700 rounded-lg" />
+            <div className="h-10 w-10 bg-muted rounded-lg" />
             <div className="space-y-2">
-              <div className="h-4 w-32 bg-zinc-700 rounded" />
-              <div className="h-3 w-24 bg-zinc-700 rounded" />
+              <div className="h-4 w-32 bg-muted rounded" />
+              <div className="h-3 w-24 bg-muted rounded" />
             </div>
           </div>
         </CardContent>
@@ -68,7 +68,7 @@ export function AlertaConflitos({ mes, className, onVerDetalhes }: AlertaConflit
   
   if (conflitos.length === 0) {
     return (
-      <Card className={cn("border-zinc-800 bg-zinc-900/50 border-green-600/20", className)}>
+      <Card className={cn("border-border bg-card border-green-600/20", className)}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -77,13 +77,13 @@ export function AlertaConflitos({ mes, className, onVerDetalhes }: AlertaConflit
               </div>
               <div>
                 <p className="font-medium text-green-400">Sem conflitos</p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-muted-foreground">
                   Nenhum publicador com múltiplas designações
                 </p>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={atualizar}>
-              <RefreshCw className="h-4 w-4 text-zinc-500" />
+              <RefreshCw className="h-4 w-4 text-muted-foreground" />
             </Button>
           </div>
         </CardContent>
@@ -92,7 +92,7 @@ export function AlertaConflitos({ mes, className, onVerDetalhes }: AlertaConflit
   }
   
   return (
-    <Card className={cn("border-zinc-800 bg-zinc-900/50 border-amber-600/30", className)}>
+    <Card className={cn("border-border bg-card border-amber-600/30", className)}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
@@ -104,7 +104,7 @@ export function AlertaConflitos({ mes, className, onVerDetalhes }: AlertaConflit
           </CardTitle>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={atualizar}>
-              <RefreshCw className="h-4 w-4 text-zinc-500" />
+              <RefreshCw className="h-4 w-4 text-muted-foreground" />
             </Button>
             <Button 
               variant="ghost" 
@@ -128,12 +128,12 @@ export function AlertaConflitos({ mes, className, onVerDetalhes }: AlertaConflit
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="font-medium text-white text-sm">{conflito.publicador_nome}</p>
+                  <p className="font-medium text-card-foreground text-sm">{conflito.publicador_nome}</p>
                   <Badge variant="outline" className="text-xs text-amber-400">
                     {conflito.funcoes.length} funções
                   </Badge>
                 </div>
-                <p className="text-xs text-zinc-400 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {format(new Date(conflito.data), "EEEE, d 'de' MMMM", { locale: ptBR })}
                 </p>
                 <div className="flex flex-wrap gap-1 mt-2">
@@ -144,7 +144,7 @@ export function AlertaConflitos({ mes, className, onVerDetalhes }: AlertaConflit
                   ))}
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-zinc-500 flex-shrink-0 mt-1" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
             </div>
           ))}
         </div>
@@ -177,48 +177,48 @@ export function ModalConflitoDetalhes({
   
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl max-w-md w-full p-6 shadow-xl">
+      <div className="bg-card border border-border rounded-xl max-w-md w-full p-6 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
-            <h3 className="font-semibold text-white">Conflito Detectado</h3>
+            <h3 className="font-semibold text-card-foreground">Conflito Detectado</h3>
           </div>
-          <button onClick={onFechar} className="text-zinc-500 hover:text-white">
+          <button onClick={onFechar} className="text-muted-foreground hover:text-card-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
         
         <div className="space-y-4">
           <div>
-            <p className="text-sm text-zinc-400">Publicador</p>
-            <p className="text-lg font-medium text-white">{conflito.publicador_nome}</p>
+            <p className="text-sm text-muted-foreground">Publicador</p>
+            <p className="text-lg font-medium text-card-foreground">{conflito.publicador_nome}</p>
           </div>
           
           <div>
-            <p className="text-sm text-zinc-400">Data</p>
-            <p className="text-white">
+            <p className="text-sm text-muted-foreground">Data</p>
+            <p className="text-card-foreground">
               {format(new Date(conflito.data), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
             </p>
           </div>
           
           <div>
-            <p className="text-sm text-zinc-400 mb-2">Designações no mesmo dia</p>
+            <p className="text-sm text-muted-foreground mb-2">Designações no mesmo dia</p>
             <div className="space-y-2">
               {conflito.funcoes.map((f, i) => (
-                <div key={i} className="p-3 rounded-lg bg-zinc-800 border border-zinc-700">
+                <div key={i} className="p-3 rounded-lg bg-muted border border-border">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium text-white">{f.funcao}</p>
+                    <p className="font-medium text-card-foreground">{f.funcao}</p>
                     <Badge variant="outline" className="text-xs">{f.tipo}</Badge>
                   </div>
                   {f.detalhes && (
-                    <p className="text-xs text-zinc-500 mt-1">{f.detalhes}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{f.detalhes}</p>
                   )}
                 </div>
               ))}
             </div>
           </div>
           
-          <div className="pt-4 border-t border-zinc-800">
+          <div className="pt-4 border-t border-border">
             <p className="text-xs text-amber-400/80">
               Considere reorganizar as designações para evitar sobrecarga do publicador.
             </p>
