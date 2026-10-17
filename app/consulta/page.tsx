@@ -557,22 +557,26 @@ export default function ConsultaPage() {
         </div>
       </div>
     )}
-    <div className="max-w-5xl mx-auto space-y-8 pb-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+    <div className="mx-auto max-w-6xl space-y-8 pb-10">
+      {/* Cabeçalho editorial */}
+      <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-amber-500 mb-1 capitalize">
+          <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.22em] text-amber-300 capitalize">
             {format(hoje, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
           </p>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white leading-tight text-balance">
-            Quadro de Anúncios
+          <h1 className="text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl text-balance">
+            Quadro de <span className="text-amber-300">Anúncios</span>
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">Congregação Parque Sabará</p>
+          <p className="mt-2 text-sm text-sky-100/65">Congregação Parque Sabará · área de consulta</p>
+        </div>
+        <div className="hidden items-center gap-2 rounded-full border border-sky-200/15 bg-white/5 px-3 py-2 text-xs text-sky-100/70 sm:flex">
+          <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
+          Informações atualizadas
         </div>
       </div>
 
       {/* Hub de consulta */}
-      <section className="relative overflow-hidden rounded-3xl border border-sky-400/20 bg-gradient-to-br from-sky-500/15 via-white/[0.04] to-transparent p-5 sm:p-7 shadow-2xl shadow-black/10">
+      <section className="relative overflow-hidden rounded-[1.75rem] border border-sky-200/20 bg-gradient-to-br from-sky-400/18 via-white/[0.06] to-transparent p-5 shadow-2xl shadow-[#071b38]/20 sm:p-8">
         <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-sky-400/10 blur-3xl" aria-hidden="true" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -580,8 +584,8 @@ export default function ConsultaPage() {
               <LayoutGrid className="h-4 w-4" />
               <span className="text-[11px] font-bold uppercase tracking-[0.2em]">Área de consulta</span>
             </div>
-            <h2 className="max-w-xl text-2xl font-bold text-white sm:text-3xl text-balance">Tudo o que você precisa, em um só lugar.</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-sky-100/65">Visualize a programação, as escalas e as informações da congregação. Esta área é somente para consulta.</p>
+            <h2 className="max-w-xl text-2xl font-bold leading-tight text-white sm:text-3xl text-balance">Encontre tudo o que precisa para esta semana.</h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-sky-100/70">Consulte a programação, as escalas e as informações da congregação com poucos toques.</p>
           </div>
           <div className="w-full lg:max-w-xs">
             <label htmlFor="busca-consulta" className="sr-only">Buscar informação</label>
@@ -601,7 +605,7 @@ export default function ConsultaPage() {
       </section>
 
       {/* Cards de Destaque do Dia */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {/* Campo hoje */}
         <div className={cn(
           "rounded-2xl border p-4 flex items-center gap-3 transition-colors",
