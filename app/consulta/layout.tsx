@@ -89,10 +89,10 @@ function ConsultaLayoutContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(180deg, #0f2550 0%, #1a3a6e 40%, #1e4080 100%)" }}>
+    <div className="min-h-screen bg-[#102f5f] text-white" style={{ background: "linear-gradient(180deg, #0d2854 0%, #12386f 42%, #17447f 100%)" }}>
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0f2550]/95 backdrop-blur-sm border-b border-sky-700/40">
-        <div className="flex items-center justify-between px-4 py-3 max-w-5xl mx-auto">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-sky-300/15 bg-[#0d2854]/90 shadow-lg shadow-[#071b38]/15 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
           <div className="flex items-center gap-2">
             {!isHomePage && (
               <Link 
@@ -126,9 +126,31 @@ function ConsultaLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
+      {/* Navegação desktop */}
+      <nav className="fixed top-[61px] left-0 right-0 z-40 hidden border-b border-sky-300/10 bg-[#123568]/85 backdrop-blur-xl md:block" aria-label="Navegação principal">
+        <div className="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-4 py-2 md:px-6">
+          {bottomNavItems.map((item) => {
+            const active = isActive(item.href)
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-colors",
+                  active ? "bg-amber-400 text-[#102f5f]" : "text-sky-100/65 hover:bg-white/8 hover:text-white"
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.title}
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
+
       {/* Main Content */}
-      <main className="pt-16 pb-20 md:pb-8">
-        <div className="p-4 md:p-6 lg:p-8 max-w-5xl mx-auto">
+      <main className="pt-16 pb-20 md:pt-28 md:pb-8">
+        <div className="mx-auto max-w-6xl p-4 md:px-6 md:py-8 lg:px-8">
           {children}
         </div>
       </main>
