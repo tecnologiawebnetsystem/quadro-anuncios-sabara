@@ -88,12 +88,12 @@ function SkeletonCard() {
         <div className="animate-pulse space-y-3">
           <div className="flex justify-between">
             <div className="space-y-2">
-              <div className="h-4 w-24 bg-zinc-700 rounded" />
-              <div className="h-8 w-16 bg-zinc-700 rounded" />
+              <div className="h-4 w-24 bg-muted rounded" />
+              <div className="h-8 w-16 bg-muted rounded" />
             </div>
-            <div className="h-12 w-12 bg-zinc-700 rounded-xl" />
+            <div className="h-12 w-12 bg-muted rounded-xl" />
           </div>
-          <div className="h-3 w-20 bg-zinc-700 rounded" />
+          <div className="h-3 w-20 bg-muted rounded" />
         </div>
       </CardContent>
     </Card>
@@ -105,10 +105,10 @@ function SkeletonMiniCard() {
     <Card className="border-border bg-card">
       <CardContent className="p-4">
         <div className="animate-pulse flex items-center gap-3">
-          <div className="h-10 w-10 bg-zinc-700 rounded-lg" />
+          <div className="h-10 w-10 bg-muted rounded-lg" />
           <div className="space-y-2">
-            <div className="h-6 w-12 bg-zinc-700 rounded" />
-            <div className="h-3 w-20 bg-zinc-700 rounded" />
+            <div className="h-6 w-12 bg-muted rounded" />
+            <div className="h-3 w-20 bg-muted rounded" />
           </div>
         </div>
       </CardContent>
@@ -267,10 +267,10 @@ export default function AdminDashboard() {
         {/* Header Skeleton */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <div className="h-6 w-6 bg-zinc-700 rounded animate-pulse" />
-            <div className="h-8 w-40 bg-zinc-700 rounded animate-pulse" />
+            <div className="h-6 w-6 bg-muted rounded animate-pulse" />
+            <div className="h-8 w-40 bg-muted rounded animate-pulse" />
           </div>
-          <div className="h-4 w-80 bg-zinc-700 rounded animate-pulse mt-1" />
+          <div className="h-4 w-80 bg-muted rounded animate-pulse mt-1" />
         </div>
 
         {/* Stats Cards Skeleton */}
@@ -294,16 +294,16 @@ export default function AdminDashboard() {
           <Card className="border-border bg-card">
             <CardContent className="p-6">
               <div className="animate-pulse space-y-4">
-                <div className="h-6 w-48 bg-zinc-700 rounded" />
-                <div className="h-40 bg-zinc-700 rounded" />
+                <div className="h-6 w-48 bg-muted rounded" />
+                <div className="h-40 bg-muted rounded" />
               </div>
             </CardContent>
           </Card>
           <Card className="border-border bg-card">
             <CardContent className="p-6">
               <div className="animate-pulse space-y-4">
-                <div className="h-6 w-48 bg-zinc-700 rounded" />
-                <div className="h-40 bg-zinc-700 rounded" />
+                <div className="h-6 w-48 bg-muted rounded" />
+                <div className="h-40 bg-muted rounded" />
               </div>
             </CardContent>
           </Card>
@@ -341,7 +341,7 @@ export default function AdminDashboard() {
           {alertas.map((alerta) => (
             <Link key={alerta.id} href={alerta.link || "#"}>
               <div className={cn(
-                "flex items-center gap-3 rounded-lg border p-3 transition-all hover:bg-zinc-800/50",
+                "flex items-center gap-3 rounded-lg border p-3 transition-all hover:bg-card/70",
                 alerta.tipo === "warning" && "border-amber-600/30 bg-amber-600/5",
                 alerta.tipo === "info" && "border-blue-600/30 bg-blue-600/5",
                 alerta.tipo === "success" && "border-green-600/30 bg-green-600/5"
@@ -366,31 +366,31 @@ export default function AdminDashboard() {
       {/* Acoes Rapidas */}
       <div className="flex flex-wrap gap-3">
         <Link href="/admin/reunioes-publicas">
-          <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
+          <Button variant="outline" size="sm" className="border-border bg-card/70 hover:bg-card hover:border-zinc-600">
             <Plus className="h-4 w-4 mr-2 text-amber-500" />
             Cadastrar Discurso
           </Button>
         </Link>
         <Link href="/admin/equipe-tecnica">
-          <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
+          <Button variant="outline" size="sm" className="border-border bg-card/70 hover:bg-card hover:border-zinc-600">
             <Wrench className="h-4 w-4 mr-2 text-green-500" />
             Equipe Técnica
           </Button>
         </Link>
         <Link href="/admin/limpeza-salao">
-          <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
+          <Button variant="outline" size="sm" className="border-border bg-card/70 hover:bg-card hover:border-zinc-600">
             <Sparkles className="h-4 w-4 mr-2 text-cyan-500" />
             Escala Limpeza
           </Button>
         </Link>
         <Link href="/admin/servico-campo">
-          <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
+          <Button variant="outline" size="sm" className="border-border bg-card/70 hover:bg-card hover:border-zinc-600">
             <MapPin className="h-4 w-4 mr-2 text-purple-500" />
             Serviço de Campo
           </Button>
         </Link>
         <Link href="/admin/publicadores/new">
-          <Button variant="outline" size="sm" className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 hover:border-zinc-600">
+          <Button variant="outline" size="sm" className="border-border bg-card/70 hover:bg-card hover:border-zinc-600">
             <Users className="h-4 w-4 mr-2 text-blue-500" />
             Novo Publicador
           </Button>
@@ -400,16 +400,16 @@ export default function AdminDashboard() {
       {/* Stats Cards - Grid Principal */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Link href="/admin/publicadores">
-          <Card className="group relative overflow-hidden border-border bg-gradient-to-br from-blue-600/10 to-blue-900/5 transition-all hover:border-blue-600/50 hover:shadow-lg hover:shadow-blue-600/10">
+          <Card className="group relative overflow-hidden border-border bg-card transition-all hover:border-blue-600/50 hover:shadow-lg hover:shadow-blue-600/10">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total de Publicadores</p>
-                  <p className="mt-2 text-4xl font-bold text-white">{totalAtivos}</p>
+                  <p className="mt-2 text-4xl font-bold text-card-foreground">{totalAtivos}</p>
                   <p className="mt-1 text-xs text-muted-foreground">Ativos na congregação</p>
                 </div>
                 <div className="rounded-xl bg-blue-600 p-3">
-                  <Users className="h-6 w-6 text-white" />
+                  <Users className="h-6 w-6 text-card-foreground" />
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-1 text-xs text-blue-400">
@@ -421,16 +421,16 @@ export default function AdminDashboard() {
         </Link>
 
         <Link href="/admin/publicadores/anciaos">
-          <Card className="group relative overflow-hidden border-border bg-gradient-to-br from-red-600/10 to-red-900/5 transition-all hover:border-red-600/50 hover:shadow-lg hover:shadow-red-600/10">
+          <Card className="group relative overflow-hidden border-border bg-card transition-all hover:border-red-600/50 hover:shadow-lg hover:shadow-red-600/10">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Anciãos</p>
-                  <p className="mt-2 text-4xl font-bold text-white">{totalAnciaos}</p>
+                  <p className="mt-2 text-4xl font-bold text-card-foreground">{totalAnciaos}</p>
                   <p className="mt-1 text-xs text-muted-foreground">Corpo de anciãos</p>
                 </div>
                 <div className="rounded-xl bg-red-600 p-3">
-                  <UserCheck className="h-6 w-6 text-white" />
+                  <UserCheck className="h-6 w-6 text-card-foreground" />
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-1 text-xs text-red-400">
@@ -442,16 +442,16 @@ export default function AdminDashboard() {
         </Link>
 
         <Link href="/admin/publicadores/servos-ministeriais">
-          <Card className="group relative overflow-hidden border-border bg-gradient-to-br from-emerald-600/10 to-emerald-900/5 transition-all hover:border-emerald-600/50 hover:shadow-lg hover:shadow-emerald-600/10">
+          <Card className="group relative overflow-hidden border-border bg-card transition-all hover:border-emerald-600/50 hover:shadow-lg hover:shadow-emerald-600/10">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Servos Ministeriais</p>
-                  <p className="mt-2 text-4xl font-bold text-white">{totalServos}</p>
+                  <p className="mt-2 text-4xl font-bold text-card-foreground">{totalServos}</p>
                   <p className="mt-1 text-xs text-muted-foreground">Designados</p>
                 </div>
                 <div className="rounded-xl bg-emerald-600 p-3">
-                  <Shield className="h-6 w-6 text-white" />
+                  <Shield className="h-6 w-6 text-card-foreground" />
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-1 text-xs text-emerald-400">
@@ -463,16 +463,16 @@ export default function AdminDashboard() {
         </Link>
 
         <Link href="/admin/publicadores/pioneiros-regulares">
-          <Card className="group relative overflow-hidden border-border bg-gradient-to-br from-amber-600/10 to-amber-900/5 transition-all hover:border-amber-600/50 hover:shadow-lg hover:shadow-amber-600/10">
+          <Card className="group relative overflow-hidden border-border bg-card transition-all hover:border-amber-600/50 hover:shadow-lg hover:shadow-amber-600/10">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Pioneiros</p>
-                  <p className="mt-2 text-4xl font-bold text-white">{totalPioneiros}</p>
+                  <p className="mt-2 text-4xl font-bold text-card-foreground">{totalPioneiros}</p>
                   <p className="mt-1 text-xs text-muted-foreground">Regulares</p>
                 </div>
                 <div className="rounded-xl bg-amber-600 p-3">
-                  <Flag className="h-6 w-6 text-white" />
+                  <Flag className="h-6 w-6 text-card-foreground" />
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-1 text-xs text-amber-400">
@@ -493,7 +493,7 @@ export default function AdminDashboard() {
                 <Users className="h-5 w-5 text-purple-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{totalGrupos}</p>
+                <p className="text-2xl font-bold text-card-foreground">{totalGrupos}</p>
                 <p className="text-xs text-muted-foreground">Grupos de Campo</p>
               </div>
             </div>
@@ -507,7 +507,7 @@ export default function AdminDashboard() {
                 <BarChart3 className="h-5 w-5 text-cyan-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{mediaPresencial}</p>
+                <p className="text-2xl font-bold text-card-foreground">{mediaPresencial}</p>
                 <p className="text-xs text-muted-foreground">Média Presencial</p>
               </div>
             </div>
@@ -521,7 +521,7 @@ export default function AdminDashboard() {
                 <Video className="h-5 w-5 text-green-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{mediaZoom}</p>
+                <p className="text-2xl font-bold text-card-foreground">{mediaZoom}</p>
                 <p className="text-xs text-muted-foreground">Media Zoom</p>
               </div>
             </div>
@@ -630,8 +630,8 @@ export default function AdminDashboard() {
           <CardContent className="space-y-4">
             {equipeSemana.length > 0 ? (
               equipeSemana.map((reuniao, index) => (
-                <div key={index} className="rounded-lg bg-zinc-800/50 p-4">
-                  <div className="mb-3 flex items-center gap-2 border-b border-zinc-700/50 pb-2">
+                <div key={index} className="rounded-lg bg-card/70 p-4">
+                  <div className="mb-3 flex items-center gap-2 border-b border-border/50 pb-2">
                     <span className={cn(
                       "rounded-full px-2 py-0.5 text-xs font-medium",
                       reuniao.dia_semana === "quinta"
@@ -719,7 +719,7 @@ export default function AdminDashboard() {
               {limpezaSemana ? (
                 <div className="flex items-center justify-between rounded-lg bg-cyan-600/10 p-4">
                   <div>
-                    <p className="text-lg font-semibold text-white">{limpezaSemana.grupo_nome}</p>
+                    <p className="text-lg font-semibold text-card-foreground">{limpezaSemana.grupo_nome}</p>
                     <p className="text-sm text-muted-foreground">
                       {format(new Date(limpezaSemana.data_inicio), "dd/MM", { locale: ptBR })} a {format(new Date(limpezaSemana.data_fim), "dd/MM", { locale: ptBR })}
                     </p>
@@ -758,7 +758,7 @@ export default function AdminDashboard() {
                       {format(new Date(proximoDiscurso.data), "EEEE, d 'de' MMMM", { locale: ptBR })}
                     </span>
                   </div>
-                  <p className="mb-1 text-base font-medium text-white">{proximoDiscurso.tema || "Tema nao definido"}</p>
+                  <p className="mb-1 text-base font-medium text-card-foreground">{proximoDiscurso.tema || "Tema nao definido"}</p>
                   {proximoDiscurso.orador_nome && (
                     <p className="text-sm text-muted-foreground">Orador: {proximoDiscurso.orador_nome}</p>
                   )}
@@ -790,7 +790,7 @@ export default function AdminDashboard() {
                   {campoSemana.slice(0, 4).map((campo, index) => (
                     <div key={index} className="rounded-lg bg-purple-600/10 p-3">
                       <p className="text-xs text-purple-400 capitalize">{campo.dia_semana}</p>
-                      <p className="text-sm font-medium text-white truncate">{campo.dirigente_nome}</p>
+                      <p className="text-sm font-medium text-card-foreground truncate">{campo.dirigente_nome}</p>
                       <p className="text-xs text-muted-foreground">{campo.horario} - {campo.periodo}</p>
                     </div>
                   ))}
