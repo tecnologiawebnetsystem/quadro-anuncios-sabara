@@ -28,7 +28,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { getPublicadores, type PublicadorGrupo } from "@/lib/actions/grupos"
+import type { PublicadorGrupo } from "@/lib/actions/grupos"
 import { createClient } from "@/lib/supabase/client"
 import { AlertaConflitos } from "@/components/admin/alerta-conflitos"
 import { format, startOfWeek, endOfWeek, subWeeks, isToday, isTomorrow, parseISO } from "date-fns"
@@ -133,13 +133,18 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function carregarDados() {
+      const loadingTimeout = window.setTimeout(() => setLoading(false), 8000)
+
       try {
         const supabase = createClient()
         const alertasTemp: Alerta[] = []
 
-        // Carregar publicadores
-        const data = await getPublicadores()
-        setPublicadores(data)
+        // Carregar publicadores pela rota do servidor para evitar que uma consulta do cliente bloqueie o Dashboard.
+        const publicadoresResponse = await fetch("/api/publicadores", { cache: "no-store" })
+        if (publicadoresResponse.ok) {
+          const data = await publicadoresResponse.json()
+          setPublicadores(data)
+        }
 
         // Contar grupos
         const { count: gruposCount } = await supabase
@@ -235,6 +240,7 @@ export default function AdminDashboard() {
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
       } finally {
+        window.clearTimeout(loadingTimeout)
         setLoading(false)
       }
     }
