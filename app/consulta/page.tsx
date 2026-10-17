@@ -959,35 +959,40 @@ export default function ConsultaPage() {
 
       </div>
 
-      {/* Menu de Navegação - Organizado por Categorias */}
-      <div className="space-y-8">
+      {/* Diretório de consultas */}
+      <div className="space-y-10" aria-label="Opções de consulta">
         {secoesFiltradas.map((section) => (
-          <div key={section.title}>
-            <div className="flex items-center gap-3 mb-4">
-              <h2 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">{section.title}</h2>
-              <div className="flex-1 h-px bg-white/6" />
+          <section key={section.title} aria-labelledby={`categoria-${section.title}`}>
+            <div className="mb-4 flex items-end justify-between gap-3">
+              <div>
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-sky-300/60">Consulte por categoria</p>
+                <h2 id={`categoria-${section.title}`} className="text-xl font-bold tracking-tight text-white">{section.title}</h2>
+              </div>
+              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-sky-100/60">
+                {section.items.length} {section.items.length === 1 ? "opção" : "opções"}
+              </span>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {section.items.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  <div className="group flex items-center gap-4 rounded-2xl border border-white/8 bg-white/[0.04] p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300/30 hover:bg-sky-400/[0.08] hover:shadow-lg hover:shadow-sky-950/20 cursor-pointer">
-                    <div className={cn("rounded-xl p-2.5 flex-shrink-0", item.color)}>
-                      <item.icon className="h-4 w-4 text-white" />
+                <Link key={item.href} href={item.href} className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#102f5f]">
+                  <div className="flex min-h-[92px] items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.055] p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300/40 hover:bg-sky-400/[0.12] hover:shadow-lg hover:shadow-sky-950/20">
+                    <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-inner", item.color)}>
+                      <item.icon className="h-5 w-5 text-white" aria-hidden="true" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-white truncate group-hover:text-blue-300 transition-colors">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate text-[15px] font-bold text-white transition-colors group-hover:text-amber-200">
                         {item.title}
                       </h3>
-                      <p className="text-xs text-zinc-500 truncate mt-0.5">
+                      <p className="mt-1 text-xs leading-5 text-sky-100/60">
                         {item.description}
                       </p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-zinc-600 flex-shrink-0 group-hover:text-zinc-300 group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight className="h-5 w-5 shrink-0 text-sky-100/30 transition-all group-hover:translate-x-1 group-hover:text-amber-300" aria-hidden="true" />
                   </div>
                 </Link>
               ))}
             </div>
-          </div>
+          </section>
         ))}
       </div>
 
