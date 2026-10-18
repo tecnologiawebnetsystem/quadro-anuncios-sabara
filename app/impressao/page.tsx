@@ -64,6 +64,7 @@ export default function ImpressaoPage() {
   const [tipoSelecionado, setTipoSelecionado] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [previewVisible, setPreviewVisible] = useState(false)
+  const [semanaSentinelaId, setSemanaSentinelaId] = useState("todas")
 
   // Refs para impressão
   const printRef = useRef<HTMLDivElement>(null)
@@ -72,6 +73,7 @@ export default function ImpressaoPage() {
   const [semanas, setSemanas] = useState<any[]>([])
   const [partes, setPartes] = useState<any[]>([])
   const [estudos, setEstudos] = useState<any[]>([])
+  const [paragrafosSentinela, setParagrafosSentinela] = useState<any[]>([])
   const [reunioesPublicas, setReunioesPublicas] = useState<any[]>([])
   const [equipeTecnica, setEquipeTecnica] = useState<any[]>([])
   const [limpezaSalao, setLimpezaSalao] = useState<any[]>([])
@@ -135,7 +137,18 @@ export default function ImpressaoPage() {
               .eq("mes_id", mes.id)
               .order("numero_estudo")
 
-            setEstudos(estudosData || [])
+            const estudos = estudosData || []
+            setEstudos(estudos)
+            if (estudos.length > 0) {
+              const { data: paragrafosData } = await supabase
+                .from("sentinela_paragrafos")
+                .select("id, estudo_id, numero, texto_base, pergunta, resposta, imagem_url, imagem_descricao, imagem_explicacao, ordem")
+                .in("estudo_id", estudos.map((estudo) => estudo.id))
+                .order("ordem")
+              setParagrafosSentinela(paragrafosData || [])
+            } else {
+              setParagrafosSentinela([])
+            }
           }
           break
         }
@@ -234,6 +247,7 @@ export default function ImpressaoPage() {
     }
     setPreviewVisible(false)
     setTipoSelecionado(null)
+    setSemanaSentinelaId("todas")
   }
 
   const mesProximo = () => {
@@ -245,6 +259,7 @@ export default function ImpressaoPage() {
     }
     setPreviewVisible(false)
     setTipoSelecionado(null)
+    setSemanaSentinelaId("todas")
   }
 
   const mesLabel = `${meses[mesAtual - 1].nome} ${anoAtual}`
@@ -271,6 +286,8 @@ export default function ImpressaoPage() {
             mes={mesAtual}
             ano={anoAtual}
             estudos={estudos}
+            paragrafos={paragrafosSentinela}
+            estudoSelecionadoId={semanaSentinelaId}
           />
         )
       case "reunioes-publicas":
@@ -362,6 +379,23 @@ export default function ImpressaoPage() {
                     })()
                   : "Selecione o que deseja imprimir"}
               </p>
+              {tipoSelecionado === "sentinela" && estudos.length > 0 && (
+                <label className="mt-3 flex items-center justify-center gap-2 text-xs text-zinc-400">
+                  <span>Semana:</span>
+                  <select
+                    value={semanaSentinelaId}
+                    onChange={(event) => setSemanaSentinelaId(event.target.value)}
+                    className="rounded-md border border-blue-900 bg-blue-950 px-3 py-1.5 text-xs text-white outline-none focus:border-blue-400"
+                  >
+                    <option value="todas">Todas as semanas</option>
+                    {estudos.map((estudo) => (
+                      <option key={estudo.id} value={estudo.id}>
+                        {estudo.data_inicio} a {estudo.data_fim} — {estudo.titulo}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
             </div>
             <Button variant="ghost" size="icon" onClick={mesProximo}>
               <ChevronRight className="w-5 h-5" />

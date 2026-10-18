@@ -2,15 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { BookMarked, CalendarDays, Printer, Search } from "lucide-react"
+import { BookMarked, ChevronLeft, ChevronRight, Printer, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 import { CenteredLoader } from "@/components/ui/page-loader"
 import { formatarRotuloImpressaoSentinela, ordenarParagrafosSentinela } from "@/lib/sentinela-order"
-
-type FiltroPeriodo = "semana" | "mes" | "ano"
+import "../sentinela-print.css"
 
 interface Estudo {
   id: string
@@ -48,9 +46,19 @@ function formatarData(data: string) {
   return dataLocal(data).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" })
 }
 
+function formatarPeriodoCurto(inicio: string, fim: string) {
+  const dataInicio = dataLocal(inicio)
+  const dataFim = dataLocal(fim)
+  const mesesCurtos = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+  const mesInicio = mesesCurtos[dataInicio.getMonth()]
+  const mesFim = mesesCurtos[dataFim.getMonth()]
+  return mesInicio === mesFim
+    ? `${dataInicio.getDate()}-${dataFim.getDate()} ${mesInicio}`
+    : `${dataInicio.getDate()}/${mesInicio}-${dataFim.getDate()}/${mesFim}`
+}
+
 export default function ImpressaoSentinelaPage() {
   const hoje = new Date()
-  const [periodo, setPeriodo] = useState<FiltroPeriodo>("mes")
   const [mes, setMes] = useState(String(hoje.getMonth() + 1))
   const [ano, setAno] = useState(String(hoje.getFullYear()))
   const [semanaId, setSemanaId] = useState("todas")
@@ -88,7 +96,7 @@ export default function ImpressaoSentinelaPage() {
       return
     }
 
-    const mesesFiltrados = mesesData?.filter((item) => periodo === "ano" || item.mes === Number(mes)) ?? []
+    const mesesFiltrados = mesesData?.filter((item) => item.mes === Number(mes)) ?? []
     const mesIds = mesesFiltrados.map((item) => item.id)
 
     if (!mesIds.length) {
@@ -129,7 +137,7 @@ export default function ImpressaoSentinelaPage() {
     setParagrafos(paragrafosData ?? [])
     setSemanaId("todas")
     setLoading(false)
-  }, [ano, mes, periodo, supabase])
+  }, [ano, mes, supabase])
 
   useEffect(() => {
     carregarDados()
@@ -137,8 +145,8 @@ export default function ImpressaoSentinelaPage() {
 
   const semanasDisponiveis = useMemo(() => estudos, [estudos])
   const estudosSelecionados = useMemo(
-    () => periodo === "semana" && semanaId !== "todas" ? estudos.filter((estudo) => estudo.id === semanaId) : estudos,
-    [estudos, periodo, semanaId],
+    () => semanaId !== "todas" ? estudos.filter((estudo) => estudo.id === semanaId) : estudos,
+    [estudos, semanaId],
   )
   const paragrafosSelecionados = useMemo(
     () => paragrafos.filter((paragrafo) => estudosSelecionados.some((estudo) => estudo.id === paragrafo.estudo_id)),
@@ -176,32 +184,33 @@ export default function ImpressaoSentinelaPage() {
         }
       `}</style>
 
-      <div className="no-print flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground"><BookMarked className="h-6 w-6 text-red-500" /> Impressão de A Sentinela</h1>
-          <p className="text-muted-foreground">Imprima parágrafos, perguntas e respostas cadastradas pela IA.</p>
+      <div className="no-print rounded-3xl bg-[#073b70] px-6 py-7 text-white md:px-10 md:py-9">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold md:text-4xl">Estudo de A Sentinela</h1>
+            <p className="mt-1 text-lg text-blue-100">Artigos de estudo por mês</p>
+          </div>
+          <Button onClick={imprimir} disabled={!paragrafosSelecionados.length || imprimindo} className="gap-2 bg-white text-[#073b70] hover:bg-blue-50"><Printer className="h-4 w-4" /> {imprimindo ? "Preparando..." : "Imprimir"}</Button>
         </div>
-        <Button onClick={imprimir} disabled={!paragrafosSelecionados.length || imprimindo} className="gap-2"><Printer className="h-4 w-4" /> {imprimindo ? "Preparando impressão..." : "Imprimir"}</Button>
+        <div className="mt-10 flex items-center justify-between rounded-2xl border border-blue-200/20 bg-white/10 px-5 py-6">
+          <Button variant="ghost" size="icon" onClick={() => { const d = new Date(Number(ano), Number(mes) - 2, 1); setAno(String(d.getFullYear())); setMes(String(d.getMonth() + 1)); setSemanaId("todas") }} className="text-white hover:bg-white/10"><ChevronLeft /><span className="sr-only">Mês anterior</span></Button>
+          <h2 className="text-2xl font-bold">{meses[Number(mes) - 1]} {ano}</h2>
+          <Button variant="ghost" size="icon" onClick={() => { const d = new Date(Number(ano), Number(mes), 1); setAno(String(d.getFullYear())); setMes(String(d.getMonth() + 1)); setSemanaId("todas") }} className="text-white hover:bg-white/10"><ChevronRight /><span className="sr-only">Próximo mês</span></Button>
+        </div>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button variant="outline" onClick={() => setSemanaId("todas")} className={cn("border-blue-200/40 text-white hover:bg-white/10", semanaId === "todas" && "bg-[#05608f] hover:bg-[#05608f]")}>Todas</Button>
+          {semanasDisponiveis.map((estudo) => <Button key={estudo.id} variant="outline" onClick={() => setSemanaId(estudo.id)} className={cn("border-blue-200/40 text-white hover:bg-white/10", semanaId === estudo.id && "bg-[#05608f] hover:bg-[#05608f]")}>{formatarPeriodoCurto(estudo.data_inicio, estudo.data_fim)}</Button>)}
+        </div>
       </div>
 
-      <Card className="no-print">
-        <CardHeader><CardTitle className="flex items-center gap-2 text-base"><CalendarDays className="h-4 w-4" /> Filtro de período</CardTitle></CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2"><Label>Visualizar por</Label><Select value={periodo} onValueChange={(value) => setPeriodo(value as FiltroPeriodo)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="semana">Semana</SelectItem><SelectItem value="mes">Mês</SelectItem><SelectItem value="ano">Ano</SelectItem></SelectContent></Select></div>
-          <div className="space-y-2"><Label>Ano</Label><Select value={ano} onValueChange={setAno}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{[hoje.getFullYear() - 1, hoje.getFullYear(), hoje.getFullYear() + 1].map((item) => <SelectItem key={item} value={String(item)}>{item}</SelectItem>)}</SelectContent></Select></div>
-          {periodo !== "ano" && <div className="space-y-2"><Label>{periodo === "semana" ? "Mês da semana" : "Mês"}</Label><Select value={mes} onValueChange={setMes}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{meses.map((item, index) => <SelectItem key={item} value={String(index + 1)}>{item}</SelectItem>)}</SelectContent></Select></div>}
-          {periodo === "semana" && <div className="space-y-2 md:col-span-3"><Label>Semana</Label><Select value={semanaId} onValueChange={setSemanaId}><SelectTrigger><SelectValue placeholder="Todas as semanas" /></SelectTrigger><SelectContent><SelectItem value="todas">Todas as semanas do mês</SelectItem>{semanasDisponiveis.map((estudo) => <SelectItem key={estudo.id} value={estudo.id}>{formatarData(estudo.data_inicio)} a {formatarData(estudo.data_fim)} — {estudo.titulo}</SelectItem>)}</SelectContent></Select></div>}
-        </CardContent>
-      </Card>
-
       {loading ? <CenteredLoader /> : erro ? <Card><CardContent className="py-10 text-center text-destructive">{erro}</CardContent></Card> : (
-        <div id="sentinela-print" className="sentinela-print-sheet mx-auto w-full max-w-5xl rounded-xl bg-white p-6 text-slate-900 shadow-lg md:p-10">
-          <header className="mb-8 flex flex-col gap-2 border-b-2 border-slate-800 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div id="sentinela-print" className="sentinela-print-sheet mx-auto w-full max-w-6xl rounded-xl bg-white p-5 text-slate-900 shadow-lg md:p-8">
+          <header className="sentinela-screen-header mb-6 flex flex-col gap-3 rounded-lg bg-[#073b70] px-5 py-4 text-white shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Congregação Parque Sabará · Taubaté — SP</p>
-              <h2 className="mt-1 text-2xl font-bold text-slate-900">A Sentinela</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-blue-100">Congregação Parque Sabará · Taubaté — SP</p>
+              <h2 className="mt-1 text-2xl font-bold text-white">A Sentinela</h2>
             </div>
-            <p className="text-sm font-semibold text-slate-600">{tituloPeriodo}</p>
+            <p className="text-sm font-semibold text-blue-100">{tituloPeriodo}</p>
           </header>
           {!estudosComDados.length ? (
             <div className="py-10 text-center text-slate-500">
@@ -224,7 +233,7 @@ export default function ImpressaoSentinelaPage() {
                       <h3 className="mt-1 text-lg font-bold text-slate-900">{estudo.titulo}</h3>
                       <p className="mt-1 text-sm text-slate-600">{formatarData(estudo.data_inicio)} a {formatarData(estudo.data_fim)}</p>
                     </div>
-                    <div className="flex flex-col gap-4">
+                    <div className="sentinela-print-grid">
                       {itens.map((item) => (
                         <article key={item.id} className="sentinela-print-entry rounded-lg border border-slate-300 px-4 py-3">
                           <h4 className="text-base font-bold text-slate-900">{formatarRotuloImpressaoSentinela(item.numero)}</h4>

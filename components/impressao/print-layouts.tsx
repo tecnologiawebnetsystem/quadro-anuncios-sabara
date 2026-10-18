@@ -478,70 +478,65 @@ PrintVidaMinisterio.displayName = "PrintVidaMinisterio"
 // =====================================
 // ESTUDO SENTINELA
 // =====================================
+interface SentinelaParagrafo {
+  id: string
+  estudo_id: string
+  numero: string
+  texto_base: string | null
+  pergunta: string | null
+  resposta: string | null
+  imagem_url: string | null
+  imagem_descricao: string | null
+  imagem_explicacao: string | null
+  ordem: number
+}
+
 interface SentinelaProps {
   mes: number
   ano: number
   estudos: Estudo[]
+  paragrafos?: SentinelaParagrafo[]
+  estudoSelecionadoId?: string
 }
 
+const textoSentinela = (texto: string | null | undefined) => texto?.trim() || "—"
+
 export const PrintSentinela = forwardRef<HTMLDivElement, SentinelaProps>(
-  ({ mes, ano, estudos }, ref) => {
+  ({ mes, ano, estudos, paragrafos = [], estudoSelecionadoId = "todas" }, ref) => {
+    const estudosParaImprimir = estudoSelecionadoId === "todas"
+      ? estudos
+      : estudos.filter((estudo) => estudo.id === estudoSelecionadoId)
+
     return (
-      <div ref={ref} style={{
-        width: "210mm",
-        height: "297mm",
-        maxHeight: "297mm",
-        padding: "8mm 10mm",
-        boxSizing: "border-box",
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: "white",
-        color: "black",
-        overflow: "hidden"
-      }}>
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingBottom: "5px",
-          marginBottom: "8px",
-          borderBottom: "2px solid #333",
-          flexShrink: 0
-        }}>
-          <h1 style={{ fontSize: "16px", fontWeight: "bold", margin: 0, color: "#000" }}>Parque Sabará - Taubaté SP</h1>
-          <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: 0, color: "#000" }}>Estudo de A Sentinela - {getMesAno(mes, ano)}</h2>
-        </div>
-
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", flex: 1 }}>
-          <thead>
-            <tr style={{ backgroundColor: "#2a6b77" }}>
-              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "22%" }}>Semana</th>
-              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "43%" }}>Tema</th>
-              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "17%" }}>Dirigente</th>
-              <th style={{ padding: "5px 10px", border: "1px solid #999", color: "white", textAlign: "left", width: "18%" }}>Leitor</th>
-            </tr>
-          </thead>
-          <tbody>
-            {estudos.map((estudo, i) => (
-              <tr key={estudo.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{formatarPeriodo(estudo.data_inicio, estudo.data_fim)}</td>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>
-                  {estudo.sem_reuniao ? (
-                    <em style={{ color: "#666" }}>Sem reunião</em>
-                  ) : (
-                    estudo.titulo
-                  )}
-                </td>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{estudo.dirigente_nome || "-"}</td>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{estudo.leitor_nome || "-"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div style={{ textAlign: "center", fontSize: "12px", color: "#666", padding: "5px", marginTop: "auto", borderTop: "1px solid #ccc", flexShrink: 0 }}>
-          Congregação Pq. Sabará - {getMesAno(mes, ano)}
-        </div>
+      <div ref={ref} className="sentinela-print-wrapper" style={{ width: "210mm", margin: "0 auto", backgroundColor: "white", color: "#263238" }}>
+        {estudosParaImprimir.map((estudo) => {
+          const itens = paragrafos.filter((item) => item.estudo_id === estudo.id).sort((a, b) => a.ordem - b.ordem)
+          return (
+            <section key={estudo.id} className="sentinela-print-page" style={{ padding: "8mm 12mm", backgroundColor: "white" }}>
+              <header style={{ backgroundColor: "#073b70", color: "white", padding: "4mm 6mm", display: "flex", justifyContent: "space-between", alignItems: "center", borderRadius: "3px" }}>
+                <strong style={{ fontSize: "16pt" }}>{formatarPeriodo(estudo.data_inicio, estudo.data_fim).toUpperCase()}</strong>
+                <span style={{ fontSize: "10pt" }}>{estudo.numero_estudo}</span>
+              </header>
+              <div style={{ padding: "10mm 0 5mm" }}>
+                <p style={{ margin: 0, color: "#5074ad", fontSize: "13pt", fontWeight: 700 }}>A SENTINELA · ESTUDO {estudo.numero_estudo}</p>
+                <h1 style={{ margin: "5mm 0 3mm", color: "#38565b", fontSize: "21pt", lineHeight: 1.15 }}>{estudo.titulo}</h1>
+                {estudo.texto_tema && <p style={{ margin: 0, color: "#666", fontSize: "11pt", fontStyle: "italic", whiteSpace: "pre-line" }}>{estudo.texto_tema}</p>}
+              </div>
+              {estudo.objetivo && <div style={{ borderLeft: "2px solid #b87516", padding: "2mm 4mm", marginBottom: "6mm" }}><strong style={{ display: "block", fontSize: "10pt", color: "#555" }}>OBJETIVO</strong><span style={{ fontSize: "10pt", whiteSpace: "pre-line" }}>{estudo.objetivo}</span></div>}
+              <div className="sentinela-print-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "4mm 5mm" }}>
+                {itens.map((item) => (
+                  <article key={item.id} className="sentinela-print-entry" style={{ fontSize: "10pt", breakInside: "avoid" }}>
+                    <p style={{ margin: 0, fontWeight: 700, color: "#5074ad" }}>Parágrafo {item.numero}</p>
+                    {item.texto_base && <p style={{ margin: "2mm 0", whiteSpace: "pre-line", lineHeight: 1.45 }}>{item.texto_base}</p>}
+                    <div style={{ marginTop: "2mm" }}><strong>Pergunta</strong><p style={{ margin: "1mm 0 2mm", whiteSpace: "pre-line", lineHeight: 1.4 }}>{textoSentinela(item.pergunta)}</p><strong>Resposta</strong><p style={{ margin: "1mm 0", whiteSpace: "pre-line", lineHeight: 1.4 }}>{textoSentinela(item.resposta)}</p></div>
+                    {item.imagem_url && <figure style={{ margin: "3mm 0 0", breakInside: "avoid" }}><img src={item.imagem_url} alt={item.imagem_descricao || `Imagem do parágrafo ${item.numero}`} style={{ display: "block", maxWidth: "100%", maxHeight: "65mm", margin: "0 auto", objectFit: "contain" }} />{item.imagem_descricao && <figcaption style={{ marginTop: "1mm", textAlign: "center", fontSize: "9pt", fontStyle: "italic" }}>{item.imagem_descricao}</figcaption>}{item.imagem_explicacao && <p style={{ margin: "2mm 0 0", whiteSpace: "pre-line", lineHeight: 1.4 }}>{item.imagem_explicacao}</p>}</figure>}
+                  </article>
+                ))}
+              </div>
+              <footer style={{ marginTop: "8mm", paddingTop: "2mm", borderTop: "1px solid #ccc", textAlign: "center", color: "#666", fontSize: "8pt" }}>Congregação Parque Sabará · A Sentinela · {getMesAno(mes, ano)}</footer>
+            </section>
+          )
+        })}
       </div>
     )
   }

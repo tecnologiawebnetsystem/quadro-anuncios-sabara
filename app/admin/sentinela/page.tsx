@@ -176,8 +176,9 @@ export default function SentinelaPage() {
         dataInicio.setDate(dataInicio.getDate() + 7)
         numeroEstudo = (ultimoEstudo.numero_estudo || estudos.length) + 1
       } else {
+        // A semana de A Sentinela começa na segunda-feira e termina no domingo.
         dataInicio = new Date(anoAtual, mesAtual - 1, 1)
-        while (dataInicio.getDay() !== 0) {
+        while (dataInicio.getDay() !== 1) {
           dataInicio.setDate(dataInicio.getDate() + 1)
         }
       }
