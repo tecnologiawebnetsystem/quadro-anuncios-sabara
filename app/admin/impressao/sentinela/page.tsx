@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CenteredLoader } from "@/components/ui/page-loader"
 import { formatarRotuloImpressaoSentinela, ordenarParagrafosSentinela } from "@/lib/sentinela-order"
+import "../sentinela-print.css"
 
 type FiltroPeriodo = "semana" | "mes" | "ano"
 
@@ -195,13 +196,13 @@ export default function ImpressaoSentinelaPage() {
       </Card>
 
       {loading ? <CenteredLoader /> : erro ? <Card><CardContent className="py-10 text-center text-destructive">{erro}</CardContent></Card> : (
-        <div id="sentinela-print" className="sentinela-print-sheet mx-auto w-full max-w-5xl rounded-xl bg-white p-6 text-slate-900 shadow-lg md:p-10">
-          <header className="mb-8 flex flex-col gap-2 border-b-2 border-slate-800 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div id="sentinela-print" className="sentinela-print-sheet mx-auto w-full max-w-6xl rounded-xl bg-white p-5 text-slate-900 shadow-lg md:p-8">
+          <header className="sentinela-screen-header mb-6 flex flex-col gap-3 rounded-lg bg-[#073b70] px-5 py-4 text-white shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Congregação Parque Sabará · Taubaté — SP</p>
-              <h2 className="mt-1 text-2xl font-bold text-slate-900">A Sentinela</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-blue-100">Congregação Parque Sabará · Taubaté — SP</p>
+              <h2 className="mt-1 text-2xl font-bold text-white">A Sentinela</h2>
             </div>
-            <p className="text-sm font-semibold text-slate-600">{tituloPeriodo}</p>
+            <p className="text-sm font-semibold text-blue-100">{tituloPeriodo}</p>
           </header>
           {!estudosComDados.length ? (
             <div className="py-10 text-center text-slate-500">
@@ -224,7 +225,7 @@ export default function ImpressaoSentinelaPage() {
                       <h3 className="mt-1 text-lg font-bold text-slate-900">{estudo.titulo}</h3>
                       <p className="mt-1 text-sm text-slate-600">{formatarData(estudo.data_inicio)} a {formatarData(estudo.data_fim)}</p>
                     </div>
-                    <div className="flex flex-col gap-4">
+                    <div className="sentinela-print-grid">
                       {itens.map((item) => (
                         <article key={item.id} className="sentinela-print-entry rounded-lg border border-slate-300 px-4 py-3">
                           <h4 className="text-base font-bold text-slate-900">{formatarRotuloImpressaoSentinela(item.numero)}</h4>
