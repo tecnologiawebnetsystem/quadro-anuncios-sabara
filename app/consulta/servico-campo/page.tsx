@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/client"
 
 interface CampoSemana {
   id: string
+  mes: string
   dia_semana: string
   dirigente_nome: string
   periodo: string
@@ -19,6 +20,8 @@ interface CampoSemana {
 
 interface CampoCartas {
   id: string
+  data: string
+  mes: string
   dia_semana: string
   descricao: string
   responsavel_nome: string
@@ -87,12 +90,13 @@ export default function ConsultaServicoCampoPage() {
   const supabase = createClient()
   const mes = meses[mesAtual]
 
-  // Carregar dados fixos (semana e cartas)
+  // Carregar somente os registros ativos do mês selecionado.
   const carregarDadosFixos = useCallback(async () => {
     try {
       const { data: semanaData } = await supabase
         .from("servico_campo_semana")
         .select("*")
+        .eq("mes", mes.valor)
         .eq("ativo", true)
         .not("dia_semana", "is", null)
         .neq("dia_semana", "")
@@ -103,13 +107,15 @@ export default function ConsultaServicoCampoPage() {
       const { data: cartasData } = await supabase
         .from("servico_campo_cartas")
         .select("*")
+        .eq("mes", mes.valor)
         .eq("ativo", true)
+        .order("data")
       
       if (cartasData) setCampoCartas(cartasData)
     } catch (error) {
       console.error("Erro ao carregar dados:", error)
     }
-  }, [])
+  }, [mes.valor])
 
   // Carregar dados mensais (sábados e domingos)
   const carregarDadosMes = useCallback(async () => {
@@ -235,26 +241,32 @@ export default function ConsultaServicoCampoPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {campoCartas.map((carta) => (
-                <div key={carta.id} className="flex flex-wrap items-center gap-3 text-sm">
-                  <span className="text-zinc-400">{diasSemanaLabel[carta.dia_semana]}</span>
-                  {carta.descricao && (
-                    <>
-                      <span className="text-zinc-600">-</span>
-                      <span className="text-white">{carta.descricao}</span>
-                    </>
-                  )}
-                  <span className="text-zinc-600">-</span>
-                  <span className="text-green-400 font-medium">{carta.responsavel_nome}</span>
-                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${
-                    carta.periodo === "manha" 
-                      ? "bg-amber-600/20 text-amber-400" 
-                      : "bg-purple-600/20 text-purple-400"
-                  }`}>
-                    {carta.periodo === "manha" ? "Manhã" : "Tarde"} {carta.horario}
-                  </span>
+              {campoCartas.length === 0 ? (
+                <p className="py-4 text-center text-sm text-zinc-500">Nenhum arranjo cadastrado para {mes.label}.</p>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {campoCartas.map((carta) => (
+                    <article key={carta.id} className="rounded-xl border border-zinc-800 bg-zinc-800/30 p-4">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-white">
+                            {carta.data ? formatarData(carta.data) : diasSemanaLabel[carta.dia_semana]}
+                          </p>
+                          <p className="text-xs text-zinc-400">{diasSemanaLabel[carta.dia_semana] || "Dia não informado"}</p>
+                        </div>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-purple-600/20 px-2.5 py-1 text-xs font-medium text-purple-300">
+                          <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                          {carta.periodo === "manha" ? "Manhã" : "Tarde"} · {carta.horario || "Horário não informado"}
+                        </span>
+                      </div>
+                      <p className="text-xs uppercase tracking-wide text-zinc-400">Atividade</p>
+                      <p className="mt-1 text-sm font-medium text-white">{carta.descricao || "Cartas"}</p>
+                      <p className="mt-3 text-xs uppercase tracking-wide text-zinc-400">Responsável</p>
+                      <p className="mt-1 text-sm font-medium text-green-400">{carta.responsavel_nome || "Não informado"}</p>
+                    </article>
+                  ))}
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
         )}
