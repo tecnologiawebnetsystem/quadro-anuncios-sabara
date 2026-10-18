@@ -202,33 +202,24 @@ export default function ConsultaServicoCampoPage() {
             {campoSemanaOrdenado.length === 0 ? (
               <p className="text-zinc-500 text-sm text-center py-4">Nenhum programa cadastrado</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-zinc-800">
-                      <th className="text-left py-2 px-3 text-zinc-400 font-medium">Dias</th>
-                      <th className="text-left py-2 px-3 text-zinc-400 font-medium">Dirigentes</th>
-                      <th className="text-center py-2 px-3 text-zinc-400 font-medium">Horários</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {campoSemanaOrdenado.map((item) => (
-                      <tr key={item.id} className="border-b border-zinc-800/50">
-                        <td className="py-3 px-3 font-medium text-white">{diasSemanaLabel[item.dia_semana]}</td>
-                        <td className="py-3 px-3 text-white">{item.dirigente_nome || "-"}</td>
-                        <td className="py-3 px-3 text-center">
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${
-                            item.periodo === "manha" 
-                              ? "bg-amber-600/20 text-amber-400" 
-                              : "bg-purple-600/20 text-purple-400"
-                          }`}>
-                            {item.periodo === "manha" ? "Manhã" : "Tarde"} {item.horario}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {campoSemanaOrdenado.map((item) => (
+                  <article key={item.id} className="rounded-xl border border-zinc-800 bg-zinc-800/30 p-4">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <h3 className="font-semibold text-white">{diasSemanaLabel[item.dia_semana]}</h3>
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
+                        item.periodo === "manha"
+                          ? "bg-amber-600/20 text-amber-300"
+                          : "bg-purple-600/20 text-purple-300"
+                      }`}>
+                        <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                        {item.periodo === "manha" ? "Manhã" : "Tarde"} · {item.horario || "Horário não informado"}
+                      </span>
+                    </div>
+                    <p className="text-sm text-zinc-400">Dirigente</p>
+                    <p className="mt-1 text-base font-medium text-white">{item.dirigente_nome || "Não informado"}</p>
+                  </article>
+                ))}
               </div>
             )}
           </CardContent>
