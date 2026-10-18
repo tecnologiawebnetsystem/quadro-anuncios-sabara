@@ -525,11 +525,11 @@ export const PrintSentinela = forwardRef<HTMLDivElement, SentinelaProps>(
               {estudo.objetivo && <div style={{ borderLeft: "2px solid #b87516", padding: "2mm 4mm", marginBottom: "6mm" }}><strong style={{ display: "block", fontSize: "10pt", color: "#555" }}>OBJETIVO</strong><span style={{ fontSize: "10pt", whiteSpace: "pre-line" }}>{estudo.objetivo}</span></div>}
               <div className="sentinela-print-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "4mm 5mm" }}>
                 {itens.map((item) => (
-                  <article key={item.id} className="sentinela-print-entry" style={{ fontSize: "10pt", breakInside: "avoid" }}>
+                  <article key={item.id} className="sentinela-print-entry" style={{ fontSize: "10pt" }}>
                     <p style={{ margin: 0, fontWeight: 700, color: "#5074ad" }}>Parágrafo {item.numero}</p>
                     {item.texto_base && <p style={{ margin: "2mm 0", whiteSpace: "pre-line", lineHeight: 1.45 }}>{item.texto_base}</p>}
                     <div style={{ marginTop: "2mm" }}><strong>Pergunta</strong><p style={{ margin: "1mm 0 2mm", whiteSpace: "pre-line", lineHeight: 1.4 }}>{textoSentinela(item.pergunta)}</p><strong>Resposta</strong><p style={{ margin: "1mm 0", whiteSpace: "pre-line", lineHeight: 1.4 }}>{textoSentinela(item.resposta)}</p></div>
-                    {item.imagem_url && <figure style={{ margin: "3mm 0 0", breakInside: "avoid" }}><img src={item.imagem_url} alt={item.imagem_descricao || `Imagem do parágrafo ${item.numero}`} style={{ display: "block", maxWidth: "100%", maxHeight: "65mm", margin: "0 auto", objectFit: "contain" }} />{item.imagem_descricao && <figcaption style={{ marginTop: "1mm", textAlign: "center", fontSize: "9pt", fontStyle: "italic" }}>{item.imagem_descricao}</figcaption>}{item.imagem_explicacao && <p style={{ margin: "2mm 0 0", whiteSpace: "pre-line", lineHeight: 1.4 }}>{item.imagem_explicacao}</p>}</figure>}
+                    {item.imagem_url && <figure style={{ margin: "3mm 0 0" }}><img src={item.imagem_url} alt={item.imagem_descricao || `Imagem do parágrafo ${item.numero}`} style={{ display: "block", maxWidth: "100%", maxHeight: "65mm", margin: "0 auto", objectFit: "contain" }} />{item.imagem_descricao && <figcaption style={{ marginTop: "1mm", textAlign: "center", fontSize: "9pt", fontStyle: "italic" }}>{item.imagem_descricao}</figcaption>}{item.imagem_explicacao && <p style={{ margin: "2mm 0 0", whiteSpace: "pre-line", lineHeight: 1.4 }}>{item.imagem_explicacao}</p>}</figure>}
                   </article>
                 ))}
               </div>
