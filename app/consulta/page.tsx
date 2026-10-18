@@ -21,7 +21,6 @@ import {
   Info,
   CalendarDays,
   Mail,
-  Printer,
   BarChart3,
   Search,
   ArrowUpRight,
@@ -137,12 +136,6 @@ const menuSections = [
     { title: "Cânticos", description: "Números e nomes", href: "/consulta/canticos", icon: Music, color: "bg-amber-600" },
     { title: "Discursos", description: "Esboços S-99", href: "/consulta/discursos", icon: Mic2, color: "bg-sky-600" },
     { title: "Publicadores", description: "Lista da congregação", href: "/consulta/publicadores", icon: Users, color: "bg-emerald-600" },
-  ]
-  },
-  {
-  title: "Ferramentas",
-  items: [
-  { title: "Central de Impressão", description: "Gerar PDFs das escalas", href: "/impressao", icon: Printer, color: "bg-blue-500" },
   ]
   },
   ]
