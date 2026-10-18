@@ -21,7 +21,6 @@ import {
   Info,
   CalendarDays,
   Mail,
-  Printer,
   BarChart3,
   Search,
   ArrowUpRight,
@@ -137,12 +136,6 @@ const menuSections = [
     { title: "Cânticos", description: "Números e nomes", href: "/consulta/canticos", icon: Music, color: "bg-amber-600" },
     { title: "Discursos", description: "Esboços S-99", href: "/consulta/discursos", icon: Mic2, color: "bg-sky-600" },
     { title: "Publicadores", description: "Lista da congregação", href: "/consulta/publicadores", icon: Users, color: "bg-emerald-600" },
-  ]
-  },
-  {
-  title: "Ferramentas",
-  items: [
-  { title: "Central de Impressão", description: "Gerar PDFs das escalas", href: "/impressao", icon: Printer, color: "bg-blue-500" },
   ]
   },
   ]
@@ -754,7 +747,9 @@ export default function ConsultaPage() {
         </div>
       )}
 
-      {/* Grid: Calendario + Anuncios */}
+      {false && (
+        <>
+          {/* Grid: Calendario + Anuncios */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Calendário principal */}
         <Card className="border-white/10 bg-white/[0.045] lg:col-span-2 shadow-xl shadow-black/10">
@@ -958,6 +953,8 @@ export default function ConsultaPage() {
         </Card>
 
       </div>
+        </>
+      )}
 
       {/* Diretório de consultas */}
       <div className="space-y-10" aria-label="Opções de consulta">
