@@ -398,8 +398,9 @@
 
 /* Sentinela: layout compacto em duas colunas, alinhado ao padrão Vida e Ministério */
 .sentinela-print-page {
-  min-height: 297mm;
   box-sizing: border-box;
+  page-break-inside: auto;
+  break-inside: auto;
 }
 
 .sentinela-print-grid {
@@ -438,14 +439,17 @@
 
   .sentinela-print-page {
     width: 210mm !important;
-    min-height: 297mm !important;
-    page-break-after: always !important;
-    break-after: page !important;
-  }
-
-  .sentinela-print-page:last-child {
+    min-height: 0 !important;
     page-break-after: auto !important;
     break-after: auto !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+
+  .sentinela-print-study,
+  .sentinela-print-entry {
+    page-break-inside: auto;
+    break-inside: auto;
   }
 }
 
