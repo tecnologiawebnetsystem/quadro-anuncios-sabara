@@ -523,9 +523,9 @@ export const PrintSentinela = forwardRef<HTMLDivElement, SentinelaProps>(
                 {estudo.texto_tema && <p style={{ margin: 0, color: "#666", fontSize: "11pt", fontStyle: "italic", whiteSpace: "pre-line" }}>{estudo.texto_tema}</p>}
               </div>
               {estudo.objetivo && <div style={{ borderLeft: "2px solid #b87516", padding: "2mm 4mm", marginBottom: "6mm" }}><strong style={{ display: "block", fontSize: "10pt", color: "#555" }}>OBJETIVO</strong><span style={{ fontSize: "10pt", whiteSpace: "pre-line" }}>{estudo.objetivo}</span></div>}
-              <div className="sentinela-print-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "4mm 5mm" }}>
+              <div className="sentinela-print-grid" style={{ columnCount: 2, columnGap: "5mm" }}>
                 {itens.map((item) => (
-                  <article key={item.id} className="sentinela-print-entry" style={{ fontSize: "10pt" }}>
+                  <article key={item.id} className="sentinela-print-entry" style={{ fontSize: "10pt", display: "inline-block", width: "100%", breakInside: "avoid", marginBottom: "4mm", verticalAlign: "top" }}>
                     <p style={{ margin: 0, fontWeight: 700, color: "#5074ad" }}>Parágrafo {item.numero}</p>
                     {item.texto_base && <p style={{ margin: "2mm 0", whiteSpace: "pre-line", lineHeight: 1.45 }}>{item.texto_base}</p>}
                     <div style={{ marginTop: "2mm" }}><strong>Pergunta</strong><p style={{ margin: "1mm 0 2mm", whiteSpace: "pre-line", lineHeight: 1.4 }}>{textoSentinela(item.pergunta)}</p><strong>Resposta</strong><p style={{ margin: "1mm 0", whiteSpace: "pre-line", lineHeight: 1.4 }}>{textoSentinela(item.resposta)}</p></div>
