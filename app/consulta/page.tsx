@@ -747,7 +747,9 @@ export default function ConsultaPage() {
         </div>
       )}
 
-      {/* Grid: Calendario + Anuncios */}
+      {false && (
+        <>
+          {/* Grid: Calendario + Anuncios */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Calendário principal */}
         <Card className="border-white/10 bg-white/[0.045] lg:col-span-2 shadow-xl shadow-black/10">
@@ -951,6 +953,8 @@ export default function ConsultaPage() {
         </Card>
 
       </div>
+        </>
+      )}
 
       {/* Diretório de consultas */}
       <div className="space-y-10" aria-label="Opções de consulta">
