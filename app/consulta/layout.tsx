@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { 
   Home, 
   Calendar,
+  BookOpen,
   LogOut,
   RefreshCw,
   ChevronLeft,
@@ -18,7 +19,8 @@ import { AppIcon } from "@/components/ui/app-icon"
 
 const bottomNavItems = [
   { title: "Início", href: "/consulta", icon: Home },
-  { title: "Reuniões", href: "/consulta/reunioes/vida-ministerio", icon: Calendar },
+  { title: "Vida e Ministério", href: "/consulta/reunioes/vida-ministerio", icon: Calendar },
+  { title: "A Sentinela", href: "/consulta/reunioes/sentinela", icon: BookOpen },
   { title: "Equipe", href: "/consulta/equipe-tecnica", icon: Wrench },
   { title: "Campo", href: "/consulta/servico-campo", icon: MapPin },
   { title: "Grupos", href: "/consulta/grupos", icon: Users },
