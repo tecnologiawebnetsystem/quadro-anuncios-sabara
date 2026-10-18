@@ -396,6 +396,31 @@
   font-size: 12px;
 }
 
+/* Sentinela: uma página por estudo, com blocos compactos e quebra segura */
+.sentinela-print-page {
+  min-height: 297mm;
+  box-sizing: border-box;
+}
+
+@media print {
+  .sentinela-print-wrapper {
+    width: 210mm !important;
+    margin: 0 !important;
+  }
+
+  .sentinela-print-page {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  .sentinela-print-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+}
+
 /* =====================================
    VIDA E MINISTÉRIO - Estilos Específicos
    A4: 210mm x 297mm - UMA SEMANA POR PÁGINA

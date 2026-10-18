@@ -72,6 +72,7 @@ export default function ImpressaoPage() {
   const [semanas, setSemanas] = useState<any[]>([])
   const [partes, setPartes] = useState<any[]>([])
   const [estudos, setEstudos] = useState<any[]>([])
+  const [paragrafosSentinela, setParagrafosSentinela] = useState<any[]>([])
   const [reunioesPublicas, setReunioesPublicas] = useState<any[]>([])
   const [equipeTecnica, setEquipeTecnica] = useState<any[]>([])
   const [limpezaSalao, setLimpezaSalao] = useState<any[]>([])
@@ -135,7 +136,18 @@ export default function ImpressaoPage() {
               .eq("mes_id", mes.id)
               .order("numero_estudo")
 
-            setEstudos(estudosData || [])
+            const estudos = estudosData || []
+            setEstudos(estudos)
+            if (estudos.length > 0) {
+              const { data: paragrafosData } = await supabase
+                .from("sentinela_paragrafos")
+                .select("id, estudo_id, numero, texto_base, pergunta, resposta, imagem_url, imagem_descricao, imagem_explicacao, ordem")
+                .in("estudo_id", estudos.map((estudo) => estudo.id))
+                .order("ordem")
+              setParagrafosSentinela(paragrafosData || [])
+            } else {
+              setParagrafosSentinela([])
+            }
           }
           break
         }
@@ -271,6 +283,7 @@ export default function ImpressaoPage() {
             mes={mesAtual}
             ano={anoAtual}
             estudos={estudos}
+            paragrafos={paragrafosSentinela}
           />
         )
       case "reunioes-publicas":
