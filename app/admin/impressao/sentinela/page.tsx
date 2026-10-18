@@ -156,14 +156,12 @@ export default function ImpressaoSentinelaPage() {
     paragrafo.estudo_id === estudo.id && temConteudo(paragrafo),
   ))
 
-  const tituloPeriodo = periodo === "ano"
-    ? `Ano de ${ano}`
-    : periodo === "semana" && semanaId !== "todas"
-      ? (() => {
-          const estudo = estudos.find((item) => item.id === semanaId)
-          return estudo ? `${formatarData(estudo.data_inicio)} a ${formatarData(estudo.data_fim)}` : "Semana selecionada"
-        })()
-      : `${meses[Number(mes) - 1]} de ${ano}`
+  const tituloPeriodo = semanaId !== "todas"
+    ? (() => {
+        const estudo = estudos.find((item) => item.id === semanaId)
+        return estudo ? `${formatarData(estudo.data_inicio)} a ${formatarData(estudo.data_fim)}` : "Semana selecionada"
+      })()
+    : `${meses[Number(mes) - 1]} de ${ano}`
 
   return (
     <div className="space-y-6">
