@@ -396,10 +396,38 @@
   font-size: 12px;
 }
 
-/* Sentinela: uma página por estudo, com blocos compactos e quebra segura */
+/* Sentinela: layout compacto em duas colunas, alinhado ao padrão Vida e Ministério */
 .sentinela-print-page {
   min-height: 297mm;
   box-sizing: border-box;
+}
+
+.sentinela-print-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4mm 5mm;
+}
+
+.sentinela-print-entry {
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 3mm;
+  background: #fff;
+}
+
+.sentinela-print-entry p {
+  font-size: 9.5pt;
+  line-height: 1.3;
+}
+
+.sentinela-print-entry figure img {
+  max-height: 35mm !important;
+}
+
+@media (max-width: 800px) {
+  .sentinela-print-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media print {

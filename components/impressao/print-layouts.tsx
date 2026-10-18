@@ -496,19 +496,24 @@ interface SentinelaProps {
   ano: number
   estudos: Estudo[]
   paragrafos?: SentinelaParagrafo[]
+  estudoSelecionadoId?: string
 }
 
 const textoSentinela = (texto: string | null | undefined) => texto?.trim() || "—"
 
 export const PrintSentinela = forwardRef<HTMLDivElement, SentinelaProps>(
-  ({ mes, ano, estudos, paragrafos = [] }, ref) => {
+  ({ mes, ano, estudos, paragrafos = [], estudoSelecionadoId = "todas" }, ref) => {
+    const estudosParaImprimir = estudoSelecionadoId === "todas"
+      ? estudos
+      : estudos.filter((estudo) => estudo.id === estudoSelecionadoId)
+
     return (
       <div ref={ref} className="sentinela-print-wrapper" style={{ width: "210mm", margin: "0 auto", backgroundColor: "white", color: "#263238" }}>
-        {estudos.map((estudo) => {
+        {estudosParaImprimir.map((estudo) => {
           const itens = paragrafos.filter((item) => item.estudo_id === estudo.id).sort((a, b) => a.ordem - b.ordem)
           return (
             <section key={estudo.id} className="sentinela-print-page" style={{ padding: "8mm 12mm", backgroundColor: "white" }}>
-              <header style={{ backgroundColor: "#b87516", color: "white", padding: "4mm 6mm", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <header style={{ backgroundColor: "#073b70", color: "white", padding: "4mm 6mm", display: "flex", justifyContent: "space-between", alignItems: "center", borderRadius: "3px" }}>
                 <strong style={{ fontSize: "16pt" }}>{formatarPeriodo(estudo.data_inicio, estudo.data_fim).toUpperCase()}</strong>
                 <span style={{ fontSize: "10pt" }}>{estudo.numero_estudo}</span>
               </header>
@@ -518,7 +523,7 @@ export const PrintSentinela = forwardRef<HTMLDivElement, SentinelaProps>(
                 {estudo.texto_tema && <p style={{ margin: 0, color: "#666", fontSize: "11pt", fontStyle: "italic", whiteSpace: "pre-line" }}>{estudo.texto_tema}</p>}
               </div>
               {estudo.objetivo && <div style={{ borderLeft: "2px solid #b87516", padding: "2mm 4mm", marginBottom: "6mm" }}><strong style={{ display: "block", fontSize: "10pt", color: "#555" }}>OBJETIVO</strong><span style={{ fontSize: "10pt", whiteSpace: "pre-line" }}>{estudo.objetivo}</span></div>}
-              <div style={{ display: "flex", flexDirection: "column", gap: "5mm" }}>
+              <div className="sentinela-print-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "4mm 5mm" }}>
                 {itens.map((item) => (
                   <article key={item.id} className="sentinela-print-entry" style={{ fontSize: "10pt", breakInside: "avoid" }}>
                     <p style={{ margin: 0, fontWeight: 700, color: "#5074ad" }}>Parágrafo {item.numero}</p>
