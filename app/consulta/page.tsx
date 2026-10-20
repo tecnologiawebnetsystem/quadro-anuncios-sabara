@@ -114,21 +114,10 @@ const diaSemanaMap: Record<number, string> = {
 // Menu de navegação rápida - organizado por categoria
 const menuSections = [
   {
-    title: "Reuniões",
+    title: "Escalas",
     items: [
-      { title: "Vida e Ministério", description: "Programação semanal", href: "/consulta/reunioes/vida-ministerio", icon: Gem, color: "bg-blue-600" },
-      { title: "Estudo Sentinela", description: "Dirigentes e leitores", href: "/consulta/reunioes/sentinela", icon: BookMarked, color: "bg-purple-600" },
-      { title: "Reuniões Públicas", description: "Discursos e assistência", href: "/consulta/reunioes-publicas", icon: Mic, color: "bg-amber-600" },
+      { title: "Assistência", description: "Presenças e estatísticas", href: "/consulta/assistencia", icon: BarChart3, color: "bg-violet-600" },
     ]
-  },
-{
-  title: "Escalas",
-  items: [
-  { title: "Equipe Técnica", description: "Indicadores e som",      href: "/consulta/equipe-tecnica", icon: Wrench,    color: "bg-orange-600" },
-  { title: "Limpeza do Salão", description: "Escala semanal",       href: "/consulta/limpeza-salao",  icon: Sparkles,  color: "bg-cyan-600"   },
-  { title: "Serviço de Campo", description: "Dirigentes de campo",  href: "/consulta/servico-campo",  icon: MapPin,    color: "bg-green-600"  },
-  { title: "Assistência",      description: "Presenças e estatísticas", href: "/consulta/assistencia", icon: BarChart3, color: "bg-violet-600" },
-  ]
   },
   {
   title: "Referências",
