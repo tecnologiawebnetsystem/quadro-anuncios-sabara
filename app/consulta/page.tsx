@@ -799,6 +799,30 @@ export default function ConsultaPage() {
             )}
           </div>
         </div>
+
+        {/* Dirigente de campo — uma designação por dia */}
+        <div className={cn(
+          "rounded-2xl border p-4 flex items-center gap-3",
+          campoHoje ? "border-sky-500/30 bg-sky-500/8" : "border-zinc-700/40 bg-zinc-800/20"
+        )}>
+          <div className={cn(
+            "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
+            campoHoje ? "bg-sky-500/20" : "bg-zinc-700/40"
+          )}>
+            <MapPin className={cn("h-5 w-5", campoHoje ? "text-sky-400" : "text-zinc-600")} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-sky-300">Dirigente de Campo</p>
+            {campoHoje ? (
+              <>
+                <p className="truncate text-sm font-semibold text-white">{campoHoje.dirigente_nome}</p>
+                <p className="text-xs capitalize text-sky-200">{({ segunda: "Segunda-feira", terca: "Terça-feira", quarta: "Quarta-feira", quinta: "Quinta-feira", sexta: "Sexta-feira", sabado: "Sábado", domingo: "Domingo" } as Record<string, string>)[campoHoje.dia_semana] || campoHoje.dia_semana}</p>
+              </>
+            ) : (
+              <p className="text-sm text-zinc-500">Não definido</p>
+            )}
+          </div>
+        </div>
       </div>
 
       <ConsultaAssistenciaPage />
