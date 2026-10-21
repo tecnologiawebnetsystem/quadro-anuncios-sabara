@@ -21,7 +21,6 @@ import {
   Info,
   CalendarDays,
   Mail,
-  BarChart3,
   Search,
   ArrowUpRight,
   LayoutGrid,
@@ -39,6 +38,7 @@ import { BuscaDesignacoes } from "@/components/consulta/busca-designacoes"
 import { GerenciarNotificacoes } from "@/components/consulta/gerenciar-notificacoes"
 import { LoginPublicador } from "@/components/consulta/login-publicador"
 import { LogOut } from "lucide-react"
+import ConsultaAssistenciaPage from "./assistencia/page"
 
 interface EquipeTecnica {
   indicador1_nome: string | null
@@ -116,7 +116,6 @@ const menuSections = [
   {
     title: "Escalas",
     items: [
-      { title: "Assistência", description: "Presenças e estatísticas", href: "/consulta/assistencia", icon: BarChart3, color: "bg-violet-600" },
     ]
   },
   {
@@ -586,7 +585,9 @@ export default function ConsultaPage() {
         </div>
       </section>
 
-      {/* Cards de Destaque do Dia */}
+      <ConsultaAssistenciaPage />
+
+      {/* Cards de Destaque do Dia */
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {/* Campo hoje */}
         <div className={cn(
