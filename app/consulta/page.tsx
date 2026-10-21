@@ -179,7 +179,7 @@ export default function ConsultaPage() {
   const [proximoDiscurso, setProximoDiscurso] = useState<DiscursoPublico | null>(null)
   const [campoHoje, setCampoHoje] = useState<CampoSemana | null>(null)
   const [leitoresDestaque, setLeitoresDestaque] = useState<LeitorDestaque[]>([])
-  const [presidenteConferencia, setPresidenteConferencia] = useState<string | null>(null)
+  const [presidenteConferencia, setPresidenteConferencia] = useState<{ nome: string; data: string } | null>(null)
   const [todosCampos, setTodosCampos] = useState<CampoSemanaItem[]>([])
   const [eventos, setEventos] = useState<EventoCalendario[]>([])
   const [mesSelecionado, setMesSelecionado] = useState(new Date())
@@ -373,7 +373,10 @@ export default function ConsultaPage() {
           .select("presidente_nome")
           .eq("data", format(addDays(hoje, 7 - hoje.getDay()), "yyyy-MM-dd"))
           .maybeSingle()
-        setPresidenteConferencia(conferenciaData?.presidente_nome || null)
+        setPresidenteConferencia(conferenciaData?.presidente_nome ? {
+          nome: conferenciaData.presidente_nome,
+          data: format(addDays(hoje, 7 - hoje.getDay()), "yyyy-MM-dd"),
+        } : null)
 
         // Buscar dirigente de campo de hoje
         const diasMap: Record<string, string> = {
@@ -665,7 +668,8 @@ export default function ConsultaPage() {
           </div>
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-300">Presidência da conferência</p>
-            <p className="truncate text-sm font-semibold text-white">{presidenteConferencia || "Não definido"}</p>
+            <p className="truncate text-sm font-semibold text-white">{presidenteConferencia?.nome || "Não definido"}</p>
+            {presidenteConferencia && <p className="text-xs text-amber-200">{format(parseISO(presidenteConferencia.data), "dd/MM/yyyy")}</p>}
           </div>
         </div>
 

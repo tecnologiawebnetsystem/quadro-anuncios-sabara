@@ -12,7 +12,8 @@ import {
   ChevronLeft,
   Users,
   Wrench,
-  MapPin
+  MapPin,
+  Mic
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SyncProvider, useSync } from "@/lib/contexts/sync-context"
@@ -22,6 +23,7 @@ const bottomNavItems = [
   { title: "Início", href: "/consulta", icon: Home },
   { title: "Vida e Ministério", href: "/consulta/reunioes/vida-ministerio", icon: Calendar },
   { title: "A Sentinela", href: "/consulta/reunioes/sentinela", icon: BookOpen },
+  { title: "Reuniões Públicas", href: "/consulta/reunioes-publicas", icon: Mic },
   { title: "Limpeza Salão", href: "/consulta/limpeza-salao", icon: Sparkles },
   { title: "Equipe", href: "/consulta/equipe-tecnica", icon: Wrench },
   { title: "Campo", href: "/consulta/servico-campo", icon: MapPin },
