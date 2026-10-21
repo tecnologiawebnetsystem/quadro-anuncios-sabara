@@ -43,7 +43,7 @@ export default function ConsultaAssistenciaPage() {
     const reunioesDoMes = reunioes.filter((reuniao) => {
       try {
         const data = parseISO(reuniao.data)
-        return isSameMonth(data, mesAtual) && data.getDay() === 4
+        return isSameMonth(data, mesAtual) && (data.getDay() === 0 || data.getDay() === 4)
       } catch {
         return false
       }
@@ -64,21 +64,15 @@ export default function ConsultaAssistenciaPage() {
     return Array.from(porData.values()).sort((a, b) => a.data.localeCompare(b.data))
   }, [reunioes, mesAtual])
 
-  const totais = useMemo(() => reunioesMes.reduce((resultado, reuniao) => ({
-    presencial: resultado.presencial + (reuniao.presencial || 0),
-    zoom: resultado.zoom + (reuniao.zoom || 0),
-    total: resultado.total + (reuniao.total || 0),
-  }), { presencial: 0, zoom: 0, total: 0 }), [reunioesMes])
-
   const podeVoltar = mesAtual > MES_INICIAL
 
   return (
     <main className="space-y-6">
-      <section className="rounded-2xl border border-blue-400/15 bg-blue-900/20 p-6 shadow-sm sm:p-9">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <section className="rounded-2xl border border-blue-400/15 bg-blue-900/20 p-4 shadow-sm sm:p-6">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <BarChart3 className="h-6 w-6 text-green-400" aria-hidden="true" />
-            <h1 className="text-2xl font-bold tracking-tight">Assistência às Reuniões</h1>
+            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Assistência às Reuniões</h1>
           </div>
           <div className="flex items-center gap-2 rounded-lg border border-blue-300/20 bg-blue-950/30 p-1">
             <button
@@ -109,34 +103,34 @@ export default function ConsultaAssistenciaPage() {
             <Loader2 className="h-7 w-7 animate-spin text-blue-300" aria-label="Carregando assistência" />
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[620px] border-collapse text-left">
-              <caption className="mb-5 text-left text-lg font-semibold">{reunioesMes[0]?.dia_semana || "Reuniões"}</caption>
-              <thead>
-                <tr className="border-b border-blue-300/20 text-blue-100">
-                  <th scope="col" className="px-3 py-3 font-semibold">Tipo</th>
-                  {reunioesMes.map((reuniao) => (
-                    <th scope="col" key={reuniao.id} className="px-3 py-3 text-center font-semibold">
-                      {format(parseISO(reuniao.data), "dd/MM")}
-                    </th>
-                  ))}
-                  <th scope="col" className="px-3 py-3 text-center font-semibold">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-blue-300/15">
-                  <th scope="row" className="px-3 py-5 font-semibold">Presencial</th>
-                  {reunioesMes.map((reuniao) => <td key={reuniao.id} className="px-3 py-5 text-center text-lg font-semibold">{reuniao.presencial || 0}</td>)}
-                  <td className="px-3 py-5 text-center text-lg font-bold text-blue-400">{totais.presencial}</td>
-                </tr>
-                <tr>
-                  <th scope="row" className="px-3 py-5 font-semibold">Zoom</th>
-                  {reunioesMes.map((reuniao) => <td key={reuniao.id} className="px-3 py-5 text-center text-lg font-semibold">{reuniao.zoom || 0}</td>)}
-                  <td className="px-3 py-5 text-center text-lg font-bold text-blue-400">{totais.zoom}</td>
-                </tr>
-              </tbody>
-            </table>
-            {!reunioesMes.length && <p className="py-8 text-center text-sm text-blue-200">Não há dados de assistência para este mês.</p>}
+          <div>
+            {reunioesMes.length ? (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {reunioesMes.map((reuniao) => (
+                  <article key={reuniao.id} className="rounded-xl border border-blue-300/15 bg-blue-950/20 p-4 shadow-sm">
+                    <div className="mb-3 flex items-center justify-between border-b border-blue-300/15 pb-3">
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-wider text-blue-300">{reuniao.dia_semana}</p>
+                        <h2 className="text-lg font-bold">{format(parseISO(reuniao.data), "dd/MM")}</h2>
+                      </div>
+                      <span className="rounded-full bg-blue-400/10 px-2.5 py-1 text-xs font-semibold text-blue-200">Reunião</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-lg bg-blue-400/10 px-3 py-2">
+                        <p className="text-xs text-blue-200">Presencial</p>
+                        <p className="text-xl font-bold">{reuniao.presencial || 0}</p>
+                      </div>
+                      <div className="rounded-lg bg-violet-400/10 px-3 py-2">
+                        <p className="text-xs text-violet-200">Zoom</p>
+                        <p className="text-xl font-bold">{reuniao.zoom || 0}</p>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="py-8 text-center text-sm text-blue-200">Não há dados de assistência para este mês.</p>
+            )}
           </div>
         )}
       </section>
