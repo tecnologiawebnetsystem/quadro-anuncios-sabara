@@ -679,6 +679,34 @@ export default function ConsultaPage() {
         </div>
       </section>
 
+      {/* Equipe técnica da semana — acima dos cards de destaque */}
+      {equipeSemana.length > 0 && (
+        <div className="rounded-2xl border border-purple-500/20 bg-purple-500/8 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/20">
+              <Wrench className="h-3.5 w-3.5 text-purple-400" />
+            </div>
+            <p className="text-sm font-semibold text-white">Equipe Técnica da Semana</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {equipeSemana.map((reuniao, i) => {
+              const diaLabel = reuniao.dia_semana === "quinta" ? "Quinta-feira" : "Domingo"
+              const [, mes, dia] = reuniao.data.split("-")
+              return (
+                <div key={i} className="space-y-2 rounded-xl bg-zinc-800/40 p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-purple-400">{diaLabel} — {dia}/{mes}</p>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-xs"><span className="rounded bg-orange-500/20 px-1.5 py-0.5 font-semibold text-orange-400">Indicadores</span><span className="truncate text-zinc-300">{[reuniao.indicador1_nome, reuniao.indicador2_nome].filter(Boolean).join(" / ") || "A definir"}</span></div>
+                    <div className="flex items-center gap-2 text-xs"><span className="rounded bg-blue-500/20 px-1.5 py-0.5 font-semibold text-blue-400">Volantes</span><span className="truncate text-zinc-300">{[reuniao.microvolante1_nome, reuniao.microvolante2_nome].filter(Boolean).join(" / ") || "A definir"}</span></div>
+                    <div className="flex items-center gap-2 text-xs"><span className="rounded bg-green-500/20 px-1.5 py-0.5 font-semibold text-green-400">Som</span><span className="text-zinc-300">{reuniao.som_nome || "A definir"}</span></div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Cards de Destaque do Dia */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {/* Leitores das próximas reuniões */}
@@ -772,48 +800,6 @@ export default function ConsultaPage() {
           </div>
         </div>
       </div>
-
-      {/* Equipe técnica da semana — card compacto */}
-      {equipeSemana.length > 0 && (
-        <div className="rounded-2xl border border-purple-500/20 bg-purple-500/8 p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-lg bg-purple-500/20 flex items-center justify-center">
-              <Wrench className="h-3.5 w-3.5 text-purple-400" />
-            </div>
-            <p className="text-sm font-semibold text-white">Equipe Técnica da Semana</p>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {equipeSemana.map((reuniao, i) => {
-              const diaLabel = reuniao.dia_semana === "quinta" ? "Quinta-feira" : "Domingo"
-              const [, mes, dia] = reuniao.data.split("-")
-              return (
-                <div key={i} className="rounded-xl bg-zinc-800/40 p-3 space-y-2">
-                  <p className="text-[10px] font-bold text-purple-400 uppercase tracking-wider">{diaLabel} — {dia}/{mes}</p>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="rounded bg-orange-500/20 px-1.5 py-0.5 text-orange-400 font-semibold">Indicadores</span>
-                      <span className="text-zinc-300 truncate">{[reuniao.indicador1_nome, reuniao.indicador2_nome].filter(Boolean).join(" / ") || "A definir"}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-blue-400 font-semibold">Volantes</span>
-                      <span className="text-zinc-300 truncate">
-                        {[reuniao.microvolante1_nome, reuniao.microvolante2_nome].filter(Boolean).join(" / ") || "A definir"}
-                        {reuniao.microvolante_palco && (
-                          <span className="text-amber-400 ml-1">(Palco: {reuniao.microvolante_palco === 1 ? reuniao.microvolante1_nome : reuniao.microvolante2_nome})</span>
-                        )}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="rounded bg-green-500/20 px-1.5 py-0.5 text-green-400 font-semibold">Som</span>
-                      <span className="text-zinc-300">{reuniao.som_nome || "A definir"}</span>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
 
       <ConsultaAssistenciaPage />
 
