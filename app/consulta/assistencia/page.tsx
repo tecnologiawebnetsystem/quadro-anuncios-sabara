@@ -106,27 +106,44 @@ export default function ConsultaAssistenciaPage() {
           <div>
             {reunioesMes.length ? (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {reunioesMes.map((reuniao) => (
-                  <article key={reuniao.id} className="rounded-xl border border-blue-300/15 bg-blue-950/20 p-4 shadow-sm">
-                    <div className="mb-3 flex items-center justify-between border-b border-blue-300/15 pb-3">
-                      <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-blue-300">{reuniao.dia_semana}</p>
-                        <h2 className="text-lg font-bold">{format(parseISO(reuniao.data), "dd/MM")}</h2>
+                {reunioesMes.map((reuniao) => {
+                  const domingo = parseISO(reuniao.data).getDay() === 0
+                  const cores = domingo
+                    ? {
+                        card: "border-amber-300/30 bg-amber-400/10",
+                        dia: "text-amber-200",
+                        selo: "bg-amber-300/15 text-amber-100",
+                      }
+                    : {
+                        card: "border-cyan-300/30 bg-cyan-400/10",
+                        dia: "text-cyan-200",
+                        selo: "bg-cyan-300/15 text-cyan-100",
+                      }
+
+                  return (
+                    <article key={reuniao.id} className={`rounded-lg border p-3 shadow-sm ${cores.card}`}>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <p className={`text-[10px] font-bold uppercase tracking-wider ${cores.dia}`}>{domingo ? "Domingo" : "Quinta-feira"}</p>
+                            <h2 className="text-base font-bold leading-tight">{format(parseISO(reuniao.data), "dd/MM")}</h2>
+                          </div>
+                        </div>
+                        <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${cores.selo}`}>{domingo ? "DOM" : "QUI"}</span>
                       </div>
-                      <span className="rounded-full bg-blue-400/10 px-2.5 py-1 text-xs font-semibold text-blue-200">Reunião</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="rounded-lg bg-blue-400/10 px-3 py-2">
-                        <p className="text-xs text-blue-200">Presencial</p>
-                        <p className="text-xl font-bold">{reuniao.presencial || 0}</p>
+                      <div className="mt-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] text-blue-100">Presencial</span>
+                          <strong className="text-base">{reuniao.presencial || 0}</strong>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] text-violet-100">Zoom</span>
+                          <strong className="text-base">{reuniao.zoom || 0}</strong>
+                        </div>
                       </div>
-                      <div className="rounded-lg bg-violet-400/10 px-3 py-2">
-                        <p className="text-xs text-violet-200">Zoom</p>
-                        <p className="text-xl font-bold">{reuniao.zoom || 0}</p>
-                      </div>
-                    </div>
-                  </article>
-                ))}
+                    </article>
+                  )
+                })}
               </div>
             ) : (
               <p className="py-8 text-center text-sm text-blue-200">Não há dados de assistência para este mês.</p>
