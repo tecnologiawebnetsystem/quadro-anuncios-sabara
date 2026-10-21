@@ -815,7 +815,7 @@ export default function ConsultaPage() {
             <p className="text-[10px] font-semibold uppercase tracking-wider text-sky-300">Dirigente de Campo</p>
             {campoHoje ? (
               <>
-                <p className="truncate text-sm font-semibold text-white">{campoHoje.dirigente_nome}</p>
+                <p className="truncate text-sm font-semibold text-white">{campoHoje.dirigente_nome || (campoHoje.dia_semana === "domingo" ? "No grupo" : "Não definido")}</p>
                 <p className="text-xs capitalize text-sky-200">{({ segunda: "Segunda-feira", terca: "Terça-feira", quarta: "Quarta-feira", quinta: "Quinta-feira", sexta: "Sexta-feira", sabado: "Sábado", domingo: "Domingo" } as Record<string, string>)[campoHoje.dia_semana] || campoHoje.dia_semana}</p>
                 <p className="text-xs text-sky-200">{campoHoje.horario}</p>
               </>
