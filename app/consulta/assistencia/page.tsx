@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState, useEffect, useMemo } from "react"
 import {
   BarChart3, Users, Monitor, ChevronLeft, ChevronRight,
@@ -132,21 +133,23 @@ export default function ConsultaAssistenciaPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5 ring-1 ring-blue-500/10">
+        <Link href="/consulta/reunioes-publicas" className="group rounded-xl border border-blue-500/20 bg-blue-500/5 p-5 ring-1 ring-blue-500/10 transition-colors hover:border-blue-400/50 hover:bg-blue-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
           <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/15">
             <Users className="h-5 w-5 text-blue-400" />
           </div>
           <h2 className="font-semibold">Assistência Presencial</h2>
           <p className="mt-1 text-sm text-muted-foreground">Consulte a assistência presencial das reuniões.</p>
-        </div>
+          <span className="mt-4 block text-sm font-medium text-blue-300 opacity-0 transition-opacity group-hover:opacity-100">Abrir consulta</span>
+        </Link>
 
-        <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-5 ring-1 ring-violet-500/10">
+        <Link href="/consulta/assistencia/zoom" className="group rounded-xl border border-violet-500/20 bg-violet-500/5 p-5 ring-1 ring-violet-500/10 transition-colors hover:border-violet-400/50 hover:bg-violet-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">
           <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/15">
             <Monitor className="h-5 w-5 text-violet-400" />
           </div>
           <h2 className="font-semibold">Assistência Zoom</h2>
           <p className="mt-1 text-sm text-muted-foreground">Consulte a assistência das reuniões pelo Zoom.</p>
-        </div>
+          <span className="mt-4 block text-sm font-medium text-violet-300 opacity-0 transition-opacity group-hover:opacity-100">Abrir consulta</span>
+        </Link>
       </div>
     </div>
   )
