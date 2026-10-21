@@ -330,7 +330,7 @@ export default function ConsultaPage() {
         const fimSemana = endOfWeek(hoje, { weekStartsOn: 1 })
         const inicioLeitores = format(inicioSemana, "yyyy-MM-dd")
         const fimLeitores = format(fimSemana, "yyyy-MM-dd")
-        const [{ data: sentinelaLeitores }, { data: semanasLeitores }] = await Promise.all([
+        const [{ data: sentinelaLeitores }, { data: semanaAtual }] = await Promise.all([
           supabase
             .from("reuniao_publica_designacoes")
             .select("data, leitor_sentinela_nome")
@@ -341,13 +341,11 @@ export default function ConsultaPage() {
           supabase
             .from("vida_ministerio_semanas")
             .select("id, data_inicio")
-            .gte("data_inicio", inicioLeitores)
-            .lte("data_inicio", fimLeitores)
-            .order("data_inicio", { ascending: true })
-            .limit(1),
+            .eq("data_inicio", inicioLeitores)
+            .maybeSingle(),
         ])
 
-        const semanaIds = (semanasLeitores || []).map((semana) => semana.id)
+        const semanaIds = semanaAtual?.id ? [semanaAtual.id] : []
         const { data: partesLeitores } = semanaIds.length
           ? await supabase
               .from("vida_ministerio_partes")
