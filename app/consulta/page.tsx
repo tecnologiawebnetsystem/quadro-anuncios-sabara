@@ -325,9 +325,11 @@ export default function ConsultaPage() {
           })
         }
         
-        // Buscar leitores das próximas reuniões
-        const inicioLeitores = format(hoje, "yyyy-MM-dd")
-        const fimLeitores = format(addMonths(hoje, 1), "yyyy-MM-dd")
+        // A semana de designações começa na segunda e termina no domingo.
+        const inicioSemana = startOfWeek(hoje, { weekStartsOn: 1 })
+        const fimSemana = endOfWeek(hoje, { weekStartsOn: 1 })
+        const inicioLeitores = format(inicioSemana, "yyyy-MM-dd")
+        const fimLeitores = format(fimSemana, "yyyy-MM-dd")
         const [{ data: sentinelaLeitores }, { data: semanasLeitores }] = await Promise.all([
           supabase
             .from("reuniao_publica_designacoes")
@@ -339,9 +341,7 @@ export default function ConsultaPage() {
           supabase
             .from("vida_ministerio_semanas")
             .select("id, data_inicio")
-            .gte("data_inicio", inicioLeitores)
-            .lte("data_inicio", fimLeitores)
-            .order("data_inicio"),
+            .eq("data_inicio", inicioLeitores),
         ])
 
         const semanaIds = (semanasLeitores || []).map((semana) => semana.id)
@@ -350,32 +350,33 @@ export default function ConsultaPage() {
               .from("vida_ministerio_partes")
               .select("semana_id, secao, titulo, leitor_nome")
               .in("semana_id", semanaIds)
-              .eq("secao", "vida")
-              .ilike("titulo", "%estudo%blico%")
               .not("leitor_nome", "is", null)
           : { data: [] }
 
         const leitores: LeitorDestaque[] = [
-          ...(sentinelaLeitores || []).map((leitor) => ({ data: leitor.data, tipo: "A Sentinela" as const, nome: leitor.leitor_sentinela_nome })),
-          ...(partesLeitores || []).map((parte) => ({
-            data: (() => {
-              const semana = semanasLeitores?.find((item) => item.id === parte.semana_id)
-              return semana ? format(addDays(parseISO(semana.data_inicio), 3), "yyyy-MM-dd") : ""
-            })(),
-            tipo: "Estudo de Livro" as const,
-            nome: parte.leitor_nome,
-          })),
-        ].filter((leitor) => leitor.nome && leitor.data).sort((a, b) => a.data.localeCompare(b.data))
+          ...(partesLeitores || [])
+            .filter((parte) => /estudo.*(bíblico|livro)|livro.*estudo/i.test(parte.titulo || ""))
+            .map((parte) => ({
+              data: format(addDays(parseISO(inicioLeitores), 3), "yyyy-MM-dd"),
+              tipo: "Estudo de Livro" as const,
+              nome: parte.leitor_nome,
+            })),
+          ...(sentinelaLeitores || [])
+            .filter((leitor) => parseISO(leitor.data).getDay() === 0)
+            .map((leitor) => ({ data: leitor.data, tipo: "A Sentinela" as const, nome: leitor.leitor_sentinela_nome })),
+        ]
+          .filter((leitor) => leitor.nome && leitor.data)
+          .sort((a, b) => a.data.localeCompare(b.data))
         setLeitoresDestaque(leitores)
 
         const { data: conferenciaData } = await supabase
           .from("reuniao_publica_designacoes")
           .select("presidente_nome")
-          .eq("data", format(addDays(hoje, 7 - hoje.getDay()), "yyyy-MM-dd"))
+          .eq("data", fimLeitores)
           .maybeSingle()
         setPresidenteConferencia(conferenciaData?.presidente_nome ? {
           nome: conferenciaData.presidente_nome,
-          data: format(addDays(hoje, 7 - hoje.getDay()), "yyyy-MM-dd"),
+          data: fimLeitores,
         } : null)
 
         // Buscar dirigente de campo de hoje
