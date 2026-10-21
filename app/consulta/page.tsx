@@ -330,6 +330,21 @@ export default function ConsultaPage() {
         const fimSemana = endOfWeek(hoje, { weekStartsOn: 1 })
         const inicioLeitores = format(inicioSemana, "yyyy-MM-dd")
         const fimLeitores = format(fimSemana, "yyyy-MM-dd")
+        // A presidência é uma informação independente: buscar diretamente o domingo da semana atual.
+        const presidenciaResult = await supabase
+          .from("reuniao_publica_designacoes")
+          .select("data, presidente_nome")
+          .gte("data", `${fimLeitores}T00:00:00`)
+          .lt("data", format(addDays(fimSemana, 1), "yyyy-MM-dd"))
+          .not("presidente_nome", "is", null)
+          .order("data", { ascending: true })
+          .limit(1)
+        if (presidenciaResult.error) throw presidenciaResult.error
+        setPresidenteConferencia(presidenciaResult.data?.[0]?.presidente_nome ? {
+          nome: presidenciaResult.data[0].presidente_nome,
+          data: fimLeitores,
+        } : null)
+
         const [sentinelaResult, semanasResult] = await Promise.all([
           supabase
             .from("reuniao_publica_designacoes")
@@ -375,21 +390,6 @@ export default function ConsultaPage() {
           .filter((leitor) => leitor.nome && leitor.data)
           .sort((a, b) => a.data.localeCompare(b.data))
         setLeitoresDestaque(leitores)
-
-        const conferenciaResult = await supabase
-          .from("reuniao_publica_designacoes")
-          .select("data, presidente_nome")
-          .gte("data", `${fimLeitores}T00:00:00`)
-          .lt("data", format(addDays(fimSemana, 1), "yyyy-MM-dd"))
-          .not("presidente_nome", "is", null)
-          .order("data")
-          .limit(1)
-        if (conferenciaResult.error) throw conferenciaResult.error
-        const conferenciaData = conferenciaResult.data?.[0]
-        setPresidenteConferencia(conferenciaData?.presidente_nome ? {
-          nome: conferenciaData.presidente_nome,
-          data: fimLeitores,
-        } : null)
 
         // Buscar dirigente de campo de hoje
         const diasMap: Record<string, string> = {
