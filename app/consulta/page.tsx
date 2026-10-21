@@ -178,7 +178,6 @@ export default function ConsultaPage() {
   const [vidaMinisterioSemanas, setVidaMinisterioSemanas] = useState<VidaMinisterioSemana[]>([])
   const [sentinelaSemanas, setSentinelaSemanas] = useState<SentinelaSemana[]>([])
   const [busca, setBusca] = useState("")
-  const [categoriaAtiva, setCategoriaAtiva] = useState("Todas")
   const [tooltip, setTooltip] = useState<{ 
     x: number; 
     y: number; 
@@ -444,11 +443,8 @@ export default function ConsultaPage() {
   }
 
   const periodoTooltip = tooltip?.campo?.periodo === "manha" ? "Manhã" : tooltip?.campo?.periodo === "tarde" ? "Tarde" : tooltip?.campo?.periodo
-  const categorias = ["Todas", ...menuSections.map((section) => section.title)]
   const termoBusca = busca.trim().toLocaleLowerCase("pt-BR")
-  const secoesFiltradas = menuSections
-    .filter((section) => categoriaAtiva === "Todas" || section.title === categoriaAtiva)
-    .map((section) => ({
+  const secoesFiltradas = menuSections.map((section) => ({
       ...section,
       items: section.items.filter((item) =>
         !termoBusca || `${item.title} ${item.description}`.toLocaleLowerCase("pt-BR").includes(termoBusca)
@@ -550,10 +546,6 @@ export default function ConsultaPage() {
           </h1>
           <p className="mt-2 text-sm text-sky-100/65">Congregação Parque Sabará · área de consulta</p>
         </div>
-        <div className="hidden items-center gap-2 rounded-full border border-sky-200/15 bg-white/5 px-3 py-2 text-xs text-sky-100/70 sm:flex">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
-          Informações atualizadas
-        </div>
       </div>
 
       {/* Hub de consulta */}
@@ -575,13 +567,6 @@ export default function ConsultaPage() {
               <input id="busca-consulta" value={busca} onChange={(event) => setBusca(event.target.value)} placeholder="Buscar uma informação..." className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-sky-100/40" />
             </div>
           </div>
-        </div>
-        <div className="relative mt-5 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Categorias da consulta">
-          {categorias.map((categoria) => (
-            <button key={categoria} type="button" role="tab" aria-selected={categoriaAtiva === categoria} onClick={() => setCategoriaAtiva(categoria)} className={cn("whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors", categoriaAtiva === categoria ? "border-sky-300/50 bg-sky-400 text-[#0f2550]" : "border-white/10 bg-white/[0.04] text-sky-100/65 hover:border-sky-300/30 hover:text-white")}>
-              {categoria}
-            </button>
-          ))}
         </div>
       </section>
 
