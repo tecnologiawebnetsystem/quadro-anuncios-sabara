@@ -276,6 +276,11 @@ export default function ConsultaPage() {
       try {
         setLoading(true)
         const supabase = createClient()
+        // Toda semana começa na segunda-feira e termina no domingo.
+        const inicioSemana = startOfWeek(hoje, { weekStartsOn: 1 })
+        const fimSemana = endOfWeek(hoje, { weekStartsOn: 1 })
+        const inicioLeitores = format(inicioSemana, "yyyy-MM-dd")
+        const fimLeitores = format(fimSemana, "yyyy-MM-dd")
 
         // A Presidência deve carregar independentemente dos demais cards.
         const domingoSemana = format(endOfWeek(hoje, { weekStartsOn: 1 }), "yyyy-MM-dd")
@@ -358,11 +363,10 @@ export default function ConsultaPage() {
           })
         }
         
-        // A semana de designações começa na segunda e termina no domingo.
-        const inicioSemana = startOfWeek(hoje, { weekStartsOn: 1 })
-        const fimSemana = endOfWeek(hoje, { weekStartsOn: 1 })
-        const inicioLeitores = format(inicioSemana, "yyyy-MM-dd")
-        const fimLeitores = format(fimSemana, "yyyy-MM-dd")
+        console.log("[v0] Consulta: iniciando busca de leitores", {
+          inicioLeitores,
+          fimLeitores,
+        })
         const [sentinelaResult, semanasResult] = await Promise.all([
           supabase
             .from("reuniao_publica_designacoes")
@@ -380,6 +384,12 @@ export default function ConsultaPage() {
             .limit(1),
         ])
 
+        console.log("[v0] Consulta: resultado das buscas de leitores", {
+          sentinelaErro: sentinelaResult.error,
+          sentinelaRegistros: sentinelaResult.data,
+          semanasErro: semanasResult.error,
+          semanasRegistros: semanasResult.data,
+        })
         if (sentinelaResult.error) throw sentinelaResult.error
         if (semanasResult.error) throw semanasResult.error
 
@@ -407,6 +417,10 @@ export default function ConsultaPage() {
         ]
           .filter((leitor) => leitor.nome && leitor.data)
           .sort((a, b) => a.data.localeCompare(b.data))
+        console.log("[v0] Consulta: leitores prontos para exibição", {
+          quantidade: leitores.length,
+          leitores,
+        })
         setLeitoresDestaque(leitores)
 
         // Buscar dirigente de campo de hoje
