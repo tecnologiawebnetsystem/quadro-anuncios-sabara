@@ -334,11 +334,14 @@ export default function ConsultaPage() {
         const presidenciaResult = await supabase
           .from("reuniao_publica_designacoes")
           .select("data, presidente_nome")
-          .eq("data", fimLeitores)
-          .maybeSingle()
+          .gte("data", `${fimLeitores}T00:00:00`)
+          .lt("data", format(addDays(fimSemana, 1), "yyyy-MM-dd"))
+          .not("presidente_nome", "is", null)
+          .order("data", { ascending: true })
+          .limit(1)
         if (presidenciaResult.error) throw presidenciaResult.error
-        setPresidenteConferencia(presidenciaResult.data?.presidente_nome ? {
-          nome: presidenciaResult.data.presidente_nome,
+        setPresidenteConferencia(presidenciaResult.data?.[0]?.presidente_nome ? {
+          nome: presidenciaResult.data[0].presidente_nome,
           data: fimLeitores,
         } : null)
 
