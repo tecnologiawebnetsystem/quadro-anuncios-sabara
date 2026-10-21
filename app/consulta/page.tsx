@@ -330,39 +330,45 @@ export default function ConsultaPage() {
         const fimSemana = endOfWeek(hoje, { weekStartsOn: 1 })
         const inicioLeitores = format(inicioSemana, "yyyy-MM-dd")
         const fimLeitores = format(fimSemana, "yyyy-MM-dd")
-        const [{ data: sentinelaLeitores }, { data: semanaAtual }] = await Promise.all([
+        const [sentinelaResult, semanasResult] = await Promise.all([
           supabase
             .from("reuniao_publica_designacoes")
             .select("data, leitor_sentinela_nome")
-            .gte("data", inicioLeitores)
-            .lte("data", fimLeitores)
+            .gte("data", `${inicioLeitores}T00:00:00`)
+            .lt("data", format(addDays(fimSemana, 1), "yyyy-MM-dd"))
             .not("leitor_sentinela_nome", "is", null)
             .order("data"),
           supabase
             .from("vida_ministerio_semanas")
             .select("id, data_inicio")
-            .eq("data_inicio", inicioLeitores)
-            .maybeSingle(),
+            .gte("data_inicio", `${inicioLeitores}T00:00:00`)
+            .lt("data_inicio", format(addDays(inicioSemana, 1), "yyyy-MM-dd"))
+            .order("data_inicio", { ascending: true })
+            .limit(1),
         ])
 
-        const semanaIds = semanaAtual?.id ? [semanaAtual.id] : []
-        const { data: partesLeitores } = semanaIds.length
+        if (sentinelaResult.error) throw sentinelaResult.error
+        if (semanasResult.error) throw semanasResult.error
+
+        const semanaIds = semanasResult.data?.[0]?.id ? [semanasResult.data[0].id] : []
+        const partesResult = semanaIds.length
           ? await supabase
               .from("vida_ministerio_partes")
               .select("semana_id, secao, titulo, leitor_nome")
               .in("semana_id", semanaIds)
               .not("leitor_nome", "is", null)
-          : { data: [] }
+          : { data: [], error: null }
+        if (partesResult.error) throw partesResult.error
 
-        const leitores: LeitorDestaque[] = [
-          ...(partesLeitores || [])
+        const leitores: LeitorDestaque[] = [ 
+          ...(partesResult.data || [])
             .filter((parte) => /estudo.*(bíblico|livro)|livro.*estudo/i.test(parte.titulo || ""))
             .map((parte) => ({
               data: format(addDays(parseISO(inicioLeitores), 3), "yyyy-MM-dd"),
               tipo: "Estudo de Livro" as const,
               nome: parte.leitor_nome,
             })),
-          ...(sentinelaLeitores || [])
+          ...(sentinelaResult.data || [])
             .filter((leitor) => parseISO(leitor.data).getDay() === 0)
             .map((leitor) => ({ data: leitor.data, tipo: "A Sentinela" as const, nome: leitor.leitor_sentinela_nome })),
         ]
@@ -370,11 +376,16 @@ export default function ConsultaPage() {
           .sort((a, b) => a.data.localeCompare(b.data))
         setLeitoresDestaque(leitores)
 
-        const { data: conferenciaData } = await supabase
+        const conferenciaResult = await supabase
           .from("reuniao_publica_designacoes")
-          .select("presidente_nome")
-          .eq("data", fimLeitores)
-          .maybeSingle()
+          .select("data, presidente_nome")
+          .gte("data", `${fimLeitores}T00:00:00`)
+          .lt("data", format(addDays(fimSemana, 1), "yyyy-MM-dd"))
+          .not("presidente_nome", "is", null)
+          .order("data")
+          .limit(1)
+        if (conferenciaResult.error) throw conferenciaResult.error
+        const conferenciaData = conferenciaResult.data?.[0]
         setPresidenteConferencia(conferenciaData?.presidente_nome ? {
           nome: conferenciaData.presidente_nome,
           data: fimLeitores,
