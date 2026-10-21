@@ -679,8 +679,6 @@ export default function ConsultaPage() {
         </div>
       </section>
 
-      <ConsultaAssistenciaPage />
-
       {/* Cards de Destaque do Dia */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {/* Leitores das próximas reuniões */}
@@ -816,6 +814,8 @@ export default function ConsultaPage() {
           </div>
         </div>
       )}
+
+      <ConsultaAssistenciaPage />
 
       {/* Próximo Discurso Público — banner expandido (só se não tiver campo hoje nem equipe) */}
       {proximoDiscurso && !campoHoje && equipeSemana.length === 0 && (
