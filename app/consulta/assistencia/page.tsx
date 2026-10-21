@@ -15,13 +15,11 @@ interface Reuniao {
   total: number
 }
 
-const MES_INICIAL = new Date(2026, 4, 1)
-
 export default function ConsultaAssistenciaPage() {
   const supabase = createClient()
   const [reunioes, setReunioes] = useState<Reuniao[]>([])
   const [loading, setLoading] = useState(true)
-  const [mesAtual, setMesAtual] = useState(MES_INICIAL)
+  const [mesAtual, setMesAtual] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
 
   useEffect(() => {
     async function carregar() {
@@ -29,7 +27,7 @@ export default function ConsultaAssistenciaPage() {
       const { data } = await supabase
         .from("assistencia_reunioes")
         .select("id, data, dia_semana, presencial, zoom, total")
-        .gte("data", "2026-05-01")
+        .gte("data", `${new Date().getFullYear()}-01-01`)
         .order("data", { ascending: true })
 
       setReunioes(data || [])
@@ -64,8 +62,6 @@ export default function ConsultaAssistenciaPage() {
     return Array.from(porData.values()).sort((a, b) => a.data.localeCompare(b.data))
   }, [reunioes, mesAtual])
 
-  const podeVoltar = mesAtual > MES_INICIAL
-
   return (
     <main className="space-y-6">
       <section className="rounded-2xl border border-blue-400/15 bg-blue-900/20 p-4 shadow-sm sm:p-6">
@@ -78,7 +74,6 @@ export default function ConsultaAssistenciaPage() {
             <button
               type="button"
               onClick={() => setMesAtual((mes) => subMonths(mes, 1))}
-              disabled={!podeVoltar}
               aria-label="Mês anterior"
               className="rounded-md p-1.5 text-blue-200 transition hover:bg-blue-400/15 disabled:cursor-not-allowed disabled:opacity-30"
             >
@@ -112,12 +107,10 @@ export default function ConsultaAssistenciaPage() {
                     ? {
                         card: "border-amber-300/30 bg-amber-400/10",
                         dia: "text-amber-200",
-                        selo: "bg-amber-300/15 text-amber-100",
                       }
                     : {
                         card: "border-cyan-300/30 bg-cyan-400/10",
                         dia: "text-cyan-200",
-                        selo: "bg-cyan-300/15 text-cyan-100",
                       }
 
                   return (
@@ -129,14 +122,13 @@ export default function ConsultaAssistenciaPage() {
                             <h2 className="text-base font-bold leading-tight">{format(parseISO(reuniao.data), "dd/MM")}</h2>
                           </div>
                         </div>
-                        <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${cores.selo}`}>{domingo ? "DOM" : "QUI"}</span>
                       </div>
-                      <div className="mt-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-2">
-                        <div className="flex items-center justify-between gap-2">
+                      <div className="mt-2 grid grid-cols-2 divide-x divide-white/20 border-t border-white/10 pt-2">
+                        <div className="flex items-center justify-between gap-2 pr-3">
                           <span className="text-[11px] text-blue-100">Presencial</span>
                           <strong className="text-base">{reuniao.presencial || 0}</strong>
                         </div>
-                        <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center justify-between gap-2 pl-3">
                           <span className="text-[11px] text-violet-100">Zoom</span>
                           <strong className="text-base">{reuniao.zoom || 0}</strong>
                         </div>
