@@ -353,14 +353,12 @@ export default function ConsultaPage() {
               .from("vida_ministerio_partes")
               .select("semana_id, secao, titulo, leitor_nome")
               .in("semana_id", semanaIds)
-              .eq("secao", "vida")
-              .ilike("titulo", "%Estudo%")
               .not("leitor_nome", "is", null)
           : { data: [] }
 
         const leitores: LeitorDestaque[] = [
           ...(partesLeitores || [])
-            .filter((parte) => /estudo.*(bíblico|livro)|livro.*estudo/i.test(parte.titulo || ""))
+            .filter((parte) => parte.secao === "vida" && /estudo.*(bíblico|livro)|livro.*estudo/i.test(parte.titulo || ""))
             .map((parte) => ({
               data: format(addDays(parseISO(inicioLeitores), 3), "yyyy-MM-dd"),
               tipo: "Estudo de Livro" as const,
