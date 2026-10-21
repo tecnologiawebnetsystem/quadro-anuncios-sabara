@@ -343,7 +343,7 @@ export default function ConsultaPage() {
             .select("id, data_inicio")
             .gte("data_inicio", inicioLeitores)
             .lte("data_inicio", fimLeitores)
-            .order("data_inicio", { ascending: false })
+            .order("data_inicio", { ascending: true })
             .limit(1),
         ])
 
@@ -358,7 +358,7 @@ export default function ConsultaPage() {
 
         const leitores: LeitorDestaque[] = [
           ...(partesLeitores || [])
-            .filter((parte) => parte.secao === "vida" && /estudo.*(bíblico|livro)|livro.*estudo/i.test(parte.titulo || ""))
+            .filter((parte) => /estudo.*(bíblico|livro)|livro.*estudo/i.test(parte.titulo || ""))
             .map((parte) => ({
               data: format(addDays(parseISO(inicioLeitores), 3), "yyyy-MM-dd"),
               tipo: "Estudo de Livro" as const,
