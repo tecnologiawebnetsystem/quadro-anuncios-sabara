@@ -39,13 +39,30 @@ export default function ConsultaAssistenciaPage() {
     carregar()
   }, [supabase])
 
-  const reunioesMes = useMemo(() => reunioes.filter((reuniao) => {
-    try {
-      return isSameMonth(parseISO(reuniao.data), mesAtual)
-    } catch {
-      return false
+  const reunioesMes = useMemo(() => {
+    const reunioesDoMes = reunioes.filter((reuniao) => {
+      try {
+        const data = parseISO(reuniao.data)
+        return isSameMonth(data, mesAtual) && data.getDay() === 4
+      } catch {
+        return false
+      }
+    })
+
+    const porData = new Map<string, Reuniao>()
+    for (const reuniao of reunioesDoMes) {
+      const existente = porData.get(reuniao.data)
+      if (existente) {
+        existente.presencial += reuniao.presencial || 0
+        existente.zoom += reuniao.zoom || 0
+        existente.total += reuniao.total || 0
+      } else {
+        porData.set(reuniao.data, { ...reuniao })
+      }
     }
-  }), [reunioes, mesAtual])
+
+    return Array.from(porData.values()).sort((a, b) => a.data.localeCompare(b.data))
+  }, [reunioes, mesAtual])
 
   const totais = useMemo(() => reunioesMes.reduce((resultado, reuniao) => ({
     presencial: resultado.presencial + (reuniao.presencial || 0),
