@@ -119,6 +119,41 @@ export default function ConsultaAssistenciaPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/15 ring-1 ring-cyan-500/30">
+            <BarChart3 className="h-5 w-5 text-cyan-400" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Assistência por Reunião</h1>
+            <p className="text-sm text-muted-foreground">Escolha o tipo de assistência que deseja consultar</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5 ring-1 ring-blue-500/10">
+          <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/15">
+            <Users className="h-5 w-5 text-blue-400" />
+          </div>
+          <h2 className="font-semibold">Assistência Presencial</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Consulte a assistência presencial das reuniões.</p>
+        </div>
+
+        <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-5 ring-1 ring-violet-500/10">
+          <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/15">
+            <Monitor className="h-5 w-5 text-violet-400" />
+          </div>
+          <h2 className="font-semibold">Assistência Zoom</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Consulte a assistência das reuniões pelo Zoom.</p>
+        </div>
+      </div>
+    </div>
+  )
+
+  /* Dashboard detalhado mantido para futura navegação por tipo de assistência.
+  return (
+    <div className="space-y-6">
 
       {/* Cabeçalho */}
       <div className="flex flex-col gap-1">
@@ -493,4 +528,5 @@ export default function ConsultaAssistenciaPage() {
       )}
     </div>
   )
+  */
 }
