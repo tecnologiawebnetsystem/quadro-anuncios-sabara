@@ -162,26 +162,34 @@ function ConsultaLayoutContent({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0f2550]/95 backdrop-blur-sm border-t border-sky-700/40">
-        <div className="flex items-center justify-around py-2 px-2">
-          {bottomNavItems.map((item) => {
-            const active = isActive(item.href)
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all min-w-[60px]",
-                  active 
-                    ? "text-amber-400 bg-amber-500/10" 
-                    : "text-sky-300/60 hover:text-sky-200"
-                )}
-              >
-                <item.icon className={cn("w-5 h-5", active && "text-amber-400")} />
-                <span className="text-[10px] font-medium">{item.title}</span>
-              </Link>
-            )
-          })}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-sky-700/40 bg-[#0f2550]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+        aria-label="Navegação principal"
+      >
+        <div className="relative mx-auto max-w-xl">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-5 bg-gradient-to-r from-[#0f2550] to-transparent opacity-80" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[#0f2550] to-transparent opacity-90" />
+          <div className="flex snap-x snap-mandatory items-stretch gap-1 overflow-x-auto px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {bottomNavItems.map((item) => {
+              const active = isActive(item.href)
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "flex min-w-[76px] shrink-0 snap-start flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-center transition-all active:scale-95",
+                    active
+                      ? "bg-amber-500/15 text-amber-400 shadow-inner shadow-amber-400/10"
+                      : "text-sky-300/65 hover:bg-white/5 hover:text-sky-100"
+                  )}
+                >
+                  <item.icon className={cn("h-5 w-5", active && "text-amber-400")} aria-hidden="true" />
+                  <span className="whitespace-nowrap text-[10px] font-medium leading-tight">{item.title}</span>
+                </Link>
+              )
+            })}
+          </div>
         </div>
       </nav>
     </div>
