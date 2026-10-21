@@ -29,7 +29,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { usePublicadoresSupabase } from "@/lib/hooks/use-publicadores-supabase"
 import { Shield, User } from "lucide-react"
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths, getDay } from "date-fns"
+import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths, getDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { useSync } from "@/lib/contexts/sync-context"
@@ -68,6 +68,12 @@ interface CampoSemana {
   dirigente_nome: string
   periodo: string
   horario: string
+}
+
+interface LeitorDestaque {
+  data: string
+  tipo: "A Sentinela" | "Estudo de Livro"
+  nome: string
 }
 
 interface EventoCalendario {
@@ -172,6 +178,7 @@ export default function ConsultaPage() {
   const [limpezaSemana, setLimpezaSemana] = useState<LimpezaSemana | null>(null)
   const [proximoDiscurso, setProximoDiscurso] = useState<DiscursoPublico | null>(null)
   const [campoHoje, setCampoHoje] = useState<CampoSemana | null>(null)
+  const [leitoresDestaque, setLeitoresDestaque] = useState<LeitorDestaque[]>([])
   const [todosCampos, setTodosCampos] = useState<CampoSemanaItem[]>([])
   const [eventos, setEventos] = useState<EventoCalendario[]>([])
   const [mesSelecionado, setMesSelecionado] = useState(new Date())
@@ -317,6 +324,45 @@ export default function ConsultaPage() {
           })
         }
         
+        // Buscar leitores das próximas reuniões
+        const inicioLeitores = format(hoje, "yyyy-MM-dd")
+        const fimLeitores = format(addMonths(hoje, 1), "yyyy-MM-dd")
+        const [{ data: sentinelaLeitores }, { data: semanasLeitores }] = await Promise.all([
+          supabase
+            .from("reuniao_publica_designacoes")
+            .select("data, leitor_sentinela_nome")
+            .gte("data", inicioLeitores)
+            .lte("data", fimLeitores)
+            .not("leitor_sentinela_nome", "is", null)
+            .order("data"),
+          supabase
+            .from("vida_ministerio_semanas")
+            .select("id, data_inicio")
+            .gte("data_inicio", inicioLeitores)
+            .lte("data_inicio", fimLeitores)
+            .order("data_inicio"),
+        ])
+
+        const semanaIds = (semanasLeitores || []).map((semana) => semana.id)
+        const { data: partesLeitores } = semanaIds.length
+          ? await supabase
+              .from("vida_ministerio_partes")
+              .select("semana_id, leitor_nome")
+              .in("semana_id", semanaIds)
+              .eq("secao", "estudo_biblico")
+              .not("leitor_nome", "is", null)
+          : { data: [] }
+
+        const leitores: LeitorDestaque[] = [
+          ...(sentinelaLeitores || []).map((leitor) => ({ data: leitor.data, tipo: "A Sentinela" as const, nome: leitor.leitor_sentinela_nome })),
+          ...(partesLeitores || []).map((parte) => ({
+            data: semanasLeitores?.find((semana) => semana.id === parte.semana_id)?.data_inicio || "",
+            tipo: "Estudo de Livro" as const,
+            nome: parte.leitor_nome,
+          })),
+        ].filter((leitor) => leitor.nome && leitor.data).sort((a, b) => a.data.localeCompare(b.data))
+        setLeitoresDestaque(leitores)
+
         // Buscar dirigente de campo de hoje
         const diasMap: Record<string, string> = {
           "segunda-feira": "segunda",
@@ -574,31 +620,30 @@ export default function ConsultaPage() {
 
       {/* Cards de Destaque do Dia */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {/* Campo hoje */}
-        <div className={cn(
-          "rounded-2xl border p-4 flex items-center gap-3 transition-colors",
-          campoHoje
-            ? "border-green-500/30 bg-green-500/8"
-            : "border-zinc-700/40 bg-zinc-800/20"
-        )}>
-          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
-            campoHoje ? "bg-green-500/20" : "bg-zinc-700/40"
-          )}>
-            <MapPin className={cn("h-5 w-5", campoHoje ? "text-green-400" : "text-zinc-600")} />
+        {/* Leitores das próximas reuniões */}
+        <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/8 p-4 sm:col-span-2">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15">
+              <BookMarked className="h-5 w-5 text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">Próximas designações</p>
+              <p className="text-sm font-semibold text-white">Leitores</p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Campo Hoje</p>
-            {campoHoje ? (
-              <>
-                <p className="text-sm font-semibold text-white truncate">{campoHoje.dirigente_nome}</p>
-                <p className="text-xs text-zinc-400">
-                  {campoHoje.periodo === "manha" ? "Manhã" : "Tarde"} · {campoHoje.horario}
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-zinc-500">Sem campo hoje</p>
-            )}
-          </div>
+          {leitoresDestaque.length ? (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {leitoresDestaque.slice(0, 4).map((leitor) => (
+                <div key={`${leitor.tipo}-${leitor.data}`} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/10 px-3 py-2">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-200">{leitor.tipo}</p>
+                    <p className="truncate text-sm font-semibold text-white">{leitor.nome}</p>
+                  </div>
+                  <time className="shrink-0 text-xs font-bold text-emerald-300">{format(parseISO(leitor.data), "dd/MM/yyyy")}</time>
+                </div>
+              ))}
+            </div>
+          ) : <p className="text-sm text-zinc-500">Nenhum leitor designado.</p>}
         </div>
 
         {/* Limpeza da semana */}
