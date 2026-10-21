@@ -587,7 +587,7 @@ export default function ConsultaPage() {
 
       <ConsultaAssistenciaPage />
 
-      {/* Cards de Destaque do Dia */
+      {/* Cards de Destaque do Dia */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {/* Campo hoje */}
         <div className={cn(
