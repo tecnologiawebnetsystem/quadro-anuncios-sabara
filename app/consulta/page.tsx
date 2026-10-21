@@ -29,7 +29,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { usePublicadoresSupabase } from "@/lib/hooks/use-publicadores-supabase"
 import { Shield, User } from "lucide-react"
-import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths, getDay } from "date-fns"
+import { addDays, format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths, getDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { useSync } from "@/lib/contexts/sync-context"
@@ -179,6 +179,7 @@ export default function ConsultaPage() {
   const [proximoDiscurso, setProximoDiscurso] = useState<DiscursoPublico | null>(null)
   const [campoHoje, setCampoHoje] = useState<CampoSemana | null>(null)
   const [leitoresDestaque, setLeitoresDestaque] = useState<LeitorDestaque[]>([])
+  const [presidenteConferencia, setPresidenteConferencia] = useState<string | null>(null)
   const [todosCampos, setTodosCampos] = useState<CampoSemanaItem[]>([])
   const [eventos, setEventos] = useState<EventoCalendario[]>([])
   const [mesSelecionado, setMesSelecionado] = useState(new Date())
@@ -347,21 +348,32 @@ export default function ConsultaPage() {
         const { data: partesLeitores } = semanaIds.length
           ? await supabase
               .from("vida_ministerio_partes")
-              .select("semana_id, leitor_nome")
+              .select("semana_id, secao, titulo, leitor_nome")
               .in("semana_id", semanaIds)
-              .eq("secao", "estudo_biblico")
+              .eq("secao", "vida")
+              .ilike("titulo", "%estudo%blico%")
               .not("leitor_nome", "is", null)
           : { data: [] }
 
         const leitores: LeitorDestaque[] = [
           ...(sentinelaLeitores || []).map((leitor) => ({ data: leitor.data, tipo: "A Sentinela" as const, nome: leitor.leitor_sentinela_nome })),
           ...(partesLeitores || []).map((parte) => ({
-            data: semanasLeitores?.find((semana) => semana.id === parte.semana_id)?.data_inicio || "",
+            data: (() => {
+              const semana = semanasLeitores?.find((item) => item.id === parte.semana_id)
+              return semana ? format(addDays(parseISO(semana.data_inicio), 3), "yyyy-MM-dd") : ""
+            })(),
             tipo: "Estudo de Livro" as const,
             nome: parte.leitor_nome,
           })),
         ].filter((leitor) => leitor.nome && leitor.data).sort((a, b) => a.data.localeCompare(b.data))
         setLeitoresDestaque(leitores)
+
+        const { data: conferenciaData } = await supabase
+          .from("reuniao_publica_designacoes")
+          .select("presidente_nome")
+          .eq("data", format(addDays(hoje, 7 - hoje.getDay()), "yyyy-MM-dd"))
+          .maybeSingle()
+        setPresidenteConferencia(conferenciaData?.presidente_nome || null)
 
         // Buscar dirigente de campo de hoje
         const diasMap: Record<string, string> = {
@@ -644,6 +656,17 @@ export default function ConsultaPage() {
               ))}
             </div>
           ) : <p className="text-sm text-zinc-500">Nenhum leitor designado.</p>}
+        </div>
+
+        {/* Presidência da conferência */}
+        <div className="rounded-2xl border border-amber-500/25 bg-amber-500/8 p-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15">
+            <Mic className="h-5 w-5 text-amber-400" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-300">Presidência da conferência</p>
+            <p className="truncate text-sm font-semibold text-white">{presidenteConferencia || "Não definido"}</p>
+          </div>
         </div>
 
         {/* Limpeza da semana */}
