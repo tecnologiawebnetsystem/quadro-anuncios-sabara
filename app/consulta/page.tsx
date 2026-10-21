@@ -341,7 +341,10 @@ export default function ConsultaPage() {
           supabase
             .from("vida_ministerio_semanas")
             .select("id, data_inicio")
-            .eq("data_inicio", inicioLeitores),
+            .gte("data_inicio", inicioLeitores)
+            .lte("data_inicio", fimLeitores)
+            .order("data_inicio", { ascending: false })
+            .limit(1),
         ])
 
         const semanaIds = (semanasLeitores || []).map((semana) => semana.id)
@@ -350,6 +353,8 @@ export default function ConsultaPage() {
               .from("vida_ministerio_partes")
               .select("semana_id, secao, titulo, leitor_nome")
               .in("semana_id", semanaIds)
+              .eq("secao", "vida")
+              .ilike("titulo", "%Estudo%")
               .not("leitor_nome", "is", null)
           : { data: [] }
 
