@@ -276,6 +276,23 @@ export default function ConsultaPage() {
       try {
         setLoading(true)
         const supabase = createClient()
+
+        // A Presidência deve carregar independentemente dos demais cards.
+        const domingoSemana = format(endOfWeek(hoje, { weekStartsOn: 1 }), "yyyy-MM-dd")
+        const presidenciaResult = await supabase
+          .from("reuniao_publica_designacoes")
+          .select("data, presidente_nome")
+          .gte("data", `${domingoSemana}T00:00:00`)
+          .lt("data", format(addDays(endOfWeek(hoje, { weekStartsOn: 1 }), 1), "yyyy-MM-dd"))
+          .not("presidente_nome", "is", null)
+          .order("data", { ascending: true })
+          .limit(1)
+        if (presidenciaResult.error) throw presidenciaResult.error
+        setPresidenteConferencia(presidenciaResult.data?.[0]?.presidente_nome ? {
+          nome: presidenciaResult.data[0].presidente_nome,
+          data: domingoSemana,
+        } : null)
+
         const eventosTemp: EventoCalendario[] = []
         
         // Buscar equipe tecnica da semana
@@ -330,21 +347,6 @@ export default function ConsultaPage() {
         const fimSemana = endOfWeek(hoje, { weekStartsOn: 1 })
         const inicioLeitores = format(inicioSemana, "yyyy-MM-dd")
         const fimLeitores = format(fimSemana, "yyyy-MM-dd")
-        // A presidência é uma informação independente: buscar diretamente o domingo da semana atual.
-        const presidenciaResult = await supabase
-          .from("reuniao_publica_designacoes")
-          .select("data, presidente_nome")
-          .gte("data", `${fimLeitores}T00:00:00`)
-          .lt("data", format(addDays(fimSemana, 1), "yyyy-MM-dd"))
-          .not("presidente_nome", "is", null)
-          .order("data", { ascending: true })
-          .limit(1)
-        if (presidenciaResult.error) throw presidenciaResult.error
-        setPresidenteConferencia(presidenciaResult.data?.[0]?.presidente_nome ? {
-          nome: presidenciaResult.data[0].presidente_nome,
-          data: fimLeitores,
-        } : null)
-
         const [sentinelaResult, semanasResult] = await Promise.all([
           supabase
             .from("reuniao_publica_designacoes")
