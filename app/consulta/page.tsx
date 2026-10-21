@@ -21,7 +21,6 @@ import {
   Info,
   CalendarDays,
   Mail,
-  BarChart3,
   Search,
   ArrowUpRight,
   LayoutGrid,
@@ -30,7 +29,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { usePublicadoresSupabase } from "@/lib/hooks/use-publicadores-supabase"
 import { Shield, User } from "lucide-react"
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths, getDay } from "date-fns"
+import { addDays, format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, addMonths, subMonths, getDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { useSync } from "@/lib/contexts/sync-context"
@@ -39,6 +38,7 @@ import { BuscaDesignacoes } from "@/components/consulta/busca-designacoes"
 import { GerenciarNotificacoes } from "@/components/consulta/gerenciar-notificacoes"
 import { LoginPublicador } from "@/components/consulta/login-publicador"
 import { LogOut } from "lucide-react"
+import ConsultaAssistenciaPage from "./assistencia/page"
 
 interface EquipeTecnica {
   indicador1_nome: string | null
@@ -68,6 +68,12 @@ interface CampoSemana {
   dirigente_nome: string
   periodo: string
   horario: string
+}
+
+interface LeitorDestaque {
+  data: string
+  tipo: "A Sentinela" | "Estudo de Livro"
+  nome: string
 }
 
 interface EventoCalendario {
@@ -114,21 +120,9 @@ const diaSemanaMap: Record<number, string> = {
 // Menu de navegação rápida - organizado por categoria
 const menuSections = [
   {
-    title: "Reuniões",
+    title: "Escalas",
     items: [
-      { title: "Vida e Ministério", description: "Programação semanal", href: "/consulta/reunioes/vida-ministerio", icon: Gem, color: "bg-blue-600" },
-      { title: "Estudo Sentinela", description: "Dirigentes e leitores", href: "/consulta/reunioes/sentinela", icon: BookMarked, color: "bg-purple-600" },
-      { title: "Reuniões Públicas", description: "Discursos e assistência", href: "/consulta/reunioes-publicas", icon: Mic, color: "bg-amber-600" },
     ]
-  },
-{
-  title: "Escalas",
-  items: [
-  { title: "Equipe Técnica", description: "Indicadores e som",      href: "/consulta/equipe-tecnica", icon: Wrench,    color: "bg-orange-600" },
-  { title: "Limpeza do Salão", description: "Escala semanal",       href: "/consulta/limpeza-salao",  icon: Sparkles,  color: "bg-cyan-600"   },
-  { title: "Serviço de Campo", description: "Dirigentes de campo",  href: "/consulta/servico-campo",  icon: MapPin,    color: "bg-green-600"  },
-  { title: "Assistência",      description: "Presenças e estatísticas", href: "/consulta/assistencia", icon: BarChart3, color: "bg-violet-600" },
-  ]
   },
   {
   title: "Referências",
@@ -184,13 +178,14 @@ export default function ConsultaPage() {
   const [limpezaSemana, setLimpezaSemana] = useState<LimpezaSemana | null>(null)
   const [proximoDiscurso, setProximoDiscurso] = useState<DiscursoPublico | null>(null)
   const [campoHoje, setCampoHoje] = useState<CampoSemana | null>(null)
+  const [leitoresDestaque, setLeitoresDestaque] = useState<LeitorDestaque[]>([])
+  const [presidenteConferencia, setPresidenteConferencia] = useState<{ nome: string; data: string } | null>(null)
   const [todosCampos, setTodosCampos] = useState<CampoSemanaItem[]>([])
   const [eventos, setEventos] = useState<EventoCalendario[]>([])
   const [mesSelecionado, setMesSelecionado] = useState(new Date())
   const [vidaMinisterioSemanas, setVidaMinisterioSemanas] = useState<VidaMinisterioSemana[]>([])
   const [sentinelaSemanas, setSentinelaSemanas] = useState<SentinelaSemana[]>([])
   const [busca, setBusca] = useState("")
-  const [categoriaAtiva, setCategoriaAtiva] = useState("Todas")
   const [tooltip, setTooltip] = useState<{ 
     x: number; 
     y: number; 
@@ -330,6 +325,59 @@ export default function ConsultaPage() {
           })
         }
         
+        // Buscar leitores das próximas reuniões
+        const inicioLeitores = format(hoje, "yyyy-MM-dd")
+        const fimLeitores = format(addMonths(hoje, 1), "yyyy-MM-dd")
+        const [{ data: sentinelaLeitores }, { data: semanasLeitores }] = await Promise.all([
+          supabase
+            .from("reuniao_publica_designacoes")
+            .select("data, leitor_sentinela_nome")
+            .gte("data", inicioLeitores)
+            .lte("data", fimLeitores)
+            .not("leitor_sentinela_nome", "is", null)
+            .order("data"),
+          supabase
+            .from("vida_ministerio_semanas")
+            .select("id, data_inicio")
+            .gte("data_inicio", inicioLeitores)
+            .lte("data_inicio", fimLeitores)
+            .order("data_inicio"),
+        ])
+
+        const semanaIds = (semanasLeitores || []).map((semana) => semana.id)
+        const { data: partesLeitores } = semanaIds.length
+          ? await supabase
+              .from("vida_ministerio_partes")
+              .select("semana_id, secao, titulo, leitor_nome")
+              .in("semana_id", semanaIds)
+              .eq("secao", "vida")
+              .ilike("titulo", "%estudo%blico%")
+              .not("leitor_nome", "is", null)
+          : { data: [] }
+
+        const leitores: LeitorDestaque[] = [
+          ...(sentinelaLeitores || []).map((leitor) => ({ data: leitor.data, tipo: "A Sentinela" as const, nome: leitor.leitor_sentinela_nome })),
+          ...(partesLeitores || []).map((parte) => ({
+            data: (() => {
+              const semana = semanasLeitores?.find((item) => item.id === parte.semana_id)
+              return semana ? format(addDays(parseISO(semana.data_inicio), 3), "yyyy-MM-dd") : ""
+            })(),
+            tipo: "Estudo de Livro" as const,
+            nome: parte.leitor_nome,
+          })),
+        ].filter((leitor) => leitor.nome && leitor.data).sort((a, b) => a.data.localeCompare(b.data))
+        setLeitoresDestaque(leitores)
+
+        const { data: conferenciaData } = await supabase
+          .from("reuniao_publica_designacoes")
+          .select("presidente_nome")
+          .eq("data", format(addDays(hoje, 7 - hoje.getDay()), "yyyy-MM-dd"))
+          .maybeSingle()
+        setPresidenteConferencia(conferenciaData?.presidente_nome ? {
+          nome: conferenciaData.presidente_nome,
+          data: format(addDays(hoje, 7 - hoje.getDay()), "yyyy-MM-dd"),
+        } : null)
+
         // Buscar dirigente de campo de hoje
         const diasMap: Record<string, string> = {
           "segunda-feira": "segunda",
@@ -456,11 +504,8 @@ export default function ConsultaPage() {
   }
 
   const periodoTooltip = tooltip?.campo?.periodo === "manha" ? "Manhã" : tooltip?.campo?.periodo === "tarde" ? "Tarde" : tooltip?.campo?.periodo
-  const categorias = ["Todas", ...menuSections.map((section) => section.title)]
   const termoBusca = busca.trim().toLocaleLowerCase("pt-BR")
-  const secoesFiltradas = menuSections
-    .filter((section) => categoriaAtiva === "Todas" || section.title === categoriaAtiva)
-    .map((section) => ({
+  const secoesFiltradas = menuSections.map((section) => ({
       ...section,
       items: section.items.filter((item) =>
         !termoBusca || `${item.title} ${item.description}`.toLocaleLowerCase("pt-BR").includes(termoBusca)
@@ -562,10 +607,6 @@ export default function ConsultaPage() {
           </h1>
           <p className="mt-2 text-sm text-sky-100/65">Congregação Parque Sabará · área de consulta</p>
         </div>
-        <div className="hidden items-center gap-2 rounded-full border border-sky-200/15 bg-white/5 px-3 py-2 text-xs text-sky-100/70 sm:flex">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
-          Informações atualizadas
-        </div>
       </div>
 
       {/* Hub de consulta */}
@@ -588,41 +629,47 @@ export default function ConsultaPage() {
             </div>
           </div>
         </div>
-        <div className="relative mt-5 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Categorias da consulta">
-          {categorias.map((categoria) => (
-            <button key={categoria} type="button" role="tab" aria-selected={categoriaAtiva === categoria} onClick={() => setCategoriaAtiva(categoria)} className={cn("whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors", categoriaAtiva === categoria ? "border-sky-300/50 bg-sky-400 text-[#0f2550]" : "border-white/10 bg-white/[0.04] text-sky-100/65 hover:border-sky-300/30 hover:text-white")}>
-              {categoria}
-            </button>
-          ))}
-        </div>
       </section>
+
+      <ConsultaAssistenciaPage />
 
       {/* Cards de Destaque do Dia */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {/* Campo hoje */}
-        <div className={cn(
-          "rounded-2xl border p-4 flex items-center gap-3 transition-colors",
-          campoHoje
-            ? "border-green-500/30 bg-green-500/8"
-            : "border-zinc-700/40 bg-zinc-800/20"
-        )}>
-          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
-            campoHoje ? "bg-green-500/20" : "bg-zinc-700/40"
-          )}>
-            <MapPin className={cn("h-5 w-5", campoHoje ? "text-green-400" : "text-zinc-600")} />
+        {/* Leitores das próximas reuniões */}
+        <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/8 p-4 sm:col-span-2">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15">
+              <BookMarked className="h-5 w-5 text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">Próximas designações</p>
+              <p className="text-sm font-semibold text-white">Leitores</p>
+            </div>
+          </div>
+          {leitoresDestaque.length ? (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {leitoresDestaque.slice(0, 4).map((leitor) => (
+                <div key={`${leitor.tipo}-${leitor.data}`} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/10 px-3 py-2">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-200">{leitor.tipo}</p>
+                    <p className="truncate text-sm font-semibold text-white">{leitor.nome}</p>
+                  </div>
+                  <time className="shrink-0 text-xs font-bold text-emerald-300">{format(parseISO(leitor.data), "dd/MM/yyyy")}</time>
+                </div>
+              ))}
+            </div>
+          ) : <p className="text-sm text-zinc-500">Nenhum leitor designado.</p>}
+        </div>
+
+        {/* Presidência da conferência */}
+        <div className="rounded-2xl border border-amber-500/25 bg-amber-500/8 p-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15">
+            <Mic className="h-5 w-5 text-amber-400" />
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Campo Hoje</p>
-            {campoHoje ? (
-              <>
-                <p className="text-sm font-semibold text-white truncate">{campoHoje.dirigente_nome}</p>
-                <p className="text-xs text-zinc-400">
-                  {campoHoje.periodo === "manha" ? "Manhã" : "Tarde"} · {campoHoje.horario}
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-zinc-500">Sem campo hoje</p>
-            )}
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-300">Presidência da conferência</p>
+            <p className="truncate text-sm font-semibold text-white">{presidenteConferencia?.nome || "Não definido"}</p>
+            {presidenteConferencia && <p className="text-xs text-amber-200">{format(parseISO(presidenteConferencia.data), "dd/MM/yyyy")}</p>}
           </div>
         </div>
 

@@ -6,14 +6,14 @@ import {
   Home, 
   Calendar,
   BookOpen,
-  Mic,
   Sparkles,
   LogOut,
   RefreshCw,
   ChevronLeft,
   Users,
   Wrench,
-  MapPin
+  MapPin,
+  Mic
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SyncProvider, useSync } from "@/lib/contexts/sync-context"
