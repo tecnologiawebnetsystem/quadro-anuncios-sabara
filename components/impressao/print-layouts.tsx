@@ -92,7 +92,9 @@ interface ServicoCampo {
   id: string
   data: string
   dirigente_nome: string | null
-}
+  motivo: string | null
+  tipo: "individual" | "grupo" | "salao" | "nao_tera"
+  }
 
 interface ReuniaoPublica {
   id: string
@@ -1230,14 +1232,16 @@ export const PrintServicoCampo = forwardRef<HTMLDivElement, ServicoCampoProps>(
           <thead>
             <tr style={{ backgroundColor: "#059669" }}>
               <th style={{ padding: "5px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "25%" }}>Data</th>
-              <th style={{ padding: "5px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "75%" }}>Dirigente</th>
+              <th style={{ padding: "5px 8px", border: "1px solid #999", color: "white", textAlign: "left", width: "75%" }}>Dirigente / situação</th>
             </tr>
           </thead>
           <tbody>
             {escalas.map((escala, i) => (
               <tr key={escala.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
                 <td style={{ padding: "5px 8px", border: "1px solid #ddd", fontWeight: "500" }}>{formatarData(escala.data)}</td>
-                <td style={{ padding: "5px 8px", border: "1px solid #ddd" }}>{escala.dirigente_nome || "-"}</td>
+                <td style={{ padding: "5px 8px", border: "1px solid #ddd" }}>
+                  {escala.tipo === "nao_tera" ? `Não terá${escala.motivo ? ` — ${escala.motivo}` : ""}` : escala.tipo === "grupo" ? "GRUPO" : escala.tipo === "salao" ? `Salão${escala.dirigente_nome ? ` — ${escala.dirigente_nome}` : ""}` : escala.dirigente_nome || "-"}
+                </td>
               </tr>
             ))}
           </tbody>

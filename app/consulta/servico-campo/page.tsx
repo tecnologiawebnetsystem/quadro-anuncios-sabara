@@ -44,7 +44,8 @@ interface CampoDomingo {
   mes: string
   horario: string
   dirigente_nome: string | null
-  tipo: "individual" | "grupo" | "salao"
+  motivo: string | null
+  tipo: "individual" | "grupo" | "salao" | "nao_tera"
 }
 
 const meses = [
@@ -380,7 +381,12 @@ export default function ConsultaServicoCampoPage() {
                     {campoDomingo.map((item) => (
                       <div key={item.id} className="p-3 rounded-lg bg-zinc-800/50 text-center">
                         <div className="text-xs text-zinc-400 mb-1">{formatarData(item.data)} - {item.horario}</div>
-                        {item.tipo === "grupo" ? (
+                        {item.tipo === "nao_tera" ? (
+                          <div>
+                            <div className="text-sm font-medium text-red-400">Não terá</div>
+                            {item.motivo && <div className="text-xs text-zinc-400 mt-1">{item.motivo}</div>}
+                          </div>
+                        ) : item.tipo === "grupo" ? (
                           <div className="text-sm font-medium text-green-400 flex items-center justify-center gap-1">
                             <Users className="h-3 w-3" />
                             GRUPO
