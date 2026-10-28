@@ -509,16 +509,37 @@ export default function ReunioesPublicasPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {domingosDoMes.map((data) => {
-                  const registro = discursos.find(d => d.data === data)
-                  return (
+  {domingosDoMes.map((data) => {
+  const registro = discursos.find(d => d.data === data)
+  const statusReuniao = designacoes.find(d => d.data === data)
+  return (
                     <div key={data} className="p-4 rounded-lg bg-zinc-800/30 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium text-foreground">{formatarData(data)}</span>
-                        <span className="text-xs text-muted-foreground">Domingo</span>
-                      </div>
-                      <div className="space-y-1">
+  <div className="flex items-center gap-2">
+  <Calendar className="h-4 w-4 text-muted-foreground" />
+  <span className="font-medium text-foreground">{formatarData(data)}</span>
+  <span className="text-xs text-muted-foreground">Domingo</span>
+  </div>
+  <div className="space-y-2 rounded-md border border-zinc-700/70 bg-zinc-900/20 p-3">
+  <label className="flex items-center gap-2 text-sm text-foreground">
+  <input
+  type="checkbox"
+  checked={statusReuniao?.sem_reuniao ?? false}
+  onChange={(event) => salvarStatusReuniao(data, event.target.checked, statusReuniao?.motivo_sem_reuniao || "")}
+  className="h-4 w-4 accent-red-600"
+  />
+  Não haverá reunião neste dia
+  </label>
+  {statusReuniao?.sem_reuniao && (
+  <Input
+  value={statusReuniao.motivo_sem_reuniao || ""}
+  onChange={(event) => setDesignacoes((prev) => prev.map((d) => d.data === data ? { ...d, motivo_sem_reuniao: event.target.value } : d))}
+  onBlur={(event) => salvarStatusReuniao(data, true, event.target.value)}
+  placeholder="Descreva o motivo..."
+  className="bg-zinc-800/50 border-zinc-700"
+  />
+  )}
+  </div>
+  <div className="space-y-1">
                         <label className="text-xs text-muted-foreground">Tema do Discurso</label>
                         <Input
                           value={registro?.tema || ""}
