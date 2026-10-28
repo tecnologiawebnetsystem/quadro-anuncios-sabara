@@ -20,8 +20,8 @@ interface DesignacaoReuniao {
   presidente_nome: string
   leitor_sentinela_id: string | null
   leitor_sentinela_nome: string
-  sem_reuniao: boolean
-  motivo_sem_reuniao: string | null
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
 }
 
 interface DiscursoPublico {
@@ -539,6 +539,7 @@ export default function ReunioesPublicasPage() {
   />
   )}
   </div>
+  {!statusReuniao?.sem_reuniao && <>
   <div className="space-y-1">
                         <label className="text-xs text-muted-foreground">Tema do Discurso</label>
                         <Input
@@ -605,6 +606,7 @@ export default function ReunioesPublicasPage() {
                           />
                         </div>
                       </div>
+  </>}
                     </div>
                   )
                 })}
