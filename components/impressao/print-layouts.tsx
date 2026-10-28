@@ -1575,7 +1575,8 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
                     </>
                   )}
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -1612,10 +1613,9 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
                     <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{a.presencial}</td>
                     <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{a.zoom}</td>
                     <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>{a.presencial + a.zoom}</td>
-                </tr>
-                )
-              })}
-            </tbody>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
         )}
