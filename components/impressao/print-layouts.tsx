@@ -1338,17 +1338,16 @@ export const PrintVisitasSupServico = forwardRef<HTMLDivElement, VisitasSupServi
             <h1 style={{ margin: "6px 0 0", color: "#163f67", fontSize: "27px", lineHeight: 1.1 }}>Visita do Sup. Serviço</h1>
             <p style={{ margin: "7px 0 0", color: "#667085", fontSize: "14px" }}>Programação das visitas aos grupos de campo</p>
           </div>
-          <div style={{ color: "#163f67", fontSize: "15px", fontWeight: 700, textAlign: "right" }}>{getMesAno(mes, ano)}</div>
         </header>
 
         <section style={{ marginTop: "24px", padding: "18px 20px", border: "1px solid #d7dee8", borderRadius: "8px", backgroundColor: "#f7f9fc" }}>
-          <div style={{ color: "#163f67", fontSize: "13px", fontWeight: 700, letterSpacing: "0.8px", textTransform: "uppercase" }}>Agenda do mês</div>
-          <p style={{ margin: "7px 0 0", color: "#667085", fontSize: "14px" }}>Confira a data da visita, o grupo atendido e o ancião responsável.</p>
+          <div style={{ color: "#163f67", fontSize: "13px", fontWeight: 700, letterSpacing: "0.8px", textTransform: "uppercase" }}>Visitas cadastradas</div>
+          <p style={{ margin: "7px 0 0", color: "#667085", fontSize: "14px" }}>Confira todas as visitas na ordem em que foram cadastradas.</p>
         </section>
 
         <main style={{ marginTop: "20px" }}>
           {visitas.length === 0 ? (
-            <div style={{ border: "1px dashed #b8c4d3", borderRadius: "8px", padding: "42px 20px", textAlign: "center", color: "#667085" }}>Nenhuma visita cadastrada para este mês.</div>
+            <div style={{ border: "1px dashed #b8c4d3", borderRadius: "8px", padding: "42px 20px", textAlign: "center", color: "#667085" }}>Nenhuma visita cadastrada.</div>
           ) : (
             <div style={{ display: "grid", gap: "10px" }}>
               {visitas.map((visita, index) => (
