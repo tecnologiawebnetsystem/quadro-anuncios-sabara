@@ -75,7 +75,7 @@ export default function ImpressaoLimpezaSalaoPage() {
 
         const { data: rawData } = await supabase
           .from("limpeza_salao")
-          .select("id, semana, data_inicio, data_fim, grupo_nome, limpeza_semanal_grupo_nome, grupos:grupo_id(local), limpeza_semanal_grupos:limpeza_semanal_grupo_id(local)")
+          .select("id, semana, data_inicio, data_fim, grupo_nome, limpeza_semanal_grupo_nome, sem_reuniao, motivo_sem_reuniao, grupos:grupo_id(local), limpeza_semanal_grupos:limpeza_semanal_grupo_id(local)")
           .gte("data_inicio", inicioRangeStr)
           .lte("data_inicio", ultimoDiaStr)
           .order("data_inicio", { ascending: true })
@@ -118,7 +118,7 @@ export default function ImpressaoLimpezaSalaoPage() {
             vistos.set(chave, item)
           } else {
             const existente = vistos.get(chave)!
-            if (!existente.grupo_nome && item.grupo_nome) {
+            if ((!existente.sem_reuniao && item.sem_reuniao) || (!existente.grupo_nome && item.grupo_nome && !item.sem_reuniao)) {
               vistos.set(chave, item)
             }
           }

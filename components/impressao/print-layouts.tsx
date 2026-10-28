@@ -1174,7 +1174,9 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
 
                           {/* Limpeza Semanal */}
                           <div style={{ padding: "6px 10px" }}>
-                            {escala.limpeza_semanal_grupo_nome ? (
+                            {escala.sem_reuniao ? (
+                              <div style={{ fontSize: "10.5px", color: "#9ca3af", fontStyle: "italic" }}>—</div>
+                            ) : escala.limpeza_semanal_grupo_nome ? (
                               <>
                                 <div style={{ fontSize: "11px", fontWeight: "700", color: "#111827", lineHeight: 1.3 }}>
                                   {escala.limpeza_semanal_grupo_nome}
