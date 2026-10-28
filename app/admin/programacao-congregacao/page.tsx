@@ -14,19 +14,21 @@ interface DesignacaoTecnica {
   id: string
   data: string
   dia_semana: string
-  indicador1: string | null
-  indicador2: string | null
-  mic_volante1: string | null
-  mic_volante2: string | null
-  audio_video: string | null
-  palco: string | null
+  indicador1_nome: string | null
+  indicador2_nome: string | null
+  microvolante1_nome: string | null
+  microvolante2_nome: string | null
+  som_nome: string | null
+  microvolante_palco: 1 | 2 | null
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
 }
 
 interface DesignacaoReuniaoPublica {
   id: string
   data: string
-  presidente: string | null
-  leitor_sentinela: string | null
+  presidente_nome: string | null
+  leitor_sentinela_nome: string | null
 }
 
 interface ArranjoDiscurso {
@@ -344,10 +346,18 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                     </span>
                     {formatarData(d.data)}
                   </td>
-                  <td style={cell()}>{[d.indicador1_nome, d.indicador2_nome].filter(Boolean).join(" / ") || "—"}</td>
-                  <td style={cell()}>{[d.microvolante1_nome, d.microvolante2_nome].filter(Boolean).join(" / ") || "—"}</td>
-                  <td style={cell()}>{d.som_nome}</td>
-                  <td style={cell()}>{d.microvolante1_nome}</td>
+                  {d.sem_reuniao ? (
+                    <td colSpan={4} style={cell({ textAlign: "center", color: "#b91c1c", fontWeight: "bold" })}>
+                      Não terá reunião{d.motivo_sem_reuniao ? ` — ${d.motivo_sem_reuniao}` : ""}
+                    </td>
+                  ) : (
+                    <>
+                      <td style={cell()}>{[d.indicador1_nome, d.indicador2_nome].filter(Boolean).join(" / ") || "—"}</td>
+                      <td style={cell()}>{[d.microvolante1_nome, d.microvolante2_nome].filter(Boolean).join(" / ") || "—"}</td>
+                      <td style={cell()}>{d.som_nome || "—"}</td>
+                      <td style={cell()}>{d.microvolante1_nome || "—"}</td>
+                    </>
+                  )}
                 </tr>
                 )
               })}
