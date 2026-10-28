@@ -422,11 +422,19 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
               {arranjoDiscursos.map((d) => (
                 <tr key={d.data}>
                   <td style={cell({ fontWeight: "bold" })}>{formatarData(d.data)}</td>
-                  <td style={cell()}>{d.tema || "—"}</td>
-                  <td style={cell()}>{d.orador_nome || "—"}</td>
-                  <td style={cell({ color: d.orador_congregacao ? "#1e3a5f" : "#9ca3af", fontStyle: d.orador_congregacao ? "normal" : "italic" })}>
-                    {d.orador_congregacao || "—"}
-                  </td>
+                  {d.sem_reuniao ? (
+                    <td colSpan={3} style={cell({ textAlign: "center", color: "#b91c1c", fontWeight: "bold" })}>
+                      Não terá reunião{d.motivo_sem_reuniao ? ` — ${d.motivo_sem_reuniao}` : ""}
+                    </td>
+                  ) : (
+                    <>
+                      <td style={cell()}>{d.tema || "—"}</td>
+                      <td style={cell()}>{d.orador_nome || "—"}</td>
+                      <td style={cell({ color: d.orador_congregacao ? "#1e3a5f" : "#9ca3af", fontStyle: d.orador_congregacao ? "normal" : "italic" })}>
+                        {d.orador_congregacao || "—"}
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
             </tbody>

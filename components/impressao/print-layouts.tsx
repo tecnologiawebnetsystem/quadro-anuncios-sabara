@@ -1547,14 +1547,18 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
               </tr>
             </thead>
             <tbody>
-              {discursos.map((d, i) => (
+              {discursos.map((d, i) => {
+                const statusReuniao = reunioesPublicas.find((r) => r.data === d.data)
+                const semReuniao = d.sem_reuniao || statusReuniao?.sem_reuniao
+                const motivoSemReuniao = d.motivo_sem_reuniao || statusReuniao?.motivo_sem_reuniao
+                return (
                 <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
                     {formatarDataCurta(d.data)}
                   </td>
-                  {d.sem_reuniao ? (
+                  {semReuniao ? (
                     <td colSpan={3} style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", color: "#b91c1c", fontWeight: 700 }}>
-                      Não terá reunião{d.motivo_sem_reuniao ? ` — ${d.motivo_sem_reuniao}` : ""}
+                      Não terá reunião{motivoSemReuniao ? ` — ${motivoSemReuniao}` : ""}
                     </td>
                   ) : (
                     <>
@@ -1608,9 +1612,10 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
                     <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{a.presencial}</td>
                     <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{a.zoom}</td>
                     <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>{a.presencial + a.zoom}</td>
-                  </tr>
-                ))}
-              </tbody>
+                </tr>
+                )
+              })}
+            </tbody>
             </table>
           </div>
         )}
