@@ -18,11 +18,11 @@ export function AdminHeader() {
         <SidebarTrigger />
         <div className="hidden md:flex">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Buscar..."
-              className="w-64 bg-secondary pl-9 text-foreground placeholder:text-muted-foreground"
+<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
+          <Input
+            type="search"
+            placeholder="Buscar..."
+            className="w-64 border-slate-300 bg-slate-100 pl-9 text-slate-900 placeholder:text-slate-600"
             />
           </div>
         </div>
