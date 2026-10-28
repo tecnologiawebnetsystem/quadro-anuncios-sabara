@@ -435,7 +435,12 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                   <tr>
                     {campoDomingo.map(d => (
                       <td key={d.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>
-                        {d.tipo === "grupo" ? (
+                        {d.tipo === "nao_tera" ? (
+                          <span>
+                            <span style={{ color: "#b91c1c", fontWeight: "bold" }}>Não terá</span>
+                            {d.motivo && <><br /><span style={{ color: "#444", fontSize: "12px", fontWeight: "normal" }}>{d.motivo}</span></>}
+                          </span>
+                        ) : d.tipo === "grupo" ? (
                           <span style={{ color: "#166534", fontWeight: "bold" }}>Saída em Grupo</span>
                         ) : d.tipo === "salao" ? (
                           <span><span style={{ color: "#1e40af", fontWeight: "bold", fontSize: "13px" }}>No Salão</span><br/>{d.dirigente_nome || "—"}</span>
