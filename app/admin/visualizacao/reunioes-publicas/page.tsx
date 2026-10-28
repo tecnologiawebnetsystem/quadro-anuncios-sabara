@@ -14,6 +14,8 @@ interface DesignacaoReuniao {
   mes: string
   presidente_nome: string
   leitor_sentinela_nome: string
+  sem_reuniao: boolean
+  motivo_sem_reuniao: string | null
 }
 
 interface DiscursoPublico {

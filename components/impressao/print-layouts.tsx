@@ -1285,6 +1285,8 @@ interface ReuniaoPublicaDesig {
   data: string
   presidente: string | null
   leitor_sentinela: string | null
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
 }
 
 interface ArranjoDiscurso {
@@ -1494,8 +1496,16 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
                     {formatarDataCurta(r.data)}
                   </td>
-                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.presidente || "-"}</td>
-                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.leitor_sentinela || "-"}</td>
+{r.sem_reuniao ? (
+              <td colSpan={2} style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", color: "#b91c1c", fontWeight: 700 }}>
+                Não terá reunião{r.motivo_sem_reuniao ? ` — ${r.motivo_sem_reuniao}` : ""}
+              </td>
+            ) : (
+              <>
+                <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.presidente || "-"}</td>
+                <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.leitor_sentinela || "-"}</td>
+              </>
+            )}
                 </tr>
               ))}
             </tbody>

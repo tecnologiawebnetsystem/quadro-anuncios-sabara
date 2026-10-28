@@ -29,6 +29,8 @@ interface DesignacaoReuniaoPublica {
   data: string
   presidente_nome: string | null
   leitor_sentinela_nome: string | null
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
 }
 
 interface ArranjoDiscurso {
@@ -378,11 +380,19 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
             </thead>
             <tbody>
               {designacoesReuniaoPublica.map((r) => (
-                <tr key={r.data}>
-                  <td style={cell({ fontWeight: "bold" })}>{formatarData(r.data)}</td>
-                  <td style={cell()}>{r.presidente_nome || "—"}</td>
-                  <td style={cell()}>{r.leitor_sentinela_nome || "—"}</td>
-                </tr>
+<tr key={r.data}>
+                      <td style={cell({ fontWeight: "bold" })}>{formatarData(r.data)}</td>
+                      {r.sem_reuniao ? (
+                        <td colSpan={2} style={cell({ textAlign: "center", color: "#b91c1c", fontWeight: "bold" })}>
+                          Não terá reunião{r.motivo_sem_reuniao ? ` — ${r.motivo_sem_reuniao}` : ""}
+                        </td>
+                      ) : (
+                        <>
+                          <td style={cell()}>{r.presidente_nome || "—"}</td>
+                          <td style={cell()}>{r.leitor_sentinela_nome || "—"}</td>
+                        </>
+                      )}
+                    </tr>
               ))}
             </tbody>
           </table>
