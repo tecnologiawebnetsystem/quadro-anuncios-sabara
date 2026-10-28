@@ -28,7 +28,8 @@ import {
   PrintEquipeTecnica,
   PrintGruposEstudo,
   PrintLimpezaSalao,
-  PrintServicoCampo
+  PrintServicoCampo,
+  PrintVisitasSupServico
 } from "@/components/impressao/print-layouts"
 import { PrintActionButtons } from "@/components/impressao/print-action-buttons"
 import "./print-styles.css"
@@ -56,6 +57,7 @@ const tiposImpressao = [
   { id: "grupos-estudo", nome: "Grupos de Estudo", icon: Users, cor: "bg-emerald-600" },
   { id: "limpeza-salao", nome: "Limpeza do Salão", icon: Sparkles, cor: "bg-cyan-600" },
   { id: "servico-campo", nome: "Serviço de Campo", icon: MapPin, cor: "bg-green-600" },
+  { id: "visitas-sup-servico", nome: "Visita Sup. Serviço", icon: Users, cor: "bg-amber-600" },
 ]
 
 export default function ImpressaoPage() {
@@ -79,6 +81,7 @@ export default function ImpressaoPage() {
   const [limpezaSalao, setLimpezaSalao] = useState<any[]>([])
   const [limpezaSalao4Meses, setLimpezaSalao4Meses] = useState<any[]>([])
   const [servicoCampo, setServicoCampo] = useState<any[]>([])
+  const [visitasSupServico, setVisitasSupServico] = useState<any[]>([])
 
   // Hook de publicadores para grupos
   const { publicadores, grupos, getDirigente, getAuxiliar } = usePublicadoresSupabase()
@@ -198,6 +201,19 @@ export default function ImpressaoPage() {
             })
           }
           setLimpezaSalao4Meses(meses4)
+          break
+        }
+
+        case "visitas-sup-servico": {
+          const ultimoDia = new Date(Number(anoAtual), Number(mesAtual), 0).getDate()
+          const dataFim = `${mesStr}-${String(ultimoDia).padStart(2, "0")}`
+          const { data } = await supabase
+            .from("visitas_sup_servico")
+            .select("id, data, anciao:publicadores!anciao_id(nome), grupo:grupos!grupo_id(nome)")
+            .gte("data", `${mesStr}-01`)
+            .lte("data", dataFim)
+            .order("data", { ascending: true })
+          setVisitasSupServico(data || [])
           break
         }
 
@@ -335,6 +351,15 @@ export default function ImpressaoPage() {
             mes={mesAtual}
             ano={anoAtual}
             escalas={servicoCampo}
+          />
+        )
+      case "visitas-sup-servico":
+        return (
+          <PrintVisitasSupServico
+            ref={printRef}
+            mes={mesAtual}
+            ano={anoAtual}
+            visitas={visitasSupServico}
           />
         )
       default:

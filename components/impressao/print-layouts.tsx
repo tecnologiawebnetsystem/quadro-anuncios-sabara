@@ -1300,6 +1300,76 @@ export const PrintServicoCampo = forwardRef<HTMLDivElement, ServicoCampoProps>(
 PrintServicoCampo.displayName = "PrintServicoCampo"
 
 // =====================================
+// VISITA DO SUPERINTENDENTE DE SERVIÇO
+// =====================================
+interface VisitaSupServicoPrint {
+  id: string
+  data: string
+  anciao?: { nome?: string | null } | null
+  grupo?: { nome?: string | null } | null
+}
+
+interface VisitasSupServicoProps {
+  mes: number
+  ano: number
+  visitas: VisitaSupServicoPrint[]
+}
+
+export const PrintVisitasSupServico = forwardRef<HTMLDivElement, VisitasSupServicoProps>(
+  ({ mes, ano, visitas }, ref) => {
+    const formatarDataCompleta = (data: string) => new Date(`${data}T12:00:00`).toLocaleDateString("pt-BR", {
+      weekday: "long", day: "2-digit", month: "long", year: "numeric",
+    })
+
+    return (
+      <div ref={ref} style={{ backgroundColor: "#ffffff", color: "#172033", width: "210mm", minHeight: "297mm", padding: "14mm", margin: "0 auto", boxSizing: "border-box", fontFamily: "Arial, sans-serif" }}>
+        <header style={{ borderBottom: "3px solid #163f67", paddingBottom: "14px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "20px" }}>
+          <div>
+            <div style={{ color: "#c58b12", fontSize: "11px", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" }}>Quadro de Anúncios</div>
+            <h1 style={{ margin: "6px 0 0", color: "#163f67", fontSize: "27px", lineHeight: 1.1 }}>Visita do Sup. Serviço</h1>
+            <p style={{ margin: "7px 0 0", color: "#667085", fontSize: "14px" }}>Programação das visitas aos grupos de campo</p>
+          </div>
+          <div style={{ color: "#163f67", fontSize: "15px", fontWeight: 700, textAlign: "right" }}>{getMesAno(mes, ano)}</div>
+        </header>
+
+        <section style={{ marginTop: "24px", padding: "18px 20px", border: "1px solid #d7dee8", borderRadius: "8px", backgroundColor: "#f7f9fc" }}>
+          <div style={{ color: "#163f67", fontSize: "13px", fontWeight: 700, letterSpacing: "0.8px", textTransform: "uppercase" }}>Agenda do mês</div>
+          <p style={{ margin: "7px 0 0", color: "#667085", fontSize: "14px" }}>Confira a data da visita, o grupo atendido e o ancião responsável.</p>
+        </section>
+
+        <main style={{ marginTop: "20px" }}>
+          {visitas.length === 0 ? (
+            <div style={{ border: "1px dashed #b8c4d3", borderRadius: "8px", padding: "42px 20px", textAlign: "center", color: "#667085" }}>Nenhuma visita cadastrada para este mês.</div>
+          ) : (
+            <div style={{ display: "grid", gap: "10px" }}>
+              {visitas.map((visita, index) => (
+                <article key={visita.id} style={{ display: "grid", gridTemplateColumns: "34% 33% 33%", alignItems: "center", minHeight: "65px", border: "1px solid #d7dee8", borderRadius: "8px", overflow: "hidden", backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc" }}>
+                  <div style={{ padding: "14px 16px", backgroundColor: "#163f67", color: "#ffffff", height: "100%", boxSizing: "border-box" }}>
+                    <div style={{ fontSize: "11px", opacity: 0.8, textTransform: "uppercase", letterSpacing: "0.7px" }}>Data da visita</div>
+                    <div style={{ marginTop: "5px", fontSize: "15px", fontWeight: 700 }}>{formatarDataCompleta(visita.data)}</div>
+                  </div>
+                  <div style={{ padding: "12px 16px", borderRight: "1px solid #d7dee8" }}>
+                    <div style={{ fontSize: "10px", color: "#667085", textTransform: "uppercase", letterSpacing: "0.7px" }}>Grupo de campo</div>
+                    <div style={{ marginTop: "5px", fontSize: "15px", fontWeight: 700, color: "#172033" }}>{visita.grupo?.nome || "Não informado"}</div>
+                  </div>
+                  <div style={{ padding: "12px 16px" }}>
+                    <div style={{ fontSize: "10px", color: "#667085", textTransform: "uppercase", letterSpacing: "0.7px" }}>Ancião responsável</div>
+                    <div style={{ marginTop: "5px", fontSize: "15px", fontWeight: 700, color: "#172033" }}>{visita.anciao?.nome || "Não informado"}</div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </main>
+
+        <footer style={{ marginTop: "30px", paddingTop: "12px", borderTop: "1px solid #d7dee8", color: "#667085", fontSize: "11px", textAlign: "center" }}>Congregação Pq. Sabará · Quadro de Anúncios</footer>
+      </div>
+    )
+  },
+)
+PrintVisitasSupServico.displayName = "PrintVisitasSupServico"
+
+// =====================================
 // PROGRAMAÇÃO DA CONGREGAÇÃO (EQUIPE TÉCNICA)
 // =====================================
 interface DesignacaoTecnica {
