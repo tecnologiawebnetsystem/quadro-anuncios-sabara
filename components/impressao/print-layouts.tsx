@@ -195,22 +195,34 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                   <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827" }}>Congregação Pq. Sabará</div>
                   <div style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>Vida e Ministério Cristão — Programação</div>
                 </div>
-                <div style={{ border: "2px solid #c69214", borderRadius: "10px", overflow: "hidden", marginTop: "45px" }}>
-                  <div style={{ backgroundColor: "#c69214", color: "white", padding: "16px 20px", fontSize: "18px", fontWeight: 700 }}>
+                <div style={{ border: "2px solid #c69214", borderRadius: "12px", overflow: "hidden", marginTop: "38px", backgroundColor: "#fffbeb" }}>
+                  <div style={{ backgroundColor: "#c69214", color: "white", padding: "16px 20px", fontSize: "18px", fontWeight: 700, letterSpacing: "0.2px" }}>
                     SEMANA ESPECIAL — SEM REUNIÃO
                   </div>
-                  <div style={{ padding: "32px 24px", textAlign: "center", backgroundColor: "#fffbeb" }}>
-                    <div style={{ fontSize: "22px", fontWeight: 700, color: "#92400e", marginBottom: "12px" }}>
-                      {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)}
-                    </div>
-                    <div style={{ fontSize: "17px", color: "#374151" }}>
-                      Não haverá reunião nesta semana.
-                    </div>
-                    {semana.motivo_sem_reuniao && (
-                      <div style={{ marginTop: "18px", padding: "14px 18px", borderRadius: "6px", backgroundColor: "#fef3c7", color: "#78350f", fontSize: "16px", fontWeight: 700 }}>
-                        Motivo: {semana.motivo_sem_reuniao}
+                  <div style={{ display: "flex", alignItems: "stretch", gap: "22px", padding: "22px", backgroundColor: "#fffbeb" }}>
+                    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center", padding: "10px 4px" }}>
+                      <div style={{ fontSize: "22px", fontWeight: 700, color: "#92400e", marginBottom: "14px", lineHeight: 1.25 }}>
+                        {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)}
                       </div>
-                    )}
+                      <div style={{ fontSize: "17px", color: "#374151", lineHeight: 1.45 }}>
+                        Não haverá reunião nesta semana.
+                      </div>
+                      {semana.motivo_sem_reuniao && (
+                        <div style={{ marginTop: "22px", padding: "14px 12px", borderRadius: "8px", backgroundColor: "#fef3c7", color: "#78350f", fontSize: "16px", fontWeight: 700, lineHeight: 1.35 }}>
+                          Motivo: {semana.motivo_sem_reuniao}
+                        </div>
+                      )}
+                      <div style={{ marginTop: "22px", fontSize: "12px", color: "#92400e", fontWeight: 600, lineHeight: 1.4 }}>
+                        Aproveite esta ocasião especial para fortalecer sua fé e sua união cristã.
+                      </div>
+                    </div>
+                    <div style={{ width: "72mm", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <img
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202026-10-28%20at%2010.48.15-BC3hTjj6GPE7XLb2MGTldcXmivevco.jpeg"
+                        alt="Convite da Assembleia de Circuito das Testemunhas de Jeová"
+                        style={{ display: "block", width: "100%", maxHeight: "150mm", objectFit: "contain", borderRadius: "8px", boxShadow: "0 3px 10px rgba(120, 75, 20, 0.2)" }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
