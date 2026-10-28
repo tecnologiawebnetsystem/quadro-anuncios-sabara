@@ -40,6 +40,8 @@ interface ArranjoDiscurso {
   orador_nome: string | null
   orador_congregacao: string | null
   orador_salao: string | null
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
 }
 
 interface AssistenciaReuniao {
@@ -133,9 +135,15 @@ export default function ProgramacaoCongregacaoPage() {
       )
     )
     setArranjoDiscursos(
-      domingos.map(({ data }) =>
-        discursos?.find((d) => d.data === data) || { id: `temp-${data}`, data, tema: null, orador_nome: null, orador_congregacao: null, orador_salao: null }
-      )
+      domingos.map(({ data }) => {
+        const discurso = discursos?.find((d) => d.data === data)
+        const status = reuniaoPublica?.find((r) => r.data === data)
+        return {
+          ...(discurso || { id: `temp-${data}`, data, tema: null, orador_nome: null, orador_congregacao: null, orador_salao: null }),
+          sem_reuniao: status?.sem_reuniao ?? false,
+          motivo_sem_reuniao: status?.motivo_sem_reuniao ?? null,
+        }
+      })
     )
     setAssistencias(
       datasDoMes.map(({ data, dia_semana }) =>
