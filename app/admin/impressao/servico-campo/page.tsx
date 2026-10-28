@@ -47,6 +47,12 @@ interface CampoDomingo {
   tipo: "individual" | "grupo" | "salao" | "nao_tera"
 }
 
+interface VisitaSupServico {
+  id: string
+  data: string
+  grupo: { nome: string } | null
+}
+
 // ---------- Constantes ----------
 const meses = [
   { valor: "2026-01", label: "Janeiro 2026" },
@@ -88,6 +94,7 @@ export default function ImpressaoServicoCampoPage() {
   const [campoCartas, setCampoCartas] = useState<CampoCartas[]>([])
   const [campoSabado, setCampoSabado] = useState<CampoSabado[]>([])
   const [campoDomingo, setCampoDomingo] = useState<CampoDomingo[]>([])
+  const [visitasSupServico, setVisitasSupServico] = useState<VisitaSupServico[]>([])
   const [loading, setLoading] = useState(true)
 
   const printRef = useRef<HTMLDivElement>(null)
@@ -105,10 +112,19 @@ export default function ImpressaoServicoCampoPage() {
     const { data: sabado } = await supabase.from("servico_campo_sabado").select("*").eq("mes", mes.valor).order("data")
     const { data: domingo } = await supabase.from("servico_campo_domingo").select("*").eq("mes", mes.valor).order("data")
     const { data: cartas } = await supabase.from("servico_campo_cartas").select("*").eq("mes", mes.valor).eq("ativo", true).order("data")
+    const [anoMes, numeroMes] = mes.valor.split("-").map(Number)
+    const proximoMes = numeroMes === 12 ? `${anoMes + 1}-01` : `${anoMes}-${String(numeroMes + 1).padStart(2, "0")}`
+    const { data: visitas } = await supabase
+      .from("visitas_sup_servico")
+      .select("id, data, grupo:grupos!grupo_id(nome)")
+      .gte("data", `${mes.valor}-01`)
+      .lt("data", `${proximoMes}-01`)
+      .order("data")
     if (semana) setCampoSemana(semana)
     if (sabado) setCampoSabado(sabado)
     if (domingo) setCampoDomingo(domingo)
     if (cartas) setCampoCartas(cartas)
+    setVisitasSupServico((visitas || []) as unknown as VisitaSupServico[])
     setLoading(false)
   }, [mes.valor, supabase])
 
@@ -196,6 +212,7 @@ export default function ImpressaoServicoCampoPage() {
                 sabadosManha={sabadosManha}
                 sabadosTarde={sabadosTarde}
                 campoDomingo={campoDomingo}
+                visitasSupServico={visitasSupServico}
                 segundoDomingo={segundoDomingo}
               />
             </div>
@@ -211,6 +228,7 @@ export default function ImpressaoServicoCampoPage() {
                 sabadosManha={sabadosManha}
                 sabadosTarde={sabadosTarde}
                 campoDomingo={campoDomingo}
+                visitasSupServico={visitasSupServico}
                 segundoDomingo={segundoDomingo}
               />
             </div>
@@ -230,11 +248,12 @@ interface PrintServicoCampoProps {
   sabadosManha: CampoSabado[]
   sabadosTarde: CampoSabado[]
   campoDomingo: CampoDomingo[]
+  visitasSupServico: VisitaSupServico[]
   segundoDomingo: string | null
 }
 
 const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
-  ({ mesLabel, semanaOrdenada, campoCartas, sabadosManha, sabadosTarde, campoDomingo, segundoDomingo }, ref) => {
+  ({ mesLabel, semanaOrdenada, campoCartas, sabadosManha, sabadosTarde, campoDomingo, visitasSupServico, segundoDomingo }, ref) => {
     // Conta quantas seções temos para distribuir o espaço
     const totalSecoes = [
       semanaOrdenada.length > 0,
@@ -435,13 +454,24 @@ const PrintServicoCampo = forwardRef<HTMLDivElement, PrintServicoCampoProps>(
                   <tr>
                     {campoDomingo.map(d => (
                       <td key={d.id} style={cell({ textAlign: "center", fontWeight: "600", fontSize: "15px", padding: "4px 10px" })}>
-                        {d.tipo === "grupo" ? (
+                        {d.tipo === "nao_tera" ? (
+                          <span>
+                            <span style={{ color: "#b91c1c", fontWeight: "bold" }}>Não terá</span>
+                            {d.motivo && <><br /><span style={{ color: "#444", fontSize: "12px", fontWeight: "normal" }}>{d.motivo}</span></>}
+                          </span>
+                        ) : d.tipo === "grupo" ? (
                           <span style={{ color: "#166534", fontWeight: "bold" }}>Saída em Grupo</span>
                         ) : d.tipo === "salao" ? (
                           <span><span style={{ color: "#1e40af", fontWeight: "bold", fontSize: "13px" }}>No Salão</span><br/>{d.dirigente_nome || "—"}</span>
                         ) : (
                           d.dirigente_nome || "—"
                         )}
+                        {visitasSupServico.filter((visita) => visita.data === d.data).map((visita) => (
+                          <div key={visita.id} style={{ marginTop: "6px", color: "#7c2d12", fontSize: "12px", lineHeight: 1.2 }}>
+                            <div style={{ fontWeight: "bold" }}>Visita Sup. Serviço</div>
+                            <div style={{ fontWeight: "normal" }}>{visita.grupo?.nome || "Grupo não informado"}</div>
+                          </div>
+                        ))}
                       </td>
                     ))}
                   </tr>

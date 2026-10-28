@@ -147,7 +147,7 @@ export function SeletorPublicador({
         sideOffset={4}
       >
         <Command className="bg-zinc-800">
-          <CommandInput placeholder="Buscar publicador..." className="border-zinc-600 bg-zinc-800" />
+          <CommandInput placeholder="Buscar publicador..." className="border-zinc-600 bg-zinc-800 text-white placeholder:text-zinc-400 caret-white" />
           <CommandList className="bg-zinc-800 max-h-[300px]">
             <CommandEmpty className="py-4 text-center text-sm text-muted-foreground">Nenhum publicador encontrado.</CommandEmpty>
             <CommandGroup className="bg-zinc-800">

@@ -14,19 +14,23 @@ interface DesignacaoTecnica {
   id: string
   data: string
   dia_semana: string
-  indicador1: string | null
-  indicador2: string | null
-  mic_volante1: string | null
-  mic_volante2: string | null
-  audio_video: string | null
-  palco: string | null
+  indicador1_nome: string | null
+  indicador2_nome: string | null
+  microvolante1_nome: string | null
+  microvolante2_nome: string | null
+  som_nome: string | null
+  microvolante_palco: 1 | 2 | null
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
 }
 
 interface DesignacaoReuniaoPublica {
   id: string
   data: string
-  presidente: string | null
-  leitor_sentinela: string | null
+  presidente_nome: string | null
+  leitor_sentinela_nome: string | null
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
 }
 
 interface ArranjoDiscurso {
@@ -36,6 +40,8 @@ interface ArranjoDiscurso {
   orador_nome: string | null
   orador_congregacao: string | null
   orador_salao: string | null
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
 }
 
 interface AssistenciaReuniao {
@@ -129,9 +135,15 @@ export default function ProgramacaoCongregacaoPage() {
       )
     )
     setArranjoDiscursos(
-      domingos.map(({ data }) =>
-        discursos?.find((d) => d.data === data) || { id: `temp-${data}`, data, tema: null, orador_nome: null, orador_congregacao: null, orador_salao: null }
-      )
+      domingos.map(({ data }) => {
+        const discurso = discursos?.find((d) => d.data === data)
+        const status = reuniaoPublica?.find((r) => r.data === data)
+        return {
+          ...(discurso || { id: `temp-${data}`, data, tema: null, orador_nome: null, orador_congregacao: null, orador_salao: null }),
+          sem_reuniao: status?.sem_reuniao ?? false,
+          motivo_sem_reuniao: status?.motivo_sem_reuniao ?? null,
+        }
+      })
     )
     setAssistencias(
       datasDoMes.map(({ data, dia_semana }) =>
@@ -344,10 +356,18 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
                     </span>
                     {formatarData(d.data)}
                   </td>
-                  <td style={cell()}>{[d.indicador1_nome, d.indicador2_nome].filter(Boolean).join(" / ") || "—"}</td>
-                  <td style={cell()}>{[d.microvolante1_nome, d.microvolante2_nome].filter(Boolean).join(" / ") || "—"}</td>
-                  <td style={cell()}>{d.som_nome}</td>
-                  <td style={cell()}>{d.microvolante1_nome}</td>
+                  {d.sem_reuniao ? (
+                    <td colSpan={4} style={cell({ textAlign: "center", color: "#b91c1c", fontWeight: "bold" })}>
+                      Não terá reunião{d.motivo_sem_reuniao ? ` — ${d.motivo_sem_reuniao}` : ""}
+                    </td>
+                  ) : (
+                    <>
+                      <td style={cell()}>{[d.indicador1_nome, d.indicador2_nome].filter(Boolean).join(" / ") || "—"}</td>
+                      <td style={cell()}>{[d.microvolante1_nome, d.microvolante2_nome].filter(Boolean).join(" / ") || "—"}</td>
+                      <td style={cell()}>{d.som_nome || "—"}</td>
+                      <td style={cell()}>{d.microvolante1_nome || "—"}</td>
+                    </>
+                  )}
                 </tr>
                 )
               })}
@@ -368,11 +388,19 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
             </thead>
             <tbody>
               {designacoesReuniaoPublica.map((r) => (
-                <tr key={r.data}>
-                  <td style={cell({ fontWeight: "bold" })}>{formatarData(r.data)}</td>
-                  <td style={cell()}>{r.presidente_nome || "—"}</td>
-                  <td style={cell()}>{r.leitor_sentinela_nome || "—"}</td>
-                </tr>
+<tr key={r.data}>
+                      <td style={cell({ fontWeight: "bold" })}>{formatarData(r.data)}</td>
+                      {r.sem_reuniao ? (
+                        <td colSpan={2} style={cell({ textAlign: "center", color: "#b91c1c", fontWeight: "bold" })}>
+                          Não terá reunião{r.motivo_sem_reuniao ? ` — ${r.motivo_sem_reuniao}` : ""}
+                        </td>
+                      ) : (
+                        <>
+                          <td style={cell()}>{r.presidente_nome || "—"}</td>
+                          <td style={cell()}>{r.leitor_sentinela_nome || "—"}</td>
+                        </>
+                      )}
+                    </tr>
               ))}
             </tbody>
           </table>
@@ -394,11 +422,19 @@ const PrintProgramacao = forwardRef<HTMLDivElement, PrintProgramacaoProps>(
               {arranjoDiscursos.map((d) => (
                 <tr key={d.data}>
                   <td style={cell({ fontWeight: "bold" })}>{formatarData(d.data)}</td>
-                  <td style={cell()}>{d.tema || "—"}</td>
-                  <td style={cell()}>{d.orador_nome || "—"}</td>
-                  <td style={cell({ color: d.orador_congregacao ? "#1e3a5f" : "#9ca3af", fontStyle: d.orador_congregacao ? "normal" : "italic" })}>
-                    {d.orador_congregacao || "—"}
-                  </td>
+                  {d.sem_reuniao ? (
+                    <td colSpan={3} style={cell({ textAlign: "center", color: "#b91c1c", fontWeight: "bold" })}>
+                      Não terá reunião{d.motivo_sem_reuniao ? ` — ${d.motivo_sem_reuniao}` : ""}
+                    </td>
+                  ) : (
+                    <>
+                      <td style={cell()}>{d.tema || "—"}</td>
+                      <td style={cell()}>{d.orador_nome || "—"}</td>
+                      <td style={cell({ color: d.orador_congregacao ? "#1e3a5f" : "#9ca3af", fontStyle: d.orador_congregacao ? "normal" : "italic" })}>
+                        {d.orador_congregacao || "—"}
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
             </tbody>

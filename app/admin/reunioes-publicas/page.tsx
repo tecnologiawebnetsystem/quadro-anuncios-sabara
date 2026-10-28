@@ -20,6 +20,8 @@ interface DesignacaoReuniao {
   presidente_nome: string
   leitor_sentinela_id: string | null
   leitor_sentinela_nome: string
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
 }
 
 interface DiscursoPublico {
@@ -212,6 +214,28 @@ export default function ReunioesPublicasPage() {
     } catch (error) {
       console.error("Erro ao salvar:", error)
       toast.error("Erro ao salvar")
+    }
+  }
+
+  // Salvar discurso público
+  async function salvarStatusReuniao(data: string, semReuniao: boolean, motivo: string) {
+    const existente = designacoes.find((d) => d.data === data)
+    const dados = { data, mes: mesAtual.value, sem_reuniao: semReuniao, motivo_sem_reuniao: semReuniao ? motivo : null }
+
+    try {
+      if (existente?.id) {
+        const { data: atualizado, error } = await supabase.from("reuniao_publica_designacoes").update(dados).eq("id", existente.id).select().single()
+        if (error) throw error
+        setDesignacoes((prev) => prev.map((d) => d.id === existente.id ? { ...d, ...atualizado } : d))
+      } else {
+        const { data: novo, error } = await supabase.from("reuniao_publica_designacoes").insert({ ...dados, presidente_id: null, presidente_nome: "", leitor_sentinela_id: null, leitor_sentinela_nome: "" }).select().single()
+        if (error) throw error
+        setDesignacoes((prev) => [...prev, novo])
+      }
+      toast.success("Status da reunião salvo")
+    } catch (error) {
+      console.error("Erro ao salvar status da reunião:", error)
+      toast.error("Erro ao salvar status da reunião")
     }
   }
 
@@ -446,6 +470,26 @@ export default function ReunioesPublicasPage() {
                           className="w-full"
                         />
                       </div>
+                      <div className="sm:col-span-3 space-y-2 border-t border-zinc-700/70 pt-3">
+                        <label className="flex items-center gap-2 text-sm text-foreground">
+                          <input
+                            type="checkbox"
+                            checked={registro?.sem_reuniao ?? false}
+                            onChange={(event) => salvarStatusReuniao(data, event.target.checked, registro?.motivo_sem_reuniao || "")}
+                            className="h-4 w-4 accent-red-600"
+                          />
+                          Não haverá reunião neste dia
+                        </label>
+                        {registro?.sem_reuniao && (
+                          <Input
+                            value={registro.motivo_sem_reuniao || ""}
+                            onChange={(event) => setDesignacoes((prev) => prev.map((d) => d.data === data ? { ...d, motivo_sem_reuniao: event.target.value } : d))}
+                            onBlur={(event) => salvarStatusReuniao(data, true, event.target.value)}
+                            placeholder="Descreva o motivo..."
+                            className="bg-zinc-800/50 border-zinc-700"
+                          />
+                        )}
+                      </div>
                     </div>
                   )
                 })}
@@ -465,16 +509,38 @@ export default function ReunioesPublicasPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {domingosDoMes.map((data) => {
-                  const registro = discursos.find(d => d.data === data)
-                  return (
+  {domingosDoMes.map((data) => {
+  const registro = discursos.find(d => d.data === data)
+  const statusReuniao = designacoes.find(d => d.data === data)
+  return (
                     <div key={data} className="p-4 rounded-lg bg-zinc-800/30 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium text-foreground">{formatarData(data)}</span>
-                        <span className="text-xs text-muted-foreground">Domingo</span>
-                      </div>
-                      <div className="space-y-1">
+  <div className="flex items-center gap-2">
+  <Calendar className="h-4 w-4 text-muted-foreground" />
+  <span className="font-medium text-foreground">{formatarData(data)}</span>
+  <span className="text-xs text-muted-foreground">Domingo</span>
+  </div>
+  <div className="space-y-2 rounded-md border border-zinc-700/70 bg-zinc-900/20 p-3">
+  <label className="flex items-center gap-2 text-sm text-foreground">
+  <input
+  type="checkbox"
+  checked={statusReuniao?.sem_reuniao ?? false}
+  onChange={(event) => salvarStatusReuniao(data, event.target.checked, statusReuniao?.motivo_sem_reuniao || "")}
+  className="h-4 w-4 accent-red-600"
+  />
+  Não haverá reunião neste dia
+  </label>
+  {statusReuniao?.sem_reuniao && (
+  <Input
+  value={statusReuniao.motivo_sem_reuniao || ""}
+  onChange={(event) => setDesignacoes((prev) => prev.map((d) => d.data === data ? { ...d, motivo_sem_reuniao: event.target.value } : d))}
+  onBlur={(event) => salvarStatusReuniao(data, true, event.target.value)}
+  placeholder="Descreva o motivo..."
+  className="bg-zinc-800/50 border-zinc-700"
+  />
+  )}
+  </div>
+  {!statusReuniao?.sem_reuniao && <>
+  <div className="space-y-1">
                         <label className="text-xs text-muted-foreground">Tema do Discurso</label>
                         <Input
                           value={registro?.tema || ""}
@@ -540,6 +606,7 @@ export default function ReunioesPublicasPage() {
                           />
                         </div>
                       </div>
+  </>}
                     </div>
                   )
                 })}

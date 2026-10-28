@@ -98,7 +98,8 @@ const menuGroups: MenuGroup[] = [
       { title: "Equipe Técnica", icon: Wrench, href: "/admin/equipe-tecnica", color: "text-blue-400" },
       { title: "Grupo de Campo", icon: BookOpen, href: "/admin/grupo-estudos", color: "text-emerald-400" },
       { title: "Limpeza do Salão", icon: Sparkles, href: "/admin/limpeza-salao", color: "text-cyan-400" },
-      { title: "Serviço de Campo", icon: MapPin,    href: "/admin/servico-campo",    color: "text-orange-400" },
+      { title: "Serviço de Campo", icon: MapPin, href: "/admin/servico-campo", color: "text-orange-400" },
+      { title: "Visita Sup. Serviço", icon: Calendar, href: "/admin/visitas-sup-servico", color: "text-orange-300" },
       { title: "Territórios",      icon: Map,       href: "/admin/territorios",      color: "text-orange-300" },
         ]
   },

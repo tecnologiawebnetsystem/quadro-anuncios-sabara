@@ -102,7 +102,9 @@ interface ReuniaoPublica {
   orador_nome: string | null
   tema: string | null
   presidente_nome: string | null
-}
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
+  }
 
 // Utilitários
 const formatarData = (data: string) => {
@@ -595,9 +597,17 @@ export const PrintReunioesPublicas = forwardRef<HTMLDivElement, ReunioesPublicas
             {reunioes.map((reuniao, i) => (
               <tr key={reuniao.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f5f5f5" }}>
                 <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{formatarData(reuniao.data)}</td>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{reuniao.tema || "-"}</td>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{reuniao.orador_nome || "-"}</td>
-                <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{reuniao.presidente_nome || "-"}</td>
+                {reuniao.sem_reuniao ? (
+                  <td colSpan={3} style={{ padding: "5px 10px", border: "1px solid #ddd", textAlign: "center", color: "#b91c1c", fontWeight: 700 }}>
+                    Não terá reunião{reuniao.motivo_sem_reuniao ? ` — ${reuniao.motivo_sem_reuniao}` : ""}
+                  </td>
+                ) : (
+                  <>
+                    <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{reuniao.tema || "-"}</td>
+                    <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{reuniao.orador_nome || "-"}</td>
+                    <td style={{ padding: "5px 10px", border: "1px solid #ddd" }}>{reuniao.presidente_nome || "-"}</td>
+                  </>
+                )}
               </tr>
             ))}
           </tbody>
@@ -1285,6 +1295,8 @@ interface ReuniaoPublicaDesig {
   data: string
   presidente: string | null
   leitor_sentinela: string | null
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
 }
 
 interface ArranjoDiscurso {
@@ -1294,7 +1306,9 @@ interface ArranjoDiscurso {
   orador: string | null
   congregacao: string | null
   salao: string | null
-}
+  sem_reuniao?: boolean
+  motivo_sem_reuniao?: string | null
+  }
 
 interface AssistenciaReuniao {
   id: string
@@ -1494,8 +1508,16 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
                     {formatarDataCurta(r.data)}
                   </td>
-                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.presidente || "-"}</td>
-                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.leitor_sentinela || "-"}</td>
+{r.sem_reuniao ? (
+              <td colSpan={2} style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", color: "#b91c1c", fontWeight: 700 }}>
+                Não terá reunião{r.motivo_sem_reuniao ? ` — ${r.motivo_sem_reuniao}` : ""}
+              </td>
+            ) : (
+              <>
+                <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.presidente || "-"}</td>
+                <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>{r.leitor_sentinela || "-"}</td>
+              </>
+            )}
                 </tr>
               ))}
             </tbody>
@@ -1525,23 +1547,36 @@ export const PrintProgramacaoCongregacao = forwardRef<HTMLDivElement, Programaca
               </tr>
             </thead>
             <tbody>
-              {discursos.map((d, i) => (
+              {discursos.map((d, i) => {
+                const statusReuniao = reunioesPublicas.find((r) => r.data === d.data)
+                const semReuniao = d.sem_reuniao || statusReuniao?.sem_reuniao
+                const motivoSemReuniao = d.motivo_sem_reuniao || statusReuniao?.motivo_sem_reuniao
+                return (
                 <tr key={d.id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>
                   <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", fontWeight: "bold" }}>
                     {formatarDataCurta(d.data)}
                   </td>
-                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb" }}>{d.tema || "-"}</td>
-                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
-                    {d.orador || "-"}
-                    {d.congregacao && (
-                      <div style={{ fontSize: "7px", color: "#6b7280", marginTop: "1px" }}>{d.congregacao}</div>
-                    )}
-                  </td>
-                  <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", color: d.salao ? "#1e3a5f" : "#9ca3af", fontStyle: d.salao ? "normal" : "italic" }}>
-                    {d.salao || "—"}
-                  </td>
+                  {semReuniao ? (
+                    <td colSpan={3} style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", color: "#b91c1c", fontWeight: 700 }}>
+                      Não terá reunião{motivoSemReuniao ? ` — ${motivoSemReuniao}` : ""}
+                    </td>
+                  ) : (
+                    <>
+                      <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb" }}>{d.tema || "-"}</td>
+                      <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center" }}>
+                        {d.orador || "-"}
+                        {d.congregacao && (
+                          <div style={{ fontSize: "7px", color: "#6b7280", marginTop: "1px" }}>{d.congregacao}</div>
+                        )}
+                      </td>
+                      <td style={{ padding: "4px 6px", border: "1px solid #e5e7eb", textAlign: "center", color: d.salao ? "#1e3a5f" : "#9ca3af", fontStyle: d.salao ? "normal" : "italic" }}>
+                        {d.salao || "—"}
+                      </td>
+                    </>
+                  )}
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>
