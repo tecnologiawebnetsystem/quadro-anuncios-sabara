@@ -269,11 +269,7 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
               }}>
                 <div style={{ fontSize: "15px", fontWeight: "bold" }}>
                   {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)}
-                  {semana.livro_biblia && (
-                    <span style={{ marginLeft: "10px", color: "#9ca3af", fontSize: "13px", fontWeight: "normal" }}>
-                      | {(semana.livro_biblia || "").toUpperCase()}
-                    </span>
-                  )}
+
                 </div>
               </div>
 
@@ -998,7 +994,7 @@ const CORES_MES = [
 
 // Formata o local: se houver local cadastrado mostra ele, senão mostra "Salão do Reino"
 const formatarLocal = (local: string | null) =>
-  local && local.trim() ? local.trim() : "Salão do Reino"
+  local && local.trim() ? local.trim() : "Sal��o do Reino"
 
 export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
   ({ mes, ano, escalas, meses }, ref) => {
@@ -1749,11 +1745,7 @@ export const PrintRoteiroPresidente = forwardRef<HTMLDivElement, RoteiroPresiden
                 flexShrink: 0,
               }}>
                 {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)}
-                {semana.livro_biblia && (
-                  <span style={{ marginLeft: "10px", color: "#9ca3af", fontSize: "12px", fontWeight: "normal" }}>
-                    | {(semana.livro_biblia).toUpperCase()}
-                  </span>
-                )}
+
               </div>
 
               {/* Presidente e Oração */}
