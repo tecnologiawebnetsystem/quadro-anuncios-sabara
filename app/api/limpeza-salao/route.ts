@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
       mes, semana, data_inicio, data_fim,
       grupo_id, grupo_nome,
       limpeza_semanal_grupo_id, limpeza_semanal_grupo_nome,
+      sem_reuniao, motivo_sem_reuniao,
     } = body
 
     // Buscar registro existente por data_inicio (sem order por coluna inexistente)
@@ -105,6 +106,8 @@ export async function POST(request: NextRequest) {
       const novoGrupoNome = temGrupo ? grupo_nome : registroAtual.grupo_nome
       const novaLimpSemId = temLimpSem ? limpeza_semanal_grupo_id : registroAtual.limpeza_semanal_grupo_id
       const novaLimpSemNome = temLimpSem ? limpeza_semanal_grupo_nome : registroAtual.limpeza_semanal_grupo_nome
+      const novoSemReuniao = "sem_reuniao" in body ? Boolean(sem_reuniao) : Boolean(registroAtual.sem_reuniao)
+      const novoMotivoSemReuniao = "motivo_sem_reuniao" in body ? (motivo_sem_reuniao?.trim() || null) : registroAtual.motivo_sem_reuniao
 
       const { data, error } = await supabase
         .from("limpeza_salao")
@@ -114,6 +117,8 @@ export async function POST(request: NextRequest) {
           data_fim,
           limpeza_semanal_grupo_id: novaLimpSemId,
           limpeza_semanal_grupo_nome: novaLimpSemNome,
+          sem_reuniao: novoSemReuniao,
+          motivo_sem_reuniao: novoSemReuniao ? novoMotivoSemReuniao : null,
         })
         .eq("id", registroAtual.id)
         .select()
@@ -138,6 +143,8 @@ export async function POST(request: NextRequest) {
           grupo_nome: grupo_nome ?? null,
           limpeza_semanal_grupo_id: limpeza_semanal_grupo_id ?? null,
           limpeza_semanal_grupo_nome: limpeza_semanal_grupo_nome ?? null,
+          sem_reuniao: Boolean(sem_reuniao),
+          motivo_sem_reuniao: sem_reuniao ? (motivo_sem_reuniao?.trim() || null) : null,
         })
         .select()
         .single()

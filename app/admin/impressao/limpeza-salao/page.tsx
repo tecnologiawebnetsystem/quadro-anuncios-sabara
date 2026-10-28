@@ -24,6 +24,8 @@ interface LimpezaSalaoMes {
     grupo_local: string | null
     limpeza_semanal_grupo_nome: string | null
     limpeza_semanal_grupo_local: string | null
+    sem_reuniao: boolean
+    motivo_sem_reuniao: string | null
   }[]
 }
 

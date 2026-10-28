@@ -31,6 +31,8 @@ interface LimpezaDesignacao {
   grupo_nome: string | null
   limpeza_semanal_grupo_id: string | null
   limpeza_semanal_grupo_nome: string | null
+  sem_reuniao: boolean
+  motivo_sem_reuniao: string | null
 }
 
 interface Semana {
@@ -182,6 +184,44 @@ export default function LimpezaSalaoPage() {
       console.error("Erro ao salvar designação:", error)
     } finally {
       setSalvando(null)
+    }
+  }
+
+  const salvarStatusReuniao = async (semana: Semana, semReuniao: boolean, motivo: string) => {
+    const dataInicioStr = format(semana.inicio, "yyyy-MM-dd")
+    const dataFimStr = format(semana.fim, "yyyy-MM-dd")
+    const atual = getDesignacao(semana)
+
+    try {
+      const response = await fetch("/api/limpeza-salao", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mes: mesFormatado,
+          semana: semana.numero,
+          data_inicio: dataInicioStr,
+          data_fim: dataFimStr,
+          sem_reuniao: semReuniao,
+          motivo_sem_reuniao: semReuniao ? motivo : null,
+          grupo_id: atual?.grupo_id ?? null,
+          grupo_nome: atual?.grupo_nome ?? null,
+        }),
+      })
+      if (!response.ok) throw new Error("Falha ao salvar status da reunião")
+      const data = await response.json()
+      setDesignacoes(prev => {
+        const index = prev.findIndex(d => d.data_inicio === dataInicioStr)
+        if (index >= 0) {
+          const updated = [...prev]
+          updated[index] = data
+          return updated
+        }
+        return [...prev, data]
+      })
+      toast.success(semReuniao ? "Semana marcada sem reunião." : "Reunião reativada para esta semana.")
+    } catch (error) {
+      console.error("Erro ao salvar status da reunião:", error)
+      toast.error("Não foi possível salvar essa informação.")
     }
   }
 
@@ -373,6 +413,27 @@ export default function LimpezaSalaoPage() {
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500"></div>
                       )}
                     </div>
+                  </div>
+
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 space-y-3">
+                    <label className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(designacao?.sem_reuniao)}
+                        onChange={(event) => salvarStatusReuniao(semana, event.target.checked, designacao?.motivo_sem_reuniao || "")}
+                        className="h-4 w-4 rounded border-border accent-amber-600"
+                      />
+                      Não haverá reunião nesta semana
+                    </label>
+                    {designacao?.sem_reuniao && (
+                      <textarea
+                        defaultValue={designacao.motivo_sem_reuniao || ""}
+                        onBlur={(event) => salvarStatusReuniao(semana, true, event.target.value)}
+                        placeholder="Descreva o motivo..."
+                        rows={2}
+                        className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-amber-500/40"
+                      />
+                    )}
                   </div>
                 </CardContent>
               </Card>
