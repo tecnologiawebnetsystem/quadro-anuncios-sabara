@@ -203,6 +203,11 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
                     <div style={{ fontSize: "22px", fontWeight: 700, color: "#92400e", marginBottom: "12px" }}>
                       {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)}
                     </div>
+                    {semana.livro_biblia && (
+                      <div style={{ margin: "0 auto 18px", display: "inline-block", padding: "10px 18px", borderRadius: "6px", backgroundColor: "#f3f4f6", color: "#1f2937", fontSize: "17px", fontWeight: 700 }}>
+                        Livro e capítulos: {semana.livro_biblia}
+                      </div>
+                    )}
                     <div style={{ fontSize: "17px", color: "#374151" }}>
                       Não haverá reunião nesta semana.
                     </div>
