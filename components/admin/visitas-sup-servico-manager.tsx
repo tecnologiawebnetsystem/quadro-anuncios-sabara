@@ -39,7 +39,9 @@ export function VisitasSupServicoManager() {
     } else {
       setAnciaos(pessoas || [])
       setGrupos(gruposData || [])
-      setVisitas((visitasData || []) as unknown as Visita[])
+      setVisitas(
+        ((visitasData || []) as unknown as Visita[]).sort((a, b) => b.data.localeCompare(a.data)),
+      )
     }
     setCarregando(false)
   }
@@ -98,7 +100,7 @@ export function VisitasSupServicoManager() {
         <Card>
           <CardHeader><CardTitle className="flex items-center gap-2"><CalendarDays className="size-5 text-primary" />Cadastros realizados</CardTitle></CardHeader>
           <CardContent>
-            {carregando ? <div className="flex justify-center py-10"><Loader2 className="size-6 animate-spin text-primary" /></div> : visitas.length === 0 ? <p className="py-10 text-center text-muted-foreground">Nenhum cadastro realizado.</p> : <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left text-muted-foreground"><th className="p-3 font-medium">Ancião</th><th className="p-3 font-medium">Grupo de Campo</th><th className="p-3 font-medium">Data</th><th className="p-3 text-right font-medium">Ações</th></tr></thead><tbody>{visitas.map((item) => <tr key={item.id} className="border-b last:border-0"><td className="p-3 font-medium">{item.anciao?.nome || "—"}</td><td className="p-3">{item.grupo?.nome || "—"}</td><td className="p-3">{new Date(`${item.data}T12:00:00`).toLocaleDateString("pt-BR")}</td><td className="p-3 text-right"><Button variant="ghost" size="icon" onClick={() => excluir(item.id)} aria-label={`Excluir visita de ${item.anciao?.nome || "ancião"}`}><Trash2 className="size-4 text-destructive" /></Button></td></tr>)}</tbody></table></div>}
+            {carregando ? <div className="flex justify-center py-10"><Loader2 className="size-6 animate-spin text-primary" /></div> : visitas.length === 0 ? <p className="py-10 text-center text-muted-foreground">Nenhum cadastro realizado.</p> : <div className="overflow-x-auto rounded-lg border border-border/60"><table className="w-full text-sm"><thead><tr className="border-b border-border/70 bg-muted/35 text-left text-muted-foreground"><th className="px-4 py-3 font-semibold">Ancião</th><th className="px-4 py-3 font-semibold">Grupo de Campo</th><th className="px-4 py-3 font-semibold">Data da visita</th><th className="px-4 py-3 text-right font-semibold">Ações</th></tr></thead><tbody>{visitas.map((item, index) => <tr key={item.id} className={`border-b border-border/50 transition-colors hover:bg-muted/25 last:border-0 ${index % 2 === 1 ? "bg-muted/10" : ""}`}><td className="px-4 py-3.5 font-semibold">{item.anciao?.nome || "—"}</td><td className="px-4 py-3.5 text-muted-foreground">{item.grupo?.nome || "—"}</td><td className="px-4 py-3.5"><span className="inline-flex rounded-md bg-primary/10 px-2.5 py-1 font-semibold text-primary">{new Date(`${item.data}T12:00:00`).toLocaleDateString("pt-BR")}</span></td><td className="px-4 py-2.5 text-right"><Button variant="ghost" size="icon" onClick={() => excluir(item.id)} aria-label={`Excluir visita de ${item.anciao?.nome || "ancião"}`}><Trash2 className="size-4 text-destructive" /></Button></td></tr>)}</tbody></table></div>}
           </CardContent>
         </Card>
       </div>
