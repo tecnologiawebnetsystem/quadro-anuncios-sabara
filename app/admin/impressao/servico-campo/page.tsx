@@ -43,7 +43,8 @@ interface CampoDomingo {
   mes: string
   horario: string
   dirigente_nome: string | null
-  tipo: "individual" | "grupo" | "salao"
+  motivo: string | null
+  tipo: "individual" | "grupo" | "salao" | "nao_tera"
 }
 
 // ---------- Constantes ----------

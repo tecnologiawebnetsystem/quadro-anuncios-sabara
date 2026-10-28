@@ -52,7 +52,8 @@ interface CampoDomingo {
   id: string
   horario: string
   dirigente_nome: string | null
-  tipo: "individual" | "grupo" | "salao"
+  motivo: string | null
+  tipo: "individual" | "grupo" | "salao" | "nao_tera"
 }
 
 interface EquipeTecnica {
@@ -150,7 +151,7 @@ function adicionarDias(dataStr: string, n: number): string {
 }
 
 const periodoLabel: Record<string, string> = { manha: "Manhã", tarde: "Tarde" }
-const tipoLabel: Record<string, string>    = { individual: "Individual", grupo: "Grupo", salao: "No Salão" }
+  const tipoLabel: Record<string, string>    = { individual: "Individual", grupo: "Grupo", salao: "No Salão", nao_tera: "Não terá" }
 
 const SECOES: Record<string, { label: string; cor: string; Icon: React.ElementType }> = {
   tesouros:  { label: "Tesouros da Palavra de Deus",    cor: "#fbbf24", Icon: Gem },
@@ -278,6 +279,7 @@ function BlocoCampoDomingo({ campo }: { campo: CampoDomingo[] }) {
         <div key={i} className="py-2.5 border-b border-white/10 last:border-0">
           <p className="text-[10px] opacity-50 uppercase tracking-wider font-bold">{c.horario ? `${c.horario} · ` : ""}{tipoLabel[c.tipo] ?? c.tipo}</p>
           {c.tipo === "salao" && c.dirigente_nome && <p className="text-[14px] font-semibold">{c.dirigente_nome}</p>}
+          {c.tipo === "nao_tera" && c.motivo && <p className="text-[13px] opacity-75">{c.motivo}</p>}
         </div>
       ))}
     </div>

@@ -55,7 +55,8 @@ interface CampoDomingo {
   horario: string
   dirigente_id: string | null
   dirigente_nome: string | null
-  tipo: "individual" | "grupo" | "salao"
+  motivo: string | null
+  tipo: "individual" | "grupo" | "salao" | "nao_tera"
 }
 
 const diasSemana = [
@@ -375,7 +376,7 @@ export default function ServicoCampoPage() {
   }
 
   // Salvar dirigente de domingo
-  async function salvarDomingo(data: string, publicador: Publicador | null, tipo: "individual" | "grupo" | "salao", horario?: string) {
+  async function salvarDomingo(data: string, publicador: Publicador | null, tipo: "individual" | "grupo" | "salao" | "nao_tera", horario?: string, motivo?: string) {
     const existente = campoDomingo.find(c => c.data === data)
     const horarioFinal = horario || existente?.horario || "8:45"
 
@@ -383,8 +384,9 @@ export default function ServicoCampoPage() {
       data,
       mes: mesAtual.valor,
       horario: horarioFinal,
-      dirigente_id: tipo === "grupo" ? null : (publicador?.id || null),
-      dirigente_nome: tipo === "grupo" ? "GRUPO" : (publicador?.nome || null),
+      dirigente_id: tipo === "grupo" || tipo === "nao_tera" ? null : (publicador?.id || null),
+      dirigente_nome: tipo === "grupo" ? "GRUPO" : tipo === "nao_tera" ? null : (publicador?.nome || null),
+      motivo: tipo === "nao_tera" ? (motivo ?? existente?.motivo ?? "") : null,
       tipo,
     }
 
@@ -857,6 +859,15 @@ export default function ServicoCampoPage() {
                           </Button>
                         </div>
 
+                        <Button
+                          size="sm"
+                          variant={tipo === "nao_tera" ? "default" : "outline"}
+                          className={tipo === "nao_tera" ? "bg-red-600 hover:bg-red-700 h-7 text-xs w-full" : "h-7 text-xs w-full border-zinc-600"}
+                          onClick={() => salvarDomingo(data, null, "nao_tera", registro?.horario || "8:45", registro?.motivo || "")}
+                        >
+                          Não terá
+                        </Button>
+
                         {/* Seletor de dirigente (individual ou salão) */}
                         {(tipo === "individual" || tipo === "salao") && (
                           <SeletorPublicador
@@ -871,6 +882,16 @@ export default function ServicoCampoPage() {
                           <div className="text-center py-1.5 text-xs text-green-400 font-semibold uppercase tracking-wide">
                             Saída em grupo
                           </div>
+                        )}
+                        {tipo === "nao_tera" && (
+                          <Input
+                            value={registro?.motivo || ""}
+                            onChange={(e) => setCampoDomingo(prev => prev.map(c => c.data === data ? { ...c, motivo: e.target.value } : c))}
+                            onBlur={(e) => salvarDomingo(data, null, "nao_tera", registro?.horario || "8:45", e.target.value)}
+                            placeholder="Motivo da não realização"
+                            className="h-8 text-xs bg-zinc-800/50 border-zinc-700"
+                            aria-label={`Motivo de ${formatarData(data)}`}
+                          />
                         )}
                       </div>
                     )
