@@ -162,7 +162,6 @@ const formatarPeriodoPDF = (dataInicio: string, dataFim: string) => {
 
 export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProps>(
   ({ mes, ano, semanas, partes, canticos = [] }, ref) => {
-    // Filtra semanas com reunião
     const semanasComReuniao = semanas.filter(s => !s.sem_reuniao)
     
     // Função para buscar descrição do cântico pelo número
@@ -174,13 +173,13 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
 
     return (
       <div ref={ref} className="vm-print-wrapper" style={{ width: "210mm", margin: "0 auto" }}>
-        {semanasComReuniao.map((semana, idx) => {
-          const partesSemanais = partes.filter(p => p.semana_id === semana.id)
-          const tesouros = partesSemanais.filter(p => p.secao === "tesouros").sort((a, b) => a.ordem - b.ordem)
-          const ministerio = partesSemanais.filter(p => p.secao === "ministerio").sort((a, b) => a.ordem - b.ordem)
-          const vida = partesSemanais.filter(p => p.secao === "vida").sort((a, b) => a.ordem - b.ordem)
-          const oracaoFinal = vida.find(p => p.oracao_final_nome)
-          const isLastPage = idx === semanasComReuniao.length - 1
+{semanas.map((semana, idx) => {
+ const partesSemanais = partes.filter(p => p.semana_id === semana.id)
+ const tesouros = partesSemanais.filter(p => p.secao === "tesouros").sort((a, b) => a.ordem - b.ordem)
+ const ministerio = partesSemanais.filter(p => p.secao === "ministerio").sort((a, b) => a.ordem - b.ordem)
+ const vida = partesSemanais.filter(p => p.secao === "vida").sort((a, b) => a.ordem - b.ordem)
+ const oracaoFinal = vida.find(p => p.oracao_final_nome)
+ const isLastPage = idx === semanas.length - 1
 
           // Calcular datas reais da quinta e do domingo de reunião
           // data_inicio é o domingo anterior à quinta
@@ -188,6 +187,35 @@ export const PrintVidaMinisterio = forwardRef<HTMLDivElement, VidaMinisterioProp
           const quintaDate = new Date(domInicio); quintaDate.setDate(domInicio.getDate() + 4)
           const domingoDate = new Date(domInicio); domingoDate.setDate(domInicio.getDate() + 7)
           const fmtDia = (d: Date) => d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+
+          if (semana.sem_reuniao) {
+            return (
+              <div key={semana.id} className="vm-page" style={{ backgroundColor: "white", padding: "12mm 15mm", width: "210mm", height: "297mm", boxSizing: "border-box" }}>
+                <div style={{ borderBottom: "3px solid #374151", paddingBottom: "12px", marginBottom: "24px" }}>
+                  <div style={{ fontSize: "20px", fontWeight: 700, color: "#111827" }}>Congregação Pq. Sabará</div>
+                  <div style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>Vida e Ministério Cristão — Programação</div>
+                </div>
+                <div style={{ border: "2px solid #c69214", borderRadius: "10px", overflow: "hidden", marginTop: "45px" }}>
+                  <div style={{ backgroundColor: "#c69214", color: "white", padding: "16px 20px", fontSize: "18px", fontWeight: 700 }}>
+                    SEMANA ESPECIAL — SEM REUNIÃO
+                  </div>
+                  <div style={{ padding: "32px 24px", textAlign: "center", backgroundColor: "#fffbeb" }}>
+                    <div style={{ fontSize: "22px", fontWeight: 700, color: "#92400e", marginBottom: "12px" }}>
+                      {formatarPeriodoPDF(semana.data_inicio, semana.data_fim)}
+                    </div>
+                    <div style={{ fontSize: "17px", color: "#374151" }}>
+                      Não haverá reunião nesta semana.
+                    </div>
+                    {semana.motivo_sem_reuniao && (
+                      <div style={{ marginTop: "18px", padding: "14px 18px", borderRadius: "6px", backgroundColor: "#fef3c7", color: "#78350f", fontSize: "16px", fontWeight: 700 }}>
+                        Motivo: {semana.motivo_sem_reuniao}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          }
 
           return (
             <div 
