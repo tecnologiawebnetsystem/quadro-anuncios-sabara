@@ -963,6 +963,8 @@ interface LimpezaSalaoEscala {
   grupo_local: string | null
   limpeza_semanal_grupo_nome: string | null
   limpeza_semanal_grupo_local: string | null
+  sem_reuniao: boolean
+  motivo_sem_reuniao: string | null
 }
 
 interface LimpezaSalaoProps {
@@ -1147,7 +1149,12 @@ export const PrintLimpezaSalao = forwardRef<HTMLDivElement, LimpezaSalaoProps>(
                             padding: "6px 10px",
                             borderRight: `1px solid ${cor.border}`,
                           }}>
-                            {escala.grupo_nome ? (
+                            {escala.sem_reuniao ? (
+                              <div style={{ padding: "5px 7px", borderRadius: "4px", backgroundColor: "#fff7ed", border: "1px solid #fed7aa" }}>
+                                <div style={{ fontSize: "10px", fontWeight: "800", color: "#c2410c", lineHeight: 1.3 }}>Não haverá reunião nesta semana</div>
+                                {escala.motivo_sem_reuniao && <div style={{ fontSize: "9px", color: "#9a3412", marginTop: "3px", lineHeight: 1.3 }}>{escala.motivo_sem_reuniao}</div>}
+                              </div>
+                            ) : escala.grupo_nome ? (
                               <>
                                 <div style={{ fontSize: "11px", fontWeight: "700", color: "#111827", lineHeight: 1.3 }}>
                                   {escala.grupo_nome}
